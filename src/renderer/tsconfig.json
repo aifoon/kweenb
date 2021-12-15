@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "/@/*": [
+        "./src/*"
+      ]
+    },
+    "lib": ["ESNext", "dom", "dom.iterable"],
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}

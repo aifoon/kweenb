@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "sourceMap": true,
+    "moduleResolution": "Node",
+    "useDefineForClassFields": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "isolatedModules": true,
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+    ],
+    "lib": ["ESNext"]
+  }
+}

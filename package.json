@@ -1,0 +1,54 @@
+{
+  "name": "kweenb",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KweenB is an audio management application for the Zwerm3 project of Aifoon (BE).",
+  "scripts": {
+    "dev": "node ./scripts/dev.js",
+    "build": "node ./scripts/build.js",
+    "compile:mac": "electron-builder build --config .electron-builder.config.js --dir --macos",
+    "typecheck": "npm run typecheck-main && npm run typecheck-preload && npm run typecheck-renderer",
+    "typecheck-main": "tsc --noEmit -p src/main/tsconfig.json",
+    "typecheck-preload": "tsc --noEmit -p src/preload/tsconfig.json",
+    "typecheck-renderer": "tsc --noEmit -p src/renderer/tsconfig.json"
+  },
+  "main": "dist/index.cjs",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.12",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.4.1",
+    "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "electron": "^16.0.4",
+    "electron-builder": "^22.14.5",
+    "electron-context-menu": "^3.1.1",
+    "electron-debug": "^3.2.0",
+    "electron-notarize": "^1.1.1",
+    "electron-window-state": "^5.0.3",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "@types/react-router-dom": "^5.3.2",
+    "@types/source-map-support": "^0.5.4",
+    "@types/styled-components": "^5.1.17",
+    "chalk": "^4.1.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.1.1",
+    "styled-components": "^5.3.3",
+    "vite": "^2.7.1",
+    "vite-preset-react": "^2.2.0"
+  },
+  "browserslist": [
+    "last 1 electron version"
+  ]
+}
