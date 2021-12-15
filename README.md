@@ -9,7 +9,7 @@ KweenB is an audio management application for the Zwerm3 project of Aifoon (BE).
 There are three project that needs to be build in order to compile into OS binaries:
 
 - `main`: The main electron application, this is basically a node application that will run native processes.
-- `preload`: A safe bridge between the electron main application and the renderer. This script will run and expose API-like code before the application starts.
+- `preload`: A safe bridge between the electron main application and the renderer. This script will run and expose API-like code that will be available in the renderer before the application starts.
 - `renderer`: This is the frontend. A React application that will present the UI and will interact with the main electron application.
 
 ## Scripts
