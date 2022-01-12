@@ -11,31 +11,38 @@ import { chrome } from "../../.electron-vendors.cache.json";
  * @see https://vitejs.dev/config/
  */
 const config = {
-  plugins: [react()],
-  base: "./",
-  root: join(process.cwd(), "src", "renderer"),
-  mode: process.env.MODE,
-  resolve: {
-    alias: {
-      "/@/": `${join(__dirname, "src")}/`,
-    },
-  },
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
-  build: {
-    sourcemap: true,
-    target: `chrome${chrome}`,
-    outDir: resolve("./dist"),
-    assetsDir: ".",
-    rollupOptions: {
-      external: [...builtinModules],
-    },
-    emptyOutDir: true,
-    brotliSize: false,
-  },
+	plugins: [react()],
+	base: "./",
+	root: join(process.cwd(), "src", "renderer"),
+	mode: process.env.MODE,
+	resolve: {
+		alias: [
+			{
+				find: "@renderer",
+				replacement: resolve(__dirname, "../../src/renderer"),
+			},
+			{
+				find: "@components",
+				replacement: resolve(__dirname, "../../src/renderer/src/components"),
+			},
+		],
+	},
+	server: {
+		fs: {
+			strict: true,
+		},
+	},
+	build: {
+		sourcemap: true,
+		target: `chrome${chrome}`,
+		outDir: resolve("./dist"),
+		assetsDir: ".",
+		rollupOptions: {
+			external: [...builtinModules],
+		},
+		emptyOutDir: true,
+		brotliSize: false,
+	},
 };
 
 export default config;

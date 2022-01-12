@@ -16,14 +16,14 @@ module.exports.mainConfigPath = path.join(configFolder, "vite.main.config.js");
  * The path to the renderer application config
  */
 module.exports.rendererConfigPath = path.join(
-  configFolder,
-  "vite.renderer.config.js"
+	configFolder,
+	"vite.renderer.config.js"
 );
 
 /**
  * The path to the preload config
  */
 module.exports.preloadConfigPath = path.join(
-  configFolder,
-  "vite.preload.config.js"
+	configFolder,
+	"vite.preload.config.js"
 );

@@ -1,18 +1,16 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "target": "ES2018",
+    "module": "CommonJS",
+    "sourceMap": false,
+    "outDir": "../../dist",
+    "baseUrl": "../../src",
     "paths": {
-      "/@/*": [
-        "./src/*"
-      ]
+      "@/main/*": ["main/*"],
+      "@/common/*": ["common/*"]
     },
   },
-  "files": [
-    "./src/index.ts"
-  ],
-  "include": [
-    "./**/*.ts"
-  ]
+  "include": ["../main/**/*", "../common/**/*"],
+  "exclude": ["../renderer/**/*"]
 }

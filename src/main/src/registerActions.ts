@@ -6,5 +6,5 @@ import { ipcMain } from "electron";
 import { hello } from "./actions";
 
 export default () => {
-  ipcMain.on("hello", hello);
+	ipcMain.on("hello", hello);
 };

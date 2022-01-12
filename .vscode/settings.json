@@ -12,7 +12,8 @@
       "**/*.mdx": true
   },
   "eslint.options": {
-    "overrideConfigFile": "./.config/.eslintrc.json"
+    "overrideConfigFile": "./.config/.eslintrc.json",
+    "ignorePath": "./.config/.eslintignore"
   },
   "prettier.configPath": "./.config/.prettierrc.json",
   "editor.codeActionsOnSave": {

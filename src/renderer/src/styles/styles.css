@@ -42,6 +42,7 @@
   --accentButtonColor: var(--accent-500);
   --dangerButtonColor: var(--red-status);
   --cardBg: var(--primary-200);
+  --beeCardBg: var(--primary-300);
 
   /* Typography */
   --headingFont: 'Open Sans', sans-serif;

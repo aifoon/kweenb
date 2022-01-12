@@ -32,9 +32,9 @@ contextBridge.exposeInMainWorld("versions", process.versions);
  * window.nodeCrypto('data')
  */
 contextBridge.exposeInMainWorld("nodeCrypto", {
-  sha256sum(data: BinaryLike) {
-    const hash = createHash("sha256");
-    hash.update(data);
-    return hash.digest("hex");
-  },
+	sha256sum(data: BinaryLike) {
+		const hash = createHash("sha256");
+		hash.update(data);
+		return hash.digest("hex");
+	},
 });

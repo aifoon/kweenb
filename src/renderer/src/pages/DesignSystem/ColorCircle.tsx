@@ -23,8 +23,8 @@ const ColorCircleColor = styled.div`
 `;
 
 export const ColorCircle = ({ color, name }: ColorCircleProps) => (
-  <ColorCircleWrapper>
-    <ColorCircleColor color={color} />
-    <small>{name}</small>
-  </ColorCircleWrapper>
+	<ColorCircleWrapper>
+		<ColorCircleColor color={color} />
+	  <small>{name}</small>
+	</ColorCircleWrapper>
 );

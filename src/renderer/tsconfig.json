@@ -1,17 +1,22 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["vite/client"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": "../../src",
     "paths": {
-      "/@/*": [
-        "./src/*"
-      ]
+      "@renderer/*": ["renderer/*"],
+      "@components/*": ["renderer/src/components/*"]
     },
-    "lib": ["ESNext", "dom", "dom.iterable"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./src/**/*.ts"
-  ]
+  "include": ["../renderer/**/*"],
+  "exclude": ["../main/**/*"]
 }
