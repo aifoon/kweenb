@@ -4,10 +4,8 @@
         "es2021": true
     },
     "extends": [
-        "plugin:react/recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
         "airbnb",
+        "airbnb-typescript",
         "prettier"
     ],
     "globals": {
@@ -19,32 +17,24 @@
             "jsx": true
         },
         "ecmaVersion": 12,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": "./tsconfig.json"
     },
     "plugins": [
-        "react",
-        "@typescript-eslint",
         "prettier"
     ],
     "rules": {
+        /**
+         * React Rules
+         */
+
         "react/jsx-filename-extension": [
             1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
         ],
-        "no-console": "off",
         "react/react-in-jsx-scope": "off",
-        "no-use-before-define": "off",
         "react/prop-types": "off", // Since we do not use prop-types
         "react/require-default-props": "off", // Since we do not use prop-types
-        "import/prefer-default-export": "off",
-        "no-unused-vars": "off",
-        "no-param-reassign": "off",
         "react/jsx-props-no-spreading": "off",
-        "indent": ["error", "tab"],
-        // "prettier/prettier": [2, { "useTabs": true }],
-        "no-shadow": "off",
-        "@typescript-eslint/no-unused-vars": ["error"],
-        "@typescript-eslint/no-shadow": "error",
-        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
         "react/function-component-definition": [
             2,
             {
@@ -52,6 +42,30 @@
                 "unnamedComponents": "arrow-function"
             }
         ],
+
+        /**
+         * TypeScript ESLint
+         */
+
+        "@typescript-eslint/no-unused-vars": ["error"],
+        "@typescript-eslint/no-shadow": "error",
+
+        /**
+         * Prettier
+         */
+
+        "prettier/prettier": "error",
+
+        /**
+         * General ESLint
+         */
+
+        "no-console": "off",
+        "import/prefer-default-export": "off",
+        "no-unused-vars": "off",
+        "no-param-reassign": "off",
+        "no-shadow": "off",
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
         "import/extensions": [
             "error",
             "always",

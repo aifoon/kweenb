@@ -1,0 +1,47 @@
+import styled from "styled-components";
+
+/**
+ * Types and Enums
+ */
+
+export enum LabelType {
+  Primary,
+  Secondary,
+}
+
+interface LabelProps {
+  type: LabelType;
+  inline?: boolean;
+}
+
+export const Label = styled.div<LabelProps>`
+  border-radius: 10px;
+  ${({ inline }) => (inline ? "display: inline-block" : "display: block")};
+  padding: 5px 8px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: var(--small-text);
+  ${({ type }) => {
+    switch (type) {
+      case LabelType.Primary:
+        return `
+          background-color: var(--primary-100);
+          color: var(--white);
+          border: 1px solid var(--primary-100);
+        `;
+      case LabelType.Secondary:
+        return `
+          background-color: transparant;
+          color: var(--primary-100);
+          border: 1px solid var(--primary-100);
+        `;
+      default:
+        return `
+          background-color: transparant;
+          color: var(--primary-100);
+          border: 1px solid var(--primary-100);
+        `;
+    }
+  }};
+`;

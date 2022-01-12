@@ -1,5 +1,5 @@
 {
-"search.useIgnoreFiles": false,
+  "search.useIgnoreFiles": false,
   "search.exclude": {
       "**/.next": true,
       "**/build": true,
@@ -11,14 +11,17 @@
       "yarn.lock": true,
       "**/*.mdx": true
   },
-  "eslint.options": {
-    "overrideConfigFile": "./.config/.eslintrc.json",
-    "ignorePath": "./.config/.eslintignore"
-  },
-  "prettier.configPath": "./.config/.prettierrc.json",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSaveTimeout": 6000,
+  "css.lint.unknownAtRules": "ignore",
+  "eslint.options": {
+    "overrideConfigFile": "./.config/.eslintrc.json"
+  },
+  "eslint.lintTask.options": "-c ${workspaceRoot}/.config/.eslintrc.json --ext .ts,.js,.tsx .",
+  "eslint.lintTask.enable": true,
   "[javascript]": {
     "editor.formatOnSave": true
   },
@@ -42,5 +45,6 @@
   ],
   "eslint.alwaysShowStatus": true,
   "files.eol": "\n",
-  "typescript.tsdk": "node_modules/typescript/lib",
+  // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+  "typescript.tsc.autoDetect": "off",
 }

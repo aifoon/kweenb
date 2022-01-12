@@ -31,12 +31,17 @@
     "electron-window-state": "^5.0.3",
     "eslint": "^8.4.1",
     "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-airbnb-typescript": "^16.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.5.1",
     "typescript": "^4.5.3"
   },
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/material": "^5.2.8",
+    "@mui/styled-engine-sc": "^5.1.0",
     "@types/react-router-dom": "^5.3.2",
     "@types/source-map-support": "^0.5.4",
     "@types/styled-components": "^5.1.17",
