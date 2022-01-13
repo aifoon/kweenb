@@ -2,7 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 
-interface SidebarBadgeProps {
+export interface SidebarBadgeProps {
+  key?: string;
   text: string;
   status?: StatusBulletType;
 }

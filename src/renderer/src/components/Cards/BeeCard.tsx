@@ -22,7 +22,6 @@ interface BeeCardProps {
 
 const BeeCardContainer = styled.div`
   border-radius: 15px;
-  max-width: 200px;
   padding: 1rem;
   background-color: var(--beeCardBg);
 

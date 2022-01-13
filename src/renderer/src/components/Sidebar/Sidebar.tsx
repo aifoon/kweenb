@@ -1,24 +1,49 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import sidebarLogo from "../../images/sidebar-logo.png";
-import { SidebarStatusBadge } from "./SidebarStatusBadge";
+import { SidebarButtonProps } from "./SidebarButton";
+import { SidebarBadgeProps } from "./SidebarStatusBadge";
 
-// interface NavigationProps {
-//   // children?: ReactElement<NavigationButtonsProps>;
-// }
+interface SidebarProps {
+  badges?: ReactElement<SidebarBadgeProps>[];
+  buttons?: ReactElement<SidebarButtonProps>[];
+  width?: string;
+  height?: string;
+  fixedToSide?: boolean;
+}
 
-const SidebarContainer = styled.div`
+const SidebarContainer = styled.aside<SidebarProps>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
-  height: 500px;
   box-shadow: var(--level-2);
   background-color: var(--primary-400);
+  ${({ fixedToSide }) => {
+    if (fixedToSide) {
+      return `
+        position: fixed;
+        left: 0;
+        bottom: 0;
+      `;
+    }
+    return "";
+  }}
+  ${({ width }) => `width: ${width}` || ""};
+  ${({ height }) => `height: ${height}` || ""};
 `;
 
 const SidebarBadgesWrapper = styled.div`
   margin: 2rem 0 3.5rem 0;
+  button + button {
+    margin-top: 20px;
+  }
+`;
+
+const SidebarButtonsWrapper = styled.div`
+  button + button {
+    margin-top: 20px;
+  }
 `;
 
 const SidebarLogoWrapper = styled.div`
@@ -26,13 +51,25 @@ const SidebarLogoWrapper = styled.div`
   opacity: 0.5;
 `;
 
-export const Sidebar = () => (
-  <SidebarContainer>
+export const Sidebar = ({
+  badges,
+  buttons,
+  width = "200px",
+  height = "200px",
+  fixedToSide = false,
+}: SidebarProps) => (
+  <SidebarContainer width={width} height={height} fixedToSide={fixedToSide}>
     <div>
-      <SidebarBadgesWrapper>
-        <SidebarStatusBadge text="the kween" />
-      </SidebarBadgesWrapper>
-      <div>Navigation</div>
+      {badges && (
+        <SidebarBadgesWrapper>
+          {badges.map((badge) => badge)}
+        </SidebarBadgesWrapper>
+      )}
+      {buttons && (
+        <SidebarButtonsWrapper>
+          {buttons.map((button) => button)}
+        </SidebarButtonsWrapper>
+      )}
     </div>
     <SidebarLogoWrapper>
       <img src={sidebarLogo} alt="Sidebar Logo" />

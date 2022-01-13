@@ -24,6 +24,7 @@ export enum ButtonSize {
 }
 
 export interface ButtonProps {
+  key?: string;
   buttonUse?: ButtonUse;
   buttonType?: ButtonType;
   buttonSize?: ButtonSize;
@@ -51,7 +52,9 @@ const getColorByButtonUse = (buttonUse: ButtonUse) => {
  * Styled Component
  */
 
-export const Button = styled.button<ButtonProps>`
+export const Button = styled.button.attrs(({ key }) => ({
+  key,
+}))<ButtonProps>`
   display: inline-block;
   background-color: ${({ buttonUse = ButtonUse.Normal, buttonType }) => {
     if (

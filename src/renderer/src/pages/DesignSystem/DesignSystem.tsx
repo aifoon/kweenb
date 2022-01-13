@@ -3,14 +3,24 @@
  */
 
 import styled from "styled-components";
-import { BeeCard } from "@components/Cards/BeeCard";
+import { Card, BeeCard } from "@components/Cards";
 import { Button, ButtonUse, ButtonType, ButtonSize } from "@components/Button";
 import { Label, LabelType } from "@components/Label";
-import { Navigation } from "@components/Navigation/Navigation";
-import { NavigationButtons } from "@components/Navigation/NavigationButtons";
-import { Sidebar } from "@components/Sidebar/Sidebar";
+import { Navigation, NavigationButtons } from "@components/Navigation";
+import { StatusBulletType } from "@components/StatusBullet";
+import {
+  Sidebar,
+  SidebarButton,
+  SidebarStatusBadge,
+} from "@components/Sidebar";
+import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
+import SettingsIcon from "@mui/icons-material/Settings";
+import RouteIcon from "@mui/icons-material/Route";
+import HandymanIcon from "@mui/icons-material/Handyman";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
+
+// Icons
 
 /**
  * Styled Components
@@ -28,6 +38,7 @@ const DesignSystem = () => (
       <NavigationButtons
         buttons={[
           <Button
+            key="logging"
             buttonSize={ButtonSize.Small}
             buttonType={ButtonType.TertiaryWhite}
             buttonUse={ButtonUse.Normal}
@@ -36,6 +47,7 @@ const DesignSystem = () => (
             logging
           </Button>,
           <Button
+            key="buildTheSwarmNest"
             buttonSize={ButtonSize.Small}
             buttonUse={ButtonUse.Accent}
             onClick={() => console.log("clicking build the swarm nest")}
@@ -239,12 +251,68 @@ const DesignSystem = () => (
 
       <hr />
 
-      {/* BEE CARD */}
+      {/* SIDEBAR */}
 
       <DesignSystemSection>
         <h2>Sidebar</h2>
-        <Sidebar />
+        <Sidebar
+          badges={[
+            <SidebarStatusBadge
+              key="theKween"
+              text="The Kween"
+              status={StatusBulletType.Active}
+            />,
+          ]}
+          buttons={[
+            <SidebarButton
+              active
+              icon={<EmojiNatureIcon />}
+              text="Manage Bees"
+              key="managebees"
+            />,
+            <SidebarButton
+              icon={<SettingsIcon />}
+              text="Bee Settings"
+              onClick={() => console.log("Clicking Bee Settings")}
+              key="beesettings"
+            />,
+            <SidebarButton
+              icon={<RouteIcon />}
+              text="Audio Routes"
+              key="audioroutes"
+            />,
+            <SidebarButton icon={<HandymanIcon />} text="Tools" key="tools" />,
+          ]}
+        />
       </DesignSystemSection>
+
+      {/* CARD */}
+
+      <DesignSystemSection>
+        <h2>Card</h2>
+        <Card
+          title="Family Bee"
+          footerButtons={[
+            <Button
+              onClick={() => console.log("Clicked Card Close Button")}
+              buttonSize={ButtonSize.Small}
+              buttonType={ButtonType.TertiaryWhite}
+              key="cardFooterClose"
+            >
+              Close
+            </Button>,
+            <Button
+              onClick={() => console.log("Clicked Card Save Button")}
+              buttonSize={ButtonSize.Small}
+              key="cardFooterSave"
+            >
+              Save
+            </Button>,
+          ]}
+        />
+      </DesignSystemSection>
+
+      <hr />
     </DesignSystemWrapper>
   </>
 );

@@ -3,11 +3,8 @@
  */
 
 import { Button } from "./Button";
+import { Flex } from "./Flex";
+import { Label } from "./Label";
+import { StatusBullet } from "./StatusBullet";
 
-/**
- * Cards
- */
-
-import { BeeCard } from "./Cards/BeeCard";
-
-export { Button, BeeCard };
+export { Button, Flex, Label, StatusBullet };

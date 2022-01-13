@@ -74,8 +74,10 @@
   --radiusLarge: 15px;
   --radiusMedium: 7px;
 
-  /* Positioning */
-
+  /* Measurements */
+  --navigationHeight: 75px;
+  --sidebarWidth: 250px;
+  --contentHeight: calc(100vh - var(--navigationHeight));
 }
 
 /**
@@ -85,7 +87,6 @@
 html {
   font-size: var(--baseFontSize);
   box-sizing: border-box;
-
 }
 
 body {
@@ -94,6 +95,12 @@ body {
   font-weight: 400;
   line-height: 1.75;
   color: var(--textColor);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 hr {
@@ -106,6 +113,8 @@ hr {
 *::before,
 *::after {
   box-sizing: inherit;
+
+
 }
 
 /**
