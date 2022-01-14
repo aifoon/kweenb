@@ -17,6 +17,13 @@ import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SettingsIcon from "@mui/icons-material/Settings";
 import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { TextField } from "@renderer/src/components/Forms";
+import {
+  TextFieldOrientation,
+  TextFieldSize,
+} from "@renderer/src/components/Forms/TextField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
 
@@ -256,6 +263,9 @@ const DesignSystem = () => (
       <DesignSystemSection>
         <h2>Sidebar</h2>
         <Sidebar
+          width="100%"
+          height="100%"
+          fixedToSide={false}
           badges={[
             <SidebarStatusBadge
               key="theKween"
@@ -313,6 +323,48 @@ const DesignSystem = () => (
       </DesignSystemSection>
 
       <hr />
+
+      <DesignSystemSection>
+        <h2>Forms</h2>
+        <Formik
+          initialValues={{
+            username: "",
+            password: "",
+          }}
+          validationSchema={Yup.object().shape({
+            username: Yup.string().required("The username is required!"),
+            password: Yup.string().required("The password is required!"),
+          })}
+          onSubmit={(values, actions) => {
+            console.log({ values, actions });
+          }}
+        >
+          <Form>
+            <TextField
+              orientation={TextFieldOrientation.Horizontal}
+              label="Username"
+              type="text"
+              labelWidth="150px"
+              name="username"
+              width="500px"
+              placeholder="e.g. timdpaep"
+              size={TextFieldSize.Small}
+            />
+            <TextField
+              orientation={TextFieldOrientation.Horizontal}
+              label="Password"
+              type="password"
+              labelWidth="150px"
+              width="500px"
+              name="password"
+              size={TextFieldSize.Small}
+            />
+            <Button buttonSize={ButtonSize.Small} type="submit">
+              Submit
+            </Button>
+          </Form>
+        </Formik>
+      </DesignSystemSection>
     </DesignSystemWrapper>
   </>
 );

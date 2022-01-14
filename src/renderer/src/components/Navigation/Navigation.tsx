@@ -29,9 +29,6 @@ const NavigationContainer = styled.nav<Omit<NavigationProps, "children">>`
   box-shadow: var(--level-2);
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-200);
-  button + button {
-    margin-left: 20px;
-  }
   overflow: hidden;
 `;
 

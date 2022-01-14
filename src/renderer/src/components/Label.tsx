@@ -15,7 +15,7 @@ interface LabelProps {
 }
 
 export const Label = styled.div<LabelProps>`
-  border-radius: 10px;
+  border-radius: var(--radiusMedium);
   ${({ inline }) => (inline ? "display: inline-block" : "display: block")};
   padding: 5px 8px;
   text-align: center;

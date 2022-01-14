@@ -37,7 +37,7 @@ const Backdrop = styled("div")`
 const ModalContentContainer = styled.div`
   width: 500px;
   background-color: var(--primary-100);
-  border-radius: 15px;
+  border-radius: var(--radiusMedium);
   padding: 20px;
 `;
 
@@ -47,7 +47,6 @@ const ModalHeaderContainer = styled.div<{
   display: flex;
 
   ${({ hasTitle }) => {
-    console.log(hasTitle);
     if (hasTitle) {
       return `
         justify-content: space-between;

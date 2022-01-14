@@ -1,6 +1,7 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonProps } from "@components/Button";
+import { ButtonGroup } from "../ButtonGroup";
 
 /**
  * Types & Interfaces
@@ -16,7 +17,7 @@ const NavigationButtonsWrapper = styled.div`
 
 export const NavigationButtons = ({ buttons }: NavigationButtonsProps) => (
   <NavigationButtonsWrapper>
-    {buttons.map((button) => button)}
+    <ButtonGroup>{buttons.map((button) => button)}</ButtonGroup>
   </NavigationButtonsWrapper>
 );
 

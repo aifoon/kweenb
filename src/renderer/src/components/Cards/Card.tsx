@@ -1,6 +1,7 @@
 import { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonProps } from "../Button";
+import { ButtonGroup } from "../ButtonGroup";
 
 interface CardProps {
   title: string;
@@ -9,7 +10,7 @@ interface CardProps {
 
 const CardWrapper = styled.div`
   background-color: var(--primary-200);
-  border-radius: 15px;
+  border-radius: var(--radiusLarge);
 `;
 
 const CardInnerWrapper = styled.div`
@@ -19,7 +20,7 @@ const CardInnerWrapper = styled.div`
 const CardHeaderWrapper = styled(CardInnerWrapper)`
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-100);
-  border-radius: 15px 15px 0 0;
+  border-radius: var(--radiusLarge) var(--radiusLarge) 0 0;
   font-size: var(--h5);
   padding: 15px 30px;
 `;
@@ -27,11 +28,8 @@ const CardHeaderWrapper = styled(CardInnerWrapper)`
 const CardFooterWrapper = styled(CardInnerWrapper)`
   display: flex;
   background-color: var(--primary-400);
-  border-radius: 0 0 15px 15px;
+  border-radius: 0 0 var(--radiusLarge) var(--radiusLarge);
   justify-content: flex-end;
-  button + button {
-    margin-left: 15px;
-  }
 `;
 
 export const Card = ({ title, footerButtons }: CardProps) => (
@@ -45,7 +43,7 @@ export const Card = ({ title, footerButtons }: CardProps) => (
     </CardInnerWrapper>
     {footerButtons && (
       <CardFooterWrapper>
-        {footerButtons.map((button) => button)}
+        <ButtonGroup>{footerButtons.map((button) => button)}</ButtonGroup>
       </CardFooterWrapper>
     )}
   </CardWrapper>
