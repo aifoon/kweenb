@@ -223,6 +223,12 @@ const DesignSystem = () => (
             Tertiary White Button
           </Button>
         </Row>
+        <Row>
+          <Button buttonUse={ButtonUse.Modal}>Modal Primary Button</Button>
+          <Button buttonSize={ButtonSize.Small} buttonUse={ButtonUse.Modal}>
+            Modal Primary Button
+          </Button>
+        </Row>
       </DesignSystemSection>
 
       <hr />
