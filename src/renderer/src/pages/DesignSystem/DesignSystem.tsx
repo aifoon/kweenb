@@ -19,11 +19,11 @@ import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { TextField } from "@renderer/src/components/Forms";
+import { SelectField, TextField } from "@renderer/src/components/Forms";
 import {
-  TextFieldOrientation,
-  TextFieldSize,
-} from "@renderer/src/components/Forms/TextField";
+  InputFieldOrientation,
+  InputFieldSize,
+} from "@components/Forms/InputField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
 
@@ -330,10 +330,14 @@ const DesignSystem = () => (
           initialValues={{
             username: "",
             password: "",
+            jacktrip_version: "",
           }}
           validationSchema={Yup.object().shape({
             username: Yup.string().required("The username is required!"),
             password: Yup.string().required("The password is required!"),
+            jacktrip_version: Yup.number()
+              .min(20)
+              .required("A Jacktrip Version is required!"),
           })}
           onSubmit={(values, actions) => {
             console.log({ values, actions });
@@ -341,23 +345,38 @@ const DesignSystem = () => (
         >
           <Form>
             <TextField
-              orientation={TextFieldOrientation.Horizontal}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
               label="Username"
               type="text"
               labelWidth="150px"
               name="username"
               width="500px"
               placeholder="e.g. timdpaep"
-              size={TextFieldSize.Small}
             />
             <TextField
-              orientation={TextFieldOrientation.Horizontal}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
               label="Password"
               type="password"
               labelWidth="150px"
               width="500px"
               name="password"
-              size={TextFieldSize.Small}
+            />
+            <SelectField
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Jacktrip Version"
+              labelWidth="150px"
+              width="500px"
+              selectItems={[
+                { label: "None", value: "" },
+                { label: "1.1.1", value: 10 },
+                { label: "1.2.1", value: 20 },
+                { label: "1.3.1", value: 30 },
+                { label: "1.4.1", value: 40 },
+              ]}
+              name="jacktrip_version"
             />
             <Button buttonSize={ButtonSize.Small} type="submit">
               Submit
