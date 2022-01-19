@@ -6,6 +6,7 @@ import { ButtonGroup } from "../ButtonGroup";
 interface CardProps {
   title: string;
   footerButtons?: ReactElement<ButtonProps>[];
+  children?: React.ReactNode;
 }
 
 const CardWrapper = styled.div`
@@ -32,15 +33,10 @@ const CardFooterWrapper = styled(CardInnerWrapper)`
   justify-content: flex-end;
 `;
 
-export const Card = ({ title, footerButtons }: CardProps) => (
+export const Card = ({ title, footerButtons, children }: CardProps) => (
   <CardWrapper>
     <CardHeaderWrapper>{title}</CardHeaderWrapper>
-    <CardInnerWrapper>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit sed,
-      provident quod facere temporibus soluta quasi cupiditate praesentium,
-      architecto dolorem animi ipsam debitis placeat dolorum? Sed voluptates
-      ipsum nesciunt dolorum?
-    </CardInnerWrapper>
+    <CardInnerWrapper>{children}</CardInnerWrapper>
     {footerButtons && (
       <CardFooterWrapper>
         <ButtonGroup>{footerButtons.map((button) => button)}</ButtonGroup>
