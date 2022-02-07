@@ -1,10 +1,16 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import { Button, ButtonUse, ButtonType, ButtonSize } from "@components/Button";
+import {
+  Button,
+  ButtonUse,
+  ButtonType,
+  ButtonSize,
+} from "@renderer/src/components/Buttons";
 import { Grid } from "@mui/material";
 import { Flex } from "../Flex";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
+import { Utils } from "../../lib/utils";
 
 /**
  * Types & Enums
@@ -47,13 +53,10 @@ const BeeCardSection = styled.div`
   margin-bottom: var(--smallText);
 `;
 
-const addLeadingZero = (number: number): string =>
-  number < 10 ? `0${number}` : `${number}`;
-
 export const BeeCard = ({
   number = 0,
   online = false,
-  jackIsRunning = false,
+  jackIsRunning = true,
   jackTripIsRunning = false,
   name = "No name",
   ipAddress = "0.0.0.0",
@@ -68,7 +71,7 @@ export const BeeCard = ({
     </Flex>
 
     <BeeCardSection>
-      <h2>{addLeadingZero(number)}</h2>
+      <h2>{Utils.addLeadingZero(number)}</h2>
       <p>{name}</p>
       <p>{ipAddress}</p>
     </BeeCardSection>
@@ -95,7 +98,7 @@ export const BeeCard = ({
         onClick={onBeeConfigClick}
         buttonUse={ButtonUse.Normal}
         buttonType={ButtonType.Primary}
-        buttonSize={ButtonSize.Medium}
+        buttonSize={ButtonSize.Small}
       >
         Bee Config
       </Button>

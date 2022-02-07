@@ -29,7 +29,7 @@ export interface ButtonProps {
   buttonUse?: ButtonUse;
   buttonType?: ButtonType;
   buttonSize?: ButtonSize;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void; // basic mouse event
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 /**

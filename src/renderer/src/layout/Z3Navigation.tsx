@@ -1,6 +1,10 @@
 import React from "react";
-
-import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Button";
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  ButtonUse,
+} from "@components/Buttons/Button";
 import { Navigation, NavigationButtons } from "@components/Navigation";
 
 export const Z3Navigation = () => (

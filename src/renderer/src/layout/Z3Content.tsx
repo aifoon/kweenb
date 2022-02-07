@@ -1,6 +1,22 @@
+import React from "react";
 import styled from "styled-components";
 
-export const Z3Content = styled.main`
-  padding: 50px 40px 50px 290px;
-  width: 100%;
+/**
+ * Interfaces
+ */
+
+export interface Z3ContentProps {
+  children?: React.ReactNode;
+}
+
+/**
+ * Styled Components
+ */
+
+const Z3ContentWrapper = styled.div`
+  height: 100%;
 `;
+
+export const Z3Content = ({ children }: Z3ContentProps) => (
+  <Z3ContentWrapper>{children}</Z3ContentWrapper>
+);

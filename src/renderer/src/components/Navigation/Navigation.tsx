@@ -25,11 +25,12 @@ const NavigationContainer = styled.nav<Omit<NavigationProps, "children">>`
   align-items: center;
   width: 100%;
   padding: 1rem 2rem 1rem 2rem;
-  height: 75px;
+  height: var(--navigationHeight);
   box-shadow: var(--level-2);
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-200);
   overflow: hidden;
+  z-index: 999;
 `;
 
 export const Navigation = ({

@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import { ButtonProps } from "@components/Button";
-import { ButtonGroup } from "../ButtonGroup";
+import { ButtonProps } from "@renderer/src/components/Buttons/Button";
+import { ButtonGroup } from "../Buttons/ButtonGroup";
 
 /**
  * Types & Interfaces

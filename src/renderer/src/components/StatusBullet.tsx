@@ -10,7 +10,7 @@ export enum StatusBulletType {
   NotActive,
 }
 
-interface StatusBulletProps {
+export interface StatusBulletProps {
   type: StatusBulletType;
   size?: number;
 }

@@ -57,6 +57,7 @@
   --smallText: 0.8rem;
   --inputFieldLabelText: 1rem;
   --inputFieldLabelTextSmall: var(--smallText);
+  --pageTitleMargin: 2.5rem;
 
   /* Buttons */
   --smallButtonPadding: 8px;
@@ -75,10 +76,22 @@
   --radiusLarge: 15px;
   --radiusMedium: 7px;
 
+  /* Card */
+  --cardHeaderPaddingLeft: 20px;
+  --cardHeaderPaddingRight: var(--cardHeaderPaddingLeft);
+  --cardHeaderPaddingTop: 15px;
+  --cardHeaderPaddingBottom: var(--cardHeaderPaddingTop);
+  --cardContentPadding: 30px;
+
   /* Measurements */
   --navigationHeight: 75px;
   --sidebarWidth: 250px;
   --contentHeight: calc(100vh - var(--navigationHeight));
+  --contentPaddingLeft: 40px;
+  --contentPaddingRight: 40px;
+  --contentPaddingTop: 50px;
+  --contentPaddingBottom: 50px;
+
 }
 
 /**

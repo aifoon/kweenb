@@ -5,7 +5,12 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { Card, BeeCard } from "@components/Cards";
-import { Button, ButtonUse, ButtonType, ButtonSize } from "@components/Button";
+import {
+  Button,
+  ButtonUse,
+  ButtonType,
+  ButtonSize,
+} from "@components/Buttons/Button";
 import { Label, LabelType } from "@components/Label";
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { StatusBulletType } from "@components/StatusBullet";
@@ -26,6 +31,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import { Console } from "@renderer/src/components/Console";
+import { SwitchField } from "@renderer/src/components/Forms/SwitchField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
 
@@ -362,6 +368,7 @@ const DesignSystem = () => {
               username: "",
               password: "",
               jacktrip_version: "",
+              use_mqtt: true,
             }}
             validationSchema={Yup.object().shape({
               username: Yup.string().required("The username is required!"),
@@ -374,45 +381,59 @@ const DesignSystem = () => {
               console.log({ values, actions });
             }}
           >
-            <Form>
-              <TextField
-                orientation={InputFieldOrientation.Horizontal}
-                size={InputFieldSize.Small}
-                label="Username"
-                type="text"
-                labelWidth="150px"
-                name="username"
-                width="500px"
-                placeholder="e.g. timdpaep"
-              />
-              <TextField
-                orientation={InputFieldOrientation.Horizontal}
-                size={InputFieldSize.Small}
-                label="Password"
-                type="password"
-                labelWidth="150px"
-                width="500px"
-                name="password"
-              />
-              <SelectField
-                orientation={InputFieldOrientation.Horizontal}
-                size={InputFieldSize.Small}
-                label="Jacktrip Version"
-                labelWidth="150px"
-                width="500px"
-                selectItems={[
-                  { label: "None", value: "" },
-                  { label: "1.1.1", value: 10 },
-                  { label: "1.2.1", value: 20 },
-                  { label: "1.3.1", value: 30 },
-                  { label: "1.4.1", value: 40 },
-                ]}
-                name="jacktrip_version"
-              />
-              <Button buttonSize={ButtonSize.Small} type="submit">
-                Submit
-              </Button>
-            </Form>
+            {({ values }) => (
+              <Form>
+                <TextField
+                  orientation={InputFieldOrientation.Horizontal}
+                  size={InputFieldSize.Small}
+                  label="Username"
+                  type="text"
+                  labelWidth="150px"
+                  name="username"
+                  width="500px"
+                  placeholder="e.g. timdpaep"
+                />
+                <TextField
+                  orientation={InputFieldOrientation.Horizontal}
+                  size={InputFieldSize.Small}
+                  label="Password"
+                  type="password"
+                  labelWidth="150px"
+                  width="500px"
+                  name="password"
+                />
+                <SelectField
+                  orientation={InputFieldOrientation.Horizontal}
+                  size={InputFieldSize.Small}
+                  label="Jacktrip Version"
+                  labelWidth="150px"
+                  width="500px"
+                  selectItems={[
+                    { label: "None", value: "" },
+                    { label: "1.1.1", value: 10 },
+                    { label: "1.2.1", value: 20 },
+                    { label: "1.3.1", value: 30 },
+                    { label: "1.4.1", value: 40 },
+                  ]}
+                  name="jacktrip_version"
+                />
+                <SwitchField
+                  name="use_mqtt"
+                  label="Use MQTT"
+                  labelWidth="150px"
+                  width="500px"
+                  orientation={InputFieldOrientation.Horizontal}
+                  size={InputFieldSize.Small}
+                />
+                <Button buttonSize={ButtonSize.Small} type="submit">
+                  Submit
+                </Button>
+
+                <h4>Form Values</h4>
+
+                <pre>{JSON.stringify(values, null, 2)}</pre>
+              </Form>
+            )}
           </Formik>
         </DesignSystemSection>
 

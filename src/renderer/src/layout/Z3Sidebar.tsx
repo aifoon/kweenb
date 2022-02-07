@@ -11,16 +11,16 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useNavigate, useLocation } from "react-router-dom";
+import wcmatch from "wildcard-match";
 
 /**
  * List of Sidebar Buttons
  */
-
 const sidebarButtons = [
   {
     key: "manageBees",
     title: "Manage Bees",
-    pathNames: ["/", "/manage-bees"],
+    pathNames: ["/", "/manage-bees/*"],
     icon: <EmojiNatureIcon />,
   },
   {
@@ -43,6 +43,22 @@ const sidebarButtons = [
   },
 ];
 
+/**
+ * Check if a navigatedpath is active, based on pathnames.
+ * The values in the pathnames can use a wildcard (*).
+ *
+ * @param navigatedPath The path we just navigated to
+ * @param pathNames The pathnames to check
+ * @returns True of Falsy
+ */
+const isActive = (navigatedPath: string, pathNames: string[]): boolean =>
+  pathNames
+    .map((p) => {
+      const isMatch = wcmatch(p);
+      return navigatedPath === p || isMatch(navigatedPath);
+    })
+    .includes(true);
+
 export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +79,7 @@ export const Z3Sidebar = () => {
           icon={icon}
           text={title}
           key={key}
-          active={pathNames.includes(location.pathname)}
+          active={isActive(location.pathname, pathNames)}
           onClick={() => {
             if (location.pathname !== pathNames[0]) {
               navigate(pathNames[0]);
