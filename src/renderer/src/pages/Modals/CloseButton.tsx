@@ -11,7 +11,7 @@ const CloseButtonWrapper = styled.button`
   background: none;
   margin: 0;
   padding: 0;
-  color: var(--primary-200);
+  color: var(--white);
 `;
 
 export const CloseButton = ({ onClick }: CloseButtonProps) => (

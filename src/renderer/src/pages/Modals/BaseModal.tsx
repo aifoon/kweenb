@@ -4,10 +4,10 @@ import { ModalUnstyled } from "@mui/material";
 import styled from "styled-components";
 import { CloseButton } from "./CloseButton";
 
-interface BaseModalProps {
+export interface BaseModalProps {
   open: boolean;
   onClose?: any;
-  children: React.ReactElement;
+  children: React.ReactNode;
   title?: string;
 }
 
@@ -36,7 +36,7 @@ const Backdrop = styled("div")`
 
 const ModalContentContainer = styled.div`
   width: 500px;
-  background-color: var(--primary-100);
+  background-color: var(--primary-200);
   border-radius: var(--radiusMedium);
   padding: 20px;
 `;

@@ -10,6 +10,7 @@ export enum ButtonUse {
   Accent,
   Danger,
   Dark,
+  Grey,
 }
 
 export enum ButtonType {
@@ -46,6 +47,8 @@ const getColorByButtonUse = (buttonUse: ButtonUse) => {
       return "var(--red-status)";
     case ButtonUse.Dark:
       return "var(--primary-100)";
+    case ButtonUse.Grey:
+      return "var(--primary-200)";
     default:
       return "var(--secondary-500)";
   }

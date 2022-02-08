@@ -6,17 +6,19 @@ import {
   ButtonType,
 } from "@components/Buttons/Button";
 import { PageHeader } from "@components/PageHeader";
-import { BeeCard } from "@components/Cards";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { BaseModal } from "./Modals/BaseModal";
-import { Z3Page } from "../layout";
+import { Z3Page } from "../../layout";
+import { Bee } from "./Bee";
+import { AddBeeModal } from "./AddBeeModal";
+
+const demoBees = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const ManageBees = () => {
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpenModal(true);
+  const handleClose = () => setOpenModal(false);
   return (
     <Z3Page
       pageHeader={
@@ -36,17 +38,16 @@ export const ManageBees = () => {
         />
       }
     >
-      <BaseModal title="Add Bee" open={open} onClose={handleClose}>
-        <div>Dit is een test</div>
-      </BaseModal>
-
+      <AddBeeModal open={openModal} onClose={handleClose} />
       <Grid container spacing={5}>
-        <Grid item xl={2} lg={3} xs={12} sm={6} md={4}>
-          <BeeCard
-            onBeeConfigClick={() => navigate(`manage-bees/${4}`)}
-            number={4}
-          />
-        </Grid>
+        {demoBees.map((bee) => (
+          <Grid key={bee} item xl={2} lg={3} xs={12} sm={6} md={4}>
+            <Bee
+              onBeeConfigClick={() => navigate(`manage-bees/${bee}`)}
+              number={bee}
+            />
+          </Grid>
+        ))}
       </Grid>
     </Z3Page>
   );

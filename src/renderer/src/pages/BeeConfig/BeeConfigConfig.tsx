@@ -10,7 +10,7 @@ import {
   InputFieldOrientation,
   InputFieldSize,
 } from "@components/Forms/InputField";
-import * as Yup from "yup";
+import Yup from "@renderer/src/yup-ext";
 import { BeeConfig, BeeConfigItem } from "@renderer/src/interfaces";
 
 interface BeeConfigConfigProps {
@@ -30,8 +30,10 @@ export const BeeConfigConfig = ({
       <Formik
         initialValues={beeConfig}
         validationSchema={Yup.object().shape({
-          ipAddress: Yup.string().required("The IP Address is required!"),
-          name: Yup.string().required("The name is required!"),
+          ipAddress: Yup.string()
+            .required("An IP Address is required")
+            .isValidIpAddress("The IP Address is invalid"),
+          name: Yup.string().required("A name is required"),
           jacktripVersion: Yup.string().required(
             "A Jacktrip Version is required!"
           ),

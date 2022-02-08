@@ -34,6 +34,7 @@ export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
         {...field}
         onBlur={(e) => {
           if (onValidatedBlur && !meta.error) onValidatedBlur(e);
+          field.onBlur(e);
         }}
         placeholder={placeholder}
         type={type}

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { BeeConfig, BeeConfigItem } from "../interfaces";
 
-export function useBeeConfig(id: number) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [beeConfig, setBeeConfig] = useState<BeeConfig>({
+export function useBeeConfig(
+  id: number,
+  defaultConfig: BeeConfig = {
     ipAddress: "",
     name: "",
     jacktripVersion: "",
     useMqtt: false,
-  });
+  }
+) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [beeConfig, setBeeConfig] = useState<BeeConfig>(defaultConfig);
 
   /**
    * Fetch the Bee Configuration from zwerm3api

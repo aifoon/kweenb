@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -6,7 +6,7 @@ import {
   ButtonType,
   ButtonSize,
 } from "@renderer/src/components/Buttons";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import { Flex } from "../Flex";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
@@ -16,17 +16,19 @@ import { Utils } from "../../lib/utils";
  * Types & Enums
  */
 
-interface BeeCardProps {
+export interface BeeCardProps {
   number?: number;
   name?: string;
   online?: boolean;
   jackIsRunning?: boolean;
   jackTripIsRunning?: boolean;
   ipAddress?: string;
+  loading?: boolean;
   onBeeConfigClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const BeeCardContainer = styled.div`
+  position: relative;
   border-radius: var(--radiusLarge);
   padding: 1rem;
   background-color: var(--beeCardBg);
@@ -53,55 +55,98 @@ const BeeCardSection = styled.div`
   margin-bottom: var(--smallText);
 `;
 
+const BeeCardLoader = styled.div`
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radiusLarge);
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+`;
+
 export const BeeCard = ({
   number = 0,
-  online = false,
-  jackIsRunning = true,
+  online = true,
+  jackIsRunning = false,
   jackTripIsRunning = false,
-  name = "No name",
+  loading = false,
+  name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
-}: BeeCardProps): ReactElement => (
-  <BeeCardContainer>
-    <Flex justifyContent="flex-end">
-      <StatusBullet
-        type={online ? StatusBulletType.Active : StatusBulletType.NotActive}
-        size={16}
-      />
-    </Flex>
+}: BeeCardProps): ReactElement => {
+  const [isOnline, setIsOnline] = useState(online);
+  const [isJackIsRunning, setIsJackIsRunning] = useState(online);
+  const [isJackTripIsRunning, setIsJackTripIsRunning] = useState(online);
+  const [isLoading, setIsLoading] = useState(loading);
 
-    <BeeCardSection>
-      <h2>{Utils.addLeadingZero(number)}</h2>
-      <p>{name}</p>
-      <p>{ipAddress}</p>
-    </BeeCardSection>
+  useEffect(() => setIsOnline(online), [online]);
+  useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
+  useEffect(
+    () => setIsJackTripIsRunning(jackTripIsRunning),
+    [jackTripIsRunning]
+  );
+  useEffect(() => setIsLoading(loading), [loading]);
 
-    <BeeCardSection>
-      <Grid container spacing={1}>
-        <Grid item xs={5}>
-          <Label type={jackIsRunning ? LabelType.Primary : LabelType.Secondary}>
-            Jack
-          </Label>
-        </Grid>
-        <Grid item xs={7}>
-          <Label
-            type={jackTripIsRunning ? LabelType.Primary : LabelType.Secondary}
+  return (
+    <BeeCardContainer>
+      {isLoading && (
+        <BeeCardLoader>
+          <CircularProgress />
+        </BeeCardLoader>
+      )}
+      <>
+        <Flex justifyContent="flex-end">
+          <StatusBullet
+            type={
+              isOnline ? StatusBulletType.Active : StatusBulletType.NotActive
+            }
+            size={16}
+          />
+        </Flex>
+
+        <BeeCardSection>
+          <h2>{Utils.addLeadingZero(number)}</h2>
+          <p>{name}</p>
+          <p>{ipAddress}</p>
+        </BeeCardSection>
+
+        <BeeCardSection>
+          <Grid container spacing={1}>
+            <Grid item xs={5}>
+              <Label
+                type={isJackIsRunning ? LabelType.Primary : LabelType.Secondary}
+              >
+                Jack
+              </Label>
+            </Grid>
+            <Grid item xs={7}>
+              <Label
+                type={
+                  isJackTripIsRunning ? LabelType.Primary : LabelType.Secondary
+                }
+              >
+                JackTrip
+              </Label>
+            </Grid>
+          </Grid>
+        </BeeCardSection>
+
+        <BeeCardSection>
+          <Button
+            onClick={onBeeConfigClick}
+            buttonUse={ButtonUse.Normal}
+            buttonType={ButtonType.Primary}
+            buttonSize={ButtonSize.Small}
+            disabled={!isOnline}
           >
-            JackTrip
-          </Label>
-        </Grid>
-      </Grid>
-    </BeeCardSection>
-
-    <BeeCardSection>
-      <Button
-        onClick={onBeeConfigClick}
-        buttonUse={ButtonUse.Normal}
-        buttonType={ButtonType.Primary}
-        buttonSize={ButtonSize.Small}
-      >
-        Bee Config
-      </Button>
-    </BeeCardSection>
-  </BeeCardContainer>
-);
+            Bee Config
+          </Button>
+        </BeeCardSection>
+      </>
+    </BeeCardContainer>
+  );
+};

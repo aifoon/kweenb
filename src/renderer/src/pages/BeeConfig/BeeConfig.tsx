@@ -15,11 +15,19 @@ import { BeeConfigLogging } from "./BeeConfigLogging";
 export const BeeConfig = () => {
   const { id } = useParams();
   const numberizedId = Number(id) || 0;
-  const { isOnline, isJackRunning, isJacktripRunning } =
-    useBeeStatus(numberizedId);
-  const { loading, beeConfig, updateBeeConfig } = useBeeConfig(numberizedId);
+  const {
+    loading: beeStatusLoading,
+    isOnline,
+    isJackRunning,
+    isJacktripRunning,
+  } = useBeeStatus(numberizedId);
+  const {
+    loading: beeConfigLoading,
+    beeConfig,
+    updateBeeConfig,
+  } = useBeeConfig(numberizedId);
 
-  if (loading) return <Loader />;
+  if (beeStatusLoading || beeConfigLoading) return <Loader />;
 
   return (
     <Z3Page

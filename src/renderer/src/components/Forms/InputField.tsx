@@ -66,6 +66,5 @@ export const InputField = styled.div<Omit<InputFieldProps, "label">>`
   input.invalid,
   .invalid .MuiInputBase-input {
     border: 1px solid var(--red-status);
-    opacity: 0.5;
   }
 `;
