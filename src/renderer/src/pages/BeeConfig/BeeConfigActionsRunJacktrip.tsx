@@ -1,29 +1,12 @@
 import { ToggleButton } from "@components/Buttons/ToggleButton";
-import {
-  ButtonUse,
-  ButtonType,
-  ButtonSize,
-} from "@renderer/src/components/Buttons";
-import { useInterval } from "@renderer/src/hooks";
-import React, { useState } from "react";
+import { ButtonSize } from "@renderer/src/components/Buttons";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { BeeConfigActionsRunProps } from "./BeeConfigActionsRunJack";
-
-/**
- * The state1 button
- */
-const state1Button = {
-  buttonUse: ButtonUse.Normal,
-  buttonType: ButtonType.Primary,
-};
-
-/**
- * The state2 button
- */
-const state2Button = {
-  buttonUse: ButtonUse.Normal,
-  buttonType: ButtonType.Secondary,
-};
+import {
+  BeeConfigActionsRunProps,
+  state1Button,
+  state2Button,
+} from "./BeeConfigActionsRunJack";
 
 /**
  * A Custom ToggleButton with full width behaviour
@@ -33,21 +16,12 @@ const CustomToggleButton = styled(ToggleButton)`
   height: 100%;
 `;
 
-/**
- * A function that will check if Jacktrip is running
- * @returns
- */
-const isJacktripRunning = (): boolean => false;
-
 export const BeeConfigActionsRunJacktrip = ({
   isRunning: running = false,
 }: BeeConfigActionsRunProps) => {
   const [isRunning, setIsRunning] = useState<boolean>(running);
 
-  useInterval(() => {
-    // @TODO check if jacktrip is running and update state
-    setIsRunning(isJacktripRunning());
-  }, 1000);
+  useEffect(() => setIsRunning(running), [running]);
 
   return (
     <CustomToggleButton

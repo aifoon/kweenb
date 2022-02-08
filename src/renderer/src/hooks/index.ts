@@ -1,3 +1,5 @@
 import { useInterval } from "./useInterval";
+import { useBeeStatus } from "./useBeeStatus";
+import { useBeeConfig } from "./useBeeConfig";
 
-export { useInterval };
+export { useInterval, useBeeStatus, useBeeConfig };

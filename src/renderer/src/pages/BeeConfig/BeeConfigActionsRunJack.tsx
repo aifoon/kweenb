@@ -5,7 +5,7 @@ import {
   ButtonSize,
 } from "@renderer/src/components/Buttons";
 import { useInterval } from "@renderer/src/hooks";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 export interface BeeConfigActionsRunProps {
@@ -15,16 +15,16 @@ export interface BeeConfigActionsRunProps {
 /**
  * The state1 button
  */
-const state1Button = {
-  buttonUse: ButtonUse.Normal,
+export const state1Button = {
+  buttonUse: ButtonUse.Dark,
   buttonType: ButtonType.Primary,
 };
 
 /**
  * The state2 button
  */
-const state2Button = {
-  buttonUse: ButtonUse.Normal,
+export const state2Button = {
+  buttonUse: ButtonUse.Dark,
   buttonType: ButtonType.Secondary,
 };
 
@@ -36,21 +36,12 @@ const CustomToggleButton = styled(ToggleButton)`
   height: 100%;
 `;
 
-/**
- * A function that will check if Jack is running
- * @returns
- */
-const isJackRunning = (): boolean => true;
-
 export const BeeConfigActionsRunJack = ({
   isRunning: running = false,
 }: BeeConfigActionsRunProps) => {
   const [isRunning, setIsRunning] = useState<boolean>(running);
 
-  useInterval(() => {
-    // @TODO check if jack is running and update state
-    setIsRunning(isJackRunning());
-  }, 1000);
+  useEffect(() => setIsRunning(running), [running]);
 
   return (
     <CustomToggleButton

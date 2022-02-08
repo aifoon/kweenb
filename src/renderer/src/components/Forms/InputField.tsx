@@ -16,6 +16,8 @@ export interface InputFieldProps {
   size?: InputFieldSize;
   labelWidth?: string;
   width?: string;
+  onValidatedBlur?: (e: any) => void;
+  onValidatedChange?: (e: any) => void;
 }
 
 export const InputField = styled.div<Omit<InputFieldProps, "label">>`

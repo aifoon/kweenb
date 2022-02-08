@@ -246,9 +246,24 @@ const DesignSystem = () => {
             </Button>
           </Row>
           <Row>
-            <Button buttonUse={ButtonUse.Modal}>Modal Primary Button</Button>
-            <Button buttonSize={ButtonSize.Small} buttonUse={ButtonUse.Modal}>
-              Modal Primary Button
+            <Button buttonUse={ButtonUse.Dark}>
+              Modal Primary Button Medium
+            </Button>
+            <Button buttonSize={ButtonSize.Small} buttonUse={ButtonUse.Dark}>
+              Modal Primary Button Small
+            </Button>
+            <Button
+              buttonType={ButtonType.Secondary}
+              buttonUse={ButtonUse.Dark}
+            >
+              Modal Secondary Button Medium
+            </Button>
+            <Button
+              buttonType={ButtonType.Secondary}
+              buttonSize={ButtonSize.Small}
+              buttonUse={ButtonUse.Dark}
+            >
+              Modal Secondary Button Medium
             </Button>
           </Row>
         </DesignSystemSection>

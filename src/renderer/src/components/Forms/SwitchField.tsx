@@ -42,6 +42,7 @@ export const SwitchField = (
     labelWidth = "",
     width = "100%",
     orientation = InputFieldOrientation.Vertical,
+    onValidatedChange,
   } = props;
 
   const [field, meta] = useField(props);
@@ -68,6 +69,10 @@ export const SwitchField = (
         {...configSwitch}
         checked={field.value}
         size={size === InputFieldSize.Small ? "small" : "medium"}
+        onChange={(e: any) => {
+          if (onValidatedChange && !meta.error) onValidatedChange(e);
+          field.onChange(e);
+        }}
       />
       {meta.touched && meta.error ? (
         <ErrorMessage size={size}>{meta.error}</ErrorMessage>

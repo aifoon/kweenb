@@ -46,6 +46,7 @@ export const SelectField = (
     selectItems = [],
     width = "100%",
     orientation = InputFieldOrientation.Vertical,
+    onValidatedBlur,
   } = props;
 
   const [field, meta] = useField(props);
@@ -88,6 +89,10 @@ export const SelectField = (
                 },
               },
             },
+          }}
+          onBlur={(e: any) => {
+            if (onValidatedBlur && !meta.error) onValidatedBlur(e);
+            field.onBlur(e);
           }}
         >
           {selectItems &&

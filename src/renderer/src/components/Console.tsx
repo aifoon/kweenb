@@ -31,8 +31,8 @@ export const Console = ({ children, height }: ConsoleProps) => (
   <ConsoleWrapper>
     <ScrollToBottom
       className={css({
-        height,
-      })}
+        height: `${height?.toString()}px`,
+      }).toString()}
     >
       {children}
     </ScrollToBottom>
