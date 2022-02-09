@@ -21,7 +21,7 @@ export function useBeeStatus(id: number) {
 
   useInterval(() => {
     setIsOnline(true);
-    setIsJackRunning(false);
+    setIsJackRunning(true);
     setIsJacktripRunning(false);
   }, 1000);
 
