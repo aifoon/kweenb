@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
-import { useBeeDatabase } from "@renderer/src/hooks/useBeeDatabase";
+import { useKweenB } from "@renderer/src/hooks";
 import { BaseModal, BaseModalProps } from "../Modals/BaseModal";
 
 export const AddBeeModal = ({
@@ -16,7 +16,7 @@ export const AddBeeModal = ({
   onClose,
 }: Pick<BaseModalProps, "open" | "onClose">) => {
   const [isOpen, setIsOpen] = useState(open);
-  const { createNewBee } = useBeeDatabase();
+  const { createNewBee } = useKweenB();
 
   useEffect(() => setIsOpen(open), [open]);
 

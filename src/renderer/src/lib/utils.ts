@@ -15,4 +15,11 @@ export const Utils = {
     }
     return incoming < 10 ? `0${incoming}` : `${incoming}`;
   },
+
+  /**
+   * A function that will capitalize the first letter of string
+   * @param s
+   * @returns
+   */
+  capitalize: (s: string) => (s && s[0].toUpperCase() + s.slice(1)) || "",
 };

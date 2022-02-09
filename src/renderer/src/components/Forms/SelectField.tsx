@@ -31,7 +31,10 @@ const CustomSelect = styled(({ size, ...selectProps }) => (
     background-color: var(--primary-400);
     border: 1px solid var(--primary-100);
     border-radius: var(--radiusMedium);
-    padding: ${({ size }) => (size === InputFieldSize.Small ? "7px" : "12px")};
+    font-size: ${({ size }) =>
+      size === InputFieldSize.Small ? "var(--smallText)" : "1rem"};
+    padding: ${({ size }) =>
+      size === InputFieldSize.Small ? "6px 7px 6px 10px" : "12px"};
   }
 `;
 
