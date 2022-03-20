@@ -47,7 +47,6 @@ contextBridge.exposeInMainWorld("kweenb", {
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
     beesPoller: (action: "start" | "stop"): void => {
-      console.log(action);
       ipcRenderer.send("beesPoller", action);
     },
   },

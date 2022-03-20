@@ -45,3 +45,8 @@ export interface BeeAudioSettings {
   jack: BeeAudioSettingsJack;
   jacktrip: BeeAudioSettingsJackTrip;
 }
+
+export interface ToastMessage {
+  message: string;
+  severity: "error" | "warning" | "info" | "success";
+}

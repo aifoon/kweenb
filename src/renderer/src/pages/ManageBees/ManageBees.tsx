@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   ButtonSize,
@@ -9,19 +9,21 @@ import { PageHeader } from "@components/PageHeader";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useBees } from "@renderer/src/hooks/useBees";
+import { useAppContext } from "@renderer/src/hooks/useAppContext";
+import { useModalState } from "@renderer/src/hooks/useModalState";
 import { Z3Page } from "../../layout";
 import { Bee } from "./Bee";
 import { AddBeeModal } from "./AddBeeModal";
 
 export const ManageBees = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const { openModal, handleOpen, handleClose } = useModalState(false);
   const { loading, bees } = useBees();
-
+  const { appContext } = useAppContext();
   const navigate = useNavigate();
-  const handleOpen = () => setOpenModal(true);
-  const handleClose = () => setOpenModal(false);
 
-  if (loading) console.log("loading");
+  useEffect(() => {
+    appContext.setLoading(loading);
+  }, [loading]);
 
   return (
     <Z3Page

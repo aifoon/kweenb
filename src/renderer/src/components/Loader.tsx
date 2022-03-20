@@ -12,7 +12,7 @@ const LoaderWrapper = styled.div`
   left: 0;
   height: 100vh;
   width: 100vw;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 
 export const Loader = () => (
