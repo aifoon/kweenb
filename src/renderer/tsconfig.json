@@ -12,11 +12,18 @@
     "sourceMap": true,
     "baseUrl": "../../src",
     "paths": {
+      "@components/*": ["renderer/src/components/*"],
       "@renderer/*": ["renderer/*"],
-      "@components/*": ["renderer/src/components/*"]
+      "@shared/*": ["shared/*"]
     },
     "allowSyntheticDefaultImports": true
   },
-  "include": ["../renderer/**/*", "types.d.ts"],
-  "exclude": ["../main/**/*"]
+  "include": [
+    "../renderer/**/*",
+    "types.d.ts",
+    "../preload/exposedMainWorld.d.ts"
+  ],
+  "exclude": [
+    "../main/**/*"
+  ]
 }

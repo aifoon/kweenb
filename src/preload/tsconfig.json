@@ -1,17 +1,17 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "../../src",
     "paths": {
-      "/@/*": [
-        "./src/*"
-      ]
-    }
+      "@shared/*": ["shared/*"]
+    },
   },
-  "files": [
-    "src/index.ts"
-  ],
   "include": [
-    "../../types/**/*.d.ts"
+    "../shared/**/*",
+    "../preload/**/*",
+    "../../types/**/*.d.ts",
+  ],
+  "exclude": [
+    "../preload/dist/"
   ]
 }

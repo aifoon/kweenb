@@ -1,11 +1,13 @@
+/**
+ * Hook that will fetch the internal configuration of the bee
+ */
+
 import { useCallback, useEffect, useState } from "react";
 import { BeeConfig, BeeConfigItem } from "../interfaces";
 
 export function useBeeConfig(
   id: number,
   defaultConfig: BeeConfig = {
-    ipAddress: "",
-    name: "",
     jacktripVersion: "",
     useMqtt: false,
   }
@@ -22,8 +24,6 @@ export function useBeeConfig(
     // @TODO fetch the bee config from zwerm3api
     setTimeout(() => {
       setBeeConfig({
-        ipAddress: "192.168.1.1",
-        name: "bee1",
         jacktripVersion: "1.4.1",
         useMqtt: true,
       });

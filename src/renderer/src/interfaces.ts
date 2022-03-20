@@ -16,8 +16,6 @@ export interface Setting {
  */
 
 export interface BeeConfig {
-  ipAddress: string;
-  name: string;
   jacktripVersion: string;
   useMqtt: boolean;
 }

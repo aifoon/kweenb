@@ -1,9 +1,12 @@
+/**
+ * Hook that will check the status of a bee
+ */
+
 import { useEffect, useState } from "react";
 import { useInterval } from "./useInterval";
 
 export function useBeeStatus(id: number) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(false);
   const [isJackRunning, setIsJackRunning] = useState<boolean>(false);
   const [isJacktripRunning, setIsJacktripRunning] = useState<boolean>(false);
 
@@ -12,7 +15,6 @@ export function useBeeStatus(id: number) {
 
     // @TODO fetch the bee status from zwerm3api when mounting
     setTimeout(() => {
-      setIsOnline(false);
       setIsJackRunning(false);
       setIsJacktripRunning(false);
       setLoading(false);
@@ -20,12 +22,11 @@ export function useBeeStatus(id: number) {
   }, []);
 
   useInterval(() => {
-    setIsOnline(true);
     setIsJackRunning(true);
     setIsJacktripRunning(false);
   }, 1000);
 
-  return { loading, isOnline, isJackRunning, isJacktripRunning };
+  return { loading, isJackRunning, isJacktripRunning };
 }
 
 export default useBeeStatus;
