@@ -1,7 +1,8 @@
-import { contextBridge } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 
 import type { BinaryLike } from "crypto";
 import { createHash } from "crypto";
+import { IBee } from "@shared/interfaces";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -32,9 +33,33 @@ contextBridge.exposeInMainWorld("versions", process.versions);
  * window.nodeCrypto('data')
  */
 contextBridge.exposeInMainWorld("nodeCrypto", {
-	sha256sum(data: BinaryLike) {
-		const hash = createHash("sha256");
-		hash.update(data);
-		return hash.digest("hex");
-	},
+  sha256sum(data: BinaryLike) {
+    const hash = createHash("sha256");
+    hash.update(data);
+    return hash.digest("hex");
+  },
+});
+
+/**
+ * Exposing the KweenB API in the main world
+ */
+contextBridge.exposeInMainWorld("kweenb", {
+  actions: {
+    sayHello: (name: string) => ipcRenderer.send("hello", name),
+    beesPoller: (action: "start" | "stop"): void => {
+      console.log(action);
+      ipcRenderer.send("beesPoller", action);
+    },
+  },
+  methods: {
+    fetchAllBees: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("kweenb:fetchAllBees"),
+  },
+  events: {
+    onUpdateBees: (callback: any) => {
+      const channel = "update-bees";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
+  },
 });

@@ -5,7 +5,10 @@
 import path from "path";
 import { URL } from "url";
 import { BrowserWindow, shell } from "electron";
-import MenuBuilder from "./menu";
+import MenuBuilder from "./Menu";
+import { KweenB, KweenBGlobal } from "../kweenb";
+import IntervalWorkerList from "./Interval/IntervalWorkerList";
+import BeesPoller from "./Interval/BeesPoller";
 
 interface ElectronAppOptions {
   browserWidth?: number;
@@ -101,6 +104,9 @@ export default class ElectronApp {
       event.preventDefault();
       shell.openExternal(url);
     });
+
+    // sets the mainWindow in a global state
+    KweenBGlobal.kweenb = new KweenB(mainWindow);
 
     // return the window
     return mainWindow;

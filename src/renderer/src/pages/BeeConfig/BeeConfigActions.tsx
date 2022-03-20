@@ -39,7 +39,8 @@ export const BeeConfigActions = ({
             buttonSize={ButtonSize.Small}
             buttonType={ButtonType.Primary}
             buttonUse={ButtonUse.Danger}
-            onClick={() => {
+            onClick={async () => {
+              console.log(await window.kweenb.methods.fetchAllBees());
               console.log("Clicking on Kill All");
             }}
             style={{ width: "100%", height: "100%" }}

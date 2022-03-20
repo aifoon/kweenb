@@ -6,11 +6,14 @@
     "sourceMap": false,
     "outDir": "../../dist",
     "baseUrl": "../../src",
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
-      "@/main/*": ["main/*"],
-      "@/common/*": ["common/*"]
+      "@main/*": ["main/*"],
+      "@shared/*": ["shared/*"]
     },
   },
-  "include": ["../main/**/*", "../common/**/*"],
+  "include": ["../main/**/*", "../shared/**/*"],
   "exclude": ["../renderer/**/*"]
 }

@@ -24,11 +24,11 @@
     "paths": {
       "@components/*": ["src/renderer/src/components/*"],
       "@renderer/*": ["src/renderer/*"],
+      "@shared/*": ["src/shared/*"],
     },
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "**/src/**/*.ts",
   ],
   "exclude": ["node_modules"]
 }
