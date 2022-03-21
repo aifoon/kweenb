@@ -13,7 +13,6 @@ import {
   validBufferSizes,
   validSampleRates,
 } from "@renderer/src/consts";
-import { useKweenB } from "@renderer/src/hooks";
 import { Utils } from "@renderer/src/lib/utils";
 
 interface BeeSettingsBeesProps {

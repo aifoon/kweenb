@@ -7,6 +7,21 @@ import { IBee } from "@shared/interfaces";
 import { KweenBGlobal } from "../kweenb";
 import { getBeeConfig, getBeeStatus } from "../lib/KweenB/BeeHelpers";
 import Bee from "../models/Bee";
+import { KweenBException } from "../lib/Exceptions/KweenBException";
+
+/**
+ * Define the defaults
+ */
+
+const defaultBeeConfig = {
+  jacktripVersion: "1.4.1",
+  useMqtt: false,
+};
+
+const defaultBeeStatus = {
+  isJackRunning: false,
+  isJacktripRunning: false,
+};
 
 /**
  * Fetch all the bees
@@ -38,21 +53,77 @@ export const fetchAllBees = async (): Promise<IBee[]> => {
 
       // check if the bee is online
       const isOnline = beeHost ? beeHost.alive : false;
-      // console.log(isOnline);
+
       // return the bee, according to the IBee interface
       return {
         id,
         name,
         ipAddress,
         isOnline,
-        config: isOnline ? await getBeeConfig(id) : null,
-        status: isOnline ? await getBeeStatus(id) : null,
+        config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
+        status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
       };
     }
   );
 
   // await until config and statusses are received
   return Promise.all(beesWithConfigAndStatusList);
+};
+
+/**
+ * Fetching a bee based on the ID
+ * @param id The id of the bee to be found
+ * @returns an object shaped like an IBee
+ */
+export const fetchBee = async (
+  event: Electron.IpcMainInvokeEvent,
+  id: number
+): Promise<IBee> => {
+  try {
+    // get the bee
+    const bee = await Bee.findOne({ where: { id } });
+
+    // validate if we found a Bee
+    if (!bee) throw new Error(`No bee found with the id ${id}.`);
+
+    // get all the ip addresses of our bees and map the ping promises
+    const beeConnectivity = await ping.promise.probe(bee.ipAddress, {
+      min_reply: 1,
+    });
+
+    // check if the bee is online
+    const isOnline = beeConnectivity.alive;
+
+    // return the bee, according to the IBee interface
+    return {
+      id: bee.id,
+      ipAddress: bee.ipAddress,
+      name: bee.name,
+      isOnline,
+      config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
+      status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
+    };
+  } catch (e: any) {
+    throw new KweenBException({ message: `fetchBee(): ${e.message}` }, true);
+  }
+};
+
+/**
+ * Update a Bee
+ * @param event
+ * @param bee
+ */
+export const updateBee = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: Partial<IBee>
+) => {
+  try {
+    if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
+    console.log(bee);
+    Bee.update(bee, { where: { id: bee.id } });
+  } catch (e: any) {
+    throw new KweenBException({ message: `updateBee(): ${e.message}` });
+  }
 };
 
 /**

@@ -5,7 +5,7 @@
 import { IBeeConfig, IBeeStatus } from "@shared/interfaces";
 import Bee from "../../models/Bee";
 
-export const getBeeConfig = async (id: number): Promise<IBeeConfig | null> => {
+export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
   // get the bee behind the id
   const bee = await Bee.findOne({ where: { id } });
 
@@ -19,7 +19,7 @@ export const getBeeConfig = async (id: number): Promise<IBeeConfig | null> => {
   return beeConfig;
 };
 
-export const getBeeStatus = async (id: number): Promise<IBeeStatus | null> => {
+export const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
   // get the bee behind the id
   const bee = await Bee.findOne({ where: { id } });
 

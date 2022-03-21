@@ -15,8 +15,8 @@ export interface IBee {
   name: string;
   ipAddress: string;
   isOnline: boolean;
-  config: IBeeConfig | null;
-  status: IBeeStatus | null;
+  config: IBeeConfig;
+  status: IBeeStatus;
 }
 
 export interface IBeeConfig {
