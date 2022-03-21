@@ -40,7 +40,9 @@ export default class IntervalWorkerList {
 
   startProcess(name: string) {
     if (!this.hasProcess(name)) return;
-    this.processes[name].start();
+    const process = this.processes[name];
+    if (process.isAsync) this.processes[name].startAsync();
+    else this.processes[name].start();
   }
 
   stopProcess(name: string) {

@@ -3,6 +3,7 @@
  * A KweenB instance that will control the requests coming from renderer
  */
 
+import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 
@@ -22,6 +23,18 @@ class KweenB {
 
   public get mainWindow() {
     return this._mainWindow;
+  }
+
+  /**
+   * Logic
+   */
+
+  public throwError(error: IError) {
+    this._mainWindow.webContents.send("error", error);
+  }
+
+  public showInfo(message: string) {
+    this._mainWindow.webContents.send("info", message);
   }
 }
 

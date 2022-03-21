@@ -18,8 +18,10 @@
         },
         "ecmaVersion": 12,
         "sourceType": "module",
-        "project": "./tsconfig.json"
+        "project": "tsconfig.json",
+        "tsconfigRootDir": "./"
     },
+    "ignorePatterns": [".eslintrc.json"],
     "plugins": [
         "prettier"
     ],

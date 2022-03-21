@@ -1,5 +1,5 @@
 import { IpcMessageEvent } from "electron";
-import { IBee } from "@shared/interfaces";
+import { IBee, IError } from "@shared/interfaces";
 
 declare global {
   interface Window {
@@ -31,6 +31,12 @@ declare global {
         beesPoller(action: "start" | "stop"): void;
       };
       readonly events: {
+        onError(
+          callback: (event: IpcMessageEvent, error: IError) => void
+        ): () => void;
+        onInfo(
+          callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
         onUpdateBees(
           callback: (event: IpcMessageEvent, bees: IBee[]) => void
         ): () => void;

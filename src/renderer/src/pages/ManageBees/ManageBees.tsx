@@ -10,13 +10,13 @@ import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useBees } from "@renderer/src/hooks/useBees";
 import { useAppContext } from "@renderer/src/hooks/useAppContext";
-import { useModalState } from "@renderer/src/hooks/useModalState";
+import { useShowState } from "@renderer/src/hooks/useShowState";
 import { Z3Page } from "../../layout";
 import { Bee } from "./Bee";
 import { AddBeeModal } from "./AddBeeModal";
 
 export const ManageBees = () => {
-  const { openModal, handleOpen, handleClose } = useModalState(false);
+  const { open, handleOpen, handleClose } = useShowState(false);
   const { loading, bees } = useBees();
   const { appContext } = useAppContext();
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export const ManageBees = () => {
         />
       }
     >
-      <AddBeeModal open={openModal} onClose={handleClose} />
+      <AddBeeModal open={open} onClose={handleClose} />
       <Grid container spacing={5}>
         {bees.map(({ id, ipAddress, isOnline, name }) => (
           <Grid key={id} item xl={2} lg={3} xs={12} sm={6} md={4}>
