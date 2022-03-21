@@ -3,4 +3,4 @@
  */
 
 export const SEQUELIZE_LOGGING = false;
-export const BEE_POLLING_SECONDS = 2;
+export const BEE_POLLING_SECONDS = 5;
