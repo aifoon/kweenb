@@ -8,8 +8,7 @@ import {
 import { PageHeader } from "@components/PageHeader";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useBees } from "@renderer/src/hooks/useBees";
-import { useAppContext } from "@renderer/src/hooks/useAppContext";
+import { useBees, useAppContext } from "@renderer/src/hooks";
 import { useShowState } from "@renderer/src/hooks/useShowState";
 import { BeeCard } from "@components/Cards";
 import { Z3Page } from "../../layout";

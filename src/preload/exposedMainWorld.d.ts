@@ -25,6 +25,8 @@ declare global {
     readonly kweenb: {
       readonly methods: {
         fetchAllBees(): Promise<IBee[]>;
+        fetchBee(id: number): Promise<IBee>;
+        updateBee(bee: Partial<IBee>);
       };
       readonly actions: {
         hello(name: string): void;

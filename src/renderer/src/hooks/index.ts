@@ -1,6 +1,7 @@
 import { useInterval } from "./useInterval";
-import { useBeeStatus } from "./useBeeStatus";
-import { useBeeConfig } from "./useBeeConfig";
+import { useBee } from "./useBee";
+import { useBees } from "./useBees";
+import { useAppContext } from "./useAppContext";
 import { useKweenB } from "./useKweenB";
 
-export { useInterval, useBeeStatus, useBeeConfig, useKweenB };
+export { useInterval, useBee, useBees, useAppContext, useKweenB };

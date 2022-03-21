@@ -13,48 +13,52 @@ import {
 import Yup from "@renderer/src/yup-ext";
 import { IBeeConfig, IBee } from "@shared/interfaces";
 
-interface BeeConfigConfigProps {
-  beeConfig: IBeeConfig;
-  onUpdate: (config: Partial<IBeeConfig>) => void;
+interface BeeConfigSettingsProps {
+  ipAddress: string;
+  name: string;
+  onUpdate: (config: Partial<Pick<IBee, "ipAddress" | "name">>) => void;
 }
 
-export const BeeConfigConfig = ({
-  beeConfig,
+export const BeeConfigSettings = ({
+  ipAddress,
+  name,
   onUpdate,
-}: BeeConfigConfigProps) => {
+}: BeeConfigSettingsProps) => {
   const handleOnValidatedBlurAndChange = (e: any) => {
     onUpdate({ [e.target.name]: e.target.value });
   };
   return (
-    <Card title="Config">
+    <Card title="Settings">
       <Formik
-        initialValues={{ ...beeConfig }}
+        initialValues={{ ipAddress, name }}
         validationSchema={Yup.object().shape({
-          jacktripVersion: Yup.string().required(
-            "A Jacktrip Version is required!"
-          ),
-          useMqtt: Yup.boolean().required(),
+          ipAddress: Yup.string()
+            .required("An IP Address is required")
+            .isValidIpAddress("The IP Address is invalid"),
+          name: Yup.string().required("A name is required")
         })}
         onSubmit={() => {}}
       >
         {() => (
           <Form>
-            <SelectField
+            <TextField
               onValidatedBlur={handleOnValidatedBlurAndChange}
               orientation={InputFieldOrientation.Horizontal}
               size={InputFieldSize.Small}
-              label="Jacktrip Version"
+              label="IP Address"
+              type="text"
               labelWidth="150px"
-              selectItems={[{ label: "1.4.1", value: "1.4.1" }]}
-              name="jacktripVersion"
+              name="ipAddress"
+              placeholder="e.g. 192.168.0.2"
             />
-            <SwitchField
-              onValidatedChange={handleOnValidatedBlurAndChange}
-              name="useMqtt"
-              label="Use MQTT"
-              labelWidth="150px"
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
               orientation={InputFieldOrientation.Horizontal}
               size={InputFieldSize.Small}
+              label="Name"
+              type="text"
+              labelWidth="150px"
+              name="name"
             />
           </Form>
         )}
