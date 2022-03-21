@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /**
  * Defines a process
  */
@@ -10,9 +11,10 @@ export enum IntervalWorkerState {
 }
 
 export interface IIntervalWorker {
-  worker: () => void;
+  isAsync: boolean;
   pause: () => void;
   start: () => void;
+  startAsync: () => Promise<any>;
   stop: () => void;
   state: IntervalWorkerState;
 }
@@ -24,13 +26,26 @@ export default abstract class IntervalWorker implements IIntervalWorker {
 
   private currentInterval: NodeJS.Timer | null;
 
-  constructor(interval: number = 1000) {
+  public isAsync: boolean;
+
+  constructor(interval: number = 1000, isAsync: boolean = false) {
     this.interval = interval;
     this.state = IntervalWorkerState.Initialized;
     this.currentInterval = null;
+    this.isAsync = isAsync;
   }
 
-  abstract worker(): void;
+  /**
+   * Logic
+   */
+
+  protected worker(): void {
+    throw new Error("The worker is not implemented");
+  }
+
+  protected async asyncWorker(): Promise<any> {
+    throw new Error("The async worker is not implemented");
+  }
 
   pause(): void {
     if (this.currentInterval && this.state === IntervalWorkerState.Running) {
@@ -38,8 +53,24 @@ export default abstract class IntervalWorker implements IIntervalWorker {
     }
   }
 
+  async startAsync() {
+    if (
+      (!this.currentInterval &&
+        this.state === IntervalWorkerState.Initialized) ||
+      (this.currentInterval && this.state === IntervalWorkerState.Stopped)
+    ) {
+      this.currentInterval = setInterval(
+        await this.asyncWorker.bind(this),
+        this.interval
+      );
+      this.state = IntervalWorkerState.Running;
+    }
+    if (this.currentInterval && this.state === IntervalWorkerState.Pause) {
+      this.state = IntervalWorkerState.Running;
+    }
+  }
+
   start(): void {
-    this.currentInterval?.refresh();
     if (
       (!this.currentInterval &&
         this.state === IntervalWorkerState.Initialized) ||

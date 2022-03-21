@@ -7,7 +7,7 @@
     "jsx": "preserve",
     "lib": ["es6"],
     "moduleResolution": "node",
-    "module": "commonjs",
+    "module": "ES6",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

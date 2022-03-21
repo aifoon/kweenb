@@ -17,6 +17,10 @@ export const fetchAllBees = async (): Promise<IBee[]> => {
     name,
     ipAddress,
     isOnline: false,
+    config: {
+      jacktripVersion: "1.4.1",
+      useMqtt: false,
+    },
   }));
 };
 

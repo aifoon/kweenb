@@ -7,6 +7,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
+import { useShowState } from "../hooks/useShowState";
 
 interface AppContextProviderProps {
   children: React.ReactNode
@@ -15,19 +16,44 @@ interface AppContextProviderProps {
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastMessage>({ message: "", severity: "info"});
-  const [openToast, setOpenToast] = useState<boolean>(false);
+  const { open: openToast, handleOpen: handleOpenToast, handleClose: handleCloseToast } = useShowState(false);
 
   /**
    * A function that we'll pass to all the children
    * to add some yummy toasts
    */
   const showToast = useCallback(
-    (toast) => {
+    (toast: ToastMessage) => {
       setToast(toast);
-      setOpenToast(true);
+      handleOpenToast();
     },
     [setToast]
   )
+
+  /**
+   * When hooking the application provider
+   */
+  useEffect(() => {
+    // Handle an error
+    window.kweenb.events.onError(
+      (event, error) => {
+        showToast({
+          message: error.message,
+          severity: "error"
+        });
+      }
+    )
+
+    // Handle an infomrative message
+    window.kweenb.events.onInfo(
+      (event, message) => {
+        showToast({
+          message,
+          severity: "info"
+        });
+      }
+    )
+  }, [])
 
   return (
     <AppContext.Provider value={{ setLoading, showToast }}>
@@ -40,10 +66,10 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right"}}
           open={openToast}
           autoHideDuration={3000}
-          onClose={() => setOpenToast(false)}
+          onClose={handleCloseToast}
           message={toast.message}
         >
-          <Alert onClose={() => setOpenToast(false)} severity={toast.severity} sx={{ width: '100%' }}>
+          <Alert onClose={handleCloseToast} severity={toast.severity} sx={{ width: '100%' }}>
             {toast.message}
           </Alert>
         </Snackbar>

@@ -60,5 +60,11 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.on(channel, callback);
       return () => ipcRenderer.removeAllListeners(channel);
     },
+    onError: (callback: any) => {
+      ipcRenderer.on("error", callback);
+    },
+    onInfo: (callback: any) => {
+      ipcRenderer.on("info", callback);
+    },
   },
 });
