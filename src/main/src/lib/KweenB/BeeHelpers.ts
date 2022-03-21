@@ -2,10 +2,10 @@
  * A module with helpers used for getting bees and their config
  */
 
-import { IBeeConfig } from "@shared/interfaces";
+import { IBeeConfig, IBeeStatus } from "@shared/interfaces";
 import Bee from "../../models/Bee";
 
-export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
+export const getBeeConfig = async (id: number): Promise<IBeeConfig | null> => {
   // get the bee behind the id
   const bee = await Bee.findOne({ where: { id } });
 
@@ -17,4 +17,18 @@ export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
 
   // return the configuration
   return beeConfig;
+};
+
+export const getBeeStatus = async (id: number): Promise<IBeeStatus | null> => {
+  // get the bee behind the id
+  const bee = await Bee.findOne({ where: { id } });
+
+  // @TODO get the configuration from a bee
+  const beeStatus = {
+    isJackRunning: true,
+    isJacktripRunning: true,
+  };
+
+  // return the configuration
+  return beeStatus;
 };

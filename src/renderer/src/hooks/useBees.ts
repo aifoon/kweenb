@@ -26,6 +26,7 @@ export function useBees() {
     // fetch the bees
     (async () => {
       const fetchedBees = await fetchAllBees();
+      console.log(fetchedBees);
       setBees(fetchedBees);
     })();
 

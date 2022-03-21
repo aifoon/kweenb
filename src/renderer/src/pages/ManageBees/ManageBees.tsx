@@ -11,8 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { useBees } from "@renderer/src/hooks/useBees";
 import { useAppContext } from "@renderer/src/hooks/useAppContext";
 import { useShowState } from "@renderer/src/hooks/useShowState";
+import { BeeCard } from "@components/Cards";
 import { Z3Page } from "../../layout";
-import { Bee } from "./Bee";
 import { AddBeeModal } from "./AddBeeModal";
 
 export const ManageBees = () => {
@@ -46,14 +46,16 @@ export const ManageBees = () => {
     >
       <AddBeeModal open={open} onClose={handleClose} />
       <Grid container spacing={5}>
-        {bees.map(({ id, ipAddress, isOnline, name }) => (
+        {bees.map(({ id, ipAddress, isOnline, name, status }) => (
           <Grid key={id} item xl={2} lg={3} xs={12} sm={6} md={4}>
-            <Bee
-              onBeeConfigClick={() => navigate(`manage-bees/${id}`)}
+            <BeeCard
               number={id}
-              ipAddress={ipAddress}
+              onBeeConfigClick={() => navigate(`manage-bees/${id}`)}
               name={name}
+              ipAddress={ipAddress}
               online={isOnline}
+              jackIsRunning={status?.isJackRunning}
+              jackTripIsRunning={status?.isJacktripRunning}
             />
           </Grid>
         ))}
