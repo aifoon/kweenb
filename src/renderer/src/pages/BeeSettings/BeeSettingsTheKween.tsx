@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useKweenB } from "@renderer/src/hooks";
+import { useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 
 interface BeeSettingsTheKweenBProps {
@@ -17,7 +17,7 @@ interface BeeSettingsTheKweenBProps {
 export const BeeSettingsTheKween = ({
   ipAddress,
 }: BeeSettingsTheKweenBProps) => {
-  const { updateSetting } = useKweenB();
+  const { updateSetting } = useSetting();
   const handleOnValidatedBlurAndChange = (e: any) => {
     updateSetting({
       key: `thekween${Utils.capitalize(e.target.name)}`,

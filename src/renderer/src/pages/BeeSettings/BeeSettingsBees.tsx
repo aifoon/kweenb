@@ -14,14 +14,15 @@ import {
   validSampleRates,
 } from "@renderer/src/consts";
 import { Utils } from "@shared/utils";
-import { useKweenB } from "@renderer/src/hooks";
+import { IBeeAudioSettings } from "@shared/interfaces";
+import { useSetting } from "@renderer/src/hooks";
 
 interface BeeSettingsBeesProps {
-  beeAudioSettings: BeeAudioSettings;
+  beeAudioSettings: IBeeAudioSettings;
 }
 
 export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
-  const { updateSetting } = useKweenB();
+  const { updateSetting } = useSetting();
   const handleOnValidatedBlurAndChange = (e: any) => {
     updateSetting({
       key: `bee${Utils.capitalize(e.target.name)}`,
@@ -35,7 +36,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           channels: beeAudioSettings.channels,
           jackBufferSize: beeAudioSettings.jack.bufferSize,
           jackSampleRate: beeAudioSettings.jack.sampleRate,
-          jacktripBitrate: beeAudioSettings.jacktrip.bitRate,
+          jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
           jacktripRedundancy: beeAudioSettings.jacktrip.redundancy,
           jacktripQueueBufferLength:
             beeAudioSettings.jacktrip.queueBufferLength,
@@ -51,7 +52,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           jackSampleRate: Yup.number()
             .required("The sample rate is required")
             .isValidSampleRate(),
-          jacktripBitrate: Yup.number()
+          jacktripBitRate: Yup.number()
             .required("The bitrate is required")
             .isValidBitRate(),
           jacktripRedundancy: Yup.number()
@@ -115,7 +116,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
                 label: value.toString(),
                 value,
               }))}
-              name="jacktripBitrate"
+              name="jacktripBitRate"
             />
             <TextField
               onValidatedBlur={handleOnValidatedBlurAndChange}

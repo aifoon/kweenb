@@ -8,7 +8,6 @@ import React, { useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
-import { useKweenB } from "@renderer/src/hooks";
 import { BaseModal, BaseModalProps } from "../Modals/BaseModal";
 
 export const AddBeeModal = ({
@@ -16,7 +15,6 @@ export const AddBeeModal = ({
   onClose,
 }: Pick<BaseModalProps, "open" | "onClose">) => {
   const [isOpen, setIsOpen] = useState(open);
-  const { createNewBee } = useKweenB();
 
   useEffect(() => setIsOpen(open), [open]);
 
@@ -35,7 +33,7 @@ export const AddBeeModal = ({
         })}
         onSubmit={async (values, { setSubmitting }) => {
           setSubmitting(true);
-          await createNewBee(values);
+          // create a new bee here
           setSubmitting(false);
           onClose();
         }}

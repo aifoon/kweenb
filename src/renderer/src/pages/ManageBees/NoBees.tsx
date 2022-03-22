@@ -22,6 +22,7 @@ const EmptyBeesContainer = styled.div`
   }
   p {
     margin-bottom: 2rem;
+    color: var(--secondary-100);
   }
 `;
 
@@ -36,7 +37,7 @@ export const NoBees = () => {
         <p>
           With this application you&apos;ll be able to manage bees. An extra
           device, The Kween, will be used to stream audio between your computer
-          and the different bees.
+          and all the other bees. Have fun!
         </p>
         <Button
           key="addNewBee"

@@ -8,15 +8,15 @@ export default [
     value: "2"
   },
   {
-    key: "beeJackBuffersize",
+    key: "beeJackBufferSize",
     value: "16"
   },
   {
-    key: "beeJackSamplerate",
-    value: "48000"
+    key: "beeJackSampleRate",
+    value: "44100"
   },
   {
-    key: "beeJacktripBitrate",
+    key: "beeJacktripBitRate",
     value: "16"
   },
   {

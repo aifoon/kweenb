@@ -28,3 +28,53 @@ export interface IBeeStatus {
   isJackRunning: boolean;
   isJacktripRunning: boolean;
 }
+
+/**
+ * For Setting
+ */
+
+export interface ISetting {
+  key: string;
+  value: string;
+}
+
+/**
+ * The Audio Settings for a bee
+ */
+
+export interface IKweenBSettings {
+  beeAudioSettings: IBeeAudioSettings;
+  kweenBAudioSettings: IKweenBAudioSettings;
+  theKweenSettings: ITheKweenSettings;
+}
+
+// Bee Audio
+
+export interface IBeeAudioSettings {
+  channels: number;
+  jack: IBeeAudioSettingsJack;
+  jacktrip: IBeeAudioSettingsJackTrip;
+}
+
+export interface IBeeAudioSettingsJack {
+  bufferSize: number;
+  sampleRate: number;
+}
+
+export interface IBeeAudioSettingsJackTrip {
+  bitRate: number;
+  redundancy: number;
+  queueBufferLength: number;
+}
+
+// KweenB
+
+export interface IKweenBAudioSettings {
+  channels: number;
+}
+
+// The Kween
+
+export interface ITheKweenSettings {
+  ipAddress: string;
+}

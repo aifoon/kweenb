@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useKweenB } from "@renderer/src/hooks";
+import { useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 
 interface BeeSettingsKweenBProps {
@@ -15,7 +15,7 @@ interface BeeSettingsKweenBProps {
 }
 
 export const BeeSettingsKweenB = ({ channels }: BeeSettingsKweenBProps) => {
-  const { updateSetting } = useKweenB();
+  const { updateSetting } = useSetting();
   const handleOnValidatedBlurAndChange = (e: any) => {
     updateSetting({
       key: `kweenb${Utils.capitalize(e.target.name)}`,
