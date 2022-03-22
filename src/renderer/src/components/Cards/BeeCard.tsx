@@ -7,10 +7,10 @@ import {
   ButtonSize,
 } from "@renderer/src/components/Buttons";
 import { CircularProgress, Grid } from "@mui/material";
+import { Utils } from "@shared/utils";
 import { Flex } from "../Flex";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
-import { Utils } from "../../lib/utils";
 
 /**
  * Types & Enums

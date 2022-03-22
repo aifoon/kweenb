@@ -119,7 +119,6 @@ export const updateBee = async (
 ) => {
   try {
     if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
-    console.log(bee);
     Bee.update(bee, { where: { id: bee.id } });
   } catch (e: any) {
     throw new KweenBException({ message: `updateBee(): ${e.message}` });

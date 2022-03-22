@@ -15,9 +15,7 @@ import {
   registerIntervalWorkers,
   registerMethods,
 } from "./register";
-import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
-import { KweenBGlobal } from "./kweenb";
-import BeesPoller from "./lib/Interval/BeesPoller";
+import firstBoot from "./firstboot";
 
 /**
  * Get the resources path
@@ -38,11 +36,16 @@ app.on("window-all-closed", () => {
 });
 
 /**
- * Start the electron app when we are ready
+ * A function that will initialise our application
  */
-app
-  .whenReady()
-  .then(() => {
+const initApp = async () => {
+  try {
+    // when the application is ready
+    await app.whenReady();
+
+    // check if the first start script ran before going further
+    await firstBoot();
+
     // create a new electron app
     const electronApp = new ElectronApp({
       browserWidth: 1024, // sets the browser width
@@ -52,19 +55,19 @@ app
     });
 
     // create hte window
-    const mainWindow = electronApp.createWindow().then(() => {
-      // register actions to execute
-      // (one way direction, from renderer to main)
-      registerActions();
+    const mainWindow = await electronApp.createWindow();
 
-      // register the methods to handle
-      // (two way direction, from renderer to main and back)
-      registerMethods();
+    // register actions to execute
+    // (one way direction, from renderer to main)
+    registerActions();
 
-      // create interval workers
-      // these will do the dirty work, polling, etc.
-      registerIntervalWorkers();
-    });
+    // register the methods to handle
+    // (two way direction, from renderer to main and back)
+    registerMethods();
+
+    // create interval workers
+    // these will do the dirty work, polling, etc.
+    registerIntervalWorkers();
 
     // on activation
     app.on("activate", () => {
@@ -72,5 +75,10 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) electronApp.createWindow();
     });
-  })
-  .catch(console.error);
+  } catch (e: any) {
+    console.error(e.message);
+  }
+};
+
+// init the application
+initApp();

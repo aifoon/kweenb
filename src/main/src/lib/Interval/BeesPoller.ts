@@ -2,7 +2,7 @@
  * BeesPoller is an intervalworker that will poll for the bee status
  */
 
-import { fetchAllBees } from "../../controllers/kweenb";
+import { fetchAllBees } from "../../controllers/bee";
 import { KweenBException } from "../Exceptions/KweenBException";
 import { BEE_POLLING_SECONDS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
