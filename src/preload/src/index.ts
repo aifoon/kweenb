@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type { BinaryLike } from "crypto";
 import { createHash } from "crypto";
-import { IBee } from "@shared/interfaces";
+import { IBee, IKweenBSettings, ISetting } from "@shared/interfaces";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -49,6 +49,10 @@ contextBridge.exposeInMainWorld("kweenb", {
     fetchBee: (id: number): Promise<IBee> =>
       ipcRenderer.invoke("bee:fetchBee", id),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
+    fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
+      ipcRenderer.invoke("setting:fetchKweenBSettings"),
+    updateKweenBSetting: (setting: ISetting) =>
+      ipcRenderer.invoke("setting:updateKweenBSetting", setting),
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),

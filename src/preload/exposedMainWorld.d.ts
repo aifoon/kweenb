@@ -1,5 +1,5 @@
 import { IpcMessageEvent } from "electron";
-import { IBee, IError } from "@shared/interfaces";
+import { IBee, IError, IKweenBSettings, ISetting } from "@shared/interfaces";
 
 declare global {
   interface Window {
@@ -27,6 +27,8 @@ declare global {
         fetchAllBees(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         updateBee(bee: Partial<IBee>);
+        fetchKweenBSettings(): Promise<IKweenBSettings>;
+        updateKweenBSetting(setting: ISetting);
       };
       readonly actions: {
         hello(name: string): void;

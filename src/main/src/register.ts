@@ -13,6 +13,10 @@ import {
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
+import {
+  fetchKweenBSettings,
+  updateKweenBSetting,
+} from "./controllers/setting";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
@@ -23,6 +27,8 @@ export const registerMethods = () => {
   ipcMain.handle("bee:fetchBee", fetchBee);
   ipcMain.handle("bee:fetchAllBees", fetchAllBees);
   ipcMain.handle("bee:updateBee", updateBee);
+  ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
+  ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);
 };
 
 export const registerIntervalWorkers = () => {
