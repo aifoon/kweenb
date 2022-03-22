@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Button,
   ButtonSize,
@@ -34,9 +34,9 @@ export const NoBees = () => {
       <div style={{ width: "500px", textAlign: "center" }}>
         <h2>Welcome to KweenB!</h2>
         <p>
-          With this application you'll be able to manage bees. An extra device,
-          The Kween, will be used to stream audio between your computer and the
-          different bees.
+          With this application you&apos;ll be able to manage bees. An extra
+          device, The Kween, will be used to stream audio between your computer
+          and the different bees.
         </p>
         <Button
           key="addNewBee"
