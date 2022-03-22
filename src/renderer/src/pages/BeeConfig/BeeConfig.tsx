@@ -7,7 +7,7 @@ import { StatusBullet, StatusBulletType } from "@components/StatusBullet";
 import { Z3Page } from "@renderer/src/layout";
 import { useBee } from "@renderer/src/hooks";
 import { Loader } from "@components/Loader";
-import { Utils } from "../../lib/utils";
+import { Utils } from "@shared/utils";
 import { BeeConfigActions } from "./BeeConfigActions";
 import { BeeConfigConfig } from "./BeeConfigConfig";
 import { BeeConfigLogging } from "./BeeConfigLogging";

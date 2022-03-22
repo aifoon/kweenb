@@ -8,7 +8,7 @@ import {
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
 import { useKweenB } from "@renderer/src/hooks";
-import { Utils } from "@renderer/src/lib/utils";
+import { Utils } from "@shared/utils";
 
 interface BeeSettingsTheKweenBProps {
   ipAddress: string;

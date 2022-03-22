@@ -13,7 +13,8 @@ import {
   validBufferSizes,
   validSampleRates,
 } from "@renderer/src/consts";
-import { Utils } from "@renderer/src/lib/utils";
+import { Utils } from "@shared/utils";
+import { useKweenB } from "@renderer/src/hooks";
 
 interface BeeSettingsBeesProps {
   beeAudioSettings: BeeAudioSettings;

@@ -45,17 +45,15 @@ contextBridge.exposeInMainWorld("nodeCrypto", {
  */
 contextBridge.exposeInMainWorld("kweenb", {
   methods: {
-    fetchAllBees: (): Promise<IBee[]> =>
-      ipcRenderer.invoke("kweenb:fetchAllBees"),
+    fetchAllBees: (): Promise<IBee[]> => ipcRenderer.invoke("bee:fetchAllBees"),
     fetchBee: (id: number): Promise<IBee> =>
-      ipcRenderer.invoke("kweenb:fetchBee", id),
-    updateBee: (bee: Partial<IBee>) =>
-      ipcRenderer.invoke("kweenb:updateBee", bee),
+      ipcRenderer.invoke("bee:fetchBee", id),
+    updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
     beesPoller: (action: "start" | "stop"): void => {
-      ipcRenderer.send("beesPoller", action);
+      ipcRenderer.send("bee:beesPoller", action);
     },
   },
   events: {

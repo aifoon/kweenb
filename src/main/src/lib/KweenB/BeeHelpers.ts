@@ -7,7 +7,7 @@ import Bee from "../../models/Bee";
 
 export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
   // get the bee behind the id
-  const bee = await Bee.findOne({ where: { id } });
+  await Bee.findOne({ where: { id } });
 
   // @TODO get the configuration from a bee
   const beeConfig = {
