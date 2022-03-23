@@ -24,10 +24,11 @@ declare global {
      */
     readonly kweenb: {
       readonly methods: {
-        fetchAllBees(): Promise<IBee[]>;
+        createBee(bee: Pick<IBee, "name" | "ipAddress">);
+        fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
-        updateBee(bee: Partial<IBee>);
         fetchKweenBSettings(): Promise<IKweenBSettings>;
+        updateBee(bee: Partial<IBee>);
         updateKweenBSetting(setting: ISetting);
       };
       readonly actions: {

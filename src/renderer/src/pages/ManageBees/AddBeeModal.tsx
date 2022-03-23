@@ -4,17 +4,30 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
+import { IBee } from "@shared/interfaces";
 import { BaseModal, BaseModalProps } from "../Modals/BaseModal";
+
+interface AddBeeModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
+  onBeeAdded: () => void;
+}
 
 export const AddBeeModal = ({
   open,
   onClose,
-}: Pick<BaseModalProps, "open" | "onClose">) => {
+  onBeeAdded,
+}: AddBeeModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
+
+  /**
+   * Create a new bee
+   */
+  const createBee = useCallback((bee: Pick<IBee, "ipAddress" | "name">) => {
+    window.kweenb.methods.createBee(bee);
+  }, []);
 
   useEffect(() => setIsOpen(open), [open]);
 
@@ -33,9 +46,9 @@ export const AddBeeModal = ({
         })}
         onSubmit={async (values, { setSubmitting }) => {
           setSubmitting(true);
-          // create a new bee here
+          await createBee(values);
           setSubmitting(false);
-          onClose();
+          onBeeAdded();
         }}
       >
         {({ isSubmitting }) => (

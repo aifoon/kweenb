@@ -7,6 +7,7 @@ import { KweenBException } from "../Exceptions/KweenBException";
 import { BEE_POLLING_SECONDS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import IntervalWorker, { IntervalWorkerState } from "./IntervalWorker";
+import { getAllBees } from "../KweenB/BeeHelpers";
 
 export default class BeesPoller extends IntervalWorker {
   constructor() {
@@ -19,7 +20,7 @@ export default class BeesPoller extends IntervalWorker {
       if (this.state === IntervalWorkerState.Pause) return;
 
       // fetch all the bees
-      const bees = await fetchAllBees();
+      const bees = await getAllBees(true);
 
       // send out to renderer
       KweenBGlobal.kweenb.mainWindow.webContents.send("update-bees", bees);
