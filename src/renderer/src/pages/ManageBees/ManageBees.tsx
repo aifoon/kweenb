@@ -8,24 +8,21 @@ import {
 import { PageHeader } from "@components/PageHeader";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useBees, useAppContext } from "@renderer/src/hooks";
+import { useBees } from "@renderer/src/hooks";
 import { useShowState } from "@renderer/src/hooks/useShowState";
 import { BeeCard } from "@components/Cards";
+import { Loader } from "@components/Loader";
 import { Z3Page } from "../../layout";
 import { AddBeeModal } from "./AddBeeModal";
 import { NoBees } from "./NoBees";
 
 export const ManageBees = () => {
   const { open, handleOpen, handleClose } = useShowState(false);
-  const { loading, bees } = useBees();
-  const { appContext } = useAppContext();
+  const { loading, bees, fetchAllBees } = useBees();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    appContext.setLoading(loading);
-  }, [loading]);
-
-  if (bees.length === 0) return <NoBees />;
+  if (loading) return <Loader />;
+  if (!loading && bees.length === 0) return <NoBees />;
 
   return (
     <Z3Page
@@ -46,7 +43,14 @@ export const ManageBees = () => {
         />
       }
     >
-      <AddBeeModal open={open} onClose={handleClose} />
+      <AddBeeModal
+        open={open}
+        onClose={handleClose}
+        onBeeAdded={async () => {
+          await fetchAllBees();
+          handleClose();
+        }}
+      />
       {bees.length > 0 && (
         <Grid container spacing={5}>
           {bees.map(({ id, ipAddress, isOnline, name, status }) => (
@@ -54,6 +58,8 @@ export const ManageBees = () => {
               <BeeCard
                 number={id}
                 onBeeConfigClick={() => navigate(`manage-bees/${id}`)}
+                onBeeDeleteClick={() => console.log("delete")}
+                onBeeExitClick={() => console.log("exit")}
                 name={name}
                 ipAddress={ipAddress}
                 online={isOnline}

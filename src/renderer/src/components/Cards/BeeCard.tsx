@@ -5,10 +5,13 @@ import {
   ButtonUse,
   ButtonType,
   ButtonSize,
+  ButtonGroup,
 } from "@renderer/src/components/Buttons";
 import { CircularProgress, Grid } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { Utils } from "@shared/utils";
-import { Flex } from "../Flex";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
 
@@ -24,7 +27,9 @@ export interface BeeCardProps {
   jackTripIsRunning?: boolean;
   ipAddress?: string;
   loading?: boolean;
-  onBeeConfigClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onBeeExitClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 const BeeCardContainer = styled.div`
@@ -68,6 +73,22 @@ const BeeCardLoader = styled.div`
   height: 100%;
 `;
 
+const ToolButtonGroup = styled.div`
+  text-align: right;
+  a + a {
+    margin-left: 7px;
+  }
+`;
+
+const ToolButton = styled.a`
+  display: inline-block;
+  color: white;
+  background: none;
+  padding: 0;
+  text-align: right;
+  cursor: pointer;
+`;
+
 export const BeeCard = ({
   number = 0,
   online = true,
@@ -77,6 +98,8 @@ export const BeeCard = ({
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
+  onBeeDeleteClick,
+  onBeeExitClick,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
   const [isJackIsRunning, setIsJackIsRunning] = useState(online);
@@ -99,14 +122,29 @@ export const BeeCard = ({
         </BeeCardLoader>
       )}
       <>
-        <Flex justifyContent="flex-end">
-          <StatusBullet
-            type={
-              isOnline ? StatusBulletType.Active : StatusBulletType.NotActive
-            }
-            size={16}
-          />
-        </Flex>
+        <Grid container>
+          <Grid item xs={4}>
+            <StatusBullet
+              type={
+                isOnline ? StatusBulletType.Active : StatusBulletType.NotActive
+              }
+              size={16}
+            />
+          </Grid>
+          <Grid style={{ textAlign: "right" }} item xs={8}>
+            <ToolButtonGroup>
+              <ToolButton onClick={onBeeDeleteClick}>
+                <DeleteForeverIcon fontSize="small" />
+              </ToolButton>
+              <ToolButton onClick={onBeeExitClick}>
+                <LogoutIcon fontSize="small" />
+              </ToolButton>
+              <ToolButton onClick={onBeeConfigClick}>
+                <SettingsIcon fontSize="small" />
+              </ToolButton>
+            </ToolButtonGroup>
+          </Grid>
+        </Grid>
 
         <BeeCardSection>
           <h2>{Utils.addLeadingZero(number)}</h2>
@@ -135,7 +173,7 @@ export const BeeCard = ({
           </Grid>
         </BeeCardSection>
 
-        <BeeCardSection>
+        {/* <BeeCardSection>
           <Button
             onClick={onBeeConfigClick}
             buttonUse={ButtonUse.Normal}
@@ -145,7 +183,7 @@ export const BeeCard = ({
           >
             Bee Config
           </Button>
-        </BeeCardSection>
+        </BeeCardSection> */}
       </>
     </BeeCardContainer>
   );

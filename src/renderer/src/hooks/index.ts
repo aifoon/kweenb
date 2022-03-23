@@ -4,5 +4,14 @@ import { useBees } from "./useBees";
 import { useAppContext } from "./useAppContext";
 import { useSetting } from "./useSetting";
 import { useSettings } from "./useSettings";
+import { useShowState } from "./useShowState";
 
-export { useInterval, useBee, useBees, useAppContext, useSetting, useSettings };
+export {
+  useInterval,
+  useBee,
+  useBees,
+  useAppContext,
+  useSetting,
+  useSettings,
+  useShowState,
+};

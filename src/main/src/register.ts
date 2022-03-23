@@ -9,6 +9,7 @@ import {
   beesPoller,
   fetchBee,
   updateBee,
+  createBee,
 } from "./controllers/bee";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -20,10 +21,11 @@ import {
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
-  ipcMain.on("beesPoller", beesPoller);
+  ipcMain.on("bee:beesPoller", beesPoller);
 };
 
 export const registerMethods = () => {
+  ipcMain.handle("bee:createBee", createBee);
   ipcMain.handle("bee:fetchBee", fetchBee);
   ipcMain.handle("bee:fetchAllBees", fetchAllBees);
   ipcMain.handle("bee:updateBee", updateBee);

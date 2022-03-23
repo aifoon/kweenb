@@ -14,9 +14,8 @@ export function useBees() {
    */
   const fetchAllBees = useCallback(async () => {
     setLoading(true);
-    const allBees = await window.kweenb.methods.fetchAllBees();
+    setBees(await window.kweenb.methods.fetchAllBees(true));
     setLoading(false);
-    return allBees;
   }, []);
 
   /**
@@ -25,8 +24,7 @@ export function useBees() {
   useEffect(() => {
     // fetch the bees
     (async () => {
-      const fetchedBees = await fetchAllBees();
-      setBees(fetchedBees);
+      await fetchAllBees();
     })();
 
     // start the beepoller in main world
@@ -47,5 +45,5 @@ export function useBees() {
     };
   }, []);
 
-  return { loading, bees };
+  return { loading, bees, fetchAllBees };
 }
