@@ -19,6 +19,11 @@ export interface IBee {
   status: IBeeStatus;
 }
 
+export interface IBeeInput {
+  name: string;
+  ipAddress: string;
+}
+
 export interface IBeeConfig {
   jacktripVersion: string;
   useMqtt: boolean;

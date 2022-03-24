@@ -32,6 +32,15 @@
   --accent-300: #FCDD8F;
   --accent-400: #FBD167;
   --accent-500: #FFC53F;
+  --grey-100: #22252b;
+  --grey-200: #353a3f;
+  --grey-300: #4b4f57;
+  --grey-400: #868e96;
+  --grey-500: #aeb6bc;
+  --grey-600: #ced4d9;
+  --grey-700: #dfe2e5;
+  --grey-800: #eaecef;
+  --grey-900: #f2f3f5;
   --green-status: #26A843;
   --red-status: #e53a2f;
 
@@ -126,8 +135,6 @@ hr {
 *::before,
 *::after {
   box-sizing: inherit;
-
-
 }
 
 /**

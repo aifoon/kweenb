@@ -9,6 +9,9 @@
 
 import path from "path";
 import { app } from "electron";
+import installExtension, {
+  REACT_DEVELOPER_TOOLS,
+} from "electron-devtools-installer";
 import { ElectronApp } from "./lib";
 import {
   registerActions,
@@ -42,6 +45,9 @@ const initApp = async () => {
   try {
     // when the application is ready
     await app.whenReady();
+
+    // instell react extension
+    await installExtension(REACT_DEVELOPER_TOOLS);
 
     // check if the first start script ran before going further
     await firstBoot();

@@ -5,9 +5,11 @@ import {
   ButtonUse,
   ButtonType,
 } from "@components/Buttons/Button";
-import { useShowState } from "@renderer/src/hooks/useShowState";
 import styled from "styled-components";
-import { AddBeeModal } from "./AddBeeModal";
+
+interface NoBeesProps {
+  onAddBeeClicked: () => void;
+}
 
 const EmptyBeesContainer = styled.div`
   display: flex;
@@ -26,29 +28,24 @@ const EmptyBeesContainer = styled.div`
   }
 `;
 
-export const NoBees = () => {
-  const { open, handleOpen, handleClose } = useShowState(false);
-
-  return (
-    <EmptyBeesContainer>
-      <AddBeeModal open={open} onClose={handleClose} />
-      <div style={{ width: "500px", textAlign: "center" }}>
-        <h2>Welcome to KweenB!</h2>
-        <p>
-          With this application you&apos;ll be able to manage bees. An extra
-          device, The Kween, will be used to stream audio between your computer
-          and all the other bees. Have fun!
-        </p>
-        <Button
-          key="addNewBee"
-          buttonSize={ButtonSize.Medium}
-          buttonUse={ButtonUse.Normal}
-          buttonType={ButtonType.Primary}
-          onClick={handleOpen}
-        >
-          Start by adding your first bee
-        </Button>
-      </div>
-    </EmptyBeesContainer>
-  );
-};
+export const NoBees = ({ onAddBeeClicked }: NoBeesProps) => (
+  <EmptyBeesContainer>
+    <div style={{ width: "500px", textAlign: "center" }}>
+      <h2>Welcome to KweenB!</h2>
+      <p>
+        With this application you&apos;ll be able to manage bees. An extra
+        device, The Kween, will be used to stream audio between your computer
+        and all the other bees. Have fun!
+      </p>
+      <Button
+        key="addNewBee"
+        buttonSize={ButtonSize.Medium}
+        buttonUse={ButtonUse.Normal}
+        buttonType={ButtonType.Primary}
+        onClick={onAddBeeClicked}
+      >
+        Start by adding your first bee
+      </Button>
+    </div>
+  </EmptyBeesContainer>
+);

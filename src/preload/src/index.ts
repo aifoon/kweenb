@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type { BinaryLike } from "crypto";
 import { createHash } from "crypto";
-import { IBee, IKweenBSettings, ISetting } from "@shared/interfaces";
+import { IBee, IBeeInput, IKweenBSettings, ISetting } from "@shared/interfaces";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -45,8 +45,11 @@ contextBridge.exposeInMainWorld("nodeCrypto", {
  */
 contextBridge.exposeInMainWorld("kweenb", {
   methods: {
-    createBee: (bee: Pick<IBee, "name" | "ipAddress">) =>
+    createBee: (bee: IBeeInput): Promise<IBee> =>
       ipcRenderer.invoke("bee:createBee", bee),
+    deleteBee: (id: number) => {
+      ipcRenderer.invoke("bee:deleteBee", id);
+    },
     fetchAllBees: (pollForOnline: boolean = true): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchAllBees", pollForOnline),
     fetchBee: (id: number): Promise<IBee> =>
@@ -59,7 +62,7 @@ contextBridge.exposeInMainWorld("kweenb", {
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
-    beesPoller: (action: "start" | "stop"): void => {
+    beesPoller: (action: "start" | "stop" | "pause"): void => {
       ipcRenderer.send("bee:beesPoller", action);
     },
   },
