@@ -2,15 +2,9 @@
  * A module with all the kweenb data stuff
  */
 
-import ping from "ping";
-import { IBee } from "@shared/interfaces";
+import { IBee, IBeeInput } from "@shared/interfaces";
 import { KweenBGlobal } from "../kweenb";
-import {
-  getAllBees,
-  getBee,
-  getBeeConfig,
-  getBeeStatus,
-} from "../lib/KweenB/BeeHelpers";
+import beeHelpers from "../lib/KweenB/BeeHelpers";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 
@@ -18,7 +12,10 @@ import { KweenBException } from "../lib/Exceptions/KweenBException";
  * Managing the beepoller, start and stopping the interval
  * @param action start or stop the poller
  */
-export const beesPoller = (event: any, action: "start" | "stop"): void => {
+export const beesPoller = (
+  event: any,
+  action: "start" | "stop" | "pause"
+): void => {
   switch (action) {
     case "start":
       KweenBGlobal.intervalWorkerList.startProcess("bee:beesPoller");
@@ -26,7 +23,11 @@ export const beesPoller = (event: any, action: "start" | "stop"): void => {
     case "stop":
       KweenBGlobal.intervalWorkerList.stopProcess("bee:beesPoller");
       break;
+    case "pause":
+      KweenBGlobal.intervalWorkerList.pauseProcess("bee:beesPoller");
+      break;
     default:
+      break;
   }
 };
 
@@ -35,14 +36,27 @@ export const beesPoller = (event: any, action: "start" | "stop"): void => {
  * @param event
  * @param bee
  */
-export const createBee = (
-  event: any,
-  bee: Pick<IBee, "name" | "ipAddress">
-) => {
+export const createBee = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBeeInput
+): Promise<IBee> => {
   try {
-    Bee.create(bee);
+    return await beeHelpers.createBee(bee);
   } catch (e: any) {
     throw new KweenBException({ message: `createBee(): ${e.message}` });
+  }
+};
+
+/**
+ * Delete a bee in database
+ * @param event
+ * @param id
+ */
+export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
+  try {
+    Bee.destroy({ where: { id } });
+  } catch (e: any) {
+    throw new KweenBException({ message: `deleteBee(): ${e.message}` });
   }
 };
 
@@ -55,7 +69,7 @@ export const fetchAllBees = async (
   pollForOnline: boolean = true
 ): Promise<IBee[]> => {
   try {
-    return await getAllBees(pollForOnline);
+    return await beeHelpers.getAllBees(pollForOnline);
   } catch (e: any) {
     throw new KweenBException({ message: `updateBee(): ${e.message}` });
   }
@@ -71,7 +85,7 @@ export const fetchBee = async (
   id: number
 ): Promise<IBee> => {
   try {
-    return await getBee(id);
+    return await beeHelpers.getBee(id);
   } catch (e: any) {
     throw new KweenBException({ message: `fetchBee(): ${e.message}` }, true);
   }

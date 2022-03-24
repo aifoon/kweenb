@@ -1,12 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  Button,
-  ButtonUse,
-  ButtonType,
-  ButtonSize,
-  ButtonGroup,
-} from "@renderer/src/components/Buttons";
 import { CircularProgress, Grid } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -82,11 +75,15 @@ const ToolButtonGroup = styled.div`
 
 const ToolButton = styled.a`
   display: inline-block;
-  color: white;
+  color: var(--grey-400);
   background: none;
   padding: 0;
   text-align: right;
+  transition: color 0.3s;
   cursor: pointer;
+  &:hover {
+    color: var(--grey-700);
+  }
 `;
 
 export const BeeCard = ({
@@ -131,17 +128,21 @@ export const BeeCard = ({
               size={16}
             />
           </Grid>
-          <Grid style={{ textAlign: "right" }} item xs={8}>
+          <Grid item xs={8}>
             <ToolButtonGroup>
               <ToolButton onClick={onBeeDeleteClick}>
                 <DeleteForeverIcon fontSize="small" />
               </ToolButton>
-              <ToolButton onClick={onBeeExitClick}>
-                <LogoutIcon fontSize="small" />
-              </ToolButton>
-              <ToolButton onClick={onBeeConfigClick}>
-                <SettingsIcon fontSize="small" />
-              </ToolButton>
+              {isOnline && (
+                <>
+                  <ToolButton onClick={onBeeExitClick}>
+                    <LogoutIcon fontSize="small" />
+                  </ToolButton>
+                  <ToolButton onClick={onBeeConfigClick}>
+                    <SettingsIcon fontSize="small" />
+                  </ToolButton>
+                </>
+              )}
             </ToolButtonGroup>
           </Grid>
         </Grid>

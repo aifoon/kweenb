@@ -2,7 +2,7 @@
  * A module with helpers used for getting bees and their config
  */
 
-import { IBee, IBeeConfig, IBeeStatus } from "@shared/interfaces";
+import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
 import ping from "ping";
 import Bee from "../../models/Bee";
 
@@ -25,7 +25,7 @@ const defaultBeeStatus = {
  * @param id
  * @returns
  */
-export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
+const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
   // get the bee behind the id
   await Bee.findOne({ where: { id } });
 
@@ -44,7 +44,7 @@ export const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
  * @param id
  * @returns
  */
-export const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
+const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
   // get the bee behind the id
   const bee = await Bee.findOne({ where: { id } });
 
@@ -59,11 +59,28 @@ export const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
 };
 
 /**
+ * Creates a new bee
+ * @param bee
+ * @returns
+ */
+const createBee = async (bee: IBeeInput): Promise<IBee> => {
+  const { id, ipAddress, name } = await Bee.create({ ...bee });
+  return {
+    id,
+    ipAddress,
+    name,
+    isOnline: false,
+    config: defaultBeeConfig,
+    status: defaultBeeStatus,
+  };
+};
+
+/**
  * Get all bees
  * @param pollForOnline boolean if we need to poll for onlineness
  * @returns
  */
-export const getAllBees = async (pollForOnline: boolean = false) => {
+const getAllBees = async (pollForOnline: boolean = false) => {
   // get the bees
   const bees = await Bee.findAll();
   let connectivityList: ping.PingResponse[] = [];
@@ -121,7 +138,7 @@ export const getAllBees = async (pollForOnline: boolean = false) => {
  * @param id
  * @returns
  */
-export const getBee = async (id: number) => {
+const getBee = async (id: number) => {
   // get the bee
   const bee = await Bee.findOne({ where: { id } });
 
@@ -145,4 +162,12 @@ export const getBee = async (id: number) => {
     config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
     status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
   };
+};
+
+export default {
+  getBeeStatus,
+  getBeeConfig,
+  createBee,
+  getAllBees,
+  getBee,
 };

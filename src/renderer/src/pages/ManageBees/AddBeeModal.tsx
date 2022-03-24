@@ -4,30 +4,23 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import { Form, Formik } from "formik";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
-import { IBee } from "@shared/interfaces";
+import { IBeeInput } from "@shared/interfaces";
 import { BaseModal, BaseModalProps } from "../Modals/BaseModal";
 
 interface AddBeeModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
-  onBeeAdded: () => void;
+  onBeeSubmitted: (bee: IBeeInput) => void;
 }
 
 export const AddBeeModal = ({
   open,
   onClose,
-  onBeeAdded,
+  onBeeSubmitted,
 }: AddBeeModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
-
-  /**
-   * Create a new bee
-   */
-  const createBee = useCallback((bee: Pick<IBee, "ipAddress" | "name">) => {
-    window.kweenb.methods.createBee(bee);
-  }, []);
 
   useEffect(() => setIsOpen(open), [open]);
 
@@ -44,11 +37,8 @@ export const AddBeeModal = ({
             .required("An IP Address is required")
             .isValidIpAddress("The IP Address is invalid"),
         })}
-        onSubmit={async (values, { setSubmitting }) => {
-          setSubmitting(true);
-          await createBee(values);
-          setSubmitting(false);
-          onBeeAdded();
+        onSubmit={async (values) => {
+          onBeeSubmitted(values);
         }}
       >
         {({ isSubmitting }) => (

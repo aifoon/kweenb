@@ -1,5 +1,11 @@
 import { IpcMessageEvent } from "electron";
-import { IBee, IError, IKweenBSettings, ISetting } from "@shared/interfaces";
+import {
+  IBee,
+  IBeeInput,
+  IError,
+  IKweenBSettings,
+  ISetting,
+} from "@shared/interfaces";
 
 declare global {
   interface Window {
@@ -24,7 +30,8 @@ declare global {
      */
     readonly kweenb: {
       readonly methods: {
-        createBee(bee: Pick<IBee, "name" | "ipAddress">);
+        createBee(bee: IBeeInput): Promise<IBee>;
+        deleteBee(id: number);
         fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchKweenBSettings(): Promise<IKweenBSettings>;
@@ -33,7 +40,7 @@ declare global {
       };
       readonly actions: {
         hello(name: string): void;
-        beesPoller(action: "start" | "stop"): void;
+        beesPoller(action: "start" | "stop" | "pause"): void;
       };
       readonly events: {
         onError(
