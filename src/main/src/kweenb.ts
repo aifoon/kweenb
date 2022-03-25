@@ -36,6 +36,10 @@ class KweenB {
   public showInfo(message: string) {
     this._mainWindow.webContents.send("info", message);
   }
+
+  public showSuccess(message: string) {
+    this._mainWindow.webContents.send("success", message);
+  }
 }
 
 class KweenBGlobal {

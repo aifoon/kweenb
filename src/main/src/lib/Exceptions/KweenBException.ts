@@ -6,15 +6,15 @@ import { IError } from "@shared/interfaces";
 import { KweenBGlobal } from "../../kweenb";
 
 export class KweenBException extends Error {
-  private _error: IError;
+  public error: IError;
 
   constructor(error: IError, throwInRenderer = false) {
     super(error.message);
-    this._error = error;
+    this.error = error;
     if (throwInRenderer) this.throwInRenderer();
   }
 
   private throwInRenderer() {
-    KweenBGlobal.kweenb.throwError(this._error);
+    KweenBGlobal.kweenb.throwError(this.error);
   }
 }

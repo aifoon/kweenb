@@ -20,6 +20,11 @@ const defaultBeeStatus = {
   isJacktripRunning: false,
 };
 
+const pingConfig: ping.PingConfig = {
+  timeout: 1,
+  deadline: 1,
+};
+
 /**
  * Get the bee configuration
  * @param id
@@ -89,9 +94,7 @@ const getAllBees = async (pollForOnline: boolean = false) => {
   if (pollForOnline) {
     // get all the ip addresses of our bees and map the ping promises
     const beeIpAddresses = bees.map(({ ipAddress }) =>
-      ping.promise.probe(ipAddress, {
-        min_reply: 1,
-      })
+      ping.promise.probe(ipAddress, pingConfig)
     );
 
     // check connectivity, by ping to device
@@ -146,9 +149,7 @@ const getBee = async (id: number) => {
   if (!bee) throw new Error(`No bee found with the id ${id}.`);
 
   // get all the ip addresses of our bees and map the ping promises
-  const beeConnectivity = await ping.promise.probe(bee.ipAddress, {
-    min_reply: 1,
-  });
+  const beeConnectivity = await ping.promise.probe(bee.ipAddress, pingConfig);
 
   // check if the bee is online
   const isOnline = beeConnectivity.alive;

@@ -49,6 +49,9 @@ declare global {
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
         ): () => void;
+        onSuccess(
+          callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
         onUpdateBees(
           callback: (event: IpcMessageEvent, bees: IBee[]) => void
         ): () => void;

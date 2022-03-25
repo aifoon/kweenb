@@ -15,7 +15,9 @@ export function useBees() {
   const createBee = useCallback(
     async (bee: IBeeInput) => {
       const createdBee = await window.kweenb.methods.createBee(bee);
-      setBees([...bees, createdBee]);
+      const newBees = [...bees, createdBee];
+      newBees.sort((a, b) => a.id - b.id);
+      setBees(newBees);
     },
     [bees]
   );
@@ -25,7 +27,9 @@ export function useBees() {
    */
   const fetchAllBees = useCallback(async () => {
     setLoading(true);
-    setBees(await window.kweenb.methods.fetchAllBees(true));
+    const allBees = await window.kweenb.methods.fetchAllBees(true);
+    allBees.sort((a, b) => a.id - b.id);
+    setBees(allBees);
     setLoading(false);
   }, []);
 

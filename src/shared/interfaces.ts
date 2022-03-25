@@ -4,6 +4,7 @@
 
 export interface IError {
   message: string;
+  where: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export interface IBee {
 }
 
 export interface IBeeInput {
+  id: number;
   name: string;
   ipAddress: string;
 }

@@ -21,7 +21,7 @@ export const ManageBees = () => {
   const { open, handleOpen, handleClose } = useShowState(false);
   const { loading, bees, deleteBee, createBee } = useBees();
   const navigate = useNavigate();
-  useEffect(() => console.log("rendering"), []);
+
   if (loading) return <Loader />;
 
   const onBeeSubmitted = async (beeInput: IBeeInput) => {

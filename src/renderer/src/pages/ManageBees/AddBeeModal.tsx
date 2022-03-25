@@ -28,10 +28,15 @@ export const AddBeeModal = ({
     <BaseModal open={isOpen} onClose={onClose}>
       <Formik
         initialValues={{
+          id: 1,
           name: "",
           ipAddress: "",
         }}
         validationSchema={Yup.object().shape({
+          id: Yup.number()
+            .min(1, "The minimun amount of bee number is 1")
+            .max(30, "The maximum amount of channels is 30")
+            .required("The number of a bee is required"),
           name: Yup.string().required("A name is required"),
           ipAddress: Yup.string()
             .required("An IP Address is required")
@@ -43,6 +48,15 @@ export const AddBeeModal = ({
       >
         {({ isSubmitting }) => (
           <Form>
+            <TextField
+              orientation={InputFieldOrientation.Vertical}
+              size={InputFieldSize.Medium}
+              label="Number"
+              type="number"
+              labelWidth="150px"
+              name="id"
+              placeholder="e.g. 1"
+            />
             <TextField
               orientation={InputFieldOrientation.Vertical}
               size={InputFieldSize.Medium}
