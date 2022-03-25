@@ -5,6 +5,7 @@ import { useAppContext } from "./useAppContext";
 import { useSetting } from "./useSetting";
 import { useSettings } from "./useSettings";
 import { useShowState } from "./useShowState";
+import { useConfirmation } from "./useConfirmation";
 
 export {
   useInterval,
@@ -14,4 +15,5 @@ export {
   useSetting,
   useSettings,
   useShowState,
+  useConfirmation,
 };
