@@ -3,6 +3,7 @@
  */
 
 import { IBee, IBeeInput } from "@shared/interfaces";
+import { Utils } from "@shared/utils";
 import { KweenBGlobal } from "../kweenb";
 import beeHelpers from "../lib/KweenB/BeeHelpers";
 import Bee from "../models/Bee";
@@ -41,9 +42,37 @@ export const createBee = async (
   bee: IBeeInput
 ): Promise<IBee> => {
   try {
-    return await beeHelpers.createBee(bee);
+    // validate bee number
+    const beeNumberExists = await Bee.findOne({ where: { id: bee.id } });
+    if (beeNumberExists)
+      throw new Error(
+        `A bee with the number ${Utils.addLeadingZero(bee.id)} already exists.`
+      );
+
+    // validate bee ip address
+    const beeIpAddressExists = await Bee.findOne({
+      where: { ipAddress: bee.ipAddress },
+    });
+    if (beeIpAddressExists)
+      throw new Error(
+        `A bee with the ip address ${bee.ipAddress} already exists.`
+      );
+
+    // create a new bee
+    const createdBee = await beeHelpers.createBee(bee);
+
+    // show confirmation when bee was added
+    KweenBGlobal.kweenb.showSuccess(
+      `Bee ${Utils.addLeadingZero(createdBee.id)} was created successfully.`
+    );
+
+    // return the created bee
+    return createdBee;
   } catch (e: any) {
-    throw new KweenBException({ message: `createBee(): ${e.message}` });
+    throw new KweenBException(
+      { where: "createBee()", message: e.message },
+      true
+    );
   }
 };
 
@@ -55,8 +84,11 @@ export const createBee = async (
 export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
   try {
     Bee.destroy({ where: { id } });
+    KweenBGlobal.kweenb.showInfo(
+      `Bee ${Utils.addLeadingZero(id)} was deleted successfully.`
+    );
   } catch (e: any) {
-    throw new KweenBException({ message: `deleteBee(): ${e.message}` });
+    throw new KweenBException({ where: "deleteBee()", message: e.message });
   }
 };
 
@@ -71,7 +103,7 @@ export const fetchAllBees = async (
   try {
     return await beeHelpers.getAllBees(pollForOnline);
   } catch (e: any) {
-    throw new KweenBException({ message: `updateBee(): ${e.message}` });
+    throw new KweenBException({ where: "updateBee()", message: e.message });
   }
 };
 
@@ -87,7 +119,10 @@ export const fetchBee = async (
   try {
     return await beeHelpers.getBee(id);
   } catch (e: any) {
-    throw new KweenBException({ message: `fetchBee(): ${e.message}` }, true);
+    throw new KweenBException(
+      { where: "fetchBee()", message: e.message },
+      true
+    );
   }
 };
 
@@ -104,6 +139,9 @@ export const updateBee = async (
     if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
     Bee.update(bee, { where: { id: bee.id } });
   } catch (e: any) {
-    throw new KweenBException({ message: `updateBee(): ${e.message}` });
+    throw new KweenBException(
+      { where: "updateBee()", message: e.message },
+      true
+    );
   }
 };

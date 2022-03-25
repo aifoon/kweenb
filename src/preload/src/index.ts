@@ -78,5 +78,8 @@ contextBridge.exposeInMainWorld("kweenb", {
     onInfo: (callback: any) => {
       ipcRenderer.on("info", callback);
     },
+    onSuccess: (callback: any) => {
+      ipcRenderer.on("success", callback);
+    },
   },
 });

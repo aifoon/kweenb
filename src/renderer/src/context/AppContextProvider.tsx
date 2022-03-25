@@ -44,12 +44,22 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
       }
     )
 
-    // Handle an infomrative message
+    // Handle an informative message
     window.kweenb.events.onInfo(
       (event, message) => {
         showToast({
           message,
           severity: "info"
+        });
+      }
+    )
+
+    // Handle an informative message
+    window.kweenb.events.onSuccess(
+      (event, message) => {
+        showToast({
+          message,
+          severity: "success"
         });
       }
     )
