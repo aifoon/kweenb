@@ -9,7 +9,7 @@ import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
 import { IBeeInput } from "@shared/interfaces";
-import { BaseModal, BaseModalProps } from "../Modals/BaseModal";
+import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 
 interface AddBeeModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
   onBeeSubmitted: (bee: IBeeInput) => void;
