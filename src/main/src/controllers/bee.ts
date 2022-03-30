@@ -4,6 +4,7 @@
 
 import { IBee, IBeeInput } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
+import { BeeActiveState } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import beeHelpers from "../lib/KweenB/BeeHelpers";
 import Bee from "../models/Bee";
@@ -93,6 +94,22 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
 };
 
 /**
+ * Fetch the active bees
+ * @param event
+ * @returns
+ */
+export const fetchActiveBees = async () => {
+  try {
+    return await beeHelpers.getAllBees(true, BeeActiveState.ACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchActiveBees()",
+      message: e.message,
+    });
+  }
+};
+
+/**
  * Fetch all the bees
  * @returns A Promise that will result an object of format IBee
  */
@@ -101,9 +118,25 @@ export const fetchAllBees = async (
   pollForOnline: boolean = true
 ): Promise<IBee[]> => {
   try {
-    return await beeHelpers.getAllBees(pollForOnline);
+    return await beeHelpers.getAllBees(pollForOnline, BeeActiveState.ALL);
   } catch (e: any) {
-    throw new KweenBException({ where: "updateBee()", message: e.message });
+    throw new KweenBException({ where: "fetchAllBees()", message: e.message });
+  }
+};
+
+/**
+ * Fetch the inactive bees
+ * @param event
+ * @returns
+ */
+export const fetchInActiveBees = async () => {
+  try {
+    return await beeHelpers.getAllBees(false, BeeActiveState.INACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchInActiveBees()",
+      message: e.message,
+    });
   }
 };
 
@@ -121,6 +154,28 @@ export const fetchBee = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Sets the bee active
+ * @param event The Electron Event
+ * @param id The ID of the bee
+ * @param active The active state of the bee
+ * @returns
+ */
+export const setBeeActive = async (
+  event: Electron.IpcMainInvokeEvent,
+  id: number,
+  active: boolean
+) => {
+  try {
+    await beeHelpers.setBeeActive(id, active);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "setBeeActive()", message: e.message },
       true
     );
   }

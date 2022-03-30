@@ -10,6 +10,8 @@ class Bee extends Model {
   name: string;
 
   ipAddress: string;
+
+  isActive: boolean;
 }
 
 /**
@@ -28,6 +30,10 @@ Bee.init(
     },
     ipAddress: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },

@@ -31,6 +31,7 @@ export const AddBeeModal = ({
           id: 1,
           name: "",
           ipAddress: "",
+          isActive: true,
         }}
         validationSchema={Yup.object().shape({
           id: Yup.number()

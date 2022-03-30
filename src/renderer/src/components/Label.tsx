@@ -20,7 +20,7 @@ export const Label = styled.div<LabelProps>`
   text-align: center;
   text-transform: uppercase;
   font-weight: bold;
-  font-size: var(--small-text);
+  font-size: var(--smallText);
   ${({ type }) => {
     switch (type) {
       case LabelType.Primary:

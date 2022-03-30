@@ -16,6 +16,7 @@ export interface IBee {
   name: string;
   ipAddress: string;
   isOnline: boolean;
+  isActive: boolean;
   config: IBeeConfig;
   status: IBeeStatus;
 }
@@ -24,6 +25,7 @@ export interface IBeeInput {
   id: number;
   name: string;
   ipAddress: string;
+  isActive: boolean;
 }
 
 export interface IBeeConfig {

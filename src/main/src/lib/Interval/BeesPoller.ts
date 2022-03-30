@@ -4,6 +4,7 @@
 
 import { IBee } from "@shared/interfaces";
 import deepEqual from "deep-equal";
+import { BeeActiveState } from "@shared/enums";
 import { KweenBException } from "../Exceptions/KweenBException";
 import { BEE_POLLING_SECONDS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
@@ -37,7 +38,10 @@ export default class BeesPoller extends IntervalWorker {
       if (this.state === IntervalWorkerState.Pause) return;
 
       // fetch all the bees
-      const touchedBees = await beeHelpers.getAllBees(true);
+      const touchedBees = await beeHelpers.getAllBees(
+        true,
+        BeeActiveState.ACTIVE
+      );
 
       // if there are no bees, current and touchd, return nothing
       if (this._currentBees.length === 0 && touchedBees.length === 0) return;

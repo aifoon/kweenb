@@ -1,6 +1,7 @@
 import { MemoryRouter as Router, Routes, Route } from "react-router-dom";
 import { Flex } from "@components/.";
-import { Loader } from "@components/Loader";
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AppContextProvider } from "./context/AppContextProvider";
 import {
   DesignSystem,
@@ -19,6 +20,7 @@ export const App = () => {
   const [ loading, setLoading ] = useState(false);
   return (
     <Router>
+      <DndProvider backend={HTML5Backend}>
       {startDesignSystem && (
         <Routes>
           <Route path="/" element={<DesignSystem />} />
@@ -40,6 +42,7 @@ export const App = () => {
           </Flex>
         </AppContextProvider>
       )}
+      </DndProvider>
     </Router>
   )
 };
