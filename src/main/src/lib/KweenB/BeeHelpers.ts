@@ -2,6 +2,7 @@
  * A module with helpers used for getting bees and their config
  */
 
+import { BeeActiveState } from "@shared/enums";
 import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
 import ping from "ping";
 import Bee from "../../models/Bee";
@@ -69,11 +70,12 @@ const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
  * @returns
  */
 const createBee = async (bee: IBeeInput): Promise<IBee> => {
-  const { id, ipAddress, name } = await Bee.create({ ...bee });
+  const { id, ipAddress, name, isActive } = await Bee.create({ ...bee });
   return {
     id,
     ipAddress,
     name,
+    isActive,
     isOnline: false,
     config: defaultBeeConfig,
     status: defaultBeeStatus,
@@ -85,9 +87,28 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
  * @param pollForOnline boolean if we need to poll for onlineness
  * @returns
  */
-const getAllBees = async (pollForOnline: boolean = false) => {
+const getAllBees = async (
+  pollForOnline: boolean = false,
+  activeState: BeeActiveState = BeeActiveState.ACTIVE
+) => {
   // get the bees
-  const bees = await Bee.findAll();
+  let bees;
+  switch (activeState) {
+    case BeeActiveState.ALL:
+      bees = await Bee.findAll();
+      break;
+    case BeeActiveState.ACTIVE:
+      bees = await Bee.findAll({ where: { isActive: true } });
+      break;
+    case BeeActiveState.INACTIVE:
+      bees = await Bee.findAll({ where: { isActive: false } });
+      break;
+    default:
+      bees = await Bee.findAll();
+      break;
+  }
+
+  // init the connectivity list
   let connectivityList: ping.PingResponse[] = [];
 
   // if we need to poll for online behavior
@@ -105,7 +126,7 @@ const getAllBees = async (pollForOnline: boolean = false) => {
   // create an array with bees, and use connectivity list to see
   // if the bee is online
   const beesWithConfigAndStatusList: Promise<IBee>[] = bees.map(
-    async ({ id, name, ipAddress }) => {
+    async ({ id, name, ipAddress, isActive }) => {
       // set offline by default
       let isOnline = false;
 
@@ -125,6 +146,7 @@ const getAllBees = async (pollForOnline: boolean = false) => {
         id,
         name,
         ipAddress,
+        isActive,
         isOnline,
         config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
         status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
@@ -159,10 +181,31 @@ const getBee = async (id: number) => {
     id: bee.id,
     ipAddress: bee.ipAddress,
     name: bee.name,
+    isActive: bee.isActive,
     isOnline,
     config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
     status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
   };
+};
+
+/**
+ * Sets the bee active or inactive
+ * @param id The ID of the bee
+ * @param active The active/inactive state
+ */
+const setBeeActive = async (id: number, active: boolean) => {
+  // get the bee
+  const bee = await Bee.findOne({ where: { id } });
+
+  // validate if we found a Bee
+  if (!bee) throw new Error(`No bee found with the id ${id}.`);
+
+  // validate
+  if (bee.isActive === active)
+    throw new Error(`Bee is already ${active ? "active" : "inactive"}.`);
+
+  // set the state and save
+  await Bee.update({ isActive: active }, { where: { id } });
 };
 
 export default {
@@ -171,4 +214,5 @@ export default {
   createBee,
   getAllBees,
   getBee,
+  setBeeActive,
 };

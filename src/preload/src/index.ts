@@ -50,8 +50,12 @@ contextBridge.exposeInMainWorld("kweenb", {
     deleteBee: (id: number) => {
       ipcRenderer.invoke("bee:deleteBee", id);
     },
+    fetchActiveBees: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("bee:fetchActiveBees"),
     fetchAllBees: (pollForOnline: boolean = true): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchAllBees", pollForOnline),
+    fetchInActiveBees: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("bee:fetchInActiveBees"),
     fetchBee: (id: number): Promise<IBee> =>
       ipcRenderer.invoke("bee:fetchBee", id),
     fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
@@ -62,6 +66,8 @@ contextBridge.exposeInMainWorld("kweenb", {
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
+    setBeeActive: (id: number, active: boolean) =>
+      ipcRenderer.send("bee:setBeeActive", id, active),
     beesPoller: (action: "start" | "stop" | "pause"): void => {
       ipcRenderer.send("bee:beesPoller", action);
     },

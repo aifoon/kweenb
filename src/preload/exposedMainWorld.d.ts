@@ -32,7 +32,9 @@ declare global {
       readonly methods: {
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
+        fetchActiveBees(): Promise<IBee[]>;
         fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
+        fetchInActiveBees(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchKweenBSettings(): Promise<IKweenBSettings>;
         updateBee(bee: Partial<IBee>);
@@ -41,6 +43,7 @@ declare global {
       readonly actions: {
         hello(name: string): void;
         beesPoller(action: "start" | "stop" | "pause"): void;
+        setBeeActive(id: number, active: boolean): void;
       };
       readonly events: {
         onError(

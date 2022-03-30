@@ -12,6 +12,7 @@ export function useBee(id: number) {
     name: "",
     ipAddress: "",
     isOnline: false,
+    isActive: false,
     config: {
       jacktripVersion: "1.4.1",
       useMqtt: false,

@@ -5,6 +5,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Utils } from "@shared/utils";
+import { useDrag } from "react-dnd";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
 
@@ -20,15 +21,17 @@ export interface BeeCardProps {
   jackTripIsRunning?: boolean;
   ipAddress?: string;
   loading?: boolean;
+  draggable?: boolean;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeExitClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-const BeeCardContainer = styled.div`
+export const BeeCardContainer = styled.div`
   position: relative;
   border-radius: var(--radiusLarge);
   padding: 1rem;
+  height: 205px; /* Fixed height of the BeeCard */
   background-color: var(--beeCardBg);
 
   h2 {
@@ -97,11 +100,16 @@ export const BeeCard = ({
   onBeeConfigClick,
   onBeeDeleteClick,
   onBeeExitClick,
+  draggable = false,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
   const [isJackIsRunning, setIsJackIsRunning] = useState(online);
   const [isJackTripIsRunning, setIsJackTripIsRunning] = useState(online);
   const [isLoading, setIsLoading] = useState(loading);
+
+  /**
+   * Som effects
+   */
 
   useEffect(() => setIsOnline(online), [online]);
   useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
@@ -111,8 +119,24 @@ export const BeeCard = ({
   );
   useEffect(() => setIsLoading(loading), [loading]);
 
+  /**
+   * Dragging behaviour
+   */
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "BeeCard",
+    item: { number },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
   return (
-    <BeeCardContainer>
+    <BeeCardContainer
+      style={{ opacity: isDragging ? 0.4 : 1 }}
+      ref={drag}
+      draggable={draggable}
+    >
       {isLoading && (
         <BeeCardLoader>
           <CircularProgress />

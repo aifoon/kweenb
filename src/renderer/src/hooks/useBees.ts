@@ -7,7 +7,30 @@ import { IBee, IBeeInput } from "@shared/interfaces";
 
 export function useBees() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [bees, setBees] = useState<IBee[]>([]);
+  const [activeBees, setActiveBees] = useState<IBee[]>([]);
+  const [inActiveBees, setInActiveBees] = useState<IBee[]>([]);
+
+  /**
+   * Sets the active bees
+   */
+  const setBeeActive = useCallback(
+    async (number: number, active: boolean) => {
+      // set in database
+      await window.kweenb.actions.setBeeActive(number, active);
+
+      // switch in frontend
+      if (active) {
+        const beeToSwitch = inActiveBees.find(({ id }: IBee) => id === number);
+        setInActiveBees(inActiveBees.filter(({ id }) => id !== number));
+        if (beeToSwitch) setActiveBees([...activeBees, beeToSwitch]);
+      } else {
+        const beeToSwitch = activeBees.find(({ id }: IBee) => id === number);
+        setActiveBees(activeBees.filter(({ id }) => id !== number));
+        if (beeToSwitch) setInActiveBees([...inActiveBees, beeToSwitch]);
+      }
+    },
+    [activeBees, inActiveBees]
+  );
 
   /**
    * Create a new bee
@@ -15,23 +38,30 @@ export function useBees() {
   const createBee = useCallback(
     async (bee: IBeeInput) => {
       const createdBee = await window.kweenb.methods.createBee(bee);
-      const newBees = [...bees, createdBee];
-      newBees.sort((a, b) => a.id - b.id);
-      setBees(newBees);
+      const newActiveBees = [...activeBees, createdBee];
+      newActiveBees.sort((a, b) => a.id - b.id);
+      setActiveBees(newActiveBees);
     },
-    [bees]
+    [activeBees]
   );
 
   /**
-   * Fetching the bees
+   * Fetching the active bees
    */
-  const fetchAllBees = useCallback(async () => {
-    setLoading(true);
-    const allBees = await window.kweenb.methods.fetchAllBees(true);
-    allBees.sort((a, b) => a.id - b.id);
-    setBees(allBees);
-    setLoading(false);
-  }, []);
+  const fetchActiveBees = useCallback(async () => {
+    const fetchedActiveBees = await window.kweenb.methods.fetchActiveBees();
+    fetchedActiveBees.sort((a, b) => a.id - b.id);
+    setActiveBees(fetchedActiveBees);
+  }, [activeBees]);
+
+  /**
+   * Fetching the inactive bees
+   */
+  const fetchInActiveBees = useCallback(async () => {
+    const fetchedInActiveBees = await window.kweenb.methods.fetchInActiveBees();
+    fetchedInActiveBees.sort((a, b) => a.id - b.id);
+    setInActiveBees(fetchedInActiveBees);
+  }, [inActiveBees]);
 
   /**
    * Delete Bee
@@ -39,10 +69,10 @@ export function useBees() {
   const deleteBee = useCallback(
     async (id: number) => {
       await window.kweenb.methods.deleteBee(id);
-      const filteredBees = bees.filter((b) => b.id !== id);
-      setBees(filteredBees);
+      const filteredBees = activeBees.filter((b) => b.id !== id);
+      setActiveBees(filteredBees);
     },
-    [bees]
+    [activeBees]
   );
 
   /**
@@ -51,7 +81,10 @@ export function useBees() {
   useEffect(() => {
     // fetch the bees
     (async () => {
-      await fetchAllBees();
+      setLoading(true);
+      await fetchActiveBees();
+      await fetchInActiveBees();
+      setLoading(false);
     })();
 
     // start the beepoller in main world
@@ -60,7 +93,7 @@ export function useBees() {
     // check if we receive update polls from beepoller
     const removeAllListeners = window.kweenb.events.onUpdateBees(
       (event, updatedBees) => {
-        setBees(updatedBees);
+        setActiveBees(updatedBees);
       }
     );
 
@@ -74,5 +107,14 @@ export function useBees() {
     };
   }, []);
 
-  return { loading, bees, createBee, deleteBee, fetchAllBees };
+  return {
+    loading,
+    activeBees,
+    inActiveBees,
+    createBee,
+    deleteBee,
+    fetchInActiveBees,
+    fetchActiveBees,
+    setBeeActive,
+  };
 }

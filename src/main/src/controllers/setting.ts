@@ -59,7 +59,6 @@ export const updateKweenBSetting = async (
   setting: ISetting
 ) => {
   try {
-    console.log(setting);
     if (!setting.key)
       throw new Error("Please provide a valid key for the requested setting.");
     Setting.update(setting, { where: { key: setting.key } });

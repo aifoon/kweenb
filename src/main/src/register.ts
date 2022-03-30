@@ -11,6 +11,9 @@ import {
   updateBee,
   createBee,
   deleteBee,
+  setBeeActive,
+  fetchInActiveBees,
+  fetchActiveBees,
 } from "./controllers/bee";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -23,13 +26,16 @@ import {
 export const registerActions = () => {
   ipcMain.on("hello", hello);
   ipcMain.on("bee:beesPoller", beesPoller);
+  ipcMain.on("bee:setBeeActive", setBeeActive);
 };
 
 export const registerMethods = () => {
-  ipcMain.handle("bee:deleteBee", deleteBee);
   ipcMain.handle("bee:createBee", createBee);
+  ipcMain.handle("bee:deleteBee", deleteBee);
   ipcMain.handle("bee:fetchBee", fetchBee);
+  ipcMain.handle("bee:fetchActiveBees", fetchActiveBees);
   ipcMain.handle("bee:fetchAllBees", fetchAllBees);
+  ipcMain.handle("bee:fetchInActiveBees", fetchInActiveBees);
   ipcMain.handle("bee:updateBee", updateBee);
   ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
   ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);

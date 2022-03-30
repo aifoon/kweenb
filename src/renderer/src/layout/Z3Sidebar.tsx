@@ -18,9 +18,9 @@ import wcmatch from "wildcard-match";
  */
 const sidebarButtons = [
   {
-    key: "manageBees",
-    title: "Manage Bees",
-    pathNames: ["/", "/manage-bees/*"],
+    key: "manageSwarm",
+    title: "Swarm",
+    pathNames: ["/", "/swarm/*"],
     icon: <EmojiNatureIcon />,
   },
   {
