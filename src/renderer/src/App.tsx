@@ -34,7 +34,7 @@ export const App = () => {
             <Routes>
               <Route path="/" element={<ManageBees />} />
               <Route path="/manage-bees" element={<ManageBees />} />
-              <Route path="/manage-bees/:id" element={<BeeConfig />} />
+              <Route path="/swarm/:id" element={<BeeConfig />} />
               <Route path="/bee-settings" element={<BeeSettings />} />
               <Route path="/audio-routes" element={<AudioRoutes />} />
               <Route path="/tools" element={<Tools />} />

@@ -8,11 +8,21 @@ import { BeeConfigActionsRunJacktrip } from "./BeeConfigActionsRunJacktrip";
 interface BeeConfigActionsProps {
   isJackRunning?: boolean;
   isJacktripRunning?: boolean;
+  onStartJack?: () => void;
+  onStartJacktrip?: () => void;
+  onStopJack?: () => void;
+  onStopJacktrip?: () => void;
+  onKillJackAndJacktrip?: () => void;
 }
 
 export const BeeConfigActions = ({
   isJackRunning = false,
   isJacktripRunning = false,
+  onStartJack,
+  onStartJacktrip,
+  onStopJack,
+  onStopJacktrip,
+  onKillJackAndJacktrip,
 }: BeeConfigActionsProps) => {
   const [currentIsJackRunning, setCurrentIsJackRunning] =
     useState(isJackRunning);
@@ -29,18 +39,34 @@ export const BeeConfigActions = ({
     <Card title="Actions">
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
-          <BeeConfigActionsRunJack isRunning={currentIsJackRunning} />
+          <BeeConfigActionsRunJack
+            onStart={() => {
+              if (onStartJack) onStartJack();
+            }}
+            onStop={() => {
+              if (onStopJack) onStopJack();
+            }}
+            isRunning={currentIsJackRunning}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
-          <BeeConfigActionsRunJacktrip isRunning={currentIsJacktripRunning} />
+          <BeeConfigActionsRunJacktrip
+            onStart={() => {
+              if (onStartJacktrip) onStartJacktrip();
+            }}
+            onStop={() => {
+              if (onStopJacktrip) onStopJacktrip();
+            }}
+            isRunning={currentIsJacktripRunning}
+          />
         </Grid>
         <Grid item xs={12}>
           <Button
             buttonSize={ButtonSize.Small}
             buttonType={ButtonType.Primary}
             buttonUse={ButtonUse.Danger}
-            onClick={async () => {
-              console.log("Clicking on Kill All");
+            onClick={() => {
+              if (onKillJackAndJacktrip) onKillJackAndJacktrip();
             }}
             style={{ width: "100%", height: "100%" }}
           >

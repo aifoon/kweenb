@@ -60,14 +60,23 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:fetchBee", id),
     fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
       ipcRenderer.invoke("setting:fetchKweenBSettings"),
+    startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
     updateKweenBSetting: (setting: ISetting) =>
       ipcRenderer.invoke("setting:updateKweenBSetting", setting),
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
+    killJackAndJacktrip: (bee: IBee) =>
+      ipcRenderer.send("bee:killJackAndJacktrip", bee),
     setBeeActive: (id: number, active: boolean) =>
       ipcRenderer.send("bee:setBeeActive", id, active),
+    beePoller: (
+      action: "start" | "stop" | "pause",
+      params: any[] = []
+    ): void => {
+      ipcRenderer.send("bee:beePoller", action, params);
+    },
     beesPoller: (action: "start" | "stop" | "pause"): void => {
       ipcRenderer.send("bee:beesPoller", action);
     },
@@ -75,6 +84,11 @@ contextBridge.exposeInMainWorld("kweenb", {
   events: {
     onUpdateBees: (callback: any) => {
       const channel = "update-bees";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
+    onUpdateBee: (callback: any) => {
+      const channel = "update-bee";
       ipcRenderer.on(channel, callback);
       return () => ipcRenderer.removeAllListeners(channel);
     },

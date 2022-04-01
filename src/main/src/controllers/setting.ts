@@ -4,7 +4,7 @@
 
 import { IKweenBSettings, ISetting } from "@shared/interfaces";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
-import Setting from "../models/Setting";
+import { getAllSettings, updateSetting } from "../lib/KweenB/SettingHelpers";
 
 /**
  * Fetch all the settings
@@ -12,38 +12,10 @@ import Setting from "../models/Setting";
  */
 export const fetchKweenBSettings = async (): Promise<IKweenBSettings> => {
   try {
-    // find all the settings
-    const settings = await Setting.findAll();
-
-    // create an inner function to find a setting easy
-    const findKey = (key: string) => settings.find((s) => s.key === key);
-
-    // we need to create IBeeAudioSettings, ITheKweenSettings, IKweenBAudioSettings
-    return {
-      beeAudioSettings: {
-        channels: Number(findKey("beeChannels")?.value || 0),
-        jack: {
-          bufferSize: Number(findKey("beeJackBufferSize")?.value || 16),
-          sampleRate: Number(findKey("beeJackSampleRate")?.value || 48000),
-        },
-        jacktrip: {
-          bitRate: Number(findKey("beeJacktripBitRate")?.value || 16),
-          queueBufferLength: Number(
-            findKey("beeJacktripQueueBufferLength")?.value || 4
-          ),
-          redundancy: Number(findKey("beeJacktripRedundancy")?.value || 1),
-        },
-      },
-      kweenBAudioSettings: {
-        channels: Number(findKey("kweenbChannels")?.value || 2),
-      },
-      theKweenSettings: {
-        ipAddress: findKey("thekweenIpAddress")?.value || "127.0.0.1",
-      },
-    };
+    return await getAllSettings();
   } catch (e: any) {
     throw new KweenBException(
-      { message: `fetchSettings(): ${e.message}` },
+      { where: "fetchKweenBSettings", message: e.message },
       true
     );
   }
@@ -59,10 +31,8 @@ export const updateKweenBSetting = async (
   setting: ISetting
 ) => {
   try {
-    if (!setting.key)
-      throw new Error("Please provide a valid key for the requested setting.");
-    Setting.update(setting, { where: { key: setting.key } });
+    await updateSetting(setting);
   } catch (e: any) {
-    throw new KweenBException({ message: `updateBee(): ${e.message}` });
+    throw new KweenBException({ where: "updateBee", message: e.message });
   }
 };

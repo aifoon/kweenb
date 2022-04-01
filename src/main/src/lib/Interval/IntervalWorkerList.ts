@@ -38,15 +38,18 @@ export default class IntervalWorkerList {
     }
   }
 
-  startProcess(name: string) {
+  startProcess(name: string, params: any[] = []) {
     if (!this.hasProcess(name)) return;
     const process = this.processes[name];
+    if (params && params.length > 0) process.params = params;
     if (process.isAsync) this.processes[name].startAsync();
     else this.processes[name].start();
   }
 
   stopProcess(name: string) {
     if (!this.hasProcess(name)) return;
-    this.processes[name].stop();
+    const process = this.processes[name];
+    process.stop();
+    if (process.params && process.params.length > 0) process.params = [];
   }
 }

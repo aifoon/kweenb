@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { CircularProgress, Grid } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { Utils } from "@shared/utils";
 import { useDrag } from "react-dnd";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
@@ -19,19 +18,19 @@ export interface BeeCardProps {
   online?: boolean;
   jackIsRunning?: boolean;
   jackTripIsRunning?: boolean;
+  apiOn?: boolean;
   ipAddress?: string;
   loading?: boolean;
   draggable?: boolean;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-  onBeeExitClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export const BeeCardContainer = styled.div`
   position: relative;
   border-radius: var(--radiusLarge);
   padding: 1rem;
-  height: 205px; /* Fixed height of the BeeCard */
+  height: 100%; /* Fixed height of the BeeCard */
   background-color: var(--beeCardBg);
 
   h2 {
@@ -94,17 +93,19 @@ export const BeeCard = ({
   online = true,
   jackIsRunning = false,
   jackTripIsRunning = false,
+  apiOn = false,
   loading = false,
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
   onBeeDeleteClick,
-  onBeeExitClick,
   draggable = false,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
-  const [isJackIsRunning, setIsJackIsRunning] = useState(online);
-  const [isJackTripIsRunning, setIsJackTripIsRunning] = useState(online);
+  const [isJackIsRunning, setIsJackIsRunning] = useState(jackIsRunning);
+  const [isJackTripIsRunning, setIsJackTripIsRunning] =
+    useState(jackTripIsRunning);
+  const [isApiOn, setIsApiOn] = useState(apiOn);
   const [isLoading, setIsLoading] = useState(loading);
 
   /**
@@ -113,6 +114,7 @@ export const BeeCard = ({
 
   useEffect(() => setIsOnline(online), [online]);
   useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
+  useEffect(() => setIsApiOn(apiOn), [apiOn]);
   useEffect(
     () => setIsJackTripIsRunning(jackTripIsRunning),
     [jackTripIsRunning]
@@ -157,15 +159,10 @@ export const BeeCard = ({
               <ToolButton onClick={onBeeDeleteClick}>
                 <DeleteForeverIcon fontSize="small" />
               </ToolButton>
-              {isOnline && (
-                <>
-                  <ToolButton onClick={onBeeExitClick}>
-                    <LogoutIcon fontSize="small" />
-                  </ToolButton>
-                  <ToolButton onClick={onBeeConfigClick}>
-                    <SettingsIcon fontSize="small" />
-                  </ToolButton>
-                </>
+              {isOnline && isApiOn && (
+                <ToolButton onClick={onBeeConfigClick}>
+                  <SettingsIcon fontSize="small" />
+                </ToolButton>
               )}
             </ToolButtonGroup>
           </Grid>
@@ -179,6 +176,11 @@ export const BeeCard = ({
 
         <BeeCardSection>
           <Grid container spacing={1}>
+            <Grid item xs={12}>
+              <Label type={isApiOn ? LabelType.Primary : LabelType.Secondary}>
+                Zwerm3 API
+              </Label>
+            </Grid>
             <Grid item xs={5}>
               <Label
                 type={isJackIsRunning ? LabelType.Primary : LabelType.Secondary}
@@ -197,18 +199,6 @@ export const BeeCard = ({
             </Grid>
           </Grid>
         </BeeCardSection>
-
-        {/* <BeeCardSection>
-          <Button
-            onClick={onBeeConfigClick}
-            buttonUse={ButtonUse.Normal}
-            buttonType={ButtonType.Primary}
-            buttonSize={ButtonSize.Small}
-            disabled={!isOnline}
-          >
-            Bee Config
-          </Button>
-        </BeeCardSection> */}
       </>
     </BeeCardContainer>
   );

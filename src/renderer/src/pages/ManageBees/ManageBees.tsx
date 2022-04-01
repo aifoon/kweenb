@@ -95,26 +95,28 @@ export const ManageBees = () => {
           <Grid container spacing={5}>
             <Grid item sm={12} md={7} lg={9}>
               <Grid container spacing={5}>
-                {activeBees.map(({ id, ipAddress, isOnline, name, status }) => (
-                  <Grid key={id} item xl={2} lg={4} xs={12} sm={12} md={6}>
-                    <BeeCard
-                      number={id}
-                      onBeeConfigClick={() => navigate(`manage-bees/${id}`)}
-                      onBeeDeleteClick={() => handleOpenConfirmModal({ id })}
-                      onBeeExitClick={() => console.log("exit")}
-                      name={name}
-                      ipAddress={ipAddress}
-                      online={isOnline}
-                      jackIsRunning={status?.isJackRunning}
-                      jackTripIsRunning={status?.isJacktripRunning}
-                    />
-                  </Grid>
-                ))}
+                {activeBees.map(
+                  ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
+                    <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={6}>
+                      <BeeCard
+                        number={id}
+                        onBeeConfigClick={() => navigate(`swarm/${id}`)}
+                        onBeeDeleteClick={() => handleOpenConfirmModal({ id })}
+                        name={name}
+                        ipAddress={ipAddress}
+                        apiOn={isApiOn}
+                        online={isOnline}
+                        jackIsRunning={status?.isJackRunning}
+                        jackTripIsRunning={status?.isJacktripRunning}
+                      />
+                    </Grid>
+                  )
+                )}
                 <Grid
                   key="beeCardDropzone"
                   item
-                  xl={2}
                   lg={4}
+                  xl={3}
                   xs={12}
                   sm={12}
                   md={6}

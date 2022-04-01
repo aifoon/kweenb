@@ -6,6 +6,8 @@ import { BeeActiveState } from "@shared/enums";
 import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
 import ping from "ping";
 import Bee from "../../models/Bee";
+import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
+import zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 
 /**
  * Define the defaults
@@ -54,10 +56,13 @@ const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
   // get the bee behind the id
   const bee = await Bee.findOne({ where: { id } });
 
-  // @TODO get the configuration from a bee
+  // validate
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // get the statuses
   const beeStatus = {
-    isJackRunning: true,
-    isJacktripRunning: true,
+    isJackRunning: await zwerm3ApiHelpers.isJackRunning(bee.ipAddress),
+    isJacktripRunning: await zwerm3ApiHelpers.isJacktripRunning(bee.ipAddress),
   };
 
   // return the configuration
@@ -77,6 +82,7 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     name,
     isActive,
     isOnline: false,
+    isApiOn: false,
     config: defaultBeeConfig,
     status: defaultBeeStatus,
   };
@@ -141,6 +147,11 @@ const getAllBees = async (
         isOnline = beeHost ? beeHost.alive : false;
       }
 
+      // check if API is on
+      const isApiOn = isOnline
+        ? await zwerm3ApiHelpers.isZwerm3ApiRunning(ipAddress)
+        : false;
+
       // return the bee, according to the IBee interface
       return {
         id,
@@ -148,6 +159,7 @@ const getAllBees = async (
         ipAddress,
         isActive,
         isOnline,
+        isApiOn,
         config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
         status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
       };
@@ -163,12 +175,12 @@ const getAllBees = async (
  * @param id
  * @returns
  */
-const getBee = async (id: number) => {
+const getBee = async (id: number): Promise<IBee> => {
   // get the bee
   const bee = await Bee.findOne({ where: { id } });
 
   // validate if we found a Bee
-  if (!bee) throw new Error(`No bee found with the id ${id}.`);
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
 
   // get all the ip addresses of our bees and map the ping promises
   const beeConnectivity = await ping.promise.probe(bee.ipAddress, pingConfig);
@@ -176,12 +188,16 @@ const getBee = async (id: number) => {
   // check if the bee is online
   const isOnline = beeConnectivity.alive;
 
+  // check if the api is on
+  const isApiOn = await zwerm3ApiHelpers.isZwerm3ApiRunning(bee.ipAddress);
+
   // return the bee, according to the IBee interface
   return {
     id: bee.id,
     ipAddress: bee.ipAddress,
     name: bee.name,
     isActive: bee.isActive,
+    isApiOn,
     isOnline,
     config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
     status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
@@ -198,7 +214,7 @@ const setBeeActive = async (id: number, active: boolean) => {
   const bee = await Bee.findOne({ where: { id } });
 
   // validate if we found a Bee
-  if (!bee) throw new Error(`No bee found with the id ${id}.`);
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
 
   // validate
   if (bee.isActive === active)

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { ModalUnstyled } from "@mui/material";
+import ModalUnstyled from "@mui/base/ModalUnstyled";
 import styled from "styled-components";
 import { CloseButton } from "./CloseButton";
 
@@ -21,6 +21,9 @@ const BaseModalStyled = styled(ModalUnstyled)`
   display: flex;
   align-items: center;
   justify-content: center;
+  &:focus-visible {
+    outline: none;
+  }
 `;
 
 const Backdrop = styled("div")`
