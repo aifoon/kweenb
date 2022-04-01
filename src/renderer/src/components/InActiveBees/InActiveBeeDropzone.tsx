@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { useDrop } from "react-dnd";
-import { NonActiveBeeNumber } from "./NonActiveBee";
+import { InActiveBeeNumber } from "./InActiveBee";
 
-interface NonActiveBeeNumberDropzoneProps {
+interface InActiveBeeNumberDropzoneProps {
   onBeeCardDropped?: (number: number) => void;
 }
 
-const NonActiveBeeDropzoneContainer = styled.div`
+const InActiveBeeDropzoneContainer = styled.div`
   width: 100%;
   padding: 0.6rem;
   font-size: var(--smallText);
@@ -15,14 +15,14 @@ const NonActiveBeeDropzoneContainer = styled.div`
   color: var(--grey-400);
 `;
 
-const NonActiveBeeNumberDropzone = styled(NonActiveBeeNumber)`
+const InActiveBeeNumberDropzone = styled(InActiveBeeNumber)`
   background: none;
   border: 1px dashed var(--grey-400);
 `;
 
-export const NonActiveBeeDropzone = ({
+export const InActiveBeeDropzone = ({
   onBeeCardDropped,
-}: NonActiveBeeNumberDropzoneProps) => {
+}: InActiveBeeNumberDropzoneProps) => {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: "BeeCard",
     drop: (item: { number: number }) => {
@@ -34,12 +34,12 @@ export const NonActiveBeeDropzone = ({
     }),
   }));
   return (
-    <NonActiveBeeDropzoneContainer
+    <InActiveBeeDropzoneContainer
       ref={drop}
       style={{ background: canDrop && isOver ? "var(--primary-300)" : "none" }}
     >
-      <NonActiveBeeNumberDropzone>00</NonActiveBeeNumberDropzone>
+      <InActiveBeeNumberDropzone>00</InActiveBeeNumberDropzone>
       drop an active bee
-    </NonActiveBeeDropzoneContainer>
+    </InActiveBeeDropzoneContainer>
   );
 };

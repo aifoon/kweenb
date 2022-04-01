@@ -14,10 +14,10 @@ import { Loader } from "@components/Loader";
 import { IBeeInput } from "@shared/interfaces";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
-  NonActiveBee,
-  NonActiveBees,
-  NonActiveBeeDropzone,
-} from "@components/NonActiveBees";
+  InActiveBee,
+  InActiveBees,
+  InActiveBeeDropzone,
+} from "@components/InActiveBees";
 import { Z3Page } from "../../layout";
 import { AddBeeModal } from "./AddBeeModal";
 import { NoBees } from "./NoBees";
@@ -47,7 +47,7 @@ export const ManageBees = () => {
     handleClose();
   };
 
-  const onNonActiveBeeDropped = async (number: number) => {
+  const onInActiveBeeDropped = async (number: number) => {
     await setBeeActive(number, true);
   };
 
@@ -120,19 +120,19 @@ export const ManageBees = () => {
                   md={6}
                 >
                   <BeeCardDropzone
-                    onNonActiveBeeDropped={onNonActiveBeeDropped}
+                    onInActiveBeeDropped={onInActiveBeeDropped}
                   />
                 </Grid>
               </Grid>
             </Grid>
             <Grid item sm={12} md={5} lg={3}>
-              <NonActiveBees>
-                <NonActiveBeeDropzone onBeeCardDropped={onBeeCardDropped} />
+              <InActiveBees>
+                <InActiveBeeDropzone onBeeCardDropped={onBeeCardDropped} />
                 {inActiveBees.length > 0 &&
                   inActiveBees.map((bee) => (
-                    <NonActiveBee number={bee.id} name={bee.name} />
+                    <InActiveBee number={bee.id} name={bee.name} />
                   ))}
-              </NonActiveBees>
+              </InActiveBees>
             </Grid>
           </Grid>
         </Z3Page>
