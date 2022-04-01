@@ -3,19 +3,19 @@ import React from "react";
 import styled from "styled-components";
 import { useDrag } from "react-dnd";
 
-type NonActiveBeeProps = {
+type InActiveBeeProps = {
   number: number;
   name: string;
 };
 
-const NonActiveBeeContainer = styled.div`
+const InActiveBeeContainer = styled.div`
   width: 100%;
   background-color: var(--primary-300);
   padding: 0.6rem;
   font-size: var(--smallText);
 `;
 
-export const NonActiveBeeNumber = styled.div`
+export const InActiveBeeNumber = styled.div`
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -27,18 +27,18 @@ export const NonActiveBeeNumber = styled.div`
   background: var(--primary-100);
 `;
 
-export const NonActiveBee = ({ number, name }: NonActiveBeeProps) => {
+export const InActiveBee = ({ number, name }: InActiveBeeProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: "NonActiveBee",
+    type: "InActiveBee",
     item: { number },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }));
   return (
-    <NonActiveBeeContainer style={{ opacity: isDragging ? 0.4 : 1 }} ref={drag}>
-      <NonActiveBeeNumber>{Utils.addLeadingZero(number)}</NonActiveBeeNumber>
+    <InActiveBeeContainer style={{ opacity: isDragging ? 0.4 : 1 }} ref={drag}>
+      <InActiveBeeNumber>{Utils.addLeadingZero(number)}</InActiveBeeNumber>
       {name}
-    </NonActiveBeeContainer>
+    </InActiveBeeContainer>
   );
 };

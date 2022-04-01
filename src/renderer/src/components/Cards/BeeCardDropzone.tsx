@@ -4,7 +4,7 @@ import { useDrop } from "react-dnd";
 import { BeeCardContainer } from "./BeeCard";
 
 type BeeCardDropzoneProps = {
-  onNonActiveBeeDropped?: (number: number) => void;
+  onInActiveBeeDropped?: (number: number) => void;
 };
 
 const BeeCardDropzoneContainer = styled(BeeCardContainer)`
@@ -18,12 +18,12 @@ const BeeCardDropzoneContainer = styled(BeeCardContainer)`
 `;
 
 export const BeeCardDropzone = ({
-  onNonActiveBeeDropped,
+  onInActiveBeeDropped,
 }: BeeCardDropzoneProps) => {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
-    accept: "NonActiveBee",
+    accept: "InActiveBee",
     drop: (item: { number: number }) => {
-      if (onNonActiveBeeDropped) onNonActiveBeeDropped(item.number);
+      if (onInActiveBeeDropped) onInActiveBeeDropped(item.number);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
