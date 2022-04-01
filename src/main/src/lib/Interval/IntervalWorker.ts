@@ -16,6 +16,7 @@ export interface IIntervalWorker {
   start: () => void;
   startAsync: () => Promise<any>;
   stop: () => void;
+  params: any[];
   state: IntervalWorkerState;
 }
 
@@ -28,16 +29,23 @@ export default abstract class IntervalWorker implements IIntervalWorker {
 
   public isAsync: boolean;
 
+  public params: any[];
+
   constructor(interval: number = 1000, isAsync: boolean = false) {
     this.interval = interval;
     this.state = IntervalWorkerState.Initialized;
     this.currentInterval = null;
     this.isAsync = isAsync;
+    this.params = [];
   }
 
   /**
    * Logic
    */
+
+  public changeParams(params: any[]) {
+    this.params = params;
+  }
 
   protected worker(): void {
     throw new Error("The worker is not implemented");

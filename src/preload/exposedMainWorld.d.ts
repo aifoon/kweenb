@@ -37,12 +37,15 @@ declare global {
         fetchInActiveBees(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchKweenBSettings(): Promise<IKweenBSettings>;
+        startJack(bee: IBee);
         updateBee(bee: Partial<IBee>);
         updateKweenBSetting(setting: ISetting);
       };
       readonly actions: {
         hello(name: string): void;
         beesPoller(action: "start" | "stop" | "pause"): void;
+        beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        killJackAndJacktrip(bee: IBee): void;
         setBeeActive(id: number, active: boolean): void;
       };
       readonly events: {
@@ -57,6 +60,9 @@ declare global {
         ): () => void;
         onUpdateBees(
           callback: (event: IpcMessageEvent, bees: IBee[]) => void
+        ): () => void;
+        onUpdateBee(
+          callback: (event: IpcMessageEvent, bee: IBee) => void
         ): () => void;
       };
     };

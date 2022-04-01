@@ -4,12 +4,13 @@ import {
   ButtonType,
   ButtonSize,
 } from "@renderer/src/components/Buttons";
-import { useInterval } from "@renderer/src/hooks";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 export interface BeeConfigActionsRunProps {
   isRunning?: boolean;
+  onStart?: () => void;
+  onStop?: () => void;
 }
 
 /**
@@ -38,6 +39,8 @@ const CustomToggleButton = styled(ToggleButton)`
 
 export const BeeConfigActionsRunJack = ({
   isRunning: running = false,
+  onStart,
+  onStop,
 }: BeeConfigActionsRunProps) => {
   const [isRunning, setIsRunning] = useState<boolean>(running);
 
@@ -49,12 +52,16 @@ export const BeeConfigActionsRunJack = ({
       state1={{
         ...state1Button,
         text: "Start Jack",
-        onClick: () => console.log("Clicking on Start Jack"),
+        onClick: () => {
+          if (onStart) onStart();
+        },
       }}
       state2={{
         ...state2Button,
         text: "Stop Jack",
-        onClick: () => console.log("Clicking on Stop Jack"),
+        onClick: () => {
+          if (onStop) onStop();
+        },
       }}
       buttonSize={ButtonSize.Small}
     />

@@ -17,6 +17,7 @@ export interface IBee {
   ipAddress: string;
   isOnline: boolean;
   isActive: boolean;
+  isApiOn: boolean;
   config: IBeeConfig;
   status: IBeeStatus;
 }

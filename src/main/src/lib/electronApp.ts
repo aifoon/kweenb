@@ -7,8 +7,6 @@ import { URL } from "url";
 import { BrowserWindow, shell } from "electron";
 import MenuBuilder from "./Menu";
 import { KweenB, KweenBGlobal } from "../kweenb";
-import IntervalWorkerList from "./Interval/IntervalWorkerList";
-import BeesPoller from "./Interval/BeesPoller";
 
 interface ElectronAppOptions {
   browserWidth?: number;
@@ -39,7 +37,7 @@ export default class ElectronApp {
       process.env.NODE_ENV === "development" ||
       process.env.DEBUG_PROD === "true";
     this.isProduction = process.env.NODE_ENV === "production";
-    this.port = process.env.PORT || 3000;
+    this.port = process.env.PORT || 3099;
   }
 
   /**

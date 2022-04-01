@@ -7,15 +7,17 @@ import { Utils } from "@shared/utils";
 import { BeeActiveState } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import beeHelpers from "../lib/KweenB/BeeHelpers";
+import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 
 /**
  * Managing the beepoller, start and stopping the interval
+ * @param event The invoke event
  * @param action start or stop the poller
  */
 export const beesPoller = (
-  event: any,
+  event: Electron.IpcMainInvokeEvent,
   action: "start" | "stop" | "pause"
 ): void => {
   switch (action) {
@@ -34,8 +36,34 @@ export const beesPoller = (
 };
 
 /**
- * Creates a new bee
- * @param event
+ * Managing the beepoller, start and stopping the interval
+ * @param event The invoke event
+ * @param action The action we need to do, starting, stopping or pausing
+ * @param params The params given (in this case [1], first item of tuple is the bee id)
+ */
+export const beePoller = (
+  event: Electron.IpcMainInvokeEvent,
+  action: "start" | "stop" | "pause",
+  params: any[] = []
+) => {
+  switch (action) {
+    case "start":
+      KweenBGlobal.intervalWorkerList.startProcess("bee:beePoller", params);
+      break;
+    case "stop":
+      KweenBGlobal.intervalWorkerList.stopProcess("bee:beePoller");
+      break;
+    case "pause":
+      KweenBGlobal.intervalWorkerList.pauseProcess("bee:beePoller");
+      break;
+    default:
+      break;
+  }
+};
+
+/**
+ * Create a new bee
+ * @param event The invoke event
  * @param bee
  */
 export const createBee = async (
@@ -90,6 +118,26 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
     );
   } catch (e: any) {
     throw new KweenBException({ where: "deleteBee()", message: e.message });
+  }
+};
+
+/**
+ * Kill Jack And Jacktrip processes on the client
+ * @param event
+ * @param bee
+ */
+export const killJackAndJacktrip = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
+    KweenBGlobal.kweenb.showSuccess("Killed Jack and Jacktrip processes.");
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "killJackAndJacktrip()", message: e.message },
+      true
+    );
   }
 };
 
@@ -161,7 +209,7 @@ export const fetchBee = async (
 
 /**
  * Sets the bee active
- * @param event The Electron Event
+ * @param event The invoke event
  * @param id The ID of the bee
  * @param active The active state of the bee
  * @returns
@@ -176,6 +224,26 @@ export const setBeeActive = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "setBeeActive()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Start Jack on a specific bee
+ * @param event The Invoke event
+ * @param bee
+ */
+export const startJack = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.startJack(bee.ipAddress);
+    KweenBGlobal.kweenb.showSuccess("Started Jack with success.");
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startJack()", message: e.message },
       true
     );
   }

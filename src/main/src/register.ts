@@ -14,6 +14,9 @@ import {
   setBeeActive,
   fetchInActiveBees,
   fetchActiveBees,
+  beePoller,
+  startJack,
+  killJackAndJacktrip,
 } from "./controllers/bee";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -22,10 +25,13 @@ import {
   fetchKweenBSettings,
   updateKweenBSetting,
 } from "./controllers/setting";
+import BeePoller from "./lib/Interval/BeePoller";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
   ipcMain.on("bee:beesPoller", beesPoller);
+  ipcMain.on("bee:beePoller", beePoller);
+  ipcMain.on("bee:killJackAndJacktrip", killJackAndJacktrip);
   ipcMain.on("bee:setBeeActive", setBeeActive);
 };
 
@@ -37,6 +43,7 @@ export const registerMethods = () => {
   ipcMain.handle("bee:fetchAllBees", fetchAllBees);
   ipcMain.handle("bee:fetchInActiveBees", fetchInActiveBees);
   ipcMain.handle("bee:updateBee", updateBee);
+  ipcMain.handle("bee:startJack", startJack);
   ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
   ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);
 };
@@ -44,5 +51,6 @@ export const registerMethods = () => {
 export const registerIntervalWorkers = () => {
   const intervalWorkerList = new IntervalWorkerList();
   intervalWorkerList.addProcess("bee:beesPoller", new BeesPoller());
+  intervalWorkerList.addProcess("bee:beePoller", new BeePoller());
   KweenBGlobal.intervalWorkerList = intervalWorkerList;
 };

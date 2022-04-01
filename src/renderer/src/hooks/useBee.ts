@@ -4,14 +4,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { IBee } from "@shared/interfaces";
+import { useAppContext } from "./useAppContext";
 
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);
+  const { appContext } = useAppContext();
   const [bee, setBee] = useState<IBee>({
     id: 0,
     name: "",
     ipAddress: "",
     isOnline: false,
+    isApiOn: false,
     isActive: false,
     config: {
       jacktripVersion: "1.4.1",
@@ -27,18 +30,46 @@ export function useBee(id: number) {
    * Fetching the bee
    */
   const fetchBee = useCallback(async () => {
-    setLoading(true);
     setBee(await window.kweenb.methods.fetchBee(id));
-    setLoading(false);
     return bee;
-  }, []);
+  }, [bee]);
+
+  /**
+   * Kills Jack And Jacktrip
+   */
+  const killJackAndJacktrip = useCallback(async () => {
+    try {
+      window.kweenb.actions.killJackAndJacktrip(bee);
+    } catch (e: any) {
+      console.error(`killJackAndJacktrip: ${e.message}`);
+    }
+  }, [bee]);
+
+  /**
+   * Start Jack
+   */
+  const startJack = useCallback(async () => {
+    try {
+      appContext.setLoading(true);
+      await window.kweenb.methods.startJack(bee);
+      bee.status.isJackRunning = true;
+      setBee(bee);
+    } catch (e: any) {
+      console.error(`startJack: ${e.message}`);
+    } finally {
+      appContext.setLoading(false);
+    }
+  }, [bee]);
 
   /**
    * Updating a bee
    */
-  const updateBeeSetting = useCallback((updatedBee: Partial<IBee>) => {
-    window.kweenb.methods.updateBee({ id, ...updatedBee });
-  }, []);
+  const updateBeeSetting = useCallback(
+    (updatedBee: Partial<IBee>) => {
+      window.kweenb.methods.updateBee({ id, ...updatedBee });
+    },
+    [bee]
+  );
 
   /**
    * When mounting, fetch all bees
@@ -46,9 +77,31 @@ export function useBee(id: number) {
   useEffect(() => {
     // fetch the bees
     (async () => {
+      setLoading(true);
       await fetchBee();
+      setLoading(false);
     })();
+
+    // start the beepoller in main world
+    window.kweenb.actions.beePoller("start", [id]);
+
+    // check if we receive update polls from beepoller
+    const removeAllListeners = window.kweenb.events.onUpdateBee(
+      (event, updatedBee) => {
+        setBee(updatedBee);
+        console.log(updatedBee);
+      }
+    );
+
+    // when unhooking the bees
+    return () => {
+      // stop the beepoller in main world
+      window.kweenb.actions.beePoller("stop");
+
+      // remove all update-bee listeners
+      removeAllListeners();
+    };
   }, []);
 
-  return { loading, bee, updateBeeSetting };
+  return { loading, bee, killJackAndJacktrip, startJack, updateBeeSetting };
 }

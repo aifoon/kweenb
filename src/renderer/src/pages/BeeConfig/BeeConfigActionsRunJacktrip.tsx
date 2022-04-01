@@ -18,6 +18,8 @@ const CustomToggleButton = styled(ToggleButton)`
 
 export const BeeConfigActionsRunJacktrip = ({
   isRunning: running = false,
+  onStart,
+  onStop,
 }: BeeConfigActionsRunProps) => {
   const [isRunning, setIsRunning] = useState<boolean>(running);
 
@@ -29,12 +31,16 @@ export const BeeConfigActionsRunJacktrip = ({
       state1={{
         ...state1Button,
         text: "Start Jacktrip",
-        onClick: () => console.log("Clicking on Start Jacktrip"),
+        onClick: () => {
+          if (onStart) onStart();
+        },
       }}
       state2={{
         ...state2Button,
         text: "Stop Jacktrip",
-        onClick: () => console.log("Clicking on Stop Jacktrip"),
+        onClick: () => {
+          if (onStop) onStop();
+        },
       }}
       buttonSize={ButtonSize.Small}
     />
