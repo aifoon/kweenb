@@ -35,13 +35,51 @@ export function useBee(id: number) {
   }, [bee]);
 
   /**
+   * Kill Jack
+   */
+  const killJack = useCallback(async () => {
+    try {
+      appContext.setLoading(true);
+      await window.kweenb.methods.killJack(bee);
+      bee.status.isJackRunning = false;
+      setBee(bee);
+    } catch (e: any) {
+      console.error(`killJack: ${e.message}`);
+    } finally {
+      appContext.setLoading(false);
+    }
+  }, [bee]);
+
+  /**
+   * Kill Jacktrip
+   */
+  const killJacktrip = useCallback(async () => {
+    try {
+      appContext.setLoading(true);
+      await window.kweenb.methods.killJacktrip(bee);
+      bee.status.isJacktripRunning = false;
+      setBee(bee);
+    } catch (e: any) {
+      console.error(`killJacktrip: ${e.message}`);
+    } finally {
+      appContext.setLoading(false);
+    }
+  }, [bee]);
+
+  /**
    * Kills Jack And Jacktrip
    */
   const killJackAndJacktrip = useCallback(async () => {
     try {
-      window.kweenb.actions.killJackAndJacktrip(bee);
+      appContext.setLoading(true);
+      await window.kweenb.methods.killJackAndJacktrip(bee);
+      bee.status.isJackRunning = false;
+      bee.status.isJacktripRunning = false;
+      setBee(bee);
     } catch (e: any) {
       console.error(`killJackAndJacktrip: ${e.message}`);
+    } finally {
+      appContext.setLoading(false);
     }
   }, [bee]);
 
@@ -103,5 +141,13 @@ export function useBee(id: number) {
     };
   }, []);
 
-  return { loading, bee, killJackAndJacktrip, startJack, updateBeeSetting };
+  return {
+    loading,
+    bee,
+    killJack,
+    killJacktrip,
+    killJackAndJacktrip,
+    startJack,
+    updateBeeSetting,
+  };
 }

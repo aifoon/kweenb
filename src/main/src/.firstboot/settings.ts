@@ -8,12 +8,16 @@ export default [
     value: "2"
   },
   {
+    key: "beeJackDevice",
+    value: ""
+  },
+  {
     key: "beeJackBufferSize",
-    value: "16"
+    value: "256"
   },
   {
     key: "beeJackSampleRate",
-    value: "44100"
+    value: "48000"
   },
   {
     key: "beeJacktripBitRate",

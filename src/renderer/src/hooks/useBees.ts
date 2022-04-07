@@ -49,9 +49,13 @@ export function useBees() {
    * Fetching the active bees
    */
   const fetchActiveBees = useCallback(async () => {
-    const fetchedActiveBees = await window.kweenb.methods.fetchActiveBees();
-    fetchedActiveBees.sort((a, b) => a.id - b.id);
-    setActiveBees(fetchedActiveBees);
+    try {
+      const fetchedActiveBees = await window.kweenb.methods.fetchActiveBees();
+      fetchedActiveBees.sort((a, b) => a.id - b.id);
+      setActiveBees(fetchedActiveBees);
+    } catch (e: any) {
+      console.log(e.message);
+    }
   }, [activeBees]);
 
   /**

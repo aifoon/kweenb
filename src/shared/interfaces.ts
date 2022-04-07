@@ -67,6 +67,7 @@ export interface IBeeAudioSettings {
 }
 
 export interface IBeeAudioSettingsJack {
+  device: string;
   bufferSize: number;
   sampleRate: number;
 }

@@ -142,6 +142,46 @@ export const killJackAndJacktrip = async (
 };
 
 /**
+ * Kill Jack processes on the client
+ * @param event
+ * @param bee
+ */
+export const killJack = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.killJack(bee.ipAddress);
+    KweenBGlobal.kweenb.showSuccess("Killed Jack processes.");
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "killJack()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Kill Jacktrip processes on the client
+ * @param event
+ * @param bee
+ */
+export const killJacktrip = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.killJacktrip(bee.ipAddress);
+    KweenBGlobal.kweenb.showSuccess("Killed Jacktrip processes.");
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "killJacktrip()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Fetch the active bees
  * @param event
  * @returns

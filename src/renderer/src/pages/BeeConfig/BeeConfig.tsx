@@ -16,8 +16,15 @@ import { BeeConfigSettings } from "./BeeConfigSettings";
 export const BeeConfig = () => {
   const { id } = useParams();
   const numberizedId = Number(id) || 0;
-  const { loading, bee, updateBeeSetting, killJackAndJacktrip, startJack } =
-    useBee(numberizedId);
+  const {
+    loading,
+    bee,
+    updateBeeSetting,
+    killJack,
+    killJacktrip,
+    killJackAndJacktrip,
+    startJack,
+  } = useBee(numberizedId);
 
   if (loading) return <Loader />;
 
@@ -45,6 +52,8 @@ export const BeeConfig = () => {
               isJackRunning={bee.status.isJackRunning}
               isJacktripRunning={bee.status.isJacktripRunning}
               onStartJack={startJack}
+              onStopJack={killJack}
+              onStopJacktrip={killJacktrip}
               onKillJackAndJacktrip={killJackAndJacktrip}
             />
             <BeeConfigSettings
