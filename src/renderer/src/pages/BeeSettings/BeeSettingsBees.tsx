@@ -24,6 +24,7 @@ interface BeeSettingsBeesProps {
 export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
   const { updateSetting } = useSetting();
   const handleOnValidatedBlurAndChange = (e: any) => {
+    console.log(e.target.name);
     updateSetting({
       key: `bee${Utils.capitalize(e.target.name)}`,
       value: e.target.value,
@@ -34,6 +35,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
       <Formik
         initialValues={{
           channels: beeAudioSettings.channels,
+          jackDevice: beeAudioSettings.jack.device,
           jackBufferSize: beeAudioSettings.jack.bufferSize,
           jackSampleRate: beeAudioSettings.jack.sampleRate,
           jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
@@ -46,6 +48,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
             .min(1, "The minimun amount of channels is 1")
             .max(99, "The maximum amount of channels is 99")
             .required("The amount of channels is required"),
+          jackDevice: Yup.string(),
           jackBufferSize: Yup.number()
             .required("The buffer size is required")
             .isValidBufferSize(),
@@ -81,6 +84,16 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
               placeholder="e.g. 2"
             />
             <h5>Jack</h5>
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Device"
+              type="text"
+              labelWidth="150px"
+              name="jackDevice"
+              placeholder="e.g. hw:Set"
+            />
             <SelectField
               onValidatedBlur={handleOnValidatedBlurAndChange}
               orientation={InputFieldOrientation.Horizontal}

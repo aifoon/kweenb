@@ -14,3 +14,6 @@ export const POST_ERROR = (functionName: string, what: string = "") =>
   `Something went wrong while posting (${functionName}).${
     what ? ` ${what}` : ""
   }`;
+
+export const ZWERM3_API_NOTRUNNING = (ipAddress: string) =>
+  `Zwerm3 API not running on ${ipAddress}.`;

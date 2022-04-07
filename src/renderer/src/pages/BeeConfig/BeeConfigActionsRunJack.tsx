@@ -25,8 +25,8 @@ export const state1Button = {
  * The state2 button
  */
 export const state2Button = {
-  buttonUse: ButtonUse.Dark,
-  buttonType: ButtonType.Secondary,
+  buttonUse: ButtonUse.Danger,
+  buttonType: ButtonType.Primary,
 };
 
 /**

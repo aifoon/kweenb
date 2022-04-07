@@ -21,6 +21,7 @@ const getAllSettings = async (): Promise<IKweenBSettings> => {
     beeAudioSettings: {
       channels: Number(findKey("beeChannels")?.value || 0),
       jack: {
+        device: findKey("beeJackDevice")?.value || "",
         bufferSize: Number(findKey("beeJackBufferSize")?.value || 16),
         sampleRate: Number(findKey("beeJackSampleRate")?.value || 48000),
       },

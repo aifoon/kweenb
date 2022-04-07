@@ -60,6 +60,10 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:fetchBee", id),
     fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
       ipcRenderer.invoke("setting:fetchKweenBSettings"),
+    killJackAndJacktrip: (bee: IBee) =>
+      ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
+    killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
+    killJacktrip: (bee: IBee) => ipcRenderer.invoke("bee:killJacktrip", bee),
     startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
     updateKweenBSetting: (setting: ISetting) =>
@@ -67,8 +71,6 @@ contextBridge.exposeInMainWorld("kweenb", {
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
-    killJackAndJacktrip: (bee: IBee) =>
-      ipcRenderer.send("bee:killJackAndJacktrip", bee),
     setBeeActive: (id: number, active: boolean) =>
       ipcRenderer.send("bee:setBeeActive", id, active),
     beePoller: (
