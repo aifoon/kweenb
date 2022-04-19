@@ -52,6 +52,7 @@ export const ManageBees = () => {
   };
 
   const onBeeCardDropped = async (number: number) => {
+    console.log(number);
     await setBeeActive(number, false);
   };
 
@@ -99,6 +100,7 @@ export const ManageBees = () => {
                   ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
                     <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={6}>
                       <BeeCard
+                        key={id}
                         number={id}
                         onBeeConfigClick={() => navigate(`swarm/${id}`)}
                         onBeeDeleteClick={() => handleOpenConfirmModal({ id })}
@@ -131,8 +133,8 @@ export const ManageBees = () => {
               <InActiveBees>
                 <InActiveBeeDropzone onBeeCardDropped={onBeeCardDropped} />
                 {inActiveBees.length > 0 &&
-                  inActiveBees.map((bee) => (
-                    <InActiveBee number={bee.id} name={bee.name} />
+                  inActiveBees.map(({ id, name }) => (
+                    <InActiveBee key={id} number={id} name={name} />
                   ))}
               </InActiveBees>
             </Grid>

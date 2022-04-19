@@ -2,13 +2,24 @@
  * Hook that will get the data, stored in our sqlite database
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IBee, IBeeInput } from "@shared/interfaces";
 
 export function useBees() {
   const [loading, setLoading] = useState<boolean>(true);
   const [activeBees, setActiveBees] = useState<IBee[]>([]);
   const [inActiveBees, setInActiveBees] = useState<IBee[]>([]);
+
+  const inactiveBeesRef = useRef<IBee[]>();
+  const activeBeesRef = useRef<IBee[]>();
+
+  useEffect(() => {
+    inactiveBeesRef.current = inActiveBees;
+  }, [inActiveBees]);
+
+  useEffect(() => {
+    activeBeesRef.current = activeBees;
+  }, [activeBees]);
 
   /**
    * Sets the active bees
@@ -18,15 +29,49 @@ export function useBees() {
       // set in database
       await window.kweenb.actions.setBeeActive(number, active);
 
+      // validate current bees
+      if (!inactiveBeesRef.current || !activeBeesRef.current) return;
+
       // switch in frontend
       if (active) {
-        const beeToSwitch = inActiveBees.find(({ id }: IBee) => id === number);
-        setInActiveBees(inActiveBees.filter(({ id }) => id !== number));
-        if (beeToSwitch) setActiveBees([...activeBees, beeToSwitch]);
+        // get the bee to switch
+        const beeToSwitch = inactiveBeesRef.current.find(
+          ({ id }: IBee) => id === number
+        );
+
+        // create & set the new inactive bees
+        const newInactiveBees = inactiveBeesRef.current
+          .filter(({ id }) => id !== number)
+          .sort((a, b) => a.id - b.id);
+        setInActiveBees(newInactiveBees);
+
+        // create & set the new active bees
+        if (beeToSwitch) {
+          const newActiveBees = [...activeBeesRef.current, beeToSwitch].sort(
+            (a, b) => a.id - b.id
+          );
+          setActiveBees(newActiveBees);
+        }
       } else {
-        const beeToSwitch = activeBees.find(({ id }: IBee) => id === number);
-        setActiveBees(activeBees.filter(({ id }) => id !== number));
-        if (beeToSwitch) setInActiveBees([...inActiveBees, beeToSwitch]);
+        // get the bee to switch
+        const beeToSwitch = activeBeesRef.current.find(
+          ({ id }: IBee) => id === number
+        );
+
+        // create & set the new active bees
+        const newActiveBees = activeBeesRef.current
+          .filter(({ id }) => id !== number)
+          .sort((a, b) => a.id - b.id);
+        setActiveBees(newActiveBees);
+
+        // create & set the new inactive bees
+        if (beeToSwitch) {
+          const newInactiveBees = [
+            ...inactiveBeesRef.current,
+            beeToSwitch,
+          ].sort((a, b) => a.id - b.id);
+          setInActiveBees(newInactiveBees);
+        }
       }
     },
     [activeBees, inActiveBees]
@@ -92,7 +137,7 @@ export function useBees() {
     })();
 
     // start the beepoller in main world
-    window.kweenb.actions.beesPoller("start");
+    // window.kweenb.actions.beesPoller("start");
 
     // check if we receive update polls from beepoller
     const removeAllListeners = window.kweenb.events.onUpdateBees(
