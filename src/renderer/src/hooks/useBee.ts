@@ -5,19 +5,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { IBee } from "@shared/interfaces";
 import { useAppContext } from "./useAppContext";
+import { useInterval } from "./useInterval";
 
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);
   const { appContext } = useAppContext();
   const [bee, setBee] = useState<IBee>({
     id: 0,
-    name: "",
-    ipAddress: "",
+    name: "fetching data...",
+    ipAddress: "fetching data...",
     isOnline: false,
     isApiOn: false,
     isActive: false,
     config: {
-      jacktripVersion: "1.4.1",
+      jacktripVersion: "1.5.3",
       useMqtt: false,
     },
     status: {
@@ -30,7 +31,8 @@ export function useBee(id: number) {
    * Fetching the bee
    */
   const fetchBee = useCallback(async () => {
-    setBee(await window.kweenb.methods.fetchBee(id));
+    const fetchedBee = await window.kweenb.methods.fetchBee(id);
+    setBee(fetchedBee);
     return bee;
   }, [bee]);
 
@@ -119,27 +121,14 @@ export function useBee(id: number) {
       await fetchBee();
       setLoading(false);
     })();
-
-    // start the beepoller in main world
-    window.kweenb.actions.beePoller("start", [id]);
-
-    // check if we receive update polls from beepoller
-    const removeAllListeners = window.kweenb.events.onUpdateBee(
-      (event, updatedBee) => {
-        setBee(updatedBee);
-        console.log(updatedBee);
-      }
-    );
-
-    // when unhooking the bees
-    return () => {
-      // stop the beepoller in main world
-      window.kweenb.actions.beePoller("stop");
-
-      // remove all update-bee listeners
-      removeAllListeners();
-    };
   }, []);
+
+  /**
+   * Use an interval to fetch a bee
+   */
+  useInterval(async () => {
+    await fetchBee();
+  }, 3000);
 
   return {
     loading,

@@ -13,7 +13,7 @@ import { Label, LabelType } from "../Label";
  */
 
 export interface BeeCardProps {
-  number?: number;
+  number: number;
   name?: string;
   online?: boolean;
   jackIsRunning?: boolean;
@@ -109,7 +109,7 @@ export const BeeCard = ({
   const [isLoading, setIsLoading] = useState(loading);
 
   /**
-   * Som effects
+   * Some effects
    */
 
   useEffect(() => setIsOnline(online), [online]);

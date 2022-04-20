@@ -33,8 +33,11 @@ declare global {
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
         fetchActiveBees(): Promise<IBee[]>;
+        fetchActiveBeesData(): Promise<IBee[]>;
         fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
+        fetchAllBeesData(): Promise<IBee[]>;
         fetchInActiveBees(): Promise<IBee[]>;
+        fetchInActiveBeesData(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchKweenBSettings(): Promise<IKweenBSettings>;
         killJackAndJacktrip(bee: IBee): void;

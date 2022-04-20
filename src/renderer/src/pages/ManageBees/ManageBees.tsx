@@ -9,7 +9,7 @@ import { PageHeader } from "@components/PageHeader";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useBees, useShowState, useConfirmation } from "@renderer/src/hooks";
-import { BeeCard, BeeCardDropzone } from "@components/Cards";
+import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
 import { IBeeInput } from "@shared/interfaces";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
@@ -21,6 +21,7 @@ import {
 import { Z3Page } from "../../layout";
 import { AddBeeModal } from "./AddBeeModal";
 import { NoBees } from "./NoBees";
+import { BeeCardWithPolling } from "./BeeCardWithPolling";
 
 export const ManageBees = () => {
   const { open, handleOpen, handleClose } = useShowState(false);
@@ -52,7 +53,6 @@ export const ManageBees = () => {
   };
 
   const onBeeCardDropped = async (number: number) => {
-    console.log(number);
     await setBeeActive(number, false);
   };
 
@@ -99,7 +99,7 @@ export const ManageBees = () => {
                 {activeBees.map(
                   ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
                     <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={6}>
-                      <BeeCard
+                      <BeeCardWithPolling
                         key={id}
                         number={id}
                         onBeeConfigClick={() => navigate(`swarm/${id}`)}

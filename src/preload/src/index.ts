@@ -52,10 +52,16 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     fetchActiveBees: (): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchActiveBees"),
+    fetchActiveBeesData: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("bee:fetchActiveBeesData"),
     fetchAllBees: (pollForOnline: boolean = true): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchAllBees", pollForOnline),
+    fetchAllBeesData: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("bee:fetchAllBeesData"),
     fetchInActiveBees: (): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchInActiveBees"),
+    fetchInActiveBeesData: (): Promise<IBee[]> =>
+      ipcRenderer.invoke("bee:fetchInActiveBeesData"),
     fetchBee: (id: number): Promise<IBee> =>
       ipcRenderer.invoke("bee:fetchBee", id),
     fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>

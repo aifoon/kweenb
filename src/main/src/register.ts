@@ -19,6 +19,9 @@ import {
   killJackAndJacktrip,
   killJack,
   killJacktrip,
+  fetchAllBeesData,
+  fetchActiveBeesData,
+  fetchInActiveBeesData,
 } from "./controllers/bee";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -41,8 +44,11 @@ export const registerMethods = () => {
   ipcMain.handle("bee:deleteBee", deleteBee);
   ipcMain.handle("bee:fetchBee", fetchBee);
   ipcMain.handle("bee:fetchActiveBees", fetchActiveBees);
+  ipcMain.handle("bee:fetchActiveBeesData", fetchActiveBeesData);
   ipcMain.handle("bee:fetchAllBees", fetchAllBees);
+  ipcMain.handle("bee:fetchAllBeesData", fetchAllBeesData);
   ipcMain.handle("bee:fetchInActiveBees", fetchInActiveBees);
+  ipcMain.handle("bee:fetchInActiveBeesData", fetchInActiveBeesData);
   ipcMain.handle("bee:killJackAndJacktrip", killJackAndJacktrip);
   ipcMain.handle("bee:killJack", killJack);
   ipcMain.handle("bee:killJacktrip", killJacktrip);

@@ -24,7 +24,6 @@ interface BeeSettingsBeesProps {
 export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
   const { updateSetting } = useSetting();
   const handleOnValidatedBlurAndChange = (e: any) => {
-    console.log(e.target.name);
     updateSetting({
       key: `bee${Utils.capitalize(e.target.name)}`,
       value: e.target.value,

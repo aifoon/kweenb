@@ -95,11 +95,12 @@ export function useBees() {
    */
   const fetchActiveBees = useCallback(async () => {
     try {
-      const fetchedActiveBees = await window.kweenb.methods.fetchActiveBees();
+      const fetchedActiveBees =
+        await window.kweenb.methods.fetchActiveBeesData();
       fetchedActiveBees.sort((a, b) => a.id - b.id);
       setActiveBees(fetchedActiveBees);
     } catch (e: any) {
-      console.log(e.message);
+      console.error(e.message);
     }
   }, [activeBees]);
 
@@ -107,7 +108,8 @@ export function useBees() {
    * Fetching the inactive bees
    */
   const fetchInActiveBees = useCallback(async () => {
-    const fetchedInActiveBees = await window.kweenb.methods.fetchInActiveBees();
+    const fetchedInActiveBees =
+      await window.kweenb.methods.fetchInActiveBeesData();
     fetchedInActiveBees.sort((a, b) => a.id - b.id);
     setInActiveBees(fetchedInActiveBees);
   }, [inActiveBees]);
@@ -135,25 +137,6 @@ export function useBees() {
       await fetchInActiveBees();
       setLoading(false);
     })();
-
-    // start the beepoller in main world
-    // window.kweenb.actions.beesPoller("start");
-
-    // check if we receive update polls from beepoller
-    const removeAllListeners = window.kweenb.events.onUpdateBees(
-      (event, updatedBees) => {
-        setActiveBees(updatedBees);
-      }
-    );
-
-    // when unhooking the bees
-    return () => {
-      // stop the beepoller in main world
-      window.kweenb.actions.beesPoller("stop");
-
-      // remove all update-bee listeners
-      removeAllListeners();
-    };
   }, []);
 
   return {

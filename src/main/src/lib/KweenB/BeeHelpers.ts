@@ -14,7 +14,7 @@ import zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
  */
 
 const defaultBeeConfig = {
-  jacktripVersion: "1.4.1",
+  jacktripVersion: "1.5.3",
   useMqtt: false,
 };
 
@@ -171,6 +171,49 @@ const getAllBees = async (
 };
 
 /**
+ * Get all bees without extra status checks
+ * @returns
+ */
+const getAllBeesData = async (
+  activeState: BeeActiveState = BeeActiveState.ACTIVE
+) => {
+  // get the bees
+  let bees;
+  switch (activeState) {
+    case BeeActiveState.ALL:
+      bees = await Bee.findAll();
+      break;
+    case BeeActiveState.ACTIVE:
+      bees = await Bee.findAll({ where: { isActive: true } });
+      break;
+    case BeeActiveState.INACTIVE:
+      bees = await Bee.findAll({ where: { isActive: false } });
+      break;
+    default:
+      bees = await Bee.findAll();
+      break;
+  }
+
+  // create an array with bees, without extra status and config checks
+  const beesList: IBee[] = bees.map(({ id, name, ipAddress, isActive }) =>
+    // return the bee, according to the IBee interface
+    ({
+      id,
+      name,
+      ipAddress,
+      isActive,
+      isOnline: false,
+      isApiOn: false,
+      config: defaultBeeConfig,
+      status: defaultBeeStatus,
+    })
+  );
+
+  // await until config and statusses are received
+  return beesList;
+};
+
+/**
  * Get a bee based on his id
  * @param id
  * @returns
@@ -229,6 +272,7 @@ export default {
   getBeeConfig,
   createBee,
   getAllBees,
+  getAllBeesData,
   getBee,
   setBeeActive,
 };

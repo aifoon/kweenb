@@ -36,7 +36,20 @@ const createFullEndpoint = (ipAddress: string, endpoint: string): string =>
 const isZwerm3ApiRunning = async (ipAddress: string) => {
   try {
     const endpoint = createFullEndpoint(ipAddress, "jackPaths");
-    await fetch(endpoint);
+
+    // with this trick, we can abort the fetch after one second
+    const controller = new AbortController();
+
+    // set the timeout
+    const id = setTimeout(() => controller.abort(), 1000);
+
+    // do the fetch
+    await fetch(endpoint, {
+      signal: controller.signal,
+    });
+
+    // clears the timeout that is running
+    clearTimeout(id);
     return true;
   } catch (e: any) {
     return false;
@@ -123,7 +136,7 @@ const killJack = async (ipAddress: string) => {
 
   // create the endpoint
   const endpoint = createFullEndpoint(ipAddress, "jack/kill");
-  console.log(endpoint);
+
   // fetch the response
   const response = await fetch(endpoint);
 

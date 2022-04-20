@@ -198,6 +198,22 @@ export const fetchActiveBees = async () => {
 };
 
 /**
+ * Fetch the active bees without status checks
+ * @param event
+ * @returns
+ */
+export const fetchActiveBeesData = async () => {
+  try {
+    return await beeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchActiveBeesData()",
+      message: e.message,
+    });
+  }
+};
+
+/**
  * Fetch all the bees
  * @returns A Promise that will result an object of format IBee
  */
@@ -209,6 +225,20 @@ export const fetchAllBees = async (
     return await beeHelpers.getAllBees(pollForOnline, BeeActiveState.ALL);
   } catch (e: any) {
     throw new KweenBException({ where: "fetchAllBees()", message: e.message });
+  }
+};
+
+/**
+ * Fetch all the bees without extra status checks
+ */
+export const fetchAllBeesData = async (): Promise<IBee[]> => {
+  try {
+    return await beeHelpers.getAllBeesData(BeeActiveState.ALL);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchAllBeesData()",
+      message: e.message,
+    });
   }
 };
 
@@ -229,6 +259,22 @@ export const fetchInActiveBees = async () => {
 };
 
 /**
+ * Fetch the inactive bees without extra status checks
+ * @param event
+ * @returns
+ */
+export const fetchInActiveBeesData = async () => {
+  try {
+    return await beeHelpers.getAllBeesData(BeeActiveState.INACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchInActiveBeesData()",
+      message: e.message,
+    });
+  }
+};
+
+/**
  * Fetching a bee based on the ID
  * @param id The id of the bee to be found
  * @returns an object shaped like an IBee
@@ -238,7 +284,8 @@ export const fetchBee = async (
   id: number
 ): Promise<IBee> => {
   try {
-    return await beeHelpers.getBee(id);
+    const bee = await beeHelpers.getBee(id);
+    return bee;
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchBee()", message: e.message },
