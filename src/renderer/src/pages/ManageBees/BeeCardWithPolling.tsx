@@ -21,12 +21,14 @@ export const BeeCardWithPolling = ({
       onBeeConfigClick={onBeeConfigClick}
       onBeeDeleteClick={onBeeDeleteClick}
       loading={loading}
-      name={bee.name}
-      ipAddress={bee.ipAddress}
-      apiOn={bee.isApiOn}
-      online={bee.isOnline}
-      jackIsRunning={bee.status.isJackRunning}
-      jackTripIsRunning={bee.status.isJacktripRunning}
+      name={loading ? name : bee.name}
+      ipAddress={loading ? ipAddress : bee.ipAddress}
+      apiOn={loading ? apiOn : bee.isApiOn}
+      online={loading ? online : bee.isOnline}
+      jackIsRunning={loading ? jackIsRunning : bee.status.isJackRunning}
+      jackTripIsRunning={
+        loading ? jackTripIsRunning : bee.status.isJacktripRunning
+      }
     />
   );
 };
