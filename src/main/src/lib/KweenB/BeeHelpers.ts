@@ -21,13 +21,13 @@ import {
  */
 const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
   // get the bee behind the id
-  await Bee.findOne({ where: { id } });
+  const bee = await Bee.findOne({ where: { id } });
 
-  // @TODO get the configuration from a bee
-  const beeConfig = {
-    jacktripVersion: "1.5.3",
-    useMqtt: false,
-  };
+  // validate
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // get the bee config
+  const beeConfig = await zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
 
   // return the configuration
   return beeConfig;

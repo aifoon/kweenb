@@ -22,6 +22,7 @@ import {
   fetchAllBeesData,
   fetchActiveBeesData,
   fetchInActiveBeesData,
+  saveConfig,
 } from "./controllers/bee";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -55,6 +56,7 @@ export const registerMethods = () => {
   ipcMain.handle("bee:killJacktrip", killJacktrip);
   ipcMain.handle("bee:startJack", startJack);
   ipcMain.handle("bee:updateBee", updateBee);
+  ipcMain.handle("bee:saveConfig", saveConfig);
   ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
   ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);
   ipcMain.handle("thekween:fetchTheKween", fetchTheKween);

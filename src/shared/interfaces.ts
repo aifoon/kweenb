@@ -32,6 +32,8 @@ export interface IBeeInput {
 export interface IBeeConfig {
   jacktripVersion: string;
   useMqtt: boolean;
+  mqttBroker: string;
+  mqttChannel: string;
 }
 
 export interface IBeeStatus {

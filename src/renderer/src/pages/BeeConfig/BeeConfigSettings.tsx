@@ -1,17 +1,13 @@
 import { Card } from "@components/Cards";
 import React from "react";
 import { Formik, Form } from "formik";
-import {
-  SelectField,
-  TextField,
-  SwitchField,
-} from "@renderer/src/components/Forms";
+import { TextField } from "@renderer/src/components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { IBeeConfig, IBee } from "@shared/interfaces";
+import { IBee } from "@shared/interfaces";
 
 interface BeeConfigSettingsProps {
   ipAddress: string;
@@ -35,7 +31,7 @@ export const BeeConfigSettings = ({
           ipAddress: Yup.string()
             .required("An IP Address is required")
             .isValidIpAddress("The IP Address is invalid"),
-          name: Yup.string().required("A name is required")
+          name: Yup.string().required("A name is required"),
         })}
         onSubmit={() => {}}
       >

@@ -4,6 +4,7 @@ import type { BinaryLike } from "crypto";
 import { createHash } from "crypto";
 import {
   IBee,
+  IBeeConfig,
   IBeeInput,
   IKweenBSettings,
   ISetting,
@@ -78,6 +79,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
     killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
     killJacktrip: (bee: IBee) => ipcRenderer.invoke("bee:killJacktrip", bee),
+    saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
+      ipcRenderer.invoke("bee:saveConfig", bee, config),
     startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
     updateKweenBSetting: (setting: ISetting) =>

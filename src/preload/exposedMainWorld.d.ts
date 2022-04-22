@@ -1,6 +1,7 @@
 import { IpcMessageEvent } from "electron";
 import {
   IBee,
+  IBeeConfig,
   IBeeInput,
   IError,
   IKweenBSettings,
@@ -46,6 +47,7 @@ declare global {
         killJack(bee: IBee);
         killJacktrip(bee: IBee);
         startJack(bee: IBee);
+        saveConfig(bee: IBee, config: Partial<IBeeConfig>);
         updateBee(bee: Partial<IBee>);
         updateKweenBSetting(setting: ISetting);
       };

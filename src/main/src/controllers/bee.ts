@@ -2,7 +2,7 @@
  * A module with all the kweenb data stuff
  */
 
-import { IBee, IBeeInput } from "@shared/interfaces";
+import { IBee, IBeeConfig, IBeeInput } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import { BeeActiveState } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
@@ -331,6 +331,27 @@ export const startJack = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJack()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Saves in the internal configuration
+ * @param event
+ * @param bee
+ */
+export const saveConfig = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee,
+  config: Partial<IBeeConfig>
+) => {
+  try {
+    if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
+    await zwerm3ApiHelpers.saveConfig(bee.ipAddress, config);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "saveConfig()", message: e.message },
       true
     );
   }

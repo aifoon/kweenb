@@ -30,14 +30,14 @@ export const BeeConfigActionsRunJacktrip = ({
       state={!isRunning ? 1 : 2}
       state1={{
         ...state1Button,
-        text: "Start Jacktrip",
+        text: "Start",
         onClick: () => {
           if (onStart) onStart();
         },
       }}
       state2={{
         ...state2Button,
-        text: "Stop Jacktrip",
+        text: "Stop",
         onClick: () => {
           if (onStop) onStop();
         },

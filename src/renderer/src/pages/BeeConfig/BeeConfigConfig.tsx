@@ -11,7 +11,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { IBeeConfig, IBee } from "@shared/interfaces";
+import { IBeeConfig } from "@shared/interfaces";
 
 interface BeeConfigConfigProps {
   beeConfig: IBeeConfig;
@@ -34,6 +34,8 @@ export const BeeConfigConfig = ({
             "A Jacktrip Version is required!"
           ),
           useMqtt: Yup.boolean().required(),
+          mqttBroker: Yup.string().required("An MQTT broker is required"),
+          mqttChannel: Yup.string().required("An MQTT channel is required"),
         })}
         onSubmit={() => {}}
       >
@@ -58,6 +60,26 @@ export const BeeConfigConfig = ({
               labelWidth="150px"
               orientation={InputFieldOrientation.Horizontal}
               size={InputFieldSize.Small}
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="MQTT broker"
+              type="text"
+              labelWidth="150px"
+              name="mqttBroker"
+              placeholder="e.g. 192.168.0.2"
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="MQTT channel"
+              type="text"
+              labelWidth="150px"
+              name="mqttChannel"
+              placeholder="e.g. bee1"
             />
           </Form>
         )}

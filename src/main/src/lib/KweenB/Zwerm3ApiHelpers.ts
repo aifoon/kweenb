@@ -2,6 +2,7 @@
  * The Zwerm3API Helpers
  */
 
+import { IBeeConfig, ISetting } from "@shared/interfaces";
 import fetch from "node-fetch";
 import { ZWERM3API_PORT } from "../../consts";
 import {
@@ -104,6 +105,43 @@ const isJacktripRunning = async (ipAddress: string): Promise<boolean> => {
 };
 
 /**
+ * Gets all the configuration coming from the zwerm3 API
+ * @param ipAddress
+ */
+const getAllConfig = async (ipAddress: string): Promise<IBeeConfig> => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "config/all");
+
+  // fetch the response
+  const response = await fetch(endpoint);
+
+  // validate the response
+  if (!response || response.status === 500)
+    throw new Error(FETCH_ERROR("getAllConfig"));
+
+  // convert to json
+  const config = (await response.json()) as ISetting[];
+
+  // create an inner function to find a setting easy
+  const findKey = (key: string) => config.find((c) => c.key === key);
+
+  // create the bee configuration
+  const beeConfig = {
+    jacktripVersion: findKey("jacktrip_version")?.value || "1.5.3",
+    useMqtt: (findKey("use_mqtt")?.value || 0) === "true",
+    mqttBroker: findKey("mqtt_broker")?.value || "mqtt://localhost:1883",
+    mqttChannel: findKey("mqtt_channel")?.value || "beeworker",
+  };
+
+  // return the bee configuration
+  return beeConfig;
+};
+
+/**
  * Kills all the jack and jacktrip processes on client
  * @param ipAddress
  * @returns
@@ -201,12 +239,55 @@ const startJack = async (ipAddress: string) => {
   }
 };
 
+/**
+ * Save the configuration in the api behind the given ip address
+ * @param ipAddress ipAddress
+ * @param setting setting
+ */
+const saveConfig = async (ipAddress: string, config: Partial<IBeeConfig>) => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "config/save");
+
+  // convert the camel casing to snake casing
+  const camelToSnakeCase = (str: string) =>
+    str.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
+
+  // get the properties from the object
+  const configProperties = Object.keys(config);
+
+  // loop over the properties
+  configProperties.forEach(async (configProperty) => {
+    const configSetting: ISetting = {
+      key: camelToSnakeCase(configProperty),
+      value: config[configProperty as keyof IBeeConfig]?.toString() || "",
+    };
+
+    // fetch the response
+    const response = await fetch(endpoint, {
+      method: "post",
+      body: JSON.stringify(configSetting),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    // if we have an internal error
+    if (response.status === 500) {
+      throw new Error(POST_ERROR("saveConfig"));
+    }
+  });
+};
+
 export default {
+  getAllConfig,
   isJackRunning,
   isJacktripRunning,
-  startJack,
   isZwerm3ApiRunning,
-  killJackAndJacktrip,
   killJack,
+  killJackAndJacktrip,
   killJacktrip,
+  saveConfig,
+  startJack,
 };

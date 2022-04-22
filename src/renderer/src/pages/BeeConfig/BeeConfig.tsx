@@ -17,13 +17,14 @@ export const BeeConfig = () => {
   const { id } = useParams();
   const numberizedId = Number(id) || 0;
   const {
-    loading,
     bee,
-    updateBeeSetting,
     killJack,
     killJacktrip,
     killJackAndJacktrip,
+    loading,
+    saveConfig,
     startJack,
+    updateBeeSetting,
   } = useBee(numberizedId);
 
   if (loading) return <Loader />;
@@ -61,10 +62,7 @@ export const BeeConfig = () => {
               ipAddress={bee.ipAddress}
               name={bee.name}
             />
-            <BeeConfigConfig
-              onUpdate={(item) => console.log(item)}
-              beeConfig={bee.config}
-            />
+            <BeeConfigConfig onUpdate={saveConfig} beeConfig={bee.config} />
           </CardVerticalStack>
         </Grid>
         <Grid item xs={12} md={6}>

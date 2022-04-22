@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { IBee } from "@shared/interfaces";
+import { IBee, IBeeConfig } from "@shared/interfaces";
 import { useAppContext } from "./useAppContext";
 import { useInterval } from "./useInterval";
 import { pollingInterval } from "../consts";
@@ -21,6 +21,8 @@ export function useBee(id: number) {
     config: {
       jacktripVersion: "1.5.3",
       useMqtt: false,
+      mqttBroker: "mqtt://localhost:1883",
+      mqttChannel: "beeworker",
     },
     status: {
       isJackRunning: false,
@@ -113,6 +115,16 @@ export function useBee(id: number) {
   );
 
   /**
+   * Save the config in zwerm3api
+   */
+  const saveConfig = useCallback(
+    (config: Partial<IBeeConfig>) => {
+      window.kweenb.methods.saveConfig(bee, config);
+    },
+    [bee]
+  );
+
+  /**
    * When mounting, fetch all bees
    */
   useEffect(() => {
@@ -132,11 +144,12 @@ export function useBee(id: number) {
   }, pollingInterval);
 
   return {
-    loading,
     bee,
     killJack,
     killJacktrip,
     killJackAndJacktrip,
+    loading,
+    saveConfig,
     startJack,
     updateBeeSetting,
   };

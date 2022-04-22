@@ -13,6 +13,8 @@ export const ZWERM3API_PORT = 3000;
 export const DEFAULT_BEE_CONFIG = {
   jacktripVersion: "1.5.3",
   useMqtt: false,
+  mqttBroker: "mqtt://localhost:1883",
+  mqttChannel: "beeworker",
 };
 export const DEFAULT_BEE_STATUS = {
   isJackRunning: false,
