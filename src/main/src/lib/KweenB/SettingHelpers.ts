@@ -24,6 +24,7 @@ const getAllSettings = async (): Promise<IKweenBSettings> => {
         device: findKey("beeJackDevice")?.value || "",
         bufferSize: Number(findKey("beeJackBufferSize")?.value || 16),
         sampleRate: Number(findKey("beeJackSampleRate")?.value || 48000),
+        periods: Number(findKey("beeJackPeriods")?.value || 2),
       },
       jacktrip: {
         bitRate: Number(findKey("beeJacktripBitRate")?.value || 16),
@@ -31,6 +32,13 @@ const getAllSettings = async (): Promise<IKweenBSettings> => {
           findKey("beeJacktripQueueBufferLength")?.value || 4
         ),
         redundancy: Number(findKey("beeJacktripRedundancy")?.value || 1),
+        realtimePriority: Boolean(
+          findKey("beeJacktripRealtimePriority")?.value === "true"
+        ),
+        sendChannels: Number(findKey("beeJacktripSendChannels")?.value || 2),
+        receiveChannels: Number(
+          findKey("beeJacktripReceiveChannels")?.value || 2
+        ),
       },
     },
     kweenBAudioSettings: {

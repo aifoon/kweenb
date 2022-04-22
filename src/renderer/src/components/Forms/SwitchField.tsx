@@ -70,6 +70,7 @@ export const SwitchField = (
         checked={field.value}
         size={size === InputFieldSize.Small ? "small" : "medium"}
         onChange={(e: any) => {
+          e.target.value = e.target.checked;
           if (onValidatedChange && !meta.error) onValidatedChange(e);
           field.onChange(e);
         }}

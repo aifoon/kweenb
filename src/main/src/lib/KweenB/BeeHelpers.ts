@@ -39,7 +39,7 @@ const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
 
   // @TODO get the configuration from a bee
   const beeConfig = {
-    jacktripVersion: "1.4.1",
+    jacktripVersion: "1.5.3",
     useMqtt: false,
   };
 

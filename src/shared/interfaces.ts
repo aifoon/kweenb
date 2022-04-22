@@ -70,12 +70,16 @@ export interface IBeeAudioSettingsJack {
   device: string;
   bufferSize: number;
   sampleRate: number;
+  periods: number;
 }
 
 export interface IBeeAudioSettingsJackTrip {
   bitRate: number;
   redundancy: number;
   queueBufferLength: number;
+  realtimePriority: boolean;
+  receiveChannels: number;
+  sendChannels: number;
 }
 
 // KweenB

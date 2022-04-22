@@ -292,9 +292,9 @@ const DesignSystem = () => {
           <h2>Bee Card</h2>
           <BeeCard
             onBeeConfigClick={() => console.log("Clicked Bee Config")}
+            onBeeDeleteClick={() => console.log("Clicked Bee Delete")}
             online
             jackIsRunning
-            // jackTripIsRunning
             number={4}
           />
         </DesignSystemSection>

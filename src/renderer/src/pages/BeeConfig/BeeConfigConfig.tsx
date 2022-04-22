@@ -45,7 +45,10 @@ export const BeeConfigConfig = ({
               size={InputFieldSize.Small}
               label="Jacktrip Version"
               labelWidth="150px"
-              selectItems={[{ label: "1.4.1", value: "1.4.1" }]}
+              selectItems={[
+                { label: "1.4.1", value: "1.4.1" },
+                { label: "1.5.3", value: "1.5.3" },
+              ]}
               name="jacktripVersion"
             />
             <SwitchField

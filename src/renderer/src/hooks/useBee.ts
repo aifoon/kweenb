@@ -12,8 +12,8 @@ export function useBee(id: number) {
   const { appContext } = useAppContext();
   const [bee, setBee] = useState<IBee>({
     id: 0,
-    name: "fetching data...",
-    ipAddress: "fetching data...",
+    name: "...",
+    ipAddress: "...",
     isOnline: false,
     isApiOn: false,
     isActive: false,

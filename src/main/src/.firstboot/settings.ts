@@ -9,7 +9,7 @@ export default [
   },
   {
     key: "beeJackDevice",
-    value: ""
+    value: "hw:Device"
   },
   {
     key: "beeJackBufferSize",
@@ -18,6 +18,10 @@ export default [
   {
     key: "beeJackSampleRate",
     value: "48000"
+  },
+  {
+    key: "beeJackPeriods",
+    value: "2"
   },
   {
     key: "beeJacktripBitRate",
@@ -30,6 +34,18 @@ export default [
   {
     key: "beeJacktripRedundancy",
     value: "1"
+  },
+  {
+    key: "beeJacktripSendChannels",
+    value: "1"
+  },
+  {
+    key: "beeJacktripReceiveChannels",
+    value: "1"
+  },
+  {
+    key: "beeJacktripRealtimePriority",
+    value: "true"
   },
   {
     key: "kweenbChannels",

@@ -1,13 +1,12 @@
 import { Card } from "@components/Cards";
 import React from "react";
 import { Formik, Form } from "formik";
-import { SelectField, TextField } from "@components/Forms";
+import { SelectField, SwitchField, TextField } from "@components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { BeeAudioSettings } from "@renderer/src/interfaces";
 import {
   validBitrates,
   validBufferSizes,
@@ -37,10 +36,14 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           jackDevice: beeAudioSettings.jack.device,
           jackBufferSize: beeAudioSettings.jack.bufferSize,
           jackSampleRate: beeAudioSettings.jack.sampleRate,
+          jackPeriods: beeAudioSettings.jack.periods,
           jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
           jacktripRedundancy: beeAudioSettings.jacktrip.redundancy,
           jacktripQueueBufferLength:
             beeAudioSettings.jacktrip.queueBufferLength,
+          jacktripRealtimePriority: beeAudioSettings.jacktrip.realtimePriority,
+          jacktripSendChannels: beeAudioSettings.jacktrip.sendChannels,
+          jacktripReceiveChannels: beeAudioSettings.jacktrip.receiveChannels,
         }}
         validationSchema={Yup.object().shape({
           channels: Yup.number()
@@ -54,6 +57,7 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           jackSampleRate: Yup.number()
             .required("The sample rate is required")
             .isValidSampleRate(),
+          jackPeriods: Yup.number().required("The periods/buffer is required"),
           jacktripBitRate: Yup.number()
             .required("The bitrate is required")
             .isValidBitRate(),
@@ -64,7 +68,15 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           jacktripQueueBufferLength: Yup.number()
             .min(0, "The queued buffer size is min 0")
             .max(99, "The queued buffer size is max 99")
-            .required("The redundancy is required"),
+            .required("The queued buffer size is required"),
+          jacktripSendChannels: Yup.number()
+            .min(0, "The amount of send channels is min 0")
+            .max(20, "The amount of send channels is max 20")
+            .required("The amount of send channels is required"),
+          jacktripReceiveChannels: Yup.number()
+            .min(0, "The amount of receive channels is min 0")
+            .max(20, "The amount of receive channels is max 20")
+            .required("The amount of receive channels is required"),
         })}
         onSubmit={() => {}}
       >
@@ -97,18 +109,6 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
               onValidatedBlur={handleOnValidatedBlurAndChange}
               orientation={InputFieldOrientation.Horizontal}
               size={InputFieldSize.Small}
-              label="Buffersize"
-              labelWidth="150px"
-              selectItems={validBufferSizes.map((value) => ({
-                label: value.toString(),
-                value,
-              }))}
-              name="jackBufferSize"
-            />
-            <SelectField
-              onValidatedBlur={handleOnValidatedBlurAndChange}
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
               label="Sample rate"
               labelWidth="150px"
               selectItems={validSampleRates.map((value) => ({
@@ -117,7 +117,66 @@ export const BeeSettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
               }))}
               name="jackSampleRate"
             />
+            <SelectField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Buffersize"
+              labelWidth="150px"
+              selectItems={validBufferSizes.map((value) => ({
+                label: value.toString(),
+                value,
+              }))}
+              name="jackBufferSize"
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Periods/Buffer"
+              type="number"
+              min={0}
+              max={20}
+              labelWidth="150px"
+              name="jackPeriods"
+              placeholder="e.g. 2"
+            />
             <h5>Jacktrip</h5>
+            <SwitchField
+              onValidatedChange={(e) => {
+                console.log("lal", e.target.checked);
+                handleOnValidatedBlurAndChange(e);
+              }}
+              name="jacktripRealtimePriority"
+              label="Realtime priority"
+              labelWidth="150px"
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Send Channels"
+              type="number"
+              min={0}
+              max={20}
+              labelWidth="150px"
+              name="jacktripSendChannels"
+              placeholder="e.g. 1"
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Receive Channels"
+              type="number"
+              min={0}
+              max={20}
+              labelWidth="150px"
+              name="jacktripReceiveChannels"
+              placeholder="e.g. 1"
+            />
             <SelectField
               onValidatedBlur={handleOnValidatedBlurAndChange}
               orientation={InputFieldOrientation.Horizontal}
