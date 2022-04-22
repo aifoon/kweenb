@@ -8,25 +8,11 @@ import ping from "ping";
 import Bee from "../../models/Bee";
 import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
 import zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
-
-/**
- * Define the defaults
- */
-
-const defaultBeeConfig = {
-  jacktripVersion: "1.5.3",
-  useMqtt: false,
-};
-
-const defaultBeeStatus = {
-  isJackRunning: false,
-  isJacktripRunning: false,
-};
-
-const pingConfig: ping.PingConfig = {
-  timeout: 1,
-  deadline: 1,
-};
+import {
+  DEFAULT_BEE_CONFIG,
+  DEFAULT_BEE_STATUS,
+  PING_CONFIG,
+} from "../../consts";
 
 /**
  * Get the bee configuration
@@ -83,8 +69,8 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     isActive,
     isOnline: false,
     isApiOn: false,
-    config: defaultBeeConfig,
-    status: defaultBeeStatus,
+    config: DEFAULT_BEE_CONFIG,
+    status: DEFAULT_BEE_STATUS,
   };
 };
 
@@ -121,7 +107,7 @@ const getAllBees = async (
   if (pollForOnline) {
     // get all the ip addresses of our bees and map the ping promises
     const beeIpAddresses = bees.map(({ ipAddress }) =>
-      ping.promise.probe(ipAddress, pingConfig)
+      ping.promise.probe(ipAddress, PING_CONFIG)
     );
 
     // check connectivity, by ping to device
@@ -160,8 +146,8 @@ const getAllBees = async (
         isActive,
         isOnline,
         isApiOn,
-        config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
-        status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
+        config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
+        status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
       };
     }
   );
@@ -204,8 +190,8 @@ const getAllBeesData = async (
       isActive,
       isOnline: false,
       isApiOn: false,
-      config: defaultBeeConfig,
-      status: defaultBeeStatus,
+      config: DEFAULT_BEE_CONFIG,
+      status: DEFAULT_BEE_STATUS,
     })
   );
 
@@ -226,7 +212,7 @@ const getBee = async (id: number): Promise<IBee> => {
   if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
 
   // get all the ip addresses of our bees and map the ping promises
-  const beeConnectivity = await ping.promise.probe(bee.ipAddress, pingConfig);
+  const beeConnectivity = await ping.promise.probe(bee.ipAddress, PING_CONFIG);
 
   // check if the bee is online
   const isOnline = beeConnectivity.alive;
@@ -242,8 +228,8 @@ const getBee = async (id: number): Promise<IBee> => {
     isActive: bee.isActive,
     isApiOn,
     isOnline,
-    config: isOnline ? await getBeeConfig(id) : defaultBeeConfig,
-    status: isOnline ? await getBeeStatus(id) : defaultBeeStatus,
+    config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
+    status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
   };
 };
 
@@ -268,11 +254,11 @@ const setBeeActive = async (id: number, active: boolean) => {
 };
 
 export default {
-  getBeeStatus,
-  getBeeConfig,
   createBee,
   getAllBees,
   getAllBeesData,
   getBee,
+  getBeeConfig,
+  getBeeStatus,
   setBeeActive,
 };

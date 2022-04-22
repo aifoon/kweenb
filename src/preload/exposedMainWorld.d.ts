@@ -5,6 +5,7 @@ import {
   IError,
   IKweenBSettings,
   ISetting,
+  ITheKween,
 } from "@shared/interfaces";
 
 declare global {
@@ -40,6 +41,7 @@ declare global {
         fetchInActiveBeesData(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchKweenBSettings(): Promise<IKweenBSettings>;
+        fetchTheKween(): Promise<ITheKween>;
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
         killJacktrip(bee: IBee);

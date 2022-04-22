@@ -90,6 +90,12 @@ export interface IKweenBAudioSettings {
 
 // The Kween
 
+export interface ITheKween {
+  settings: ITheKweenSettings;
+  isOnline: boolean;
+  isApiOn: boolean;
+}
+
 export interface ITheKweenSettings {
   ipAddress: string;
 }

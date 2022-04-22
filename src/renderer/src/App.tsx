@@ -12,12 +12,10 @@ import {
 } from "./pages";
 import { Z3Navigation, Z3Sidebar } from "./layout";
 import { Tools } from "./pages/Tools";
-import { useState } from "react";
 
 const startDesignSystem = false;
 
 export const App = () => {
-  const [ loading, setLoading ] = useState(false);
   return (
     <Router>
       <DndProvider backend={HTML5Backend}>

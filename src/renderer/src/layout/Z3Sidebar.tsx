@@ -12,6 +12,7 @@ import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
+import { useTheKween } from "../hooks/useTheKween";
 
 /**
  * List of Sidebar Buttons
@@ -62,6 +63,7 @@ const isActive = (navigatedPath: string, pathNames: string[]): boolean =>
 export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { thekween } = useTheKween();
   return (
     <Sidebar
       fixedToSide
@@ -71,7 +73,11 @@ export const Z3Sidebar = () => {
         <SidebarStatusBadge
           key="theKween"
           text="The Kween"
-          status={StatusBulletType.Active}
+          status={
+            thekween?.isOnline && thekween?.isApiOn
+              ? StatusBulletType.Active
+              : StatusBulletType.NotActive
+          }
         />,
       ]}
       buttons={sidebarButtons.map(({ icon, title, pathNames, key }) => (

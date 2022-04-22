@@ -2,7 +2,13 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type { BinaryLike } from "crypto";
 import { createHash } from "crypto";
-import { IBee, IBeeInput, IKweenBSettings, ISetting } from "@shared/interfaces";
+import {
+  IBee,
+  IBeeInput,
+  IKweenBSettings,
+  ISetting,
+  ITheKween,
+} from "@shared/interfaces";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -66,6 +72,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:fetchBee", id),
     fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
       ipcRenderer.invoke("setting:fetchKweenBSettings"),
+    fetchTheKween: (): Promise<ITheKween> =>
+      ipcRenderer.invoke("thekween:fetchTheKween"),
     killJackAndJacktrip: (bee: IBee) =>
       ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
     killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),

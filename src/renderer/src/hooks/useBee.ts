@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { IBee } from "@shared/interfaces";
 import { useAppContext } from "./useAppContext";
 import { useInterval } from "./useInterval";
+import { pollingInterval } from "../consts";
 
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);
@@ -128,7 +129,7 @@ export function useBee(id: number) {
    */
   useInterval(async () => {
     await fetchBee();
-  }, 3000);
+  }, pollingInterval);
 
   return {
     loading,

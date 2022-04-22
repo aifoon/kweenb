@@ -31,6 +31,7 @@ import {
   updateKweenBSetting,
 } from "./controllers/setting";
 import BeePoller from "./lib/Interval/BeePoller";
+import { fetchTheKween } from "./controllers/thekween";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
@@ -56,6 +57,7 @@ export const registerMethods = () => {
   ipcMain.handle("bee:updateBee", updateBee);
   ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
   ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);
+  ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
 };
 
 export const registerIntervalWorkers = () => {
