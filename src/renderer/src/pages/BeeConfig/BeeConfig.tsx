@@ -66,7 +66,7 @@ export const BeeConfig = () => {
           </CardVerticalStack>
         </Grid>
         <Grid item xs={12} md={6}>
-          <BeeConfigLogging />
+          <BeeConfigLogging mqttTopic={bee.name} />
         </Grid>
       </Grid>
     </Z3Page>

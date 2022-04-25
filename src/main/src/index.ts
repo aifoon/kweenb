@@ -19,6 +19,7 @@ import {
   registerMethods,
 } from "./register";
 import firstBoot from "./firstboot";
+import MqttHelpers from "./lib/KweenB/MqttHelpers";
 
 /**
  * Get the resources path

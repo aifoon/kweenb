@@ -2,30 +2,36 @@ import React, { useState } from "react";
 import { Console } from "@components/Console";
 import { Button, ButtonType, ButtonSize } from "@components/Buttons";
 import { Card } from "@components/Cards";
+import { useMqtt } from "@renderer/src/hooks/useMqtt";
 
 interface BeeConfigLoggingProps {
-  logging?: string;
+  mqttTopic: string;
 }
 
-export const BeeConfigLogging = ({ logging = "" }: BeeConfigLoggingProps) => {
-  const [currentLogging, setCurrentLogging] = useState<string>(logging);
-
+export const BeeConfigLogging = ({ mqttTopic = "" }: BeeConfigLoggingProps) => {
+  const { mqttMessages, clearMessages } = useMqtt(mqttTopic);
   return (
     <Card
       title="Logging"
-      hideFooterButtons={currentLogging === ""}
+      hideFooterButtons={mqttMessages === ""}
       footerButtons={[
         <Button
           buttonSize={ButtonSize.Small}
           buttonType={ButtonType.Primary}
-          onClick={() => setCurrentLogging("")}
+          onClick={clearMessages}
         >
           Clear Console
         </Button>,
       ]}
     >
-      {currentLogging && <Console height={450}>{currentLogging}</Console>}
-      {!currentLogging && <Console height={450}>No logging available.</Console>}
+      {mqttMessages && (
+        <Console height={450}>
+          {mqttMessages.split("\n").map((i) => (
+            <p>{i}</p>
+          ))}
+        </Console>
+      )}
+      {!mqttMessages && <Console height={450}>No logging available.</Console>}
     </Card>
   );
 };

@@ -10,6 +10,7 @@ import {
   ISetting,
   ITheKween,
 } from "@shared/interfaces";
+import * as mqtt from "mqtt";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -99,6 +100,8 @@ contextBridge.exposeInMainWorld("kweenb", {
     beesPoller: (action: "start" | "stop" | "pause"): void => {
       ipcRenderer.send("bee:beesPoller", action);
     },
+    subscribe: (topic: string) => ipcRenderer.send("mqtt:subscribe", topic),
+    unsubscribe: (topic: string) => ipcRenderer.send("mqtt:unsubscribe", topic),
   },
   events: {
     onUpdateBees: (callback: any) => {
@@ -116,6 +119,11 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     onInfo: (callback: any) => {
       ipcRenderer.on("info", callback);
+    },
+    onMqttMessage: (callback: any) => {
+      const channel = "mqtt-message";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
     },
     onSuccess: (callback: any) => {
       ipcRenderer.on("success", callback);

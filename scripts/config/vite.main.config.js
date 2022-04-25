@@ -42,6 +42,7 @@ const config = {
         "node:fs",
         "node:path",
         "node:http",
+        "mqtt",
         ...builtinModules,
       ],
       output: {

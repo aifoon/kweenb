@@ -33,12 +33,15 @@ import {
 } from "./controllers/setting";
 import BeePoller from "./lib/Interval/BeePoller";
 import { fetchTheKween } from "./controllers/thekween";
+import { subscribe, unsubscribe } from "./controllers/mqtt";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
   ipcMain.on("bee:beesPoller", beesPoller);
   ipcMain.on("bee:beePoller", beePoller);
   ipcMain.on("bee:setBeeActive", setBeeActive);
+  ipcMain.on("mqtt:subscribe", subscribe);
+  ipcMain.on("mqtt:unsubscribe", unsubscribe);
 };
 
 export const registerMethods = () => {

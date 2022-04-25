@@ -4,7 +4,7 @@
 
 import { IBeeConfig, ISetting } from "@shared/interfaces";
 import fetch from "node-fetch";
-import { ZWERM3API_PORT } from "../../consts";
+import { DEFAULT_BEE_CONFIG, ZWERM3API_PORT } from "../../consts";
 import {
   FETCH_ERROR,
   POST_ERROR,
@@ -110,8 +110,7 @@ const isJacktripRunning = async (ipAddress: string): Promise<boolean> => {
  */
 const getAllConfig = async (ipAddress: string): Promise<IBeeConfig> => {
   // validate if Zwerm3API is running
-  if (!(await isZwerm3ApiRunning(ipAddress)))
-    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+  if (!(await isZwerm3ApiRunning(ipAddress))) return DEFAULT_BEE_CONFIG;
 
   // create the endpoint
   const endpoint = createFullEndpoint(ipAddress, "config/all");

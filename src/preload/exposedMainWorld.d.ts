@@ -8,6 +8,7 @@ import {
   ISetting,
   ITheKween,
 } from "@shared/interfaces";
+import * as mqtt from "mqtt";
 
 declare global {
   interface Window {
@@ -56,6 +57,8 @@ declare global {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         setBeeActive(id: number, active: boolean): void;
+        subscribe(topic: string);
+        unsubscribe(topic: string);
       };
       readonly events: {
         onError(
@@ -63,6 +66,13 @@ declare global {
         ): () => void;
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
+        onMqttMessage(
+          callback: (
+            event: IpcMessageEvent,
+            topic: string,
+            message: string
+          ) => void
         ): () => void;
         onSuccess(
           callback: (event: IpcMessageEvent, message: string) => void

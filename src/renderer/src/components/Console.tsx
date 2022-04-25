@@ -13,6 +13,8 @@ export const ConsoleWrapper = styled.div<Omit<ConsoleProps, "children">>`
   overflow: scroll;
   overflow-x: hidden;
 
+  font-size: var(--smallText);
+
   *::-webkit-scrollbar {
     width: 8px;
   }
