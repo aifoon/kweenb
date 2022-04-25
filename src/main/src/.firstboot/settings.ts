@@ -52,6 +52,10 @@ export default [
     value: "2"
   },
   {
+    key: "kweenbMqttBroker",
+    value: "mqtt://localhost:1883"
+  },
+  {
     key: "thekweenIpAddress",
     value: "127.0.0.1"
   }

@@ -25,9 +25,9 @@ const sidebarButtons = [
     icon: <EmojiNatureIcon />,
   },
   {
-    key: "beeSettings",
-    title: "Bee Settings",
-    pathNames: ["/bee-settings"],
+    key: "settings",
+    title: "Settings",
+    pathNames: ["/settings"],
     icon: <SettingsIcon />,
   },
   {

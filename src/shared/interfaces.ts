@@ -88,6 +88,7 @@ export interface IBeeAudioSettingsJackTrip {
 
 export interface IKweenBAudioSettings {
   channels: number;
+  mqttBroker: string;
 }
 
 // The Kween

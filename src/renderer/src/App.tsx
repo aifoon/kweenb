@@ -6,7 +6,7 @@ import { AppContextProvider } from "./context/AppContextProvider";
 import {
   DesignSystem,
   AudioRoutes,
-  BeeSettings,
+  Settings,
   ManageBees,
   BeeConfig,
 } from "./pages";
@@ -33,7 +33,7 @@ export const App = () => {
               <Route path="/" element={<ManageBees />} />
               <Route path="/manage-bees" element={<ManageBees />} />
               <Route path="/swarm/:id" element={<BeeConfig />} />
-              <Route path="/bee-settings" element={<BeeSettings />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/audio-routes" element={<AudioRoutes />} />
               <Route path="/tools" element={<Tools />} />
             </Routes>

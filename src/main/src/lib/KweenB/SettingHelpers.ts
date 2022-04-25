@@ -43,6 +43,7 @@ const getAllSettings = async (): Promise<IKweenBSettings> => {
     },
     kweenBAudioSettings: {
       channels: Number(findKey("kweenbChannels")?.value || 2),
+      mqttBroker: String(findKey("kweenbMqttBroker")?.value || ""),
     },
     theKweenSettings: {
       ipAddress: findKey("thekweenIpAddress")?.value || "127.0.0.1",
