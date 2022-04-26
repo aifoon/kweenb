@@ -10,15 +10,16 @@ import { SettingsKweenB } from "./SettingsKweenB";
 import { SettingsTheKween } from "./SettingsTheKween";
 
 export const Settings = () => {
-  const { loading, settings } = useSettings();
+  const { loading, settings, reloadSettings } = useSettings();
   const [value, setValue] = useState(0);
 
   if (loading || !settings) return <Loader />;
 
-  const handleChange = (
+  const handleChange = async (
     event: React.SyntheticEvent<Element, Event>,
     newValue: any
   ) => {
+    await reloadSettings();
     setValue(newValue);
   };
 
@@ -34,8 +35,8 @@ export const Settings = () => {
       </TabPanel>
       <TabPanel value={value} index={1}>
         <SettingsKweenB
-          mqttBroker={settings.kweenBAudioSettings.mqttBroker}
-          channels={settings.kweenBAudioSettings.channels}
+          kweenBSettings={settings.kweenBSettings}
+          kweenbAudioSettings={settings.kweenBAudioSettings}
         />
       </TabPanel>
       <TabPanel value={value} index={2}>

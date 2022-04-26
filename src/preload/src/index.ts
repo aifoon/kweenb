@@ -8,6 +8,7 @@ import {
   IBeeInput,
   IKweenBSettings,
   ISetting,
+  ISettings,
   ITheKween,
 } from "@shared/interfaces";
 import * as mqtt from "mqtt";
@@ -72,8 +73,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:fetchInActiveBeesData"),
     fetchBee: (id: number): Promise<IBee> =>
       ipcRenderer.invoke("bee:fetchBee", id),
-    fetchKweenBSettings: (): Promise<IKweenBSettings[]> =>
-      ipcRenderer.invoke("setting:fetchKweenBSettings"),
+    fetchSettings: (): Promise<ISettings[]> =>
+      ipcRenderer.invoke("setting:fetchSettings"),
     fetchTheKween: (): Promise<ITheKween> =>
       ipcRenderer.invoke("thekween:fetchTheKween"),
     killJackAndJacktrip: (bee: IBee) =>
@@ -84,8 +85,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:saveConfig", bee, config),
     startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
-    updateKweenBSetting: (setting: ISetting) =>
-      ipcRenderer.invoke("setting:updateKweenBSetting", setting),
+    updateSetting: (setting: ISetting) =>
+      ipcRenderer.invoke("setting:updateSetting", setting),
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),

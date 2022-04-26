@@ -2,17 +2,17 @@
  * The setting controller
  */
 
-import { IKweenBSettings, ISetting } from "@shared/interfaces";
+import { ISettings, ISetting } from "@shared/interfaces";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
-import { getAllSettings, updateSetting } from "../lib/KweenB/SettingHelpers";
+import SettingHelpers from "../lib/KweenB/SettingHelpers";
 
 /**
  * Fetch all the settings
  * @returns ISetting[]
  */
-export const fetchKweenBSettings = async (): Promise<IKweenBSettings> => {
+export const fetchSettings = async (): Promise<ISettings> => {
   try {
-    return await getAllSettings();
+    return await SettingHelpers.getAllSettings();
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchKweenBSettings", message: e.message },
@@ -26,12 +26,12 @@ export const fetchKweenBSettings = async (): Promise<IKweenBSettings> => {
  * @param event The event
  * @param setting The setting formed as ISetting
  */
-export const updateKweenBSetting = async (
+export const updateSetting = async (
   event: Electron.IpcMainInvokeEvent,
   setting: ISetting
 ) => {
   try {
-    await updateSetting(setting);
+    await SettingHelpers.updateSetting(setting);
   } catch (e: any) {
     throw new KweenBException({ where: "updateBee", message: e.message });
   }

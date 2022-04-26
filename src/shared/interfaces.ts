@@ -54,28 +54,21 @@ export interface ISetting {
  * The Audio Settings for a bee
  */
 
-export interface IKweenBSettings {
+export interface ISettings {
   beeAudioSettings: IBeeAudioSettings;
   kweenBAudioSettings: IKweenBAudioSettings;
+  kweenBSettings: IKweenBSettings;
   theKweenSettings: ITheKweenSettings;
 }
 
-// Bee Audio
-
-export interface IBeeAudioSettings {
-  channels: number;
-  jack: IBeeAudioSettingsJack;
-  jacktrip: IBeeAudioSettingsJackTrip;
-}
-
-export interface IBeeAudioSettingsJack {
+export interface IAudioSettingsJack {
   device: string;
   bufferSize: number;
   sampleRate: number;
   periods: number;
 }
 
-export interface IBeeAudioSettingsJackTrip {
+export interface IAudioSettingsJackTrip {
   bitRate: number;
   redundancy: number;
   queueBufferLength: number;
@@ -84,10 +77,23 @@ export interface IBeeAudioSettingsJackTrip {
   sendChannels: number;
 }
 
+// Bee Audio
+
+export interface IBeeAudioSettings {
+  channels: number;
+  jack: IAudioSettingsJack;
+  jacktrip: IAudioSettingsJackTrip;
+}
+
 // KweenB
 
 export interface IKweenBAudioSettings {
   channels: number;
+  jack: IAudioSettingsJack;
+  jacktrip: IAudioSettingsJackTrip;
+}
+
+export interface IKweenBSettings {
   mqttBroker: string;
 }
 

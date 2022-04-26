@@ -10,7 +10,7 @@ import {
   POST_ERROR,
   ZWERM3_API_NOTRUNNING,
 } from "../Exceptions/ExceptionMessages";
-import { getAllSettings } from "./SettingHelpers";
+import SettingHelpers from "./SettingHelpers";
 
 interface ApiResponse {
   message: string;
@@ -212,7 +212,7 @@ const startJack = async (ipAddress: string) => {
     throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
 
   // get the settings
-  const settings = await getAllSettings();
+  const settings = await SettingHelpers.getAllSettings();
 
   // create the post body
   const body = {
@@ -220,6 +220,7 @@ const startJack = async (ipAddress: string) => {
     channel: settings.beeAudioSettings.channels,
     bufferSize: settings.beeAudioSettings.jack.bufferSize,
     sampleRate: settings.beeAudioSettings.jack.sampleRate,
+    periods: settings.beeAudioSettings.jack.periods,
   };
 
   // create the endpoint

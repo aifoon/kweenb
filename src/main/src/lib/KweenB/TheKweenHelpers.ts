@@ -5,7 +5,7 @@
 import { ITheKween } from "@shared/interfaces";
 import ping from "ping";
 import { PING_CONFIG } from "../../consts";
-import { getAllSettings } from "./SettingHelpers";
+import SettingHelpers from "./SettingHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 
 /**
@@ -14,7 +14,7 @@ import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
  */
 const getTheKween = async (): Promise<ITheKween> => {
   // get all the settings
-  const settings = await getAllSettings();
+  const settings = await SettingHelpers.getAllSettings();
 
   // get the online state of the kween
   const theKweenConnectivity = await ping.promise.probe(

@@ -3,17 +3,27 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { IKweenBSettings, ISetting } from "@shared/interfaces";
+import { ISettings, ISetting } from "@shared/interfaces";
 
 export function useSettings() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [settings, setSettings] = useState<IKweenBSettings>();
+  const [settings, setSettings] = useState<ISettings>();
 
   /**
    * Updating a setting
    */
   const updateSetting = useCallback((setting: ISetting) => {
-    window.kweenb.methods.updateKweenBSetting(setting);
+    window.kweenb.methods.updateSetting(setting);
+  }, []);
+
+  /**
+   * Reload settings
+   */
+  const reloadSettings = useCallback(async () => {
+    setLoading(true);
+    const kweenBSettings = await window.kweenb.methods.fetchSettings();
+    setSettings(kweenBSettings);
+    setLoading(false);
   }, []);
 
   /**
@@ -23,11 +33,11 @@ export function useSettings() {
     // fetch the settings
     (async () => {
       setLoading(true);
-      const kweenBSettings = await window.kweenb.methods.fetchKweenBSettings();
+      const kweenBSettings = await window.kweenb.methods.fetchSettings();
       setSettings(kweenBSettings);
       setLoading(false);
     })();
   }, []);
 
-  return { loading, settings, updateSetting };
+  return { loading, settings, updateSetting, reloadSettings };
 }

@@ -42,7 +42,7 @@ declare global {
         fetchInActiveBees(): Promise<IBee[]>;
         fetchInActiveBeesData(): Promise<IBee[]>;
         fetchBee(id: number): Promise<IBee>;
-        fetchKweenBSettings(): Promise<IKweenBSettings>;
+        fetchSettings(): Promise<ISettings>;
         fetchTheKween(): Promise<ITheKween>;
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
@@ -50,7 +50,7 @@ declare global {
         startJack(bee: IBee);
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
         updateBee(bee: Partial<IBee>);
-        updateKweenBSetting(setting: ISetting);
+        updateSetting(setting: ISetting);
       };
       readonly actions: {
         hello(name: string): void;

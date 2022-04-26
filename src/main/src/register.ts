@@ -27,10 +27,7 @@ import {
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
-import {
-  fetchKweenBSettings,
-  updateKweenBSetting,
-} from "./controllers/setting";
+import { fetchSettings, updateSetting } from "./controllers/setting";
 import BeePoller from "./lib/Interval/BeePoller";
 import { fetchTheKween } from "./controllers/thekween";
 import { subscribe, unsubscribe } from "./controllers/mqtt";
@@ -60,8 +57,8 @@ export const registerMethods = () => {
   ipcMain.handle("bee:startJack", startJack);
   ipcMain.handle("bee:updateBee", updateBee);
   ipcMain.handle("bee:saveConfig", saveConfig);
-  ipcMain.handle("setting:fetchKweenBSettings", fetchKweenBSettings);
-  ipcMain.handle("setting:updateKweenBSetting", updateKweenBSetting);
+  ipcMain.handle("setting:fetchSettings", fetchSettings);
+  ipcMain.handle("setting:updateSetting", updateSetting);
   ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
 };
 

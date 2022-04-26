@@ -10,7 +10,7 @@ export function useSetting() {
    * Updating a setting
    */
   const updateSetting = useCallback((setting: ISetting) => {
-    window.kweenb.methods.updateKweenBSetting(setting);
+    window.kweenb.methods.updateSetting(setting);
   }, []);
 
   return { updateSetting };

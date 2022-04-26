@@ -152,7 +152,6 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
               <Card title="Jacktrip">
                 <SwitchField
                   onValidatedChange={(e) => {
-                    console.log("lal", e.target.checked);
                     handleOnValidatedBlurAndChange(e);
                   }}
                   name="jacktripRealtimePriority"

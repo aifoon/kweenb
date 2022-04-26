@@ -7,7 +7,7 @@ import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
 import * as mqtt from "mqtt";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
-import { getAllSettings } from "./lib/KweenB/SettingHelpers";
+import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { MQTT } from "./lib/Mqtt";
 
 /**
@@ -54,7 +54,7 @@ class KweenBGlobal {
 
   public static async getMqtt(): Promise<MQTT> {
     // get all the internal settings
-    const settings = await getAllSettings();
+    const settings = await SettingHelpers.getAllSettings();
 
     // if we have an MQTT instance singleton, return this one to avoid
     // multiple instances
@@ -62,7 +62,7 @@ class KweenBGlobal {
       // check if the mqttbroker from the settings is the same, otherwise create a new instance
       // @TODO - there is still a bug, when changing the mqtt broker we need to restart the application
       if (
-        settings.kweenBAudioSettings.mqttBroker ===
+        settings.kweenBSettings.mqttBroker ===
         `mqtt://${(await KweenBGlobal.mqtt.getMQTTClient()).options.host}`
       )
         return KweenBGlobal.mqtt;
@@ -70,7 +70,7 @@ class KweenBGlobal {
 
     // create a new MQTT broker instance
     KweenBGlobal.mqtt = new MQTT(
-      settings.kweenBAudioSettings.mqttBroker,
+      settings.kweenBSettings.mqttBroker,
       (t, message) => {
         KweenBGlobal.kweenb.mainWindow.webContents.send(
           "mqtt-message",

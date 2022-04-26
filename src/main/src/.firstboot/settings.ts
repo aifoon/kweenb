@@ -48,12 +48,52 @@ export default [
     value: "true"
   },
   {
+    key: "kweenbMqttBroker",
+    value: "mqtt://localhost:1883"
+  },
+  {
     key: "kweenbChannels",
     value: "2"
   },
   {
-    key: "kweenbMqttBroker",
-    value: "mqtt://localhost:1883"
+    key: "kweenbJackDevice",
+    value: "hw:Device"
+  },
+  {
+    key: "kweenbJackBufferSize",
+    value: "256"
+  },
+  {
+    key: "kweenbJackSampleRate",
+    value: "48000"
+  },
+  {
+    key: "kweenbJackPeriods",
+    value: "2"
+  },
+  {
+    key: "kweenbJacktripBitRate",
+    value: "16"
+  },
+  {
+    key: "kweenbJacktripQueueBufferLength",
+    value: "4"
+  },
+  {
+    key: "kweenbJacktripRedundancy",
+    value: "1"
+  },
+  {
+    key: "kweenbJacktripSendChannels",
+    value: "16"
+  },
+  {
+    key: "kweenbJacktripReceiveChannels",
+    value: "16"
+  },
+  {
+    key: "kweenbJacktripRealtimePriority",
+    value: "true"
   },
   {
     key: "thekweenIpAddress",
