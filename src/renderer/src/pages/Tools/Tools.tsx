@@ -9,6 +9,7 @@ import {
   ActiveBeesOnline,
   IsZwerm3ApiRunningOnBees,
   KillAllTheKweenProcesses,
+  KillAllBeeProcesses,
 } from "./Actions";
 
 export const Tools = () => (
@@ -21,6 +22,7 @@ export const Tools = () => (
         <ActiveBeesOnline />
         <IsZwerm3ApiRunningOnBees />
         <KillAllTheKweenProcesses />
+        <KillAllBeeProcesses />
       </ActionsContainer>
     </Card>
   </Z3Page>
