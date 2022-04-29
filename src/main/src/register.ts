@@ -33,6 +33,7 @@ import {
   fetchTheKween,
   isZwerm3ApiRunningOnTheKween,
   killJackAndJacktrip as killJackAndJacktripOnTheKween,
+  startHubServer,
 } from "./controllers/thekween";
 import { subscribe, unsubscribe } from "./controllers/mqtt";
 
@@ -69,6 +70,7 @@ export const registerMethods = () => {
     "thekween:isZwerm3ApiRunningOnTheKween",
     isZwerm3ApiRunningOnTheKween
   );
+  ipcMain.handle("thekween:startHubServer", startHubServer);
 };
 
 export const registerIntervalWorkers = () => {

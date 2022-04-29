@@ -4,12 +4,14 @@ import { ActiveBeesOnline } from "./ActiveBeesOnline";
 import { IsZwerm3ApiRunningOnBees } from "./IsZwerm3ApiRunningOnBees";
 import { KillAllTheKweenProcesses } from "./KillAllTheKweenProcesses";
 import { KillAllBeeProcesses } from "./KillAllBeeProcesses";
+import { StartHubServerOnTheKween } from "./StartHubServerOnTheKween";
 
 export {
-  TheKweenOnline,
-  IsZwerm3ApiRunningOnTheKween,
   ActiveBeesOnline,
+  IsZwerm3ApiRunningOnTheKween,
   IsZwerm3ApiRunningOnBees,
   KillAllTheKweenProcesses,
   KillAllBeeProcesses,
+  StartHubServerOnTheKween,
+  TheKweenOnline,
 };

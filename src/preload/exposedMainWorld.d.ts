@@ -48,9 +48,10 @@ declare global {
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
         killJackAndJacktripOnTheKween(): void;
-        killJacktrip(bee: IBee);
-        startJack(bee: IBee);
+        killJacktrip(bee: IBee): void;
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
+        startJack(bee: IBee): void;
+        startHubServerOnTheKween(): void;
         updateBee(bee: Partial<IBee>);
         updateSetting(setting: ISetting);
       };

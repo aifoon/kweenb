@@ -9,14 +9,20 @@ export const KillAllBeeProcesses = () => {
 
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
-    const activeBees = await window.kweenb.methods.fetchActiveBees();
-    const killAllProcessesPromises = activeBees.map(async (bee) =>
-      window.kweenb.methods.killJackAndJacktrip(bee)
-    );
-    await Promise.all(killAllProcessesPromises);
-    appContext.setLoading(false);
-    setOutput("Killed Jack & Jacktrip processes on all bees");
-    setOutputColor("var(--green-status)");
+    try {
+      const activeBees = await window.kweenb.methods.fetchActiveBees();
+      const killAllProcessesPromises = activeBees.map(async (bee) =>
+        window.kweenb.methods.killJackAndJacktrip(bee)
+      );
+      await Promise.all(killAllProcessesPromises);
+      setOutput("Killed Jack & Jacktrip processes on all bees");
+      setOutputColor("var(--green-status)");
+    } catch (e: any) {
+      setOutput(e.message);
+      setOutputColor("var(--red-status)");
+    } finally {
+      appContext.setLoading(false);
+    }
   }, []);
 
   return (

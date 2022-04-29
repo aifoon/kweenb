@@ -9,17 +9,25 @@ export const IsZwerm3ApiRunningOnTheKween = () => {
 
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
-    const isZwerm3ApiRunningOnTheKween =
-      await window.kweenb.methods.isZwerm3ApiRunningOnTheKween();
-    appContext.setLoading(false);
-    setOutput(
-      isZwerm3ApiRunningOnTheKween
-        ? "Zwerm 3 API is running on The Kween"
-        : "Zwerm 3 API seems not to be running on The Kween"
-    );
-    setOutputColor(
-      isZwerm3ApiRunningOnTheKween ? "var(--green-status)" : "var(--red-status)"
-    );
+    try {
+      const isZwerm3ApiRunningOnTheKween =
+        await window.kweenb.methods.isZwerm3ApiRunningOnTheKween();
+      setOutput(
+        isZwerm3ApiRunningOnTheKween
+          ? "Zwerm 3 API is running on The Kween"
+          : "Zwerm 3 API seems not to be running on The Kween"
+      );
+      setOutputColor(
+        isZwerm3ApiRunningOnTheKween
+          ? "var(--green-status)"
+          : "var(--red-status)"
+      );
+    } catch (e: any) {
+      setOutput(e.message);
+      setOutputColor("var(--red-status)");
+    } finally {
+      appContext.setLoading(false);
+    }
   }, []);
 
   return (

@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppContext } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const TheKweenOnline = () => {
+export const StartHubServerOnTheKween = () => {
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
   const { appContext } = useAppContext();
@@ -10,15 +10,9 @@ export const TheKweenOnline = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      const theKween = await window.kweenb.methods.fetchTheKween();
-      setOutput(
-        theKween.isOnline
-          ? "The Kween is online"
-          : "The Kween seems to be offline"
-      );
-      setOutputColor(
-        theKween.isOnline ? "var(--green-status)" : "var(--red-status)"
-      );
+      await window.kweenb.methods.startHubServerOnTheKween();
+      setOutput("Started Hub server on The Kween");
+      setOutputColor("var(--green-status)");
     } catch (e: any) {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
@@ -29,7 +23,7 @@ export const TheKweenOnline = () => {
 
   return (
     <Action
-      description="Check if The Kween is online"
+      description="Start Hub server on The Kween"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

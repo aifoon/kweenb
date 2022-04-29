@@ -240,6 +240,53 @@ const startJack = async (ipAddress: string) => {
 };
 
 /**
+ * Start Jack With Jacktrip Server
+ * @param ipAddress The ip address where the zwerm3api is running
+ */
+const startJackWithJacktripServer = async (ipAddress: string) => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+
+  // get the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // create the post body
+  const body = {
+    jack: {
+      device: settings.beeAudioSettings.jack.device,
+      channel: settings.beeAudioSettings.channels,
+      bufferSize: settings.beeAudioSettings.jack.bufferSize,
+      sampleRate: settings.beeAudioSettings.jack.sampleRate,
+      periods: settings.beeAudioSettings.jack.periods,
+    },
+    jacktrip: {
+      hub: true,
+      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
+      channels: settings.beeAudioSettings.channels,
+      debug: false,
+      realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
+      hubPatchMode: 5,
+    },
+  };
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "startJackWithJacktripServer");
+
+  // fetch the response
+  const response = await fetch(endpoint, {
+    method: "post",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // if we have an internal error
+  if (response.status === 500) {
+    throw new Error(POST_ERROR("startJackWithJacktripServer"));
+  }
+};
+
+/**
  * Save the configuration in the api behind the given ip address
  * @param ipAddress ipAddress
  * @param setting setting
@@ -290,4 +337,5 @@ export default {
   killJacktrip,
   saveConfig,
   startJack,
+  startJackWithJacktripServer,
 };

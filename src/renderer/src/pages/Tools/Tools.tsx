@@ -10,6 +10,7 @@ import {
   IsZwerm3ApiRunningOnBees,
   KillAllTheKweenProcesses,
   KillAllBeeProcesses,
+  StartHubServerOnTheKween,
 } from "./Actions";
 
 export const Tools = () => (
@@ -23,6 +24,7 @@ export const Tools = () => (
         <IsZwerm3ApiRunningOnBees />
         <KillAllTheKweenProcesses />
         <KillAllBeeProcesses />
+        <StartHubServerOnTheKween />
       </ActionsContainer>
     </Card>
   </Z3Page>

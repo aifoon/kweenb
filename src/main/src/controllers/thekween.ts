@@ -3,6 +3,7 @@ import { KweenBException } from "../lib/Exceptions/KweenBException";
 import theKweenHelpers from "../lib/KweenB/TheKweenHelpers";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import Zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
+import TheKweenHelpers from "../lib/KweenB/TheKweenHelpers";
 
 /**
  * Fetching the kween
@@ -50,6 +51,24 @@ export const killJackAndJacktrip = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Fetching the kween
+ * @returns an object shaped like an ITheKween
+ */
+export const startHubServer = async () => {
+  try {
+    const thekween = await TheKweenHelpers.getTheKween();
+    await Zwerm3ApiHelpers.startJackWithJacktripServer(
+      thekween.settings.ipAddress
+    );
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startHubServer()", message: e.message },
       true
     );
   }
