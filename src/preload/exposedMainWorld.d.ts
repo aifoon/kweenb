@@ -44,8 +44,10 @@ declare global {
         fetchBee(id: number): Promise<IBee>;
         fetchSettings(): Promise<ISettings>;
         fetchTheKween(): Promise<ITheKween>;
+        isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
+        killJackAndJacktripOnTheKween(): void;
         killJacktrip(bee: IBee);
         startJack(bee: IBee);
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);

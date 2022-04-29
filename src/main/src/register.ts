@@ -29,7 +29,11 @@ import BeesPoller from "./lib/Interval/BeesPoller";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import { fetchSettings, updateSetting } from "./controllers/setting";
 import BeePoller from "./lib/Interval/BeePoller";
-import { fetchTheKween } from "./controllers/thekween";
+import {
+  fetchTheKween,
+  isZwerm3ApiRunningOnTheKween,
+  killJackAndJacktrip as killJackAndJacktripOnTheKween,
+} from "./controllers/thekween";
 import { subscribe, unsubscribe } from "./controllers/mqtt";
 
 export const registerActions = () => {
@@ -60,6 +64,11 @@ export const registerMethods = () => {
   ipcMain.handle("setting:fetchSettings", fetchSettings);
   ipcMain.handle("setting:updateSetting", updateSetting);
   ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
+  ipcMain.handle("thekween:killJackAndJacktrip", killJackAndJacktripOnTheKween);
+  ipcMain.handle(
+    "thekween:isZwerm3ApiRunningOnTheKween",
+    isZwerm3ApiRunningOnTheKween
+  );
 };
 
 export const registerIntervalWorkers = () => {

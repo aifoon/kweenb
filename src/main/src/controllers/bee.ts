@@ -132,7 +132,7 @@ export const killJackAndJacktrip = async (
 ) => {
   try {
     await zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
-    KweenBGlobal.kweenb.showSuccess("Killed Jack and Jacktrip processes.");
+    // KweenBGlobal.kweenb.showSuccess("Killed Jack and Jacktrip processes.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
@@ -152,7 +152,7 @@ export const killJack = async (
 ) => {
   try {
     await zwerm3ApiHelpers.killJack(bee.ipAddress);
-    KweenBGlobal.kweenb.showSuccess("Killed Jack processes.");
+    // KweenBGlobal.kweenb.showSuccess("Killed Jack processes.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJack()", message: e.message },
@@ -172,7 +172,7 @@ export const killJacktrip = async (
 ) => {
   try {
     await zwerm3ApiHelpers.killJacktrip(bee.ipAddress);
-    KweenBGlobal.kweenb.showSuccess("Killed Jacktrip processes.");
+    // KweenBGlobal.kweenb.showSuccess("Killed Jacktrip processes.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJacktrip()", message: e.message },
@@ -327,7 +327,7 @@ export const startJack = async (
 ) => {
   try {
     await zwerm3ApiHelpers.startJack(bee.ipAddress);
-    KweenBGlobal.kweenb.showSuccess("Started Jack with success.");
+    // KweenBGlobal.kweenb.showSuccess("Started Jack with success.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJack()", message: e.message },

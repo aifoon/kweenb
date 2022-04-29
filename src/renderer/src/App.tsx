@@ -11,7 +11,7 @@ import {
   BeeConfig,
 } from "./pages";
 import { Z3Navigation, Z3Sidebar } from "./layout";
-import { Tools } from "./pages/Tools";
+import { Tools } from "./pages/Tools/Tools";
 
 const startDesignSystem = false;
 

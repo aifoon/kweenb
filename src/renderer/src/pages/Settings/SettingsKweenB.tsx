@@ -52,7 +52,7 @@ export const SettingsKweenB = ({
       }}
       validationSchema={Yup.object().shape({
         channels: Yup.number()
-          .min(1, "The minimun amount of channels is 1")
+          .min(1, "The minimum amount of channels is 1")
           .max(99, "The maximum amount of channels is 99")
           .required("The amount of channels is required"),
         mqttBroker: Yup.string(),
