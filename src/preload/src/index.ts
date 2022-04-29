@@ -88,6 +88,8 @@ contextBridge.exposeInMainWorld("kweenb", {
     saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
       ipcRenderer.invoke("bee:saveConfig", bee, config),
     startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
+    startJackWithJacktripClient: (bee: IBee) =>
+      ipcRenderer.invoke("bee:startJackWithJacktripClient", bee),
     startHubServerOnTheKween: () =>
       ipcRenderer.invoke("thekween:startHubServer"),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),

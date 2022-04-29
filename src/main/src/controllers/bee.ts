@@ -337,6 +337,25 @@ export const startJack = async (
 };
 
 /**
+ * Start the client and connect to the kween
+ * @param event
+ * @param bee
+ */
+export const startJackWithJacktripClient = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.startJackWithJacktripClient(bee.ipAddress, bee.name);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startClient()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Saves in the internal configuration
  * @param event
  * @param bee
