@@ -106,7 +106,8 @@ export const BuildHiveModal = ({
 
 
     /* Close the modal */
-    setIsOpen(false);
+    setActiveIndex(-1);
+    onClose();
   }, [])
 
   return (

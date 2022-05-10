@@ -93,11 +93,11 @@ export const SettingsKweenB = ({
           .required("The queued buffer size is required"),
         jacktripSendChannels: Yup.number()
           .min(1, "The amount of send channels is min 1")
-          .max(20, "The amount of send channels is max 20")
+          .max(64, "The amount of send channels is max 20")
           .required("The amount of send channels is required"),
         jacktripReceiveChannels: Yup.number()
           .min(1, "The amount of receive channels is min 1")
-          .max(20, "The amount of receive channels is max 20")
+          .max(64, "The amount of receive channels is max 20")
           .required("The amount of receive channels is required"),
       })}
       onSubmit={() => {}}
