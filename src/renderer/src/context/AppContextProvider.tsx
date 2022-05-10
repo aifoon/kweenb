@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
 import { useShowState } from "../hooks/useShowState";
+import { BuildHiveModal, BuildSwarmNestModal } from "../pages/BuildHiveModal/BuildHiveModal";
 
 interface AppContextProviderProps {
   children: React.ReactNode
@@ -15,6 +16,7 @@ interface AppContextProviderProps {
 
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [openBuildSwarmModal, setOpenBuildSwarmModal] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastMessage>({ message: "", severity: "info"});
   const { open: openToast, handleOpen: handleOpenToast, handleClose: handleCloseToast } = useShowState(false);
 
@@ -66,7 +68,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   }, [])
 
   return (
-    <AppContext.Provider value={{ setLoading, showToast }}>
+    <AppContext.Provider value={{ setLoading, showToast, setOpenBuildSwarmModal }}>
       {/* The General Loader for the whole app */}
       {loading && <Loader />}
 
@@ -84,6 +86,9 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
           </Alert>
         </Snackbar>
       </div>
+
+      {/* The Build hive modal */}
+      <BuildHiveModal open={openBuildSwarmModal} onClose={() => setOpenBuildSwarmModal(false)} />
 
       {/* The application itself */}
       {children}

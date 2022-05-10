@@ -19,7 +19,6 @@ const getAllSettings = async (): Promise<ISettings> => {
   // we need to create IBeeAudioSettings, ITheKweenSettings, IKweenBAudioSettings & IKweenBSettings
   return {
     beeAudioSettings: {
-      channels: Number(findKey("beeChannels")?.value || 0),
       jack: {
         device: findKey("beeJackDevice")?.value || "",
         bufferSize: Number(findKey("beeJackBufferSize")?.value || 16),

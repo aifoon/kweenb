@@ -5,7 +5,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AppContextProvider } from "./context/AppContextProvider";
 import {
   DesignSystem,
-  AudioRoutes,
   Settings,
   ManageBees,
   BeeConfig,
@@ -34,7 +33,6 @@ export const App = () => {
               <Route path="/manage-bees" element={<ManageBees />} />
               <Route path="/swarm/:id" element={<BeeConfig />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/audio-routes" element={<AudioRoutes />} />
               <Route path="/tools" element={<Tools />} />
             </Routes>
           </Flex>

@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 const ActionsHeaderContainer = styled.div`
   display: grid;
-  grid-template-columns: 40% 1fr 150px;
+  grid-template-columns: 50% 1fr 125px;
   column-gap: 0;
   font-weight: bold;
   background-color: var(--primary-100);

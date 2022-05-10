@@ -8,7 +8,6 @@ import {
 } from "@components/Sidebar";
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SettingsIcon from "@mui/icons-material/Settings";
-import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
@@ -29,12 +28,6 @@ const sidebarButtons = [
     title: "Settings",
     pathNames: ["/settings"],
     icon: <SettingsIcon />,
-  },
-  {
-    key: "audioRoutes",
-    title: "Audio Routes",
-    pathNames: ["/audio-routes"],
-    icon: <RouteIcon />,
   },
   {
     key: "tools",

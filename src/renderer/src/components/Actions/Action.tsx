@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 
 export const ActionContainer = styled.div`
   display: grid;
-  grid-template-columns: 40% 1fr 150px;
+  grid-template-columns: 50% 1fr 125px;
   column-gap: 0px;
   margin-bottom: 0px;
+  font-size: var(--smallText);
   & div:last-child {
     border-right: 1px solid var(--primary-100);
   }

@@ -10,7 +10,7 @@ interface ConfirmModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
   onConfirm: () => void;
 }
 
-const ConfirmModalFooter = styled.div`
+export const ConfirmModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
