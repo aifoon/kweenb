@@ -35,7 +35,7 @@ export const Settings = () => {
       </TabPanel>
       <TabPanel value={value} index={1}>
         <SettingsKweenB
-          kweenBSettings={settings.kweenBSettings}
+          kweenbSettings={settings.kweenBSettings}
           kweenbAudioSettings={settings.kweenBAudioSettings}
         />
       </TabPanel>

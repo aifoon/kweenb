@@ -4,12 +4,16 @@
 
 export default [
   {
-    key: "beeChannels",
+    key: "beeJackDevice",
+    value: "hw:Device"
+  },
+  {
+    key: "beeJackInputChannels",
     value: "2"
   },
   {
-    key: "beeJackDevice",
-    value: "hw:Device"
+    key: "beeJackOutputChannels",
+    value: "2"
   },
   {
     key: "beeJackBufferSize",
@@ -36,6 +40,10 @@ export default [
     value: "1"
   },
   {
+    key: "beeJacktripChannels",
+    value: "2"
+  },
+  {
     key: "beeJacktripSendChannels",
     value: "1"
   },
@@ -52,12 +60,16 @@ export default [
     value: "mqtt://localhost:1883"
   },
   {
-    key: "kweenbChannels",
+    key: "kweenbJackDevice",
+    value: "hw:Device"
+  },
+  {
+    key: "kweenbJackInputChannels",
     value: "2"
   },
   {
-    key: "kweenbJackDevice",
-    value: "hw:Device"
+    key: "kweenbJackOutputChannels",
+    value: "2"
   },
   {
     key: "kweenbJackBufferSize",
@@ -74,6 +86,10 @@ export default [
   {
     key: "kweenbJacktripBitRate",
     value: "16"
+  },
+  {
+    key: "kweenbJacktripChannels",
+    value: "2"
   },
   {
     key: "kweenbJacktripQueueBufferLength",

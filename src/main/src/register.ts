@@ -23,8 +23,12 @@ import {
   fetchActiveBeesData,
   fetchInActiveBeesData,
   saveConfig,
-  startJackWithJacktripClient,
+  startJackWithJacktripClient as startJackWithJacktripClientBee,
 } from "./controllers/bee";
+import {
+  startJackWithJacktripClient as startJackWithJacktripClientKweenB,
+  killJackAndJacktrip as killJackAndJacktripOnKweenB,
+} from "./controllers/kweenb";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
@@ -34,7 +38,9 @@ import {
   fetchTheKween,
   isZwerm3ApiRunningOnTheKween,
   killJackAndJacktrip as killJackAndJacktripOnTheKween,
+  makeAudioConnections,
   startHubServer,
+  validateHive,
 } from "./controllers/thekween";
 import { subscribe, unsubscribe } from "./controllers/mqtt";
 
@@ -65,7 +71,12 @@ export const registerMethods = () => {
   ipcMain.handle("bee:saveConfig", saveConfig);
   ipcMain.handle(
     "bee:startJackWithJacktripClient",
-    startJackWithJacktripClient
+    startJackWithJacktripClientBee
+  );
+  ipcMain.handle("kweenb:killJackAndJacktrip", killJackAndJacktripOnKweenB);
+  ipcMain.handle(
+    "kweenb:startJackWithJacktripClient",
+    startJackWithJacktripClientKweenB
   );
   ipcMain.handle("setting:fetchSettings", fetchSettings);
   ipcMain.handle("setting:updateSetting", updateSetting);
@@ -76,6 +87,8 @@ export const registerMethods = () => {
     isZwerm3ApiRunningOnTheKween
   );
   ipcMain.handle("thekween:startHubServer", startHubServer);
+  ipcMain.handle("thekween:makeAudioConnections", makeAudioConnections);
+  ipcMain.handle("thekween:validateHive", validateHive);
 };
 
 export const registerIntervalWorkers = () => {

@@ -2,7 +2,12 @@
  * The Zwerm3API Helpers
  */
 
-import { IBeeConfig, ISetting } from "@shared/interfaces";
+import {
+  IBeeConfig,
+  IHubClients,
+  IHubClientsResponse,
+  ISetting,
+} from "@shared/interfaces";
 import fetch from "node-fetch";
 import { DEFAULT_BEE_CONFIG, ZWERM3API_PORT } from "../../consts";
 import {
@@ -54,6 +59,38 @@ const isZwerm3ApiRunning = async (ipAddress: string) => {
     return true;
   } catch (e: any) {
     return false;
+  }
+};
+
+/**
+ * Connect channels
+ * @param ipAddress
+ * @returns
+ */
+const connectChannel = async (
+  ipAddress: string,
+  source: string,
+  destination: string
+) => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress))) return;
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "jack/connectChannel");
+
+  // do a post to connect the channels
+  const response = await fetch(endpoint, {
+    method: "post",
+    body: JSON.stringify({
+      source,
+      destination,
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // if we have an internal error
+  if (response.status === 500) {
+    throw new Error(POST_ERROR("connectChannel"));
   }
 };
 
@@ -141,6 +178,33 @@ const getAllConfig = async (ipAddress: string): Promise<IBeeConfig> => {
 };
 
 /**
+ * Get all connected hubclients
+ * @param ipAddress
+ * @returns
+ */
+const getHubClients = async (ipAddress: string): Promise<IHubClients> => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    return { sendChannels: [], receiveChannels: [] };
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "jack/hubclients");
+
+  // fetch the response
+  const response = await fetch(endpoint);
+
+  // validate the response
+  if (!response || response.status === 500)
+    throw new Error(FETCH_ERROR("getHubClients"));
+
+  // convert to json
+  const hubClientsResponse = (await response.json()) as IHubClientsResponse;
+
+  // return the hubclients
+  return hubClientsResponse.hubClients;
+};
+
+/**
  * Kills all the jack and jacktrip processes on client
  * @param ipAddress
  * @returns
@@ -217,7 +281,8 @@ const startJack = async (ipAddress: string) => {
   // create the post body
   const body = {
     device: settings.beeAudioSettings.jack.device,
-    channel: settings.beeAudioSettings.channels,
+    inputChannels: settings.beeAudioSettings.jack.inputChannels,
+    outputChannels: settings.beeAudioSettings.jack.outputChannels,
     bufferSize: settings.beeAudioSettings.jack.bufferSize,
     sampleRate: settings.beeAudioSettings.jack.sampleRate,
     periods: settings.beeAudioSettings.jack.periods,
@@ -255,7 +320,8 @@ const startJackWithJacktripServer = async (ipAddress: string) => {
   const body = {
     jack: {
       device: settings.beeAudioSettings.jack.device,
-      channel: settings.beeAudioSettings.channels,
+      inputChannels: settings.beeAudioSettings.jack.inputChannels,
+      outputChannels: settings.beeAudioSettings.jack.outputChannels,
       bufferSize: settings.beeAudioSettings.jack.bufferSize,
       sampleRate: settings.beeAudioSettings.jack.sampleRate,
       periods: settings.beeAudioSettings.jack.periods,
@@ -263,7 +329,7 @@ const startJackWithJacktripServer = async (ipAddress: string) => {
     jacktrip: {
       hub: true,
       queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
-      channels: settings.beeAudioSettings.channels,
+      channels: settings.beeAudioSettings.jacktrip.channels,
       debug: false,
       realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
       hubPatchMode: 5,
@@ -305,7 +371,8 @@ const startJackWithJacktripClient = async (
   const body = {
     jack: {
       device: settings.beeAudioSettings.jack.device,
-      channel: settings.beeAudioSettings.channels,
+      inputChannels: settings.beeAudioSettings.jack.inputChannels,
+      outputChannels: settings.beeAudioSettings.jack.outputChannels,
       bufferSize: settings.beeAudioSettings.jack.bufferSize,
       sampleRate: settings.beeAudioSettings.jack.sampleRate,
       periods: settings.beeAudioSettings.jack.periods,
@@ -313,7 +380,7 @@ const startJackWithJacktripClient = async (
     jacktrip: {
       hub: true,
       queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
-      channels: settings.beeAudioSettings.channels,
+      channels: settings.beeAudioSettings.jacktrip.channels,
       debug: false,
       realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
       bitRate: settings.beeAudioSettings.jacktrip.bitRate,
@@ -383,7 +450,9 @@ const saveConfig = async (ipAddress: string, config: Partial<IBeeConfig>) => {
 };
 
 export default {
+  connectChannel,
   getAllConfig,
+  getHubClients,
   isJackRunning,
   isJacktripRunning,
   isZwerm3ApiRunning,

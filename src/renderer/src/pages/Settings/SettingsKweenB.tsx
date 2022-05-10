@@ -18,12 +18,12 @@ import {
 import { IKweenBSettings, IKweenBAudioSettings } from "@shared/interfaces";
 
 interface BeeSettingsKweenBProps {
-  kweenBSettings: IKweenBSettings;
+  kweenbSettings: IKweenBSettings;
   kweenbAudioSettings: IKweenBAudioSettings;
 }
 
 export const SettingsKweenB = ({
-  kweenBSettings,
+  kweenbSettings,
   kweenbAudioSettings,
 }: BeeSettingsKweenBProps) => {
   const { updateSetting } = useSetting();
@@ -36,13 +36,15 @@ export const SettingsKweenB = ({
   return (
     <Formik
       initialValues={{
-        channels: kweenbAudioSettings.channels,
-        mqttBroker: kweenBSettings.mqttBroker,
+        mqttBroker: kweenbSettings.mqttBroker,
         jackDevice: kweenbAudioSettings.jack.device,
+        jackInputChannels: kweenbAudioSettings.jack.inputChannels,
+        jackOutputChannels: kweenbAudioSettings.jack.outputChannels,
         jackBufferSize: kweenbAudioSettings.jack.bufferSize,
         jackSampleRate: kweenbAudioSettings.jack.sampleRate,
         jackPeriods: kweenbAudioSettings.jack.periods,
         jacktripBitRate: kweenbAudioSettings.jacktrip.bitRate,
+        jacktripChannels: kweenbAudioSettings.jacktrip.channels,
         jacktripRedundancy: kweenbAudioSettings.jacktrip.redundancy,
         jacktripQueueBufferLength:
           kweenbAudioSettings.jacktrip.queueBufferLength,
@@ -51,15 +53,25 @@ export const SettingsKweenB = ({
         jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
       }}
       validationSchema={Yup.object().shape({
-        channels: Yup.number()
-          .min(1, "The minimum amount of channels is 1")
-          .max(99, "The maximum amount of channels is 99")
-          .required("The amount of channels is required"),
         mqttBroker: Yup.string(),
         jackDevice: Yup.string(),
         jackBufferSize: Yup.number()
           .required("The buffer size is required")
           .isValidBufferSize(),
+        jackInputChannels: Yup.number()
+          .min(
+            -1,
+            "The minimum amount of input channels is 1, -1 for no channels"
+          )
+          .max(99, "The maximum amount of channels is 99")
+          .required("The amount of channels is required"),
+        jackOutputChannels: Yup.number()
+          .min(
+            -1,
+            "The minimum amount of output channels is 1, -1 for no channels"
+          )
+          .max(99, "The maximum amount of channels is 99")
+          .required("The amount of channels is required"),
         jackSampleRate: Yup.number()
           .required("The sample rate is required")
           .isValidSampleRate(),
@@ -67,6 +79,10 @@ export const SettingsKweenB = ({
         jacktripBitRate: Yup.number()
           .required("The bitrate is required")
           .isValidBitRate(),
+        jacktripChannels: Yup.number()
+          .min(-1, "The minimum amount of channels is 1, -1 for no channels")
+          .max(99, "The maximum amount of channels is 99")
+          .required("The amount of channels is required"),
         jacktripRedundancy: Yup.number()
           .min(0, "The redundancy is min 0")
           .max(99, "The redundancy is max 99")
@@ -76,11 +92,11 @@ export const SettingsKweenB = ({
           .max(99, "The queued buffer size is max 99")
           .required("The queued buffer size is required"),
         jacktripSendChannels: Yup.number()
-          .min(0, "The amount of send channels is min 0")
+          .min(1, "The amount of send channels is min 1")
           .max(20, "The amount of send channels is max 20")
           .required("The amount of send channels is required"),
         jacktripReceiveChannels: Yup.number()
-          .min(0, "The amount of receive channels is min 0")
+          .min(1, "The amount of receive channels is min 1")
           .max(20, "The amount of receive channels is max 20")
           .required("The amount of receive channels is required"),
       })}
@@ -91,20 +107,6 @@ export const SettingsKweenB = ({
           <Grid container spacing={5}>
             <Grid item xs={12} md={6}>
               <CardVerticalStack>
-                <Card title="General">
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Channels"
-                    type="number"
-                    labelWidth="150px"
-                    min={1}
-                    max={99}
-                    name="channels"
-                    placeholder="e.g. 2"
-                  />
-                </Card>
                 <Card title="Jack">
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
@@ -114,7 +116,31 @@ export const SettingsKweenB = ({
                     type="text"
                     labelWidth="150px"
                     name="jackDevice"
-                    placeholder="e.g. hw:Set"
+                    placeholder="e.g. hw:Device"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Input Channels"
+                    type="number"
+                    min={-1}
+                    max={20}
+                    labelWidth="150px"
+                    name="jackInputChannels"
+                    placeholder="e.g. 2"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Output Channels"
+                    type="number"
+                    min={-1}
+                    max={20}
+                    labelWidth="150px"
+                    name="jackOutputChannels"
+                    placeholder="e.g. 2"
                   />
                   <SelectField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
@@ -153,6 +179,20 @@ export const SettingsKweenB = ({
                     placeholder="e.g. 2"
                   />
                 </Card>
+                <Card title="MQTT">
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="MQTT Broker"
+                    type="text"
+                    labelWidth="150px"
+                    min={1}
+                    max={99}
+                    name="mqttBroker"
+                    placeholder="e.g. mqtt://localhost:1883"
+                  />
+                </Card>
               </CardVerticalStack>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -172,9 +212,21 @@ export const SettingsKweenB = ({
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
+                    label="Channels"
+                    type="number"
+                    labelWidth="150px"
+                    min={1}
+                    max={99}
+                    name="jacktripChannels"
+                    placeholder="e.g. 2"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
                     label="Send Channels"
                     type="number"
-                    min={0}
+                    min={1}
                     max={20}
                     labelWidth="150px"
                     name="jacktripSendChannels"
@@ -186,7 +238,7 @@ export const SettingsKweenB = ({
                     size={InputFieldSize.Small}
                     label="Receive Channels"
                     type="number"
-                    min={0}
+                    min={1}
                     max={20}
                     labelWidth="150px"
                     name="jacktripReceiveChannels"
@@ -227,20 +279,6 @@ export const SettingsKweenB = ({
                     labelWidth="150px"
                     name="jacktripRedundancy"
                     placeholder="e.g. 1"
-                  />
-                </Card>
-                <Card title="MQTT">
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="MQTT Broker"
-                    type="text"
-                    labelWidth="150px"
-                    min={1}
-                    max={99}
-                    name="mqttBroker"
-                    placeholder="e.g. mqtt://localhost:1883"
                   />
                 </Card>
               </CardVerticalStack>

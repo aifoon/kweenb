@@ -4,14 +4,20 @@ import { ActiveBeesOnline } from "./ActiveBeesOnline";
 import { IsZwerm3ApiRunningOnBees } from "./IsZwerm3ApiRunningOnBees";
 import { KillAllTheKweenProcesses } from "./KillAllTheKweenProcesses";
 import { KillAllBeeProcesses } from "./KillAllBeeProcesses";
+import { KillAllKweenBProcesses } from "./KillAllKweenBProcesses";
 import { StartHubServerOnTheKween } from "./StartHubServerOnTheKween";
+import { ValidateHive } from "./ValidateHive";
+import { MakeAudioConnections } from "./MakeAudioConnections";
 
 export {
   ActiveBeesOnline,
   IsZwerm3ApiRunningOnTheKween,
   IsZwerm3ApiRunningOnBees,
-  KillAllTheKweenProcesses,
   KillAllBeeProcesses,
+  KillAllKweenBProcesses,
+  KillAllTheKweenProcesses,
   StartHubServerOnTheKween,
   TheKweenOnline,
+  MakeAudioConnections,
+  ValidateHive,
 };

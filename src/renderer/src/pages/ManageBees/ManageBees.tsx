@@ -82,7 +82,7 @@ export const ManageBees = () => {
               buttons={[
                 <Button
                   key="addNewBee"
-                  buttonSize={ButtonSize.Medium}
+                  buttonSize={ButtonSize.Small}
                   buttonUse={ButtonUse.Normal}
                   buttonType={ButtonType.Primary}
                   onClick={handleOpen}

@@ -4,11 +4,9 @@ import {
   IBeeConfig,
   IBeeInput,
   IError,
-  IKweenBSettings,
   ISetting,
   ITheKween,
 } from "@shared/interfaces";
-import * as mqtt from "mqtt";
 
 declare global {
   interface Window {
@@ -47,14 +45,18 @@ declare global {
         isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
+        killJackAndJacktripOnKweenB(): void;
         killJackAndJacktripOnTheKween(): void;
         killJacktrip(bee: IBee): void;
+        makeAudioConnections(): void;
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
         startJack(bee: IBee): void;
-        startJackWithJacktripClient(bee: IBee): void;
+        startJackWithJacktripClientBee(bee: IBee): void;
+        startJackWithJacktripClientKweenB(): void;
         startHubServerOnTheKween(): void;
         updateBee(bee: Partial<IBee>);
         updateSetting(setting: ISetting);
+        validateHive(): Promise<boolean>;
       };
       readonly actions: {
         hello(name: string): void;

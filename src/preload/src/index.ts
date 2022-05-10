@@ -6,12 +6,10 @@ import {
   IBee,
   IBeeConfig,
   IBeeInput,
-  IKweenBSettings,
   ISetting,
   ISettings,
   ITheKween,
 } from "@shared/interfaces";
-import * as mqtt from "mqtt";
 
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
@@ -81,6 +79,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("thekween:isZwerm3ApiRunningOnTheKween"),
     killJackAndJacktrip: (bee: IBee) =>
       ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
+    killJackAndJacktripOnKweenB: () =>
+      ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
     killJackAndJacktripOnTheKween: () =>
       ipcRenderer.invoke("thekween:killJackAndJacktrip"),
     killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
@@ -88,13 +88,19 @@ contextBridge.exposeInMainWorld("kweenb", {
     saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
       ipcRenderer.invoke("bee:saveConfig", bee, config),
     startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
-    startJackWithJacktripClient: (bee: IBee) =>
+    startJackWithJacktripClientBee: (bee: IBee) =>
       ipcRenderer.invoke("bee:startJackWithJacktripClient", bee),
+    startJackWithJacktripClientKweenB: () =>
+      ipcRenderer.invoke("kweenb:startJackWithJacktripClient"),
     startHubServerOnTheKween: () =>
       ipcRenderer.invoke("thekween:startHubServer"),
     updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
     updateSetting: (setting: ISetting) =>
       ipcRenderer.invoke("setting:updateSetting", setting),
+    makeAudioConnections: () =>
+      ipcRenderer.invoke("thekween:makeAudioConnections"),
+    validateHive: (): Promise<boolean> =>
+      ipcRenderer.invoke("thekween:validateHive"),
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),

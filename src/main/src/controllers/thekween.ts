@@ -56,6 +56,20 @@ export const killJackAndJacktrip = async () => {
 };
 
 /**
+ * Make all audio connections
+ */
+export const makeAudioConnections = async () => {
+  try {
+    await theKweenHelpers.makeAudioConnections();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "makeAudioConnections()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Fetching the kween
  * @returns an object shaped like an ITheKween
  */
@@ -68,6 +82,21 @@ export const startHubServer = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "startHubServer()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Validate the hive
+ * @returns boolean if the hive is ready for connections
+ */
+export const validateHive = async (): Promise<boolean> => {
+  try {
+    return await theKweenHelpers.validateHive();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "validateHive()", message: e.message },
       true
     );
   }

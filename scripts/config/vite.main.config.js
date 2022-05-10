@@ -43,6 +43,7 @@ const config = {
         "node:path",
         "node:http",
         "mqtt",
+        "@zwerm3/jack",
         ...builtinModules,
       ],
       output: {

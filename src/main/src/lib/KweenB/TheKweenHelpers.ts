@@ -2,9 +2,11 @@
  * All helpers for the kween
  */
 
+import { BeeActiveState } from "@shared/enums";
 import { ITheKween } from "@shared/interfaces";
 import ping from "ping";
 import { PING_CONFIG } from "../../consts";
+import BeeHelpers from "./BeeHelpers";
 import SettingHelpers from "./SettingHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 
@@ -34,4 +36,59 @@ const getTheKween = async (): Promise<ITheKween> => {
   };
 };
 
-export default { getTheKween };
+/**
+ * Make the audio connections in the hive
+ */
+const makeAudioConnections = async () => {
+  // get all the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // the active bees
+  const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+
+  // loop over active bees and make the connection
+  activeBees.forEach(async ({ id, name }) => {
+    await Zwerm3ApiHelpers.connectChannel(
+      settings.theKweenSettings.ipAddress,
+      `kweenb:receive_${id}`,
+      `${name}:send_1`
+    );
+  });
+};
+
+/**
+ * Validate if the hub server contains all active bees senders and kweenb receivers
+ */
+const validateHive = async (): Promise<boolean> => {
+  // get all the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // the active bees
+  const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+
+  // get the hubclients
+  const hubclients = await Zwerm3ApiHelpers.getHubClients(
+    settings.theKweenSettings.ipAddress
+  );
+
+  // validate the kweenb receive channels
+  for (
+    let i = 1;
+    i <= settings.kweenBAudioSettings.jacktrip.receiveChannels;
+    i += 1
+  ) {
+    if (!hubclients.receiveChannels.includes(`kweenb:receive_${i}`))
+      return false;
+  }
+
+  // validate the active bee send channels
+  // eslint-disable-next-line no-restricted-syntax
+  for (const bee of activeBees) {
+    if (!hubclients.sendChannels.includes(`${bee.name}:send_1`)) return false;
+  }
+
+  // get the hub clients on the kween
+  return true;
+};
+
+export default { getTheKween, makeAudioConnections, validateHive };

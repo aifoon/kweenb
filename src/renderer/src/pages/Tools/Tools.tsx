@@ -11,8 +11,12 @@ import {
   KillAllTheKweenProcesses,
   KillAllBeeProcesses,
   StartHubServerOnTheKween,
+  KillAllKweenBProcesses,
+  ValidateHive,
+  MakeAudioConnections,
 } from "./Actions";
 import { StartJackWithJacktripClientOnActiveBees } from "./Actions/StartJackWithJacktripClientOnActiveBees";
+import { StartJackWithJacktripClientOnKweenB } from "./Actions/StartJackWithJacktripClientOnKweenB";
 
 export const Tools = () => (
   <Z3Page pageHeader={<PageHeader title="Tools" />}>
@@ -27,6 +31,10 @@ export const Tools = () => (
         <KillAllBeeProcesses />
         <StartHubServerOnTheKween />
         <StartJackWithJacktripClientOnActiveBees />
+        <KillAllKweenBProcesses />
+        <StartJackWithJacktripClientOnKweenB />
+        <ValidateHive />
+        <MakeAudioConnections />
       </ActionsContainer>
     </Card>
   </Z3Page>

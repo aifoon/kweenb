@@ -8,6 +8,20 @@ export interface IError {
 }
 
 /**
+ * For The Kween
+ */
+
+export interface IHubClients {
+  sendChannels: string[];
+  receiveChannels: string[];
+}
+
+export interface IHubClientsResponse {
+  message: string;
+  hubClients: IHubClients;
+}
+
+/**
  * For Bee
  */
 
@@ -62,14 +76,17 @@ export interface ISettings {
 }
 
 export interface IAudioSettingsJack {
-  device: string;
   bufferSize: number;
-  sampleRate: number;
+  device: string;
+  inputChannels: number;
+  outputChannels: number;
   periods: number;
+  sampleRate: number;
 }
 
 export interface IAudioSettingsJackTrip {
   bitRate: number;
+  channels: number;
   redundancy: number;
   queueBufferLength: number;
   realtimePriority: boolean;
@@ -80,7 +97,6 @@ export interface IAudioSettingsJackTrip {
 // Bee Audio
 
 export interface IBeeAudioSettings {
-  channels: number;
   jack: IAudioSettingsJack;
   jacktrip: IAudioSettingsJackTrip;
 }
@@ -88,7 +104,6 @@ export interface IBeeAudioSettings {
 // KweenB
 
 export interface IKweenBAudioSettings {
-  channels: number;
   jack: IAudioSettingsJack;
   jacktrip: IAudioSettingsJackTrip;
 }
