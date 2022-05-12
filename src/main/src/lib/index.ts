@@ -2,7 +2,7 @@
  * Indexing the library
  */
 
-import ElectronApp from "./ElectronApp";
+import ElectronApp from "./electronApp";
 import MenuBuilder from "./Menu";
 
 export { ElectronApp, MenuBuilder };

@@ -4,7 +4,7 @@
 
 import path from "path";
 import { URL } from "url";
-import { BrowserWindow, shell } from "electron";
+import { BrowserWindow } from "electron";
 import MenuBuilder from "./Menu";
 import { KweenB, KweenBGlobal } from "../kweenb";
 
@@ -62,51 +62,51 @@ export default class ElectronApp {
    */
   async createWindow(): Promise<BrowserWindow | null> {
     // create an internal variable to work with
-    let mainWindow: BrowserWindow | null = null;
-
+    let browserWindow: BrowserWindow | null = null;
+    console.log(path.join(__dirname));
     // create a new main window
-    mainWindow = new BrowserWindow({
+    browserWindow = new BrowserWindow({
       show: false,
       width: this.options.browserWidth,
       height: this.options.browserHeight,
       icon: this.options?.iconPath ? this.options.iconPath : "",
       webPreferences: {
         nativeWindowOpen: true,
+        webviewTag: false,
         preload: path.join(__dirname, "../src/preload/dist/index.cjs"),
       },
     });
 
-    // load the index html page
-    mainWindow.loadURL(this.resolveHtmlPath("index.html"));
-
     // when we are ready to go
-    mainWindow.on("ready-to-show", () => {
-      if (!mainWindow) {
+    browserWindow.on("ready-to-show", () => {
+      if (!browserWindow) {
         throw new Error('"mainWindow" is not defined');
       }
-      if (process.env.START_MINIMIZED) mainWindow.minimize();
-      else mainWindow.show();
+      browserWindow.show();
     });
 
     // when we are closing, destroy the main window
-    mainWindow.on("closed", () => {
-      mainWindow = null;
+    browserWindow.on("closed", () => {
+      browserWindow = null;
     });
 
+    // load the index html page
+    browserWindow.loadURL(this.resolveHtmlPath("index.html"));
+
     // creates the menu
-    const menuBuilder = new MenuBuilder(mainWindow, this.isDevelopment);
+    const menuBuilder = new MenuBuilder(browserWindow, this.isDevelopment);
     menuBuilder.buildMenu();
 
     // open urls in the user's browser
-    mainWindow.webContents.on("new-window", (event, url) => {
-      event.preventDefault();
-      shell.openExternal(url);
-    });
+    // browserWindow.webContents.on("new-window", (event, url) => {
+    //   event.preventDefault();
+    //   shell.openExternal(url);
+    // });
 
     // sets the mainWindow in a global state
-    KweenBGlobal.kweenb = new KweenB(mainWindow);
+    KweenBGlobal.kweenb = new KweenB(browserWindow);
 
     // return the window
-    return mainWindow;
+    return browserWindow;
   }
 }

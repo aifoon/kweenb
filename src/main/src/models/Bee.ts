@@ -5,13 +5,13 @@ import Database from "../database";
  * Create the internal Bee Model
  */
 class Bee extends Model {
-  id: number;
+  declare id: number;
 
-  name: string;
+  declare name: string;
 
-  ipAddress: string;
+  declare ipAddress: string;
 
-  isActive: boolean;
+  declare isActive: boolean;
 }
 
 /**

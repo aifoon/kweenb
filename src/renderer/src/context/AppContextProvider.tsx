@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
 import { useShowState } from "../hooks/useShowState";
-import { BuildHiveModal, BuildSwarmNestModal } from "../pages/BuildHiveModal/BuildHiveModal";
+import { BuildHiveModal } from "../pages/BuildHiveModal/BuildHiveModal";
 
 interface AppContextProviderProps {
   children: React.ReactNode

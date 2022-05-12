@@ -9,9 +9,9 @@
 
 import path from "path";
 import { app } from "electron";
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-} from "electron-devtools-installer";
+// import installExtension, {
+//   REACT_DEVELOPER_TOOLS,
+// } from "electron-devtools-installer";
 import { ElectronApp } from "./lib";
 import {
   registerActions,
@@ -19,7 +19,6 @@ import {
   registerMethods,
 } from "./register";
 import firstBoot from "./firstboot";
-import MqttHelpers from "./lib/KweenB/MqttHelpers";
 
 /**
  * Get the resources path
@@ -48,7 +47,7 @@ const initApp = async () => {
     await app.whenReady();
 
     // instell react extension
-    await installExtension(REACT_DEVELOPER_TOOLS);
+    // await installExtension(REACT_DEVELOPER_TOOLS);
 
     // check if the first start script ran before going further
     await firstBoot();

@@ -35,7 +35,7 @@ const config = {
     },
   },
   optimizeDeps: {
-    exclude: ["typeorm"],
+    exclude: [],
   },
   build: {
     sourcemap: true,

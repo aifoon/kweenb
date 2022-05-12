@@ -5,10 +5,10 @@
 const ProdEnvironment = require("./lib/ProdEnvironment");
 
 async function main() {
-  // create a new dev environment
+  // create a new production environment
   const prodEnvironment = new ProdEnvironment();
 
-  // start the dev environment
+  // start the production environment
   await prodEnvironment.start();
 }
 

@@ -5,9 +5,9 @@ import Database from "../database";
  * Create the internal Setting Model
  */
 class Setting extends Model {
-  key: string;
+  declare key: string;
 
-  value: string;
+  declare value: string;
 }
 
 /**
