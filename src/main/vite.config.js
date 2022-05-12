@@ -2,14 +2,15 @@ import { builtinModules } from "module";
 import { join, resolve } from "path";
 import { node } from "../../.electron-vendors.cache.json";
 
+const PACKAGE_ROOT = __dirname;
+
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
  */
 const config = {
   mode: process.env.MODE,
-  base: "./",
-  root: join(process.cwd(), "src", "main"),
+  root: PACKAGE_ROOT,
   resolve: {
     alias: [
       {
@@ -18,15 +19,14 @@ const config = {
       },
     ],
   },
-  // envDir: process.cwd(),
   build: {
     sourcemap: "inline",
     target: `node${node}`,
-    outDir: "../../dist",
+    outDir: "dist",
     assetsDir: ".",
     minify: process.env.MODE !== "development",
     lib: {
-      entry: "../../src/main/src/index.ts",
+      entry: "src/index.ts",
       formats: ["cjs"],
     },
     rollupOptions: {

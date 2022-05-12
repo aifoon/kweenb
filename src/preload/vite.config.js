@@ -3,6 +3,8 @@ import { join, resolve } from "path";
 
 import { chrome } from "../../.electron-vendors.cache.json";
 
+const PACKAGE_ROOT = __dirname;
+
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
@@ -10,24 +12,23 @@ import { chrome } from "../../.electron-vendors.cache.json";
 const config = {
   mode: process.env.MODE,
   base: "./",
-  root: join(process.cwd(), "src", "preload"),
+  root: PACKAGE_ROOT,
   resolve: {
     alias: [
       {
         find: "@shared",
-        replacement: resolve(__dirname, "../../src/shared"),
+        replacement: resolve(PACKAGE_ROOT, "../shared"),
       },
     ],
   },
-  // envDir: process.cwd(),
   build: {
     sourcemap: "inline",
     target: `chrome${chrome}`,
-    outDir: "../../src/preload/dist",
+    outDir: "dist",
     assetsDir: ".",
     minify: process.env.MODE !== "development",
     lib: {
-      entry: "../../src/preload/src/index.ts",
+      entry: "src/index.ts",
       formats: ["cjs"],
     },
     rollupOptions: {

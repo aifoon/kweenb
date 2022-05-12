@@ -1,8 +1,9 @@
 import { join, resolve } from "path";
 import { builtinModules } from "module";
 import react from "vite-preset-react";
-
 import { chrome } from "../../.electron-vendors.cache.json";
+
+const PACKAGE_ROOT = __dirname;
 
 /**
  * @type {import('vite').UserConfig}
@@ -11,21 +12,21 @@ import { chrome } from "../../.electron-vendors.cache.json";
 const config = {
   plugins: [react()],
   mode: process.env.MODE,
-  base: "./",
-  root: join(process.cwd(), "src", "renderer"),
+  base: "",
+  root: PACKAGE_ROOT,
   resolve: {
     alias: [
       {
         find: "@components",
-        replacement: resolve(__dirname, "../../src/renderer/src/components"),
+        replacement: resolve(PACKAGE_ROOT, "src/components"),
       },
       {
         find: "@renderer",
-        replacement: resolve(__dirname, "../../src/renderer"),
+        replacement: resolve(PACKAGE_ROOT),
       },
       {
         find: "@shared",
-        replacement: resolve(__dirname, "../../src/shared"),
+        replacement: resolve(PACKAGE_ROOT, "../shared"),
       },
     ],
   },
@@ -34,15 +35,13 @@ const config = {
       strict: true,
     },
   },
-  optimizeDeps: {
-    exclude: [],
-  },
   build: {
     sourcemap: true,
     target: `chrome${chrome}`,
-    outDir: resolve("./dist"),
+    outDir: "dist",
     assetsDir: ".",
     rollupOptions: {
+      input: join(PACKAGE_ROOT, "index.html"),
       external: [...builtinModules],
     },
     emptyOutDir: true,

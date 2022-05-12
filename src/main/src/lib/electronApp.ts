@@ -37,7 +37,7 @@ export default class ElectronApp {
       process.env.NODE_ENV === "development" ||
       process.env.DEBUG_PROD === "true";
     this.isProduction = process.env.NODE_ENV === "production";
-    this.port = process.env.PORT || 3099;
+    this.port = process.env.VITE_DEV_SERVER_URL || 3000;
   }
 
   /**
@@ -52,7 +52,10 @@ export default class ElectronApp {
       url.pathname = htmlFileName;
       return url.href;
     }
-    return `file://${path.resolve(__dirname, "../renderer/", htmlFileName)}`;
+    return new URL(
+      "../renderer/dist/index.html",
+      `file://${__dirname}`
+    ).toString();
   }
 
   /**
@@ -63,7 +66,7 @@ export default class ElectronApp {
   async createWindow(): Promise<BrowserWindow | null> {
     // create an internal variable to work with
     let browserWindow: BrowserWindow | null = null;
-    console.log(path.join(__dirname));
+
     // create a new main window
     browserWindow = new BrowserWindow({
       show: false,
@@ -73,7 +76,7 @@ export default class ElectronApp {
       webPreferences: {
         nativeWindowOpen: true,
         webviewTag: false,
-        preload: path.join(__dirname, "../src/preload/dist/index.cjs"),
+        preload: path.join(__dirname, "../../preload/dist/index.cjs"),
       },
     });
 
@@ -96,12 +99,6 @@ export default class ElectronApp {
     // creates the menu
     const menuBuilder = new MenuBuilder(browserWindow, this.isDevelopment);
     menuBuilder.buildMenu();
-
-    // open urls in the user's browser
-    // browserWindow.webContents.on("new-window", (event, url) => {
-    //   event.preventDefault();
-    //   shell.openExternal(url);
-    // });
 
     // sets the mainWindow in a global state
     KweenBGlobal.kweenb = new KweenB(browserWindow);
