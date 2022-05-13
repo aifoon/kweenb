@@ -6,7 +6,9 @@ import {
   killAllProcesses,
   startJackDmpAsync,
   startJacktripClientAsync,
+  isJacktripRunning,
 } from "@zwerm3/jack";
+import * as log from "electron-log";
 import SettingHelpers from "./SettingHelpers";
 
 /**
@@ -62,6 +64,7 @@ const startJackWithJacktripClient = async () => {
   await startJackDmpAsync(jack, {
     onLog: async (message) => {
       console.log(message);
+      log.info(message);
     },
   });
 
@@ -72,6 +75,7 @@ const startJackWithJacktripClient = async () => {
   await startJacktripClientAsync(jacktrip, {
     onLog: async (message) => {
       console.log(message);
+      log.info(message);
     },
     softwareVersion: "1.5.3",
   });

@@ -14,13 +14,16 @@ There are three project that needs to be build in order to compile into OS binar
 
 ## Scripts
 
-- `dev` - Starts a development server with vite and watches for changes.
-- `build` - Builds a project, minimalizing the code and adds this to a /dist folder.
-- `compile:mac` - Compile for macOS.
+- `watch` - Starts a development server with vite and watches for changes.
+- `build` - Builds the main, preload and renderer code.
+- `build:main` - Builds the main code.
+- `build:preload` - Builds the preload code.
+- `build:renderer` - Builds the renderer code.
+- `compile` - Compile the binaries.
 - `typecheck` - Typecheck the main, preload and renderer project.
-- `typecheck-main`- Typechecks the main project.
-- `typecheck-preload`- Typechecks the preload project.
-- `typecheck-renderer`- Typechecks the renderer project.
+- `typecheck:main`- Typechecks the main project.
+- `typecheck:preload`- Typechecks the preload project.
+- `typecheck:renderer`- Typechecks the renderer project.
 
 ## Authors
 

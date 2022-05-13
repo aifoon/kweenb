@@ -5,6 +5,7 @@
 import path from "path";
 import { URL } from "url";
 import { BrowserWindow } from "electron";
+
 import MenuBuilder from "./Menu";
 import { KweenB, KweenBGlobal } from "../kweenb";
 

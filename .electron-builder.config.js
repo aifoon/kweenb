@@ -18,10 +18,6 @@ const config = {
     buildResources: "buildResources",
   },
   files: ["src/**/dist/**"],
-  mac: {
-    target: "dmg",
-    category: "public.app-category.music",
-  },
   extraMetadata: {
     version: process.env.VITE_APP_VERSION,
   },

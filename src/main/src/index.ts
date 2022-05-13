@@ -24,8 +24,8 @@ import firstBoot from "./firstboot";
  * Get the resources path
  */
 const resourcePath = app.isPackaged
-  ? path.join(process.resourcesPath, "assets")
-  : path.join(__dirname, "../../assets");
+  ? path.join(__dirname, "..", "..", "..")
+  : path.join(__dirname, "..", "..", "..", "buildResources");
 
 /**
  * Last thing to do when the window is closed
@@ -46,7 +46,7 @@ const initApp = async () => {
     // when the application is ready
     await app.whenReady();
 
-    // instell react extension
+    // install react extension
     // await installExtension(REACT_DEVELOPER_TOOLS);
 
     // check if the first start script ran before going further
@@ -56,7 +56,7 @@ const initApp = async () => {
     const electronApp = new ElectronApp({
       browserWidth: 1024, // sets the browser width
       browserHeight: 728, // sets the browser height
-      iconPath: path.join(resourcePath, "icon.png"), // sets the app icon
+      iconPath: path.join(resourcePath, "icon.icns"), // sets the app icon
       installExtensions: false, // shall we install react dev tools?
     });
 

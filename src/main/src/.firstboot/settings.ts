@@ -9,15 +9,15 @@ export default [
   },
   {
     key: "beeJackInputChannels",
-    value: "2"
+    value: "-1"
   },
   {
     key: "beeJackOutputChannels",
-    value: "2"
+    value: "-1"
   },
   {
     key: "beeJackBufferSize",
-    value: "256"
+    value: "512"
   },
   {
     key: "beeJackSampleRate",
@@ -25,7 +25,7 @@ export default [
   },
   {
     key: "beeJackPeriods",
-    value: "2"
+    value: "-1"
   },
   {
     key: "beeJacktripBitRate",
@@ -33,7 +33,7 @@ export default [
   },
   {
     key: "beeJacktripQueueBufferLength",
-    value: "4"
+    value: "32"
   },
   {
     key: "beeJacktripRedundancy",
@@ -41,7 +41,7 @@ export default [
   },
   {
     key: "beeJacktripChannels",
-    value: "2"
+    value: "1"
   },
   {
     key: "beeJacktripSendChannels",
@@ -57,23 +57,23 @@ export default [
   },
   {
     key: "kweenbMqttBroker",
-    value: "mqtt://localhost:1883"
+    value: "mqtt://192.168.0.143:1883"
   },
   {
     key: "kweenbJackDevice",
-    value: "hw:Device"
+    value: ""
   },
   {
     key: "kweenbJackInputChannels",
-    value: "2"
+    value: "-1"
   },
   {
     key: "kweenbJackOutputChannels",
-    value: "2"
+    value: "-1"
   },
   {
     key: "kweenbJackBufferSize",
-    value: "256"
+    value: "128"
   },
   {
     key: "kweenbJackSampleRate",
@@ -81,7 +81,7 @@ export default [
   },
   {
     key: "kweenbJackPeriods",
-    value: "2"
+    value: "64"
   },
   {
     key: "kweenbJacktripBitRate",
@@ -93,7 +93,7 @@ export default [
   },
   {
     key: "kweenbJacktripQueueBufferLength",
-    value: "4"
+    value: "32"
   },
   {
     key: "kweenbJacktripRedundancy",
@@ -101,11 +101,11 @@ export default [
   },
   {
     key: "kweenbJacktripSendChannels",
-    value: "16"
+    value: "20"
   },
   {
     key: "kweenbJacktripReceiveChannels",
-    value: "16"
+    value: "1"
   },
   {
     key: "kweenbJacktripRealtimePriority",
@@ -113,6 +113,6 @@ export default [
   },
   {
     key: "thekweenIpAddress",
-    value: "127.0.0.1"
+    value: "192.168.0.143"
   }
 ]

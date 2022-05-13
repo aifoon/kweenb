@@ -28,7 +28,6 @@ const beforeFirstBoot = async () => {
 const afterFirstBoot = () => {
   try {
     const installedFile = path.join(MAIN_PATH, "installed");
-    console.log(installedFile);
     const d = new Date();
     fs.writeFileSync(
       installedFile,
