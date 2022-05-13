@@ -6,7 +6,7 @@
 import path from "path";
 import fs from "fs";
 import { Utils } from "@shared/utils";
-import { MAIN_SRC_PATH } from "./consts";
+import { MAIN_PATH } from "./consts";
 import settings from "./.firstboot/settings";
 import Setting from "./models/Setting";
 
@@ -27,7 +27,8 @@ const beforeFirstBoot = async () => {
  */
 const afterFirstBoot = () => {
   try {
-    const installedFile = path.join(MAIN_SRC_PATH, ".firstboot", "installed");
+    const installedFile = path.join(MAIN_PATH, "installed");
+    console.log(installedFile);
     const d = new Date();
     fs.writeFileSync(
       installedFile,
@@ -45,7 +46,7 @@ const afterFirstBoot = () => {
  * @returns boolean
  */
 const hasBootedForTheFirstTime = (): boolean =>
-  fs.existsSync(path.join(MAIN_SRC_PATH, ".firstboot", "installed"));
+  fs.existsSync(path.join(MAIN_PATH, "installed"));
 
 /**
  * Seeding the default settings
