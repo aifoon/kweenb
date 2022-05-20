@@ -19,6 +19,7 @@ import {
   registerMethods,
 } from "./register";
 import firstBoot from "./firstboot";
+import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 
 /**
  * Get the resources path
@@ -30,7 +31,7 @@ const resourcePath = app.isPackaged
 /**
  * Last thing to do when the window is closed
  */
-app.on("window-all-closed", () => {
+app.on("window-all-closed", async () => {
   // Do not respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform === "darwin") {
@@ -80,6 +81,17 @@ const initApp = async () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) electronApp.createWindow();
+    });
+
+    /**
+     * Before quiting, close the kweenb application by killing all other processes
+     */
+    app.on("before-quit", async (event: any) => {
+      event.preventDefault();
+      if (mainWindow && !mainWindow.isDestroyed)
+        mainWindow.webContents.send("closing");
+      await KweenBHelpers.closeApplication();
+      app.exit(0);
     });
   } catch (e: any) {
     console.error(e.message);

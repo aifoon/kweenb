@@ -67,6 +67,9 @@ declare global {
         unsubscribe(topic: string);
       };
       readonly events: {
+        onClosing(
+          callback: (event: IpcMessageEvent, error: IError) => void
+        ): () => void;
         onError(
           callback: (event: IpcMessageEvent, error: IError) => void
         ): () => void;

@@ -6,10 +6,33 @@ import {
   killAllProcesses,
   startJackDmpAsync,
   startJacktripClientAsync,
-  isJacktripRunning,
 } from "@zwerm3/jack";
 import * as log from "electron-log";
+import { BeeActiveState } from "@shared/enums";
 import SettingHelpers from "./SettingHelpers";
+import BeeHelpers from "./BeeHelpers";
+import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
+
+/**
+ * This will kill all processes (on bees/kweenb/hive)
+ */
+const closeApplication = async () => {
+  // close all the bees
+  const bees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+  const beeKillPromises = bees.map(async (bee) =>
+    Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress)
+  );
+  await Promise.all(beeKillPromises);
+
+  // close the hub/hive
+  const settings = await SettingHelpers.getAllSettings();
+  await Zwerm3ApiHelpers.killJackAndJacktrip(
+    settings.theKweenSettings.ipAddress
+  );
+
+  // close kweenb
+  await killAllProcesses();
+};
 
 /**
  * Kill all Jack and Jacktrip processes
@@ -82,6 +105,7 @@ const startJackWithJacktripClient = async () => {
 };
 
 export default {
+  closeApplication,
   killJackAndJacktrip,
   startJackWithJacktripClient,
 };

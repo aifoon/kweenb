@@ -3,19 +3,25 @@ import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { TaskList } from "@components/TaskList";
 import { TaskListItemState } from "@components/TaskList/TaskListItem";
 import { Flex } from "@components/Flex";
-import { Button, ButtonGroup, ButtonType, ButtonUse } from "@components/Buttons";
+import {
+  Button,
+  ButtonGroup,
+  ButtonType,
+  ButtonUse,
+  ButtonSize,
+} from "@components/Buttons";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 
-interface BuildHiveModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
-}
+interface BuildHiveModalProps
+  extends Pick<BaseModalProps, "open" | "onClose"> {}
 
-export const BuildHiveModal = ({
-  open,
-  onClose,
-}: BuildHiveModalProps) => {
+export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
+  const [isBuilding, setIsBuilding] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [activeIndexState, setActiveIndexState] = useState(TaskListItemState.Active);
+  const [activeIndexState, setActiveIndexState] = useState(
+    TaskListItemState.Active
+  );
 
   useEffect(() => setIsOpen(open), [open]);
 
@@ -23,10 +29,14 @@ export const BuildHiveModal = ({
     // Set the default active state to active
     setActiveIndexState(TaskListItemState.Active);
 
+    // Set building state to true
+    setIsBuilding(true);
+
     /* Check if The Kween is online */
     setActiveIndex(0);
     const theKween = await window.kweenb.methods.fetchTheKween();
-    if(!theKween.isOnline) {
+    if (!theKween.isOnline) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -34,8 +44,9 @@ export const BuildHiveModal = ({
     /* Check if zwerm3 API is running on The Kween */
     setActiveIndex(1);
     const isZwerm3ApiRunningOnTheKween =
-        await window.kweenb.methods.isZwerm3ApiRunningOnTheKween();
+      await window.kweenb.methods.isZwerm3ApiRunningOnTheKween();
     if (!isZwerm3ApiRunningOnTheKween) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -43,12 +54,14 @@ export const BuildHiveModal = ({
     /* Check if all active bees are online */
     setActiveIndex(2);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
-    if(!activeBees || activeBees.length === 0) {
+    if (!activeBees || activeBees.length === 0) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
     const hasOfflineBees = activeBees.filter((bee) => !bee.isOnline).length > 0;
-    if(hasOfflineBees) {
+    if (hasOfflineBees) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -56,8 +69,9 @@ export const BuildHiveModal = ({
     /* Check if zwerm3 API is running on active bees */
     setActiveIndex(3);
     const hasBeesWithoutZwerm3ApiRunning =
-        activeBees.filter((bee) => !bee.isApiOn).length > 0;
-    if(hasBeesWithoutZwerm3ApiRunning) {
+      activeBees.filter((bee) => !bee.isApiOn).length > 0;
+    if (hasBeesWithoutZwerm3ApiRunning) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -95,7 +109,8 @@ export const BuildHiveModal = ({
     /* Validate if the hive contains all bees and kweenb */
     setActiveIndex(10);
     const isValid = await window.kweenb.methods.validateHive();
-    if(!isValid) {
+    if (!isValid) {
+      setIsBuilding(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -104,28 +119,36 @@ export const BuildHiveModal = ({
     setActiveIndex(11);
     await window.kweenb.methods.makeAudioConnections();
 
-
     /* Close the modal */
     setActiveIndex(-1);
+
+    // Set building state to false
+    setIsBuilding(true);
+
+    // Close the modal
     onClose();
-  }, [])
+  }, []);
 
   return (
     <BaseModal open={isOpen} onClose={onClose}>
-      <TaskList tasks={[
-        'Check if The Kween is online',
-        'Check if zwerm3 API is running on The Kween',
-        'Check if all active bees are online',
-        'Check if zwerm3 API is running on active bees',
-        'Kill Jack & Jacktrip processes on The Kween',
-        'Kill Jack & Jacktrip processes on active bees',
-        'Start hub server on The Kween',
-        'Start Jack & Jacktrip on active bees',
-        'Kill Jack & Jacktrip processes on kweenb',
-        'Start Jack & Jacktrip on kweenb',
-        'Validate if the hive contains all bees and kweenb',
-        'Make all audio connections on The Kween'
-      ]} activeIndex={activeIndex} activeIndexState={activeIndexState} />
+      <TaskList
+        tasks={[
+          "Check if The Kween is online",
+          "Check if zwerm3 API is running on The Kween",
+          "Check if all active bees are online",
+          "Check if zwerm3 API is running on active bees",
+          "Kill Jack & Jacktrip processes on The Kween",
+          "Kill Jack & Jacktrip processes on active bees",
+          "Start hub server on The Kween",
+          "Start Jack & Jacktrip on active bees",
+          "Kill Jack & Jacktrip processes on kweenb",
+          "Start Jack & Jacktrip on kweenb",
+          "Validate if the hive contains all bees and kweenb",
+          "Make all audio connections on The Kween",
+        ]}
+        activeIndex={activeIndex}
+        activeIndexState={activeIndexState}
+      />
       <ConfirmModalFooter>
         <Flex justifyContent="flex-end">
           <ButtonGroup>
@@ -133,6 +156,7 @@ export const BuildHiveModal = ({
               type="button"
               onClick={onClose}
               buttonType={ButtonType.TertiaryWhite}
+              buttonSize={ButtonSize.Small}
             >
               Cancel
             </Button>
@@ -140,6 +164,8 @@ export const BuildHiveModal = ({
               type="button"
               onClick={() => buildHive()}
               buttonUse={ButtonUse.Dark}
+              disabled={isBuilding}
+              buttonSize={ButtonSize.Small}
             >
               Start
             </Button>

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
 import { useShowState } from "../hooks/useShowState";
-import { BuildHiveModal } from "../pages/BuildHiveModal/BuildHiveModal";
+import { BuildHiveModal, CleanHiveModal } from "../pages/Modals";
 
 interface AppContextProviderProps {
   children: React.ReactNode
@@ -17,6 +17,7 @@ interface AppContextProviderProps {
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [openBuildSwarmModal, setOpenBuildSwarmModal] = useState<boolean>(false);
+  const [openCleanSwarmModal, setOpenCleanSwarmModal] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastMessage>({ message: "", severity: "info"});
   const { open: openToast, handleOpen: handleOpenToast, handleClose: handleCloseToast } = useShowState(false);
 
@@ -65,10 +66,17 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
         });
       }
     )
+
+    // Handle the closing request
+    window.kweenb.events.onClosing(
+      (event) => {
+        setLoading(true);
+      }
+    )
   }, [])
 
   return (
-    <AppContext.Provider value={{ setLoading, showToast, setOpenBuildSwarmModal }}>
+    <AppContext.Provider value={{ setLoading, showToast, setOpenBuildSwarmModal, setOpenCleanSwarmModal }}>
       {/* The General Loader for the whole app */}
       {loading && <Loader />}
 
@@ -89,6 +97,9 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
 
       {/* The Build hive modal */}
       <BuildHiveModal open={openBuildSwarmModal} onClose={() => setOpenBuildSwarmModal(false)} />
+
+      {/* The Clean hive modal */}
+      <CleanHiveModal open={openCleanSwarmModal} onClose={() => setOpenCleanSwarmModal(false)} />
 
       {/* The application itself */}
       {children}

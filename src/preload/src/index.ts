@@ -119,15 +119,8 @@ contextBridge.exposeInMainWorld("kweenb", {
     unsubscribe: (topic: string) => ipcRenderer.send("mqtt:unsubscribe", topic),
   },
   events: {
-    onUpdateBees: (callback: any) => {
-      const channel = "update-bees";
-      ipcRenderer.on(channel, callback);
-      return () => ipcRenderer.removeAllListeners(channel);
-    },
-    onUpdateBee: (callback: any) => {
-      const channel = "update-bee";
-      ipcRenderer.on(channel, callback);
-      return () => ipcRenderer.removeAllListeners(channel);
+    onClosing: (callback: any) => {
+      ipcRenderer.on("closing", callback);
     },
     onError: (callback: any) => {
       ipcRenderer.on("error", callback);
@@ -152,6 +145,16 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     onSuccess: (callback: any) => {
       ipcRenderer.on("success", callback);
+    },
+    onUpdateBees: (callback: any) => {
+      const channel = "update-bees";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
+    onUpdateBee: (callback: any) => {
+      const channel = "update-bee";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
     },
   },
 });
