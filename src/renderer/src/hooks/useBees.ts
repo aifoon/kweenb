@@ -139,6 +139,19 @@ export function useBees() {
     })();
   }, []);
 
+  /**
+   * When mouting, listen for imported bees
+   */
+  useEffect(() => {
+    const removeEventListener = window.kweenb.events.onImportedBees(() => {
+      setLoading(true);
+      fetchActiveBees();
+      fetchInActiveBees();
+      setLoading(false);
+    });
+    return () => removeEventListener();
+  }, []);
+
   return {
     loading,
     activeBees,

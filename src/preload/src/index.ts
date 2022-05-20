@@ -132,6 +132,16 @@ contextBridge.exposeInMainWorld("kweenb", {
     onError: (callback: any) => {
       ipcRenderer.on("error", callback);
     },
+    onImportedBees: (callback: any) => {
+      const channel = "imported-bees";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
+    onImportedSettings: (callback: any) => {
+      const channel = "imported-settings";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
     onInfo: (callback: any) => {
       ipcRenderer.on("info", callback);
     },

@@ -1,4 +1,12 @@
-import { app, Menu, BrowserWindow, MenuItemConstructorOptions } from "electron";
+import {
+  app,
+  Menu,
+  BrowserWindow,
+  MenuItemConstructorOptions,
+  dialog,
+} from "electron";
+import BeeHelpers from "./KweenB/BeeHelpers";
+import SettingsHelper from "./KweenB/SettingHelpers";
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -87,6 +95,76 @@ export default class MenuBuilder {
       ],
     };
 
+    // The file menu
+    const subMenuFile: DarwinMenuItemConstructorOptions = {
+      label: "File",
+      submenu: [
+        {
+          label: "Export bees",
+          click: () => {
+            // Opens file dialog looking for bees data
+            dialog
+              .showSaveDialog(this.mainWindow, {
+                defaultPath: "kweenb-bees.json",
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                BeeHelpers.exportBees(result.filePath || "");
+              });
+          },
+        },
+        {
+          label: "Import bees",
+          click: () => {
+            // Opens file dialog looking for the bees data
+            dialog
+              .showOpenDialog(this.mainWindow, {
+                properties: ["openFile"],
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                if (result.filePaths && result.filePaths.length > 0) {
+                  BeeHelpers.importBees(result.filePaths[0]);
+                  this.mainWindow.webContents.send("imported-bees");
+                }
+              });
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Export settings",
+          click: () => {
+            // Opens file dialog looking for settings data
+            dialog
+              .showSaveDialog(this.mainWindow, {
+                defaultPath: "kweenb-settings.json",
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                SettingsHelper.exportSettings(result.filePath || "");
+              });
+          },
+        },
+        {
+          label: "Import settings",
+          click: () => {
+            // Opens file dialog looking for the bees data
+            dialog
+              .showOpenDialog(this.mainWindow, {
+                properties: ["openFile"],
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                if (result.filePaths && result.filePaths.length > 0) {
+                  SettingsHelper.importSettings(result.filePaths[0]);
+                  this.mainWindow.webContents.send("imported-settings");
+                }
+              });
+          },
+        },
+      ],
+    };
+
     // The Developer View Menu
     const subMenuViewDev: MenuItemConstructorOptions = {
       label: "View",
@@ -145,6 +223,7 @@ export default class MenuBuilder {
 
     return [
       subMenuAbout,
+      subMenuFile,
       this.isDevelopment ? subMenuViewDev : subMenuViewProd,
       subMenuWindow,
     ];

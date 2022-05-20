@@ -5,6 +5,7 @@
 import { BeeActiveState } from "@shared/enums";
 import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
 import ping from "ping";
+import fs from "fs";
 import Bee from "../../models/Bee";
 import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
 import zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
@@ -253,8 +254,69 @@ const setBeeActive = async (id: number, active: boolean) => {
   await Bee.update({ isActive: active }, { where: { id } });
 };
 
+/**
+ * Export the bees to a json file
+ */
+const exportBees = async (filePath: string) => {
+  // if no file is given, do not write
+  if (!filePath) return;
+
+  // get all the bees
+  const bees = await getAllBees(false, BeeActiveState.ALL);
+
+  // map bees to raw data
+  const beeData = bees.map(({ name, ipAddress, isActive, id }) => ({
+    id,
+    name,
+    ipAddress,
+    isActive,
+  }));
+
+  // write the file
+  fs.writeFileSync(filePath, JSON.stringify(beeData), "utf8");
+};
+
+/**
+ * Import the bees in the database
+ * @param filePath
+ */
+const importBees = async (filePath: string) => {
+  // if no files
+  if (!filePath) return;
+
+  // get the data from file
+  const data = fs.readFileSync(filePath);
+
+  // convert to json
+  const beeData = JSON.parse(data.toString());
+
+  // validate the data
+  if (!Array.isArray(beeData) || beeData.length === 0) return;
+
+  // create a helper function
+  const equals = (a: string[], b: string[]) =>
+    JSON.stringify(a) === JSON.stringify(b);
+
+  // create the expected array result
+  const expectedObjectKeys = ["id", "name", "ipAddress", "isActive"];
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const bee of beeData) {
+    const objectKeys = Object.keys(bee);
+    if (!equals(objectKeys, expectedObjectKeys)) return;
+  }
+
+  // delete all data and replace with the file's data
+  await Bee.destroy({ where: {} });
+
+  // loop over bees and create the bee
+  beeData.forEach(async (bee) => Bee.create(bee));
+};
+
 export default {
   createBee,
+  exportBees,
+  importBees,
   getAllBees,
   getAllBeesData,
   getBee,

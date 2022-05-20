@@ -70,6 +70,12 @@ declare global {
         onError(
           callback: (event: IpcMessageEvent, error: IError) => void
         ): () => void;
+        onImportedBees(
+          callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
+        onImportedSettings(
+          callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
         ): () => void;

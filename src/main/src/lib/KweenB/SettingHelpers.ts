@@ -3,6 +3,7 @@
  */
 
 import { ISetting, ISettings } from "@shared/interfaces";
+import fs from "fs";
 import Setting from "../../models/Setting";
 
 /**
@@ -90,4 +91,59 @@ const updateSetting = async (setting: ISetting) => {
   await Setting.update(setting, { where: { key: setting.key } });
 };
 
-export default { getAllSettings, updateSetting };
+/**
+ * Export the settings to a json file
+ */
+const exportSettings = async (filePath: string) => {
+  // if no file is given, do not write
+  if (!filePath) return;
+
+  // write the file
+  fs.writeFileSync(filePath, JSON.stringify(await Setting.findAll()), "utf8");
+};
+
+/**
+ * Import the settings in the database
+ * @param filePath The filepath
+ */
+const importSettings = async (filePath: string) => {
+  // if no file is given to do not import
+  if (!filePath) return;
+
+  // get the data from file
+  const data = fs.readFileSync(filePath);
+
+  // convert to json
+  const settingsData = JSON.parse(data.toString());
+
+  // validate the data
+  if (!Array.isArray(settingsData) || settingsData.length === 0) return;
+
+  // create a helper function
+  const equals = (a: string[], b: string[]) =>
+    JSON.stringify(a) === JSON.stringify(b);
+
+  // create the expected array result
+  const expectedObjectKeys = ["id", "key", "value", "createdAt", "updatedAt"];
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const setting of settingsData) {
+    const objectKeys = Object.keys(setting);
+    if (!equals(objectKeys, expectedObjectKeys)) return;
+  }
+
+  // loop over settings and update
+  settingsData.forEach(async (setting) => {
+    await Setting.update(
+      { value: setting.value },
+      { where: { key: setting.key } }
+    );
+  });
+};
+
+export default {
+  exportSettings,
+  importSettings,
+  getAllSettings,
+  updateSetting,
+};

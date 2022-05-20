@@ -39,5 +39,19 @@ export function useSettings() {
     })();
   }, []);
 
+  /**
+   * When mouting, listen for imported settings
+   */
+  useEffect(() => {
+    const removeEventListener = window.kweenb.events.onImportedSettings(
+      async () => {
+        setLoading(true);
+        await reloadSettings();
+        setLoading(false);
+      }
+    );
+    return () => removeEventListener();
+  }, []);
+
   return { loading, settings, updateSetting, reloadSettings };
 }

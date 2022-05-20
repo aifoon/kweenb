@@ -5,7 +5,6 @@
 
 import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
-import * as mqtt from "mqtt";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { MQTT } from "./lib/Mqtt";
