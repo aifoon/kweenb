@@ -123,7 +123,7 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
     setActiveIndex(-1);
 
     // Set building state to false
-    setIsBuilding(true);
+    setIsBuilding(false);
 
     // Close the modal
     onClose();
@@ -152,14 +152,16 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
       <ConfirmModalFooter>
         <Flex justifyContent="flex-end">
           <ButtonGroup>
-            <Button
-              type="button"
-              onClick={onClose}
-              buttonType={ButtonType.TertiaryWhite}
-              buttonSize={ButtonSize.Small}
-            >
-              Cancel
-            </Button>
+            {!isBuilding && (
+              <Button
+                type="button"
+                onClick={onClose}
+                buttonType={ButtonType.TertiaryWhite}
+                buttonSize={ButtonSize.Small}
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="button"
               onClick={() => buildHive()}

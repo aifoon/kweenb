@@ -54,7 +54,7 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
     setActiveIndex(-1);
 
     // Set building state to false
-    setIsCleaning(true);
+    setIsCleaning(false);
 
     // Close the modal
     onClose();
@@ -74,14 +74,16 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
       <ConfirmModalFooter>
         <Flex justifyContent="flex-end">
           <ButtonGroup>
-            <Button
-              type="button"
-              onClick={onClose}
-              buttonType={ButtonType.TertiaryWhite}
-              buttonSize={ButtonSize.Small}
-            >
-              Cancel
-            </Button>
+            {!isCleaning && (
+              <Button
+                type="button"
+                onClick={onClose}
+                buttonType={ButtonType.TertiaryWhite}
+                buttonSize={ButtonSize.Small}
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="button"
               onClick={() => cleanHive()}
