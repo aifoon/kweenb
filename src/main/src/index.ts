@@ -88,8 +88,9 @@ const initApp = async () => {
      */
     app.on("before-quit", async (event: any) => {
       event.preventDefault();
-      if (mainWindow && !mainWindow.isDestroyed)
+      if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("closing");
+      }
       await KweenBHelpers.closeApplication();
       app.exit(0);
     });

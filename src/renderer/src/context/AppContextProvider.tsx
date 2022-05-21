@@ -70,6 +70,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     // Handle the closing request
     window.kweenb.events.onClosing(
       (event) => {
+      console.log('test');
         setLoading(true);
       }
     )
