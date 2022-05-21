@@ -40,6 +40,20 @@ export function useBee(id: number) {
   }, [bee]);
 
   /**
+   * Hook on current hive (if active)
+   */
+  const hookOnCurrentHive = useCallback(async () => {
+    try {
+      appContext.setLoading(true);
+      await window.kweenb.methods.hookBeeOnCurrentHive(bee);
+    } catch (e: any) {
+      console.error(`hookOnCurrentHive: ${e.message}`);
+    } finally {
+      appContext.setLoading(false);
+    }
+  }, [bee]);
+
+  /**
    * Kill Jack
    */
   const killJack = useCallback(async () => {
@@ -145,6 +159,7 @@ export function useBee(id: number) {
 
   return {
     bee,
+    hookOnCurrentHive,
     killJack,
     killJacktrip,
     killJackAndJacktrip,

@@ -24,6 +24,7 @@ import {
   fetchInActiveBeesData,
   saveConfig,
   startJackWithJacktripClient as startJackWithJacktripClientBee,
+  hookOnCurrentHive,
 } from "./controllers/bee";
 import {
   startJackWithJacktripClient as startJackWithJacktripClientKweenB,
@@ -66,6 +67,7 @@ export const registerMethods = () => {
   ipcMain.handle("bee:killJackAndJacktrip", killJackAndJacktrip);
   ipcMain.handle("bee:killJack", killJack);
   ipcMain.handle("bee:killJacktrip", killJacktrip);
+  ipcMain.handle("bee:hookOnCurrentHive", hookOnCurrentHive);
   ipcMain.handle("bee:startJack", startJack);
   ipcMain.handle("bee:updateBee", updateBee);
   ipcMain.handle("bee:saveConfig", saveConfig);

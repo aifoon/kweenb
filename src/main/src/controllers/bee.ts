@@ -10,6 +10,7 @@ import beeHelpers from "../lib/KweenB/BeeHelpers";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
+import BeeHelpers from "../lib/KweenB/BeeHelpers";
 
 /**
  * Managing the beepoller, start and stopping the interval
@@ -118,6 +119,25 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
     );
   } catch (e: any) {
     throw new KweenBException({ where: "deleteBee()", message: e.message });
+  }
+};
+
+/**
+ * Hook this bee on the hive (if hive exists)
+ * @param event
+ * @param bee
+ */
+export const hookOnCurrentHive = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await BeeHelpers.hookOnCurrentHive(bee.id);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "hookOnCurrentHive()", message: e.message },
+      true
+    );
   }
 };
 

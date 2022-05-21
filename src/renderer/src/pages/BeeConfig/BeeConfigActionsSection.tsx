@@ -10,7 +10,7 @@ export const BeeConfigActionsSection = ({
   title,
   children,
 }: BeeConfigActionsSectionProps) => (
-  <Grid container spacing={0}>
+  <Grid alignItems="center" container spacing={2}>
     <Grid item xs={12} md={6} lg={7} xl={9}>
       {title}
     </Grid>

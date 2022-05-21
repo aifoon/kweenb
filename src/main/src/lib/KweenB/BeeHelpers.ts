@@ -7,8 +7,14 @@ import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
 import ping from "ping";
 import fs from "fs";
 import Bee from "../../models/Bee";
-import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
-import zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
+import {
+  BEE_NOT_ONLINE,
+  HIVE_DOES_NOT_CONTAIN_RECEIVE_CHANNEL,
+  NO_BEE_FOUND_WITH_ID,
+  ZWERM3_API_NOTRUNNING,
+} from "../Exceptions/ExceptionMessages";
+import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
+import TheKweenHelpers from "./TheKweenHelpers";
 import {
   DEFAULT_BEE_CONFIG,
   DEFAULT_BEE_STATUS,
@@ -28,7 +34,7 @@ const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
   if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
 
   // get the bee config
-  const beeConfig = await zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
+  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
 
   // return the configuration
   return beeConfig;
@@ -48,8 +54,8 @@ const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
 
   // get the statuses
   const beeStatus = {
-    isJackRunning: await zwerm3ApiHelpers.isJackRunning(bee.ipAddress),
-    isJacktripRunning: await zwerm3ApiHelpers.isJacktripRunning(bee.ipAddress),
+    isJackRunning: await Zwerm3ApiHelpers.isJackRunning(bee.ipAddress),
+    isJacktripRunning: await Zwerm3ApiHelpers.isJacktripRunning(bee.ipAddress),
   };
 
   // return the configuration
@@ -136,7 +142,7 @@ const getAllBees = async (
 
       // check if API is on
       const isApiOn = isOnline
-        ? await zwerm3ApiHelpers.isZwerm3ApiRunning(ipAddress)
+        ? await Zwerm3ApiHelpers.isZwerm3ApiRunning(ipAddress)
         : false;
 
       // return the bee, according to the IBee interface
@@ -219,7 +225,7 @@ const getBee = async (id: number): Promise<IBee> => {
   const isOnline = beeConnectivity.alive;
 
   // check if the api is on
-  const isApiOn = await zwerm3ApiHelpers.isZwerm3ApiRunning(bee.ipAddress);
+  const isApiOn = await Zwerm3ApiHelpers.isZwerm3ApiRunning(bee.ipAddress);
 
   // return the bee, according to the IBee interface
   return {
@@ -232,6 +238,50 @@ const getBee = async (id: number): Promise<IBee> => {
     config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
     status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
   };
+};
+
+/**
+ * Hook this bee on the hive (if hive exists)
+ * @param id
+ */
+const hookOnCurrentHive = async (id: number) => {
+  // sets the receive channel to check
+  const kweenbReceiveChannel = `kweenb:receive_${id}`;
+
+  // check if the hive has a kweenb receive channel for this bee
+  const hasKweenBReceiveChannel = await TheKweenHelpers.hasReceiveChannel(
+    kweenbReceiveChannel
+  );
+
+  // throw error if there's no kweenb receive channel available
+  if (!hasKweenBReceiveChannel)
+    throw new Error(
+      HIVE_DOES_NOT_CONTAIN_RECEIVE_CHANNEL(kweenbReceiveChannel)
+    );
+
+  // get the bee data
+  const bee = await getBee(id);
+
+  // validate if we found a Bee
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // validate if the bee is online
+  if (!bee.isOnline) throw new Error(BEE_NOT_ONLINE(id));
+
+  // validate if zwerm3api is running
+  if (!bee.isApiOn) throw new Error(ZWERM3_API_NOTRUNNING(bee.ipAddress));
+
+  // kill all jack processes on bee
+  await Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
+
+  // connect to hive
+  await Zwerm3ApiHelpers.startJackWithJacktripClient(bee.ipAddress, bee.name);
+
+  // make audio connections
+  await TheKweenHelpers.makeAudioConnection(
+    kweenbReceiveChannel,
+    `${bee.name}:send_1`
+  );
 };
 
 /**
@@ -322,5 +372,6 @@ export default {
   getBee,
   getBeeConfig,
   getBeeStatus,
+  hookOnCurrentHive,
   setBeeActive,
 };

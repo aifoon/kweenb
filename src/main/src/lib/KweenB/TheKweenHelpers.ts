@@ -37,6 +37,41 @@ const getTheKween = async (): Promise<ITheKween> => {
 };
 
 /**
+ * Checks if a certain receive channel is available in the hive
+ */
+const hasReceiveChannel = async (
+  receiveChannelName: string
+): Promise<boolean> => {
+  // get all the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // get the hubclients
+  const hubclients = await Zwerm3ApiHelpers.getHubClients(
+    settings.theKweenSettings.ipAddress
+  );
+
+  // check if th receive channel is available in the array
+  return hubclients.receiveChannels.includes(receiveChannelName);
+};
+
+/**
+ * Make one audio connection on the hive (the kween)
+ * @param source
+ * @param destination
+ */
+const makeAudioConnection = async (source: string, destination: string) => {
+  // get all the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // loop over active bees and make the connection
+  await Zwerm3ApiHelpers.connectChannel(
+    settings.theKweenSettings.ipAddress,
+    source,
+    destination
+  );
+};
+
+/**
  * Make the audio connections in the hive
  */
 const makeAudioConnections = async () => {
@@ -91,4 +126,10 @@ const validateHive = async (): Promise<boolean> => {
   return true;
 };
 
-export default { getTheKween, makeAudioConnections, validateHive };
+export default {
+  getTheKween,
+  hasReceiveChannel,
+  makeAudioConnection,
+  makeAudioConnections,
+  validateHive,
+};

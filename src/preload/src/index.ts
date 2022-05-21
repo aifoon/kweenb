@@ -75,6 +75,8 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("setting:fetchSettings"),
     fetchTheKween: (): Promise<ITheKween> =>
       ipcRenderer.invoke("thekween:fetchTheKween"),
+    hookBeeOnCurrentHive: (bee: IBee) =>
+      ipcRenderer.invoke("bee:hookOnCurrentHive", bee),
     isZwerm3ApiRunningOnTheKween: (): Promise<boolean> =>
       ipcRenderer.invoke("thekween:isZwerm3ApiRunningOnTheKween"),
     killJackAndJacktrip: (bee: IBee) =>

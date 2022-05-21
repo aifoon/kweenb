@@ -18,6 +18,7 @@ export const BeeConfig = () => {
   const numberizedId = Number(id) || 0;
   const {
     bee,
+    hookOnCurrentHive,
     killJack,
     killJacktrip,
     killJackAndJacktrip,
@@ -56,6 +57,7 @@ export const BeeConfig = () => {
               onStopJack={killJack}
               onStopJacktrip={killJacktrip}
               onKillJackAndJacktrip={killJackAndJacktrip}
+              onHookIntoCurrentHive={hookOnCurrentHive}
             />
             <BeeConfigSettings
               onUpdate={updateBeeSetting}

@@ -42,6 +42,7 @@ declare global {
         fetchBee(id: number): Promise<IBee>;
         fetchSettings(): Promise<ISettings>;
         fetchTheKween(): Promise<ITheKween>;
+        hookBeeOnCurrentHive(bee: Ibee): void;
         isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
