@@ -7,6 +7,7 @@ import {
   ISetting,
   ITheKween,
 } from "@shared/interfaces";
+import { AppMode } from "@shared/enums";
 
 declare global {
   interface Window {
@@ -31,33 +32,64 @@ declare global {
      */
     readonly kweenb: {
       readonly methods: {
+        /**
+         * Bee
+         */
+
+        // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
+        updateBee(bee: Partial<IBee>);
+        fetchBee(id: number): Promise<IBee>;
         fetchActiveBees(): Promise<IBee[]>;
         fetchActiveBeesData(): Promise<IBee[]>;
         fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
         fetchAllBeesData(): Promise<IBee[]>;
         fetchInActiveBees(): Promise<IBee[]>;
         fetchInActiveBeesData(): Promise<IBee[]>;
-        fetchBee(id: number): Promise<IBee>;
-        fetchSettings(): Promise<ISettings>;
-        fetchTheKween(): Promise<ITheKween>;
-        hookBeeOnCurrentHive(bee: Ibee): void;
-        isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
+
+        // JACK/JACKTRIP
         killJackAndJacktrip(bee: IBee): void;
         killJack(bee: IBee);
-        killJackAndJacktripOnKweenB(): void;
-        killJackAndJacktripOnTheKween(): void;
         killJacktrip(bee: IBee): void;
-        makeAudioConnections(): void;
-        saveConfig(bee: IBee, config: Partial<IBeeConfig>);
+        hookBeeOnCurrentHive(bee: Ibee): void;
+        makeP2PAudioConnectionBee(bee: IBee): void;
         startJack(bee: IBee): void;
-        startJackWithJacktripClientBee(bee: IBee): void;
-        startJackWithJacktripClientKweenB(): void;
-        startHubServerOnTheKween(): void;
-        updateBee(bee: Partial<IBee>);
+        startJackWithJacktripHubClientBee(bee: IBee): void;
+        startJackWithJacktripP2PServerBee(bee: IBee): void;
+
+        // CONFIG
+        saveConfig(bee: IBee, config: Partial<IBeeConfig>);
+
+        /**
+         * KweenB
+         */
+
+        killJackAndJacktripOnKweenB(): void;
+        startJackWithJacktripHubClientKweenB(): void;
+        startJackWithJacktripP2PClientKweenB(bee: IBee): void;
+        makeP2PAudioConnectionsKweenB(): void;
+        makeP2PAudioConnectionKweenB(bee: IBee): void;
+
+        /**
+         * Settings
+         */
+
+        // CRUD
+        fetchSettings(): Promise<ISettings>;
         updateSetting(setting: ISetting);
-        validateHive(): Promise<boolean>;
+
+        /**
+         * The Kween
+         */
+        theKween: {
+          fetchTheKween(): Promise<ITheKween>;
+          isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
+          killJackAndJacktripOnTheKween(): void;
+          startHubServerOnTheKween(): void;
+          validateHive(): Promise<boolean>;
+          makeHubAudioConnections(): void;
+        };
       };
       readonly actions: {
         hello(name: string): void;
@@ -68,6 +100,9 @@ declare global {
         unsubscribe(topic: string);
       };
       readonly events: {
+        onAppMode(
+          callback: (event: IpcMessageEvent, appMode: AppMode) => void
+        ): () => void;
         onClosing(
           callback: (event: IpcMessageEvent, error: IError) => void
         ): () => void;

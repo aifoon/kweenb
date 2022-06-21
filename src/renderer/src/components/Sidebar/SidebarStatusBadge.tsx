@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 
 export interface SidebarBadgeProps {
-  key?: string;
   text: string;
   status?: StatusBulletType;
 }

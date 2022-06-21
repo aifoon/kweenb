@@ -11,7 +11,7 @@ export function useTheKween() {
   const [thekween, setTheKween] = useState<ITheKween>();
 
   const fetchTheKweenState = useCallback(async () => {
-    const theKween = window.kweenb.methods.fetchTheKween();
+    const theKween = window.kweenb.methods.theKween.fetchTheKween();
     setTheKween(await theKween);
   }, []);
 

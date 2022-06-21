@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppContext } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const MakeAudioConnections = () => {
+export const StartJackWithJacktripHubClientOnKweenB = () => {
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
   const { appContext } = useAppContext();
@@ -10,9 +10,9 @@ export const MakeAudioConnections = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      await window.kweenb.methods.makeAudioConnections();
-      setOutput(`Audio connections were created`);
-      setOutputColor(`var(--green-status)`);
+      await window.kweenb.methods.startJackWithJacktripHubClientKweenB();
+      setOutput("Started Jack and Jacktrip client on KweenB");
+      setOutputColor("var(--green-status)");
     } catch (e: any) {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
@@ -23,7 +23,7 @@ export const MakeAudioConnections = () => {
 
   return (
     <Action
-      description="Make all audio connections on The Kween"
+      description="Start Jack and Jacktrip client on KweenB"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

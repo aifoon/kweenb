@@ -23,12 +23,17 @@ import {
   fetchActiveBeesData,
   fetchInActiveBeesData,
   saveConfig,
-  startJackWithJacktripClient as startJackWithJacktripClientBee,
+  startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
+  startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
   hookOnCurrentHive,
+  makeP2PAudioConnection as makeP2PAudioConnectionBee,
 } from "./controllers/bee";
 import {
-  startJackWithJacktripClient as startJackWithJacktripClientKweenB,
+  startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
   killJackAndJacktrip as killJackAndJacktripOnKweenB,
+  startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
+  makeP2PAudioConnections as makeP2PAudioConnectionsKweenB,
+  makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
 } from "./controllers/kweenb";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -39,7 +44,7 @@ import {
   fetchTheKween,
   isZwerm3ApiRunningOnTheKween,
   killJackAndJacktrip as killJackAndJacktripOnTheKween,
-  makeAudioConnections,
+  makeHubAudioConnections,
   startHubServer,
   validateHive,
 } from "./controllers/thekween";
@@ -55,8 +60,14 @@ export const registerActions = () => {
 };
 
 export const registerMethods = () => {
+  /**
+   * Bee
+   */
+
+  // CRUD BEE
   ipcMain.handle("bee:createBee", createBee);
   ipcMain.handle("bee:deleteBee", deleteBee);
+  ipcMain.handle("bee:updateBee", updateBee);
   ipcMain.handle("bee:fetchBee", fetchBee);
   ipcMain.handle("bee:fetchActiveBees", fetchActiveBees);
   ipcMain.handle("bee:fetchActiveBeesData", fetchActiveBeesData);
@@ -64,33 +75,69 @@ export const registerMethods = () => {
   ipcMain.handle("bee:fetchAllBeesData", fetchAllBeesData);
   ipcMain.handle("bee:fetchInActiveBees", fetchInActiveBees);
   ipcMain.handle("bee:fetchInActiveBeesData", fetchInActiveBeesData);
+
+  // JACK/JACKTRIP
   ipcMain.handle("bee:killJackAndJacktrip", killJackAndJacktrip);
   ipcMain.handle("bee:killJack", killJack);
   ipcMain.handle("bee:killJacktrip", killJacktrip);
   ipcMain.handle("bee:hookOnCurrentHive", hookOnCurrentHive);
+  ipcMain.handle("bee:makeP2PAudioConnection", makeP2PAudioConnectionBee);
   ipcMain.handle("bee:startJack", startJack);
-  ipcMain.handle("bee:updateBee", updateBee);
-  ipcMain.handle("bee:saveConfig", saveConfig);
   ipcMain.handle(
-    "bee:startJackWithJacktripClient",
-    startJackWithJacktripClientBee
+    "bee:startJackWithJacktripHubClient",
+    startJackWithJacktripHubClientBee
   );
+  ipcMain.handle(
+    "bee:startJackWithJacktripP2PServer",
+    startJackWithJacktripP2PServerBee
+  );
+
+  // CONFIG
+  ipcMain.handle("bee:saveConfig", saveConfig);
+
+  /**
+   * KweenB
+   */
+
+  // JACK/JACKTRIP
   ipcMain.handle("kweenb:killJackAndJacktrip", killJackAndJacktripOnKweenB);
   ipcMain.handle(
-    "kweenb:startJackWithJacktripClient",
-    startJackWithJacktripClientKweenB
+    "kweenb:startJackWithJacktripHubClient",
+    startJackWithJacktripHubClientKweenB
   );
+  ipcMain.handle(
+    "kweenb:startJackWithJacktripP2PClient",
+    startJackWithJacktripP2PClientKweenB
+  );
+  ipcMain.handle(
+    "kweenb:makeP2PAudioConnections",
+    makeP2PAudioConnectionsKweenB
+  );
+  ipcMain.handle("kweenb:makeP2PAudioConnection", makeP2PAudioConnectionKweenB);
+
+  /**
+   * Settings
+   */
+
+  // CRUD
   ipcMain.handle("setting:fetchSettings", fetchSettings);
   ipcMain.handle("setting:updateSetting", updateSetting);
-  ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
+
+  /**
+   * The Kween
+   */
+
+  // JACK/JACKTRIP
   ipcMain.handle("thekween:killJackAndJacktrip", killJackAndJacktripOnTheKween);
+  ipcMain.handle("thekween:startHubServer", startHubServer);
+  ipcMain.handle("thekween:makeHubAudioConnections", makeHubAudioConnections);
+  ipcMain.handle("thekween:validateHive", validateHive);
+
+  ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
   ipcMain.handle(
     "thekween:isZwerm3ApiRunningOnTheKween",
     isZwerm3ApiRunningOnTheKween
   );
-  ipcMain.handle("thekween:startHubServer", startHubServer);
-  ipcMain.handle("thekween:makeAudioConnections", makeAudioConnections);
-  ipcMain.handle("thekween:validateHive", validateHive);
 };
 
 export const registerIntervalWorkers = () => {

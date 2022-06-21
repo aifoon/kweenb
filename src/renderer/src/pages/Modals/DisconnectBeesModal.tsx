@@ -12,12 +12,15 @@ import {
 } from "@components/Buttons";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 
-interface CleanHiveModalProps
+interface DisconnectBeesModalProps
   extends Pick<BaseModalProps, "open" | "onClose"> {}
 
-export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
+export const DisconnectBeesModal = ({
+  open,
+  onClose,
+}: DisconnectBeesModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
-  const [isCleaning, setIsCleaning] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [activeIndexState, setActiveIndexState] = useState(
     TaskListItemState.Active
@@ -27,40 +30,36 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
 
   const closeModal = useCallback(() => {
     setActiveIndex(-1);
-    setIsCleaning(false);
+    setIsDisconnecting(false);
     onClose();
   }, []);
 
-  const cleanHive = useCallback(async () => {
+  const disconnectBees = useCallback(async () => {
     // Set the default active state to active
     setActiveIndexState(TaskListItemState.Active);
 
     // Set cleaning state to true
-    setIsCleaning(true);
+    setIsDisconnecting(true);
 
     /* Get the active bees */
     const activeBees = await window.kweenb.methods.fetchActiveBees();
 
-    /* Kill Jack & Jacktrip processes on The Kween */
-    setActiveIndex(0);
-    await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
-
     /* Kill Jack & Jacktrip processes on active bees */
-    setActiveIndex(1);
+    setActiveIndex(0);
     const killAllProcessesPromises = activeBees.map(async (bee) =>
       window.kweenb.methods.killJackAndJacktrip(bee)
     );
     await Promise.all(killAllProcessesPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(2);
+    setActiveIndex(1);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
     /* Close the modal */
     setActiveIndex(-1);
 
     // Set building state to false
-    setIsCleaning(false);
+    setIsDisconnecting(false);
 
     // Close the modal
     closeModal();
@@ -70,7 +69,6 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
     <BaseModal open={isOpen} onClose={closeModal}>
       <TaskList
         tasks={[
-          "Kill Jack & Jacktrip processes on The Kween",
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on kweenb",
         ]}
@@ -80,7 +78,7 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
       <ConfirmModalFooter>
         <Flex justifyContent="flex-end">
           <ButtonGroup>
-            {!isCleaning && (
+            {!isDisconnecting && (
               <Button
                 type="button"
                 onClick={onClose}
@@ -92,9 +90,9 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
             )}
             <Button
               type="button"
-              onClick={() => cleanHive()}
+              onClick={() => disconnectBees()}
               buttonUse={ButtonUse.Dark}
-              disabled={isCleaning}
+              disabled={isDisconnecting}
               buttonSize={ButtonSize.Small}
             >
               Start

@@ -1,8 +1,9 @@
 import { Loader } from "@components/Loader";
 import { Tab } from "@mui/material";
-import { useSettings } from "@renderer/src/hooks";
+import { useSettings, useAppContext } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
+import { AppMode } from "@shared/enums";
 import { PageHeader } from "../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import { SettingsBees } from "./SettingsBees";
@@ -11,6 +12,7 @@ import { SettingsTheKween } from "./SettingsTheKween";
 
 export const Settings = () => {
   const { loading, settings, reloadSettings } = useSettings();
+  const { appContext } = useAppContext();
   const [value, setValue] = useState(0);
 
   if (loading || !settings) return <Loader />;
@@ -28,7 +30,7 @@ export const Settings = () => {
       <Tabs value={value} onChange={handleChange}>
         <Tab label="Bee" />
         <Tab label="KweenB" />
-        <Tab label="The Kween" />
+        {appContext.appMode === AppMode.Hub && <Tab label="The Kween" />}
       </Tabs>
       <TabPanel value={value} index={0}>
         <SettingsBees beeAudioSettings={settings.beeAudioSettings} />
@@ -39,9 +41,11 @@ export const Settings = () => {
           kweenbAudioSettings={settings.kweenBAudioSettings}
         />
       </TabPanel>
-      <TabPanel value={value} index={2}>
-        <SettingsTheKween ipAddress={settings.theKweenSettings.ipAddress} />
-      </TabPanel>
+      {appContext.appMode === AppMode.Hub && (
+        <TabPanel value={value} index={2}>
+          <SettingsTheKween ipAddress={settings.theKweenSettings.ipAddress} />
+        </TabPanel>
+      )}
     </Z3Page>
   );
 };

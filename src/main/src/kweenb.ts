@@ -3,6 +3,7 @@
  * A KweenB instance that will control the requests coming from renderer
  */
 
+import { AppMode } from "@shared/enums";
 import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
@@ -15,8 +16,11 @@ import { MQTT } from "./lib/Mqtt";
 class KweenB {
   private _mainWindow: BrowserWindow;
 
+  private _appMode: AppMode;
+
   constructor(mainWindow: BrowserWindow) {
     this._mainWindow = mainWindow;
+    this._appMode = AppMode.P2P;
   }
 
   /**
@@ -25,6 +29,14 @@ class KweenB {
 
   public get mainWindow() {
     return this._mainWindow;
+  }
+
+  public get appMode() {
+    return this._appMode;
+  }
+
+  public set appMode(appMode: AppMode) {
+    this._appMode = appMode;
   }
 
   /**
@@ -66,7 +78,6 @@ class KweenBGlobal {
       )
         return KweenBGlobal.mqtt;
     }
-
     // create a new MQTT broker instance
     KweenBGlobal.mqtt = new MQTT(
       settings.kweenBSettings.mqttBroker,

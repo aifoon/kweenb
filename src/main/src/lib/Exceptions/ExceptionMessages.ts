@@ -5,6 +5,8 @@
 export const NO_BEE_FOUND_WITH_ID = (id: number) =>
   `No bee found with the id ${id}.`;
 
+export const BEE_IS_UNDEFINED = () => `The bee is undefined.`;
+
 export const BEE_NOT_ONLINE = (id: number) => `
   Bee with id ${id} is not online.
 `;

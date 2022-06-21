@@ -7,3 +7,8 @@ export enum BeeActiveState {
   ACTIVE = 1,
   ALL = 2,
 }
+
+export enum AppMode {
+  Hub,
+  P2P,
+}

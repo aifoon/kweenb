@@ -1,3 +1,4 @@
+import { AppMode } from "@shared/enums";
 import {
   app,
   Menu,
@@ -5,6 +6,7 @@ import {
   MenuItemConstructorOptions,
   dialog,
 } from "electron";
+import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 
@@ -165,6 +167,30 @@ export default class MenuBuilder {
       ],
     };
 
+    // The Mode Menu
+    const subMenuMode: DarwinMenuItemConstructorOptions = {
+      label: "Mode",
+      submenu: [
+        {
+          label: "Hub",
+          type: "radio",
+          click: () => {
+            this.mainWindow.webContents.send("app-mode", AppMode.Hub);
+            KweenBGlobal.kweenb.appMode = AppMode.Hub;
+          },
+        },
+        {
+          label: "P2P",
+          type: "radio",
+          checked: true,
+          click: () => {
+            this.mainWindow.webContents.send("app-mode", AppMode.P2P);
+            KweenBGlobal.kweenb.appMode = AppMode.P2P;
+          },
+        },
+      ],
+    };
+
     // The Developer View Menu
     const subMenuViewDev: MenuItemConstructorOptions = {
       label: "View",
@@ -224,6 +250,7 @@ export default class MenuBuilder {
     return [
       subMenuAbout,
       subMenuFile,
+      subMenuMode,
       this.isDevelopment ? subMenuViewDev : subMenuViewProd,
       subMenuWindow,
     ];

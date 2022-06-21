@@ -1,6 +1,8 @@
 import { Card } from "@components/Cards";
 import React from "react";
 import { ActionsHeader, ActionsContainer } from "@components/Actions";
+import { useAppContext } from "@renderer/src/hooks";
+import { AppMode } from "@shared/enums";
 import { PageHeader } from "../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import {
@@ -13,29 +15,52 @@ import {
   StartHubServerOnTheKween,
   KillAllKweenBProcesses,
   ValidateHive,
-  MakeAudioConnections,
+  MakeHubAudioConnections,
+  StartJackWithJacktripHubClientOnActiveBees,
+  StartJackWithJacktripHubClientOnKweenB,
+  StartJackWithJacktripP2PServerOnActiveBees,
+  StartJackWithJacktripP2PClientOnKweenB,
+  MakeP2PAudioConnectionsOnKweenB,
+  MakeP2PAudioConnectionOnActiveBees,
 } from "./Actions";
-import { StartJackWithJacktripClientOnActiveBees } from "./Actions/StartJackWithJacktripClientOnActiveBees";
-import { StartJackWithJacktripClientOnKweenB } from "./Actions/StartJackWithJacktripClientOnKweenB";
 
-export const Tools = () => (
-  <Z3Page pageHeader={<PageHeader title="Tools" />}>
-    <Card title="Hive Actions">
-      <ActionsContainer>
-        <ActionsHeader />
-        <TheKweenOnline />
-        <IsZwerm3ApiRunningOnTheKween />
-        <ActiveBeesOnline />
-        <IsZwerm3ApiRunningOnBees />
-        <KillAllTheKweenProcesses />
-        <KillAllBeeProcesses />
-        <StartHubServerOnTheKween />
-        <StartJackWithJacktripClientOnActiveBees />
-        <KillAllKweenBProcesses />
-        <StartJackWithJacktripClientOnKweenB />
-        <ValidateHive />
-        <MakeAudioConnections />
-      </ActionsContainer>
-    </Card>
-  </Z3Page>
-);
+export const Tools = () => {
+  const { appContext } = useAppContext();
+  return (
+    <Z3Page pageHeader={<PageHeader title="Tools" />}>
+      <Card title="Actions">
+        <ActionsContainer>
+          <ActionsHeader />
+          {appContext.appMode === AppMode.Hub && (
+            <>
+              <TheKweenOnline />
+              <IsZwerm3ApiRunningOnTheKween />
+              <ActiveBeesOnline />
+              <IsZwerm3ApiRunningOnBees />
+              <KillAllTheKweenProcesses />
+              <KillAllBeeProcesses />
+              <StartHubServerOnTheKween />
+              <StartJackWithJacktripHubClientOnActiveBees />
+              <KillAllKweenBProcesses />
+              <StartJackWithJacktripHubClientOnKweenB />
+              <ValidateHive />
+              <MakeHubAudioConnections />
+            </>
+          )}
+          {appContext.appMode === AppMode.P2P && (
+            <>
+              <ActiveBeesOnline />
+              <IsZwerm3ApiRunningOnBees />
+              <KillAllBeeProcesses />
+              <KillAllKweenBProcesses />
+              <StartJackWithJacktripP2PServerOnActiveBees />
+              <StartJackWithJacktripP2PClientOnKweenB />
+              <MakeP2PAudioConnectionsOnKweenB />
+              <MakeP2PAudioConnectionOnActiveBees />
+            </>
+          )}
+        </ActionsContainer>
+      </Card>
+    </Z3Page>
+  );
+};

@@ -2,11 +2,9 @@
  * All helpers for the kween
  */
 
-import { BeeActiveState } from "@shared/enums";
-import { ITheKween } from "@shared/interfaces";
+import { IBee, ITheKween } from "@shared/interfaces";
 import ping from "ping";
 import { PING_CONFIG } from "../../consts";
-import BeeHelpers from "./BeeHelpers";
 import SettingHelpers from "./SettingHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 
@@ -74,12 +72,9 @@ const makeAudioConnection = async (source: string, destination: string) => {
 /**
  * Make the audio connections in the hive
  */
-const makeAudioConnections = async () => {
+const makeHubAudioConnections = async (activeBees: IBee[]) => {
   // get all the settings
   const settings = await SettingHelpers.getAllSettings();
-
-  // the active bees
-  const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
 
   // loop over active bees and make the connection
   activeBees.forEach(async ({ id, name }) => {
@@ -94,12 +89,9 @@ const makeAudioConnections = async () => {
 /**
  * Validate if the hub server contains all active bees senders and kweenb receivers
  */
-const validateHive = async (): Promise<boolean> => {
+const validateHive = async (activeBees: IBee[]): Promise<boolean> => {
   // get all the settings
   const settings = await SettingHelpers.getAllSettings();
-
-  // the active bees
-  const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
 
   // get the hubclients
   const hubclients = await Zwerm3ApiHelpers.getHubClients(
@@ -130,6 +122,6 @@ export default {
   getTheKween,
   hasReceiveChannel,
   makeAudioConnection,
-  makeAudioConnections,
+  makeHubAudioConnections,
   validateHive,
 };

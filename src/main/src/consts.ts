@@ -18,6 +18,7 @@ export const DEFAULT_BEE_CONFIG = {
   useMqtt: false,
   mqttBroker: "mqtt://localhost:1883",
   mqttChannel: "beeworker",
+  device: "",
 };
 export const DEFAULT_BEE_STATUS = {
   isJackRunning: false,
@@ -27,3 +28,4 @@ export const PING_CONFIG: PingConfig = {
   timeout: 1,
   deadline: 1,
 };
+export const START_PORT_JACKTRIP = 4464;

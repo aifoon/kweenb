@@ -8,6 +8,7 @@ import ping from "ping";
 import fs from "fs";
 import Bee from "../../models/Bee";
 import {
+  BEE_IS_UNDEFINED,
   BEE_NOT_ONLINE,
   HIVE_DOES_NOT_CONTAIN_RECEIVE_CHANNEL,
   NO_BEE_FOUND_WITH_ID,
@@ -275,13 +276,46 @@ const hookOnCurrentHive = async (id: number) => {
   await Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
 
   // connect to hive
-  await Zwerm3ApiHelpers.startJackWithJacktripClient(bee.ipAddress, bee.name);
+  await Zwerm3ApiHelpers.startJackWithJacktripHubClient(
+    bee.ipAddress,
+    bee.name
+  );
 
   // make audio connections
   await TheKweenHelpers.makeAudioConnection(
     kweenbReceiveChannel,
     `${bee.name}:send_1`
   );
+};
+
+/**
+ * Make audio connection on bee
+ * @param event
+ * @param bee
+ */
+const makeP2PAudioConnection = async (bee: IBee) => {
+  // validate if we found a Bee
+  if (!bee) throw new Error(BEE_IS_UNDEFINED());
+
+  // get the system clients
+  const jackSystemClients = await Zwerm3ApiHelpers.getJackSystemClients(
+    bee.ipAddress
+  );
+  const hubClients = await Zwerm3ApiHelpers.getHubClients(bee.ipAddress);
+
+  // loop over active bees and make connections
+  const playbackChannel = `system:playback_1`;
+  const receiveChannel = `${bee.name}:receive_1`;
+  if (
+    jackSystemClients.playbackChannels.includes(playbackChannel) &&
+    hubClients.receiveChannels.includes(receiveChannel)
+  ) {
+    Zwerm3ApiHelpers.connectChannel(
+      bee.ipAddress,
+      receiveChannel,
+      playbackChannel
+    );
+  }
 };
 
 /**
@@ -373,5 +407,6 @@ export default {
   getBeeConfig,
   getBeeStatus,
   hookOnCurrentHive,
+  makeP2PAudioConnection,
   setBeeActive,
 };

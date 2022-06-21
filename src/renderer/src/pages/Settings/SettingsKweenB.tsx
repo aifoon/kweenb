@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useSetting } from "@renderer/src/hooks";
+import { useAppContext, useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 import { Grid } from "@mui/material";
 import {
@@ -16,6 +16,7 @@ import {
   validSampleRates,
 } from "@renderer/src/consts";
 import { IKweenBSettings, IKweenBAudioSettings } from "@shared/interfaces";
+import { AppMode } from "@shared/enums";
 
 interface BeeSettingsKweenBProps {
   kweenbSettings: IKweenBSettings;
@@ -27,6 +28,7 @@ export const SettingsKweenB = ({
   kweenbAudioSettings,
 }: BeeSettingsKweenBProps) => {
   const { updateSetting } = useSetting();
+  const { appContext } = useAppContext();
   const handleOnValidatedBlurAndChange = (e: any) => {
     updateSetting({
       key: `kweenb${Utils.capitalize(e.target.name)}`,
@@ -46,6 +48,7 @@ export const SettingsKweenB = ({
         jacktripBitRate: kweenbAudioSettings.jacktrip.bitRate,
         jacktripChannels: kweenbAudioSettings.jacktrip.channels,
         jacktripRedundancy: kweenbAudioSettings.jacktrip.redundancy,
+        jacktripLocalPort: kweenbAudioSettings.jacktrip.localPort,
         jacktripQueueBufferLength:
           kweenbAudioSettings.jacktrip.queueBufferLength,
         jacktripRealtimePriority: kweenbAudioSettings.jacktrip.realtimePriority,
@@ -83,6 +86,9 @@ export const SettingsKweenB = ({
           .min(-1, "The minimum amount of channels is 1, -1 for no channels")
           .max(99, "The maximum amount of channels is 99")
           .required("The amount of channels is required"),
+        jacktripLocalPort: Yup.number()
+          .min(4464, "The minimum port number is 4464")
+          .max(4490, "The maximum port number is 4490"),
         jacktripRedundancy: Yup.number()
           .min(0, "The redundancy is min 0")
           .max(99, "The redundancy is max 99")
@@ -220,30 +226,34 @@ export const SettingsKweenB = ({
                     name="jacktripChannels"
                     placeholder="e.g. 2"
                   />
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Send Channels"
-                    type="number"
-                    min={1}
-                    max={20}
-                    labelWidth="150px"
-                    name="jacktripSendChannels"
-                    placeholder="e.g. 1"
-                  />
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Receive Channels"
-                    type="number"
-                    min={1}
-                    max={20}
-                    labelWidth="150px"
-                    name="jacktripReceiveChannels"
-                    placeholder="e.g. 1"
-                  />
+                  {appContext.appMode === AppMode.Hub && (
+                    <>
+                      <TextField
+                        onValidatedBlur={handleOnValidatedBlurAndChange}
+                        orientation={InputFieldOrientation.Horizontal}
+                        size={InputFieldSize.Small}
+                        label="Send Channels"
+                        type="number"
+                        min={1}
+                        max={20}
+                        labelWidth="150px"
+                        name="jacktripSendChannels"
+                        placeholder="e.g. 1"
+                      />
+                      <TextField
+                        onValidatedBlur={handleOnValidatedBlurAndChange}
+                        orientation={InputFieldOrientation.Horizontal}
+                        size={InputFieldSize.Small}
+                        label="Receive Channels"
+                        type="number"
+                        min={1}
+                        max={20}
+                        labelWidth="150px"
+                        name="jacktripReceiveChannels"
+                        placeholder="e.g. 1"
+                      />
+                    </>
+                  )}
                   <SelectField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
@@ -280,6 +290,20 @@ export const SettingsKweenB = ({
                     name="jacktripRedundancy"
                     placeholder="e.g. 1"
                   />
+                  {appContext.appMode === AppMode.Hub && (
+                    <TextField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Local Port"
+                      type="number"
+                      min={4464}
+                      max={4490}
+                      labelWidth="150px"
+                      name="jacktripLocalPort"
+                      placeholder="e.g. 4464"
+                    />
+                  )}
                 </Card>
               </CardVerticalStack>
             </Grid>

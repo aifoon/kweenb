@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppContext } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const KillAllTheKweenProcesses = () => {
+export const StartJackWithJacktripHubClientOnActiveBees = () => {
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
   const { appContext } = useAppContext();
@@ -10,8 +10,12 @@ export const KillAllTheKweenProcesses = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
-      setOutput("Killed Jack & Jacktrip processes on The Kween");
+      const getActiveBees = await window.kweenb.methods.fetchActiveBees();
+      const startJackWithJacktripHubClientPromises = getActiveBees.map((bee) =>
+        window.kweenb.methods.startJackWithJacktripHubClientBee(bee)
+      );
+      await Promise.all(startJackWithJacktripHubClientPromises);
+      setOutput("Started Jack and Jacktrip client on all bees");
       setOutputColor("var(--green-status)");
     } catch (e: any) {
       setOutput(e.message);
@@ -23,7 +27,7 @@ export const KillAllTheKweenProcesses = () => {
 
   return (
     <Action
-      description="Kill all Jack & Jacktrip processes on The Kween"
+      description="Start Jack and Jacktrip Client on all bees"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

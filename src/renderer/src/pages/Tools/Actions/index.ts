@@ -7,7 +7,13 @@ import { KillAllBeeProcesses } from "./KillAllBeeProcesses";
 import { KillAllKweenBProcesses } from "./KillAllKweenBProcesses";
 import { StartHubServerOnTheKween } from "./StartHubServerOnTheKween";
 import { ValidateHive } from "./ValidateHive";
-import { MakeAudioConnections } from "./MakeAudioConnections";
+import { MakeHubAudioConnections } from "./MakeHubAudioConnections";
+import { StartJackWithJacktripHubClientOnActiveBees } from "./StartJackWithJacktripHubClientOnActiveBees";
+import { StartJackWithJacktripHubClientOnKweenB } from "./StartJackWithJacktripHubClientOnKweenB";
+import { StartJackWithJacktripP2PServerOnActiveBees } from "./StartJackWithJacktripP2PServerOnActiveBees";
+import { StartJackWithJacktripP2PClientOnKweenB } from "./StartJackWithJacktripP2PClientOnKweenB";
+import { MakeP2PAudioConnectionsOnKweenB } from "./MakeP2PAudioConnectionsOnKweenB";
+import { MakeP2PAudioConnectionOnActiveBees } from "./MakeP2PAudioConnectionOnActiveBees";
 
 export {
   ActiveBeesOnline,
@@ -18,6 +24,12 @@ export {
   KillAllTheKweenProcesses,
   StartHubServerOnTheKween,
   TheKweenOnline,
-  MakeAudioConnections,
+  MakeHubAudioConnections,
+  MakeP2PAudioConnectionsOnKweenB,
+  MakeP2PAudioConnectionOnActiveBees,
   ValidateHive,
+  StartJackWithJacktripHubClientOnActiveBees,
+  StartJackWithJacktripHubClientOnKweenB,
+  StartJackWithJacktripP2PServerOnActiveBees,
+  StartJackWithJacktripP2PClientOnKweenB,
 };

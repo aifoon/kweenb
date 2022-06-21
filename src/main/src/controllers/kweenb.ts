@@ -2,13 +2,13 @@
  * All the KweenB controller endpoints
  */
 
+import { IBee } from "@shared/interfaces";
+import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 
 /**
  * Kill all jack and jacktrip processes
- * @param event
- * @param bee
  */
 export const killJackAndJacktrip = async () => {
   try {
@@ -22,16 +22,71 @@ export const killJackAndJacktrip = async () => {
 };
 
 /**
+ * Make all the P2P audio connection on kweenb
+ */
+export const makeP2PAudioConnections = async () => {
+  try {
+    await kweenBHelpers.makeP2PAudioConnections();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "makeP2PAudioConnections()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Make the P2P audio connection on kweenb for a specific bee
+ */
+export const makeP2PAudioConnection = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await kweenBHelpers.makeP2PAudioConnection(bee);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "makeP2PAudioConnection()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Start the client and connect to the kween
  * @param event
  * @param bee
  */
-export const startJackWithJacktripClient = async () => {
+export const startJackWithJacktripHubClient = async () => {
   try {
-    await kweenBHelpers.startJackWithJacktripClient();
+    await kweenBHelpers.startJackWithJacktripHubClient();
   } catch (e: any) {
     throw new KweenBException(
-      { where: "startJackWithJacktripClient()", message: e.message },
+      { where: "startJackWithJacktripHubClient()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Start the p2p connection for a bee
+ * @param event
+ * @param bee
+ */
+export const startJackWithJacktripP2PClient = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    const localPort = START_PORT_JACKTRIP + (bee.id - 1);
+    await kweenBHelpers.startJackWithJacktripP2PClient(
+      bee.ipAddress,
+      localPort,
+      bee.name
+    );
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startJackWithJacktripP2PClient()", message: e.message },
       true
     );
   }

@@ -81,6 +81,9 @@ export default class ElectronApp {
       },
     });
 
+    // sets the mainWindow in a global state
+    KweenBGlobal.kweenb = new KweenB(browserWindow);
+
     // when we are ready to go
     browserWindow.on("ready-to-show", () => {
       if (!browserWindow) {
@@ -100,9 +103,6 @@ export default class ElectronApp {
     // creates the menu
     const menuBuilder = new MenuBuilder(browserWindow, this.isDevelopment);
     menuBuilder.buildMenu();
-
-    // sets the mainWindow in a global state
-    KweenBGlobal.kweenb = new KweenB(browserWindow);
 
     // return the window
     return browserWindow;

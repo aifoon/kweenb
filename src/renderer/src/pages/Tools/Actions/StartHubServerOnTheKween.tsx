@@ -10,7 +10,7 @@ export const StartHubServerOnTheKween = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      await window.kweenb.methods.startHubServerOnTheKween();
+      await window.kweenb.methods.theKween.startHubServerOnTheKween();
       setOutput("Started Hub server on The Kween");
       setOutputColor("var(--green-status)");
     } catch (e: any) {

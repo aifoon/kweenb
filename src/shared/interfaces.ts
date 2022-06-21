@@ -44,15 +44,25 @@ export interface IBeeInput {
 }
 
 export interface IBeeConfig {
-  jacktripVersion: string;
   useMqtt: boolean;
   mqttBroker: string;
   mqttChannel: string;
+  device: string;
 }
 
 export interface IBeeStatus {
   isJackRunning: boolean;
   isJacktripRunning: boolean;
+}
+
+export interface ISystemClients {
+  captureChannels: string[];
+  playbackChannels: string[];
+}
+
+export interface ISystemClientsResponse {
+  message: string;
+  systemClients: ISystemClients;
 }
 
 /**
@@ -92,6 +102,7 @@ export interface IAudioSettingsJackTrip {
   realtimePriority: boolean;
   receiveChannels: number;
   sendChannels: number;
+  localPort: number;
 }
 
 // Bee Audio

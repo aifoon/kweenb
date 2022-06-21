@@ -1,11 +1,7 @@
 import { Card } from "@components/Cards";
 import React from "react";
 import { Formik, Form } from "formik";
-import {
-  SelectField,
-  TextField,
-  SwitchField,
-} from "@renderer/src/components/Forms";
+import { TextField, SwitchField } from "@renderer/src/components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,
@@ -36,23 +32,12 @@ export const BeeConfigConfig = ({
           useMqtt: Yup.boolean().required(),
           mqttBroker: Yup.string().required("An MQTT broker is required"),
           mqttChannel: Yup.string().required("An MQTT channel is required"),
+          device: Yup.string(),
         })}
         onSubmit={() => {}}
       >
         {() => (
           <Form>
-            <SelectField
-              onValidatedBlur={handleOnValidatedBlurAndChange}
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
-              label="Jacktrip Version"
-              labelWidth="150px"
-              selectItems={[
-                { label: "1.4.1", value: "1.4.1" },
-                { label: "1.5.3", value: "1.5.3" },
-              ]}
-              name="jacktripVersion"
-            />
             <SwitchField
               onValidatedChange={handleOnValidatedBlurAndChange}
               name="useMqtt"
@@ -80,6 +65,16 @@ export const BeeConfigConfig = ({
               labelWidth="150px"
               name="mqttChannel"
               placeholder="e.g. bee1"
+            />
+            <TextField
+              onValidatedBlur={handleOnValidatedBlurAndChange}
+              orientation={InputFieldOrientation.Horizontal}
+              size={InputFieldSize.Small}
+              label="Device"
+              type="text"
+              labelWidth="150px"
+              name="device"
+              placeholder="e.g. hw:Device"
             />
           </Form>
         )}

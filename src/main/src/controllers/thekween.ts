@@ -1,8 +1,10 @@
 import { ITheKween } from "@shared/interfaces";
+import { BeeActiveState } from "@shared/enums";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import theKweenHelpers from "../lib/KweenB/TheKweenHelpers";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import Zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
+import BeeHelpers from "../lib/KweenB/BeeHelpers";
 
 /**
  * Fetching the kween
@@ -58,12 +60,13 @@ export const killJackAndJacktrip = async () => {
 /**
  * Make all audio connections
  */
-export const makeAudioConnections = async () => {
+export const makeHubAudioConnections = async () => {
   try {
-    await theKweenHelpers.makeAudioConnections();
+    const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+    await theKweenHelpers.makeHubAudioConnections(activeBees);
   } catch (e: any) {
     throw new KweenBException(
-      { where: "makeAudioConnections()", message: e.message },
+      { where: "makeHubAudioConnections()", message: e.message },
       true
     );
   }
@@ -76,7 +79,7 @@ export const makeAudioConnections = async () => {
 export const startHubServer = async () => {
   try {
     const thekween = await theKweenHelpers.getTheKween();
-    await Zwerm3ApiHelpers.startJackWithJacktripServer(
+    await Zwerm3ApiHelpers.startJackWithJacktripHubServer(
       thekween.settings.ipAddress
     );
   } catch (e: any) {
@@ -93,7 +96,8 @@ export const startHubServer = async () => {
  */
 export const validateHive = async (): Promise<boolean> => {
   try {
-    return await theKweenHelpers.validateHive();
+    const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+    return await theKweenHelpers.validateHive(activeBees);
   } catch (e: any) {
     throw new KweenBException(
       { where: "validateHive()", message: e.message },

@@ -11,7 +11,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
+import { AppMode } from "@shared/enums";
 import { useTheKween } from "../hooks/useTheKween";
+import { useAppContext } from "../hooks";
 
 /**
  * List of Sidebar Buttons
@@ -57,22 +59,29 @@ export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { thekween } = useTheKween();
+  const { appContext } = useAppContext();
+
+  const badges =
+    appContext.appMode === AppMode.Hub
+      ? [
+          <SidebarStatusBadge
+            key="theKween"
+            text="The Kween"
+            status={
+              thekween?.isOnline && thekween?.isApiOn
+                ? StatusBulletType.Active
+                : StatusBulletType.NotActive
+            }
+          />,
+        ]
+      : [];
+
   return (
     <Sidebar
       fixedToSide
       width="var(--sidebarWidth)"
       height="var(--contentHeight)"
-      badges={[
-        <SidebarStatusBadge
-          key="theKween"
-          text="The Kween"
-          status={
-            thekween?.isOnline && thekween?.isApiOn
-              ? StatusBulletType.Active
-              : StatusBulletType.NotActive
-          }
-        />,
-      ]}
+      badges={badges}
       buttons={sidebarButtons.map(({ icon, title, pathNames, key }) => (
         <SidebarButton
           icon={icon}

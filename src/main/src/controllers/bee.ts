@@ -6,7 +6,6 @@ import { IBee, IBeeConfig, IBeeInput } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import { BeeActiveState } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
-import beeHelpers from "../lib/KweenB/BeeHelpers";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
@@ -89,7 +88,7 @@ export const createBee = async (
       );
 
     // create a new bee
-    const createdBee = await beeHelpers.createBee(bee);
+    const createdBee = await BeeHelpers.createBee(bee);
 
     // show confirmation when bee was added
     KweenBGlobal.kweenb.showSuccess(
@@ -123,6 +122,119 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
 };
 
 /**
+ * Fetch the active bees
+ * @param event
+ * @returns
+ */
+export const fetchActiveBees = async () => {
+  try {
+    return await BeeHelpers.getAllBees(true, BeeActiveState.ACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchActiveBees()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Fetch the active bees without status checks
+ * @param event
+ * @returns
+ */
+export const fetchActiveBeesData = async () => {
+  try {
+    return await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchActiveBeesData()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Fetch all the bees
+ * @returns A Promise that will result an object of format IBee
+ */
+export const fetchAllBees = async (
+  event: Electron.IpcMainInvokeEvent,
+  pollForOnline: boolean = true
+): Promise<IBee[]> => {
+  try {
+    return await BeeHelpers.getAllBees(pollForOnline, BeeActiveState.ALL);
+  } catch (e: any) {
+    throw new KweenBException({ where: "fetchAllBees()", message: e.message });
+  }
+};
+
+/**
+ * Fetch all the bees without extra status checks
+ */
+export const fetchAllBeesData = async (): Promise<IBee[]> => {
+  try {
+    return await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchAllBeesData()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Fetch the inactive bees
+ * @param event
+ * @returns
+ */
+export const fetchInActiveBees = async () => {
+  try {
+    return await BeeHelpers.getAllBees(false, BeeActiveState.INACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchInActiveBees()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Fetch the inactive bees without extra status checks
+ * @param event
+ * @returns
+ */
+export const fetchInActiveBeesData = async () => {
+  try {
+    return await BeeHelpers.getAllBeesData(BeeActiveState.INACTIVE);
+  } catch (e: any) {
+    throw new KweenBException({
+      where: "fetchInActiveBeesData()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Fetching a bee based on the ID
+ * @param id The id of the bee to be found
+ * @returns an object shaped like an IBee
+ */
+export const fetchBee = async (
+  event: Electron.IpcMainInvokeEvent,
+  id: number
+): Promise<IBee> => {
+  try {
+    const bee = await BeeHelpers.getBee(id);
+    return bee;
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "fetchBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Hook this bee on the hive (if hive exists)
  * @param event
  * @param bee
@@ -152,7 +264,6 @@ export const killJackAndJacktrip = async (
 ) => {
   try {
     await zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
-    // KweenBGlobal.kweenb.showSuccess("Killed Jack and Jacktrip processes.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
@@ -172,7 +283,6 @@ export const killJack = async (
 ) => {
   try {
     await zwerm3ApiHelpers.killJack(bee.ipAddress);
-    // KweenBGlobal.kweenb.showSuccess("Killed Jack processes.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJack()", message: e.message },
@@ -202,113 +312,19 @@ export const killJacktrip = async (
 };
 
 /**
- * Fetch the active bees
+ * Make an audio connection on the bee
  * @param event
- * @returns
+ * @param bee
  */
-export const fetchActiveBees = async () => {
-  try {
-    return await beeHelpers.getAllBees(true, BeeActiveState.ACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchActiveBees()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the active bees without status checks
- * @param event
- * @returns
- */
-export const fetchActiveBeesData = async () => {
-  try {
-    return await beeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchActiveBeesData()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch all the bees
- * @returns A Promise that will result an object of format IBee
- */
-export const fetchAllBees = async (
+export const makeP2PAudioConnection = async (
   event: Electron.IpcMainInvokeEvent,
-  pollForOnline: boolean = true
-): Promise<IBee[]> => {
+  bee: IBee
+) => {
   try {
-    return await beeHelpers.getAllBees(pollForOnline, BeeActiveState.ALL);
-  } catch (e: any) {
-    throw new KweenBException({ where: "fetchAllBees()", message: e.message });
-  }
-};
-
-/**
- * Fetch all the bees without extra status checks
- */
-export const fetchAllBeesData = async (): Promise<IBee[]> => {
-  try {
-    return await beeHelpers.getAllBeesData(BeeActiveState.ALL);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchAllBeesData()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the inactive bees
- * @param event
- * @returns
- */
-export const fetchInActiveBees = async () => {
-  try {
-    return await beeHelpers.getAllBees(false, BeeActiveState.INACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchInActiveBees()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the inactive bees without extra status checks
- * @param event
- * @returns
- */
-export const fetchInActiveBeesData = async () => {
-  try {
-    return await beeHelpers.getAllBeesData(BeeActiveState.INACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchInActiveBeesData()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetching a bee based on the ID
- * @param id The id of the bee to be found
- * @returns an object shaped like an IBee
- */
-export const fetchBee = async (
-  event: Electron.IpcMainInvokeEvent,
-  id: number
-): Promise<IBee> => {
-  try {
-    const bee = await beeHelpers.getBee(id);
-    return bee;
+    await BeeHelpers.makeP2PAudioConnection(bee);
   } catch (e: any) {
     throw new KweenBException(
-      { where: "fetchBee()", message: e.message },
+      { where: "makeP2PAudioConnection()", message: e.message },
       true
     );
   }
@@ -327,7 +343,7 @@ export const setBeeActive = async (
   active: boolean
 ) => {
   try {
-    await beeHelpers.setBeeActive(id, active);
+    await BeeHelpers.setBeeActive(id, active);
   } catch (e: any) {
     throw new KweenBException(
       { where: "setBeeActive()", message: e.message },
@@ -347,7 +363,6 @@ export const startJack = async (
 ) => {
   try {
     await zwerm3ApiHelpers.startJack(bee.ipAddress);
-    // KweenBGlobal.kweenb.showSuccess("Started Jack with success.");
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJack()", message: e.message },
@@ -357,19 +372,44 @@ export const startJack = async (
 };
 
 /**
- * Start the client and connect to the kween
+ * Start Jack and connect to the kween
  * @param event
  * @param bee
  */
-export const startJackWithJacktripClient = async (
+export const startJackWithJacktripHubClient = async (
   event: Electron.IpcMainInvokeEvent,
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.startJackWithJacktripClient(bee.ipAddress, bee.name);
+    await zwerm3ApiHelpers.startJackWithJacktripHubClient(
+      bee.ipAddress,
+      bee.name
+    );
   } catch (e: any) {
     throw new KweenBException(
-      { where: "startClient()", message: e.message },
+      { where: "startJackWithJacktripHubClient()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Start the P2P server on a bee
+ * @param event
+ * @param bee
+ */
+export const startJackWithJacktripP2PServer = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.startJackWithJacktripP2PServer(
+      bee.ipAddress,
+      bee.name
+    );
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startJackWithJacktripP2PServer()", message: e.message },
       true
     );
   }

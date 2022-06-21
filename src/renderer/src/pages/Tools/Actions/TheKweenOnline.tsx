@@ -10,7 +10,7 @@ export const TheKweenOnline = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      const theKween = await window.kweenb.methods.fetchTheKween();
+      const theKween = await window.kweenb.methods.theKween.fetchTheKween();
       setOutput(
         theKween.isOnline
           ? "The Kween is online"

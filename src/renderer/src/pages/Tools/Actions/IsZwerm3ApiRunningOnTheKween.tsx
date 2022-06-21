@@ -11,7 +11,7 @@ export const IsZwerm3ApiRunningOnTheKween = () => {
     appContext.setLoading(true);
     try {
       const isZwerm3ApiRunningOnTheKween =
-        await window.kweenb.methods.isZwerm3ApiRunningOnTheKween();
+        await window.kweenb.methods.theKween.isZwerm3ApiRunningOnTheKween();
       setOutput(
         isZwerm3ApiRunningOnTheKween
           ? "Zwerm 3 API is running on The Kween"

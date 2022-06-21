@@ -8,7 +8,8 @@ import { useCallback, useEffect, useState } from "react";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
 import { useShowState } from "../hooks/useShowState";
-import { BuildHiveModal, CleanHiveModal } from "../pages/Modals";
+import { BuildHiveModal, CleanHiveModal, ConnectBeesModal, DisconnectBeesModal } from "../pages/Modals";
+import { AppMode } from "@shared/enums";
 
 interface AppContextProviderProps {
   children: React.ReactNode
@@ -18,6 +19,9 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [openBuildSwarmModal, setOpenBuildSwarmModal] = useState<boolean>(false);
   const [openCleanSwarmModal, setOpenCleanSwarmModal] = useState<boolean>(false);
+  const [openConnectBeesModal, setOpenConnectBeesModal] = useState<boolean>(false);
+  const [openDisconnectBeesModal, setOpenDisconnectBeesModal] = useState<boolean>(false);
+  const [appMode, setAppMode] = useState<AppMode>(AppMode.P2P);
   const [toast, setToast] = useState<ToastMessage>({ message: "", severity: "info"});
   const { open: openToast, handleOpen: handleOpenToast, handleClose: handleCloseToast } = useShowState(false);
 
@@ -68,16 +72,23 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     )
 
     // Handle the closing request
-    window.kweenb.events.onClosing(
-      (event) => {
-      console.log('test');
-        setLoading(true);
-      }
-    )
+    window.kweenb.events.onClosing((event) => setLoading(true));
+
+    // Handle a change in the app mode
+    window.kweenb.events.onAppMode((event, appMode) => setAppMode(appMode));
   }, [])
 
   return (
-    <AppContext.Provider value={{ setLoading, showToast, setOpenBuildSwarmModal, setOpenCleanSwarmModal }}>
+    <AppContext.Provider value={{
+      setLoading,
+      showToast,
+      setOpenBuildSwarmModal,
+      setOpenCleanSwarmModal,
+      setOpenConnectBeesModal,
+      setOpenDisconnectBeesModal,
+      setAppMode,
+      appMode
+    }}>
       {/* The General Loader for the whole app */}
       {loading && <Loader />}
 
@@ -96,11 +107,25 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
         </Snackbar>
       </div>
 
-      {/* The Build hive modal */}
-      <BuildHiveModal open={openBuildSwarmModal} onClose={() => setOpenBuildSwarmModal(false)} />
+      {appMode === AppMode.Hub &&
+        <>
+          {/* The Build hive modal */}
+          <BuildHiveModal open={openBuildSwarmModal} onClose={() => setOpenBuildSwarmModal(false)} />
 
-      {/* The Clean hive modal */}
-      <CleanHiveModal open={openCleanSwarmModal} onClose={() => setOpenCleanSwarmModal(false)} />
+          {/* The Clean hive modal */}
+          <CleanHiveModal open={openCleanSwarmModal} onClose={() => setOpenCleanSwarmModal(false)} />
+        </>
+      }
+
+      {appMode === AppMode.P2P &&
+        <>
+          {/* The Connect bees modal */}
+          <ConnectBeesModal open={openConnectBeesModal} onClose={() => setOpenConnectBeesModal(false)} />
+
+          {/* The Disconnect bees modal */}
+          <DisconnectBeesModal open={openDisconnectBeesModal} onClose={() => setOpenDisconnectBeesModal(false)} />
+        </>
+      }
 
       {/* The application itself */}
       {children}

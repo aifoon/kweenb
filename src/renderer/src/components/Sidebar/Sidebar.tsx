@@ -16,7 +16,7 @@ const SidebarContainer = styled.aside<SidebarProps>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 50px 20px 20px 20px;
   box-shadow: var(--level-2);
   background-color: var(--primary-400);
   ${({ fixedToSide }) => {
@@ -34,7 +34,7 @@ const SidebarContainer = styled.aside<SidebarProps>`
 `;
 
 const SidebarBadgesWrapper = styled.div`
-  margin: 2rem 0 3.5rem 0;
+  margin-bottom: 3.5rem;
   button + button {
     margin-top: 20px;
   }
@@ -60,12 +60,12 @@ export const Sidebar = ({
 }: SidebarProps) => (
   <SidebarContainer width={width} height={height} fixedToSide={fixedToSide}>
     <div>
-      {badges && (
+      {badges && badges.length > 0 && (
         <SidebarBadgesWrapper>
           {badges.map((badge) => badge)}
         </SidebarBadgesWrapper>
       )}
-      {buttons && (
+      {buttons && buttons.length && (
         <SidebarButtonsWrapper>
           {buttons.map((button) => button)}
         </SidebarButtonsWrapper>

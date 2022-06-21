@@ -14,7 +14,7 @@ interface BeeConfigActionsProps {
   onStopJack?: () => void;
   onStopJacktrip?: () => void;
   onKillJackAndJacktrip?: () => void;
-  onHookIntoCurrentHive?: () => void;
+  onReconnect?: () => void;
 }
 
 const CardActions = styled(Card)`
@@ -31,7 +31,7 @@ export const BeeConfigActions = ({
   onStopJack,
   onStopJacktrip,
   onKillJackAndJacktrip,
-  onHookIntoCurrentHive,
+  onReconnect,
 }: BeeConfigActionsProps) => {
   const [currentIsJackRunning, setCurrentIsJackRunning] =
     useState(isJackRunning);
@@ -92,13 +92,13 @@ export const BeeConfigActions = ({
 
       {/* Hook into current hive */}
 
-      <BeeConfigActionsSection title="Hook on current hive">
+      <BeeConfigActionsSection title="Reconnect">
         <Button
           buttonSize={ButtonSize.Small}
           buttonType={ButtonType.Primary}
           buttonUse={ButtonUse.Dark}
           onClick={() => {
-            if (onHookIntoCurrentHive) onHookIntoCurrentHive();
+            if (onReconnect) onReconnect();
           }}
           style={{ width: "100%", height: "100%" }}
         >

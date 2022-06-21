@@ -12,6 +12,8 @@ import { app } from "electron";
 // import installExtension, {
 //   REACT_DEVELOPER_TOOLS,
 // } from "electron-devtools-installer";
+import aedes from "aedes";
+import net from "net";
 import { ElectronApp } from "./lib";
 import {
   registerActions,
@@ -20,6 +22,7 @@ import {
 } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
+import { KweenBGlobal } from "./kweenb";
 
 /**
  * Get the resources path
@@ -38,6 +41,12 @@ app.on("window-all-closed", async () => {
     app.quit();
   }
 });
+
+/**
+ * Create internal MQTT broker
+ */
+const a = aedes();
+const aedesServer = net.createServer(a.handle);
 
 /**
  * A function that will initialise our application
@@ -76,6 +85,9 @@ const initApp = async () => {
     // these will do the dirty work, polling, etc.
     registerIntervalWorkers();
 
+    // creates an internal MQTT broker
+    aedesServer.listen(1883);
+
     // on activation
     app.on("activate", () => {
       // On macOS it's common to re-create a window in the app when the
@@ -88,10 +100,12 @@ const initApp = async () => {
      */
     app.on("before-quit", async (event: any) => {
       event.preventDefault();
+
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("closing");
       }
-      await KweenBHelpers.closeApplication();
+      if (aedesServer && aedesServer.listening) await aedesServer.close();
+      await KweenBHelpers.closeApplication(KweenBGlobal.kweenb.appMode);
       app.exit(0);
     });
   } catch (e: any) {

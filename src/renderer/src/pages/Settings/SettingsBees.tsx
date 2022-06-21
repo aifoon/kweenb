@@ -40,6 +40,7 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
         jackPeriods: beeAudioSettings.jack.periods,
         jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
         jacktripChannels: beeAudioSettings.jacktrip.channels,
+        jacktripLocalPort: beeAudioSettings.jacktrip.localPort,
         jacktripRedundancy: beeAudioSettings.jacktrip.redundancy,
         jacktripQueueBufferLength: beeAudioSettings.jacktrip.queueBufferLength,
         jacktripRealtimePriority: beeAudioSettings.jacktrip.realtimePriority,
@@ -76,6 +77,9 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
           .min(-1, "The minimum amount of channels is 1, -1 for no channels")
           .max(99, "The maximum amount of channels is 99")
           .required("The amount of channels is required"),
+        jacktripLocalPort: Yup.number()
+          .min(4464, "The minimum port number is 4464")
+          .max(4490, "The maximum port number is 4490"),
         jacktripRedundancy: Yup.number()
           .min(0, "The redundancy is min 0")
           .max(99, "The redundancy is max 99")
@@ -257,6 +261,18 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
                   labelWidth="150px"
                   name="jacktripRedundancy"
                   placeholder="e.g. 1"
+                />
+                <TextField
+                  onValidatedBlur={handleOnValidatedBlurAndChange}
+                  orientation={InputFieldOrientation.Horizontal}
+                  size={InputFieldSize.Small}
+                  label="Local Port"
+                  type="number"
+                  min={4464}
+                  max={4490}
+                  labelWidth="150px"
+                  name="jacktripLocalPort"
+                  placeholder="e.g. 4464"
                 />
               </Card>
             </Grid>

@@ -52,11 +52,19 @@ contextBridge.exposeInMainWorld("nodeCrypto", {
  */
 contextBridge.exposeInMainWorld("kweenb", {
   methods: {
+    /**
+     * Bee
+     */
+
+    // CRUD BEE
     createBee: (bee: IBeeInput): Promise<IBee> =>
       ipcRenderer.invoke("bee:createBee", bee),
     deleteBee: (id: number) => {
       ipcRenderer.invoke("bee:deleteBee", id);
     },
+    updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
+    fetchBee: (id: number): Promise<IBee> =>
+      ipcRenderer.invoke("bee:fetchBee", id),
     fetchActiveBees: (): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchActiveBees"),
     fetchActiveBeesData: (): Promise<IBee[]> =>
@@ -69,40 +77,71 @@ contextBridge.exposeInMainWorld("kweenb", {
       ipcRenderer.invoke("bee:fetchInActiveBees"),
     fetchInActiveBeesData: (): Promise<IBee[]> =>
       ipcRenderer.invoke("bee:fetchInActiveBeesData"),
-    fetchBee: (id: number): Promise<IBee> =>
-      ipcRenderer.invoke("bee:fetchBee", id),
-    fetchSettings: (): Promise<ISettings[]> =>
-      ipcRenderer.invoke("setting:fetchSettings"),
-    fetchTheKween: (): Promise<ITheKween> =>
-      ipcRenderer.invoke("thekween:fetchTheKween"),
-    hookBeeOnCurrentHive: (bee: IBee) =>
-      ipcRenderer.invoke("bee:hookOnCurrentHive", bee),
-    isZwerm3ApiRunningOnTheKween: (): Promise<boolean> =>
-      ipcRenderer.invoke("thekween:isZwerm3ApiRunningOnTheKween"),
+
+    // JACK/JACKTRIP
     killJackAndJacktrip: (bee: IBee) =>
       ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
-    killJackAndJacktripOnKweenB: () =>
-      ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
-    killJackAndJacktripOnTheKween: () =>
-      ipcRenderer.invoke("thekween:killJackAndJacktrip"),
     killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
     killJacktrip: (bee: IBee) => ipcRenderer.invoke("bee:killJacktrip", bee),
+    hookBeeOnCurrentHive: (bee: IBee) =>
+      ipcRenderer.invoke("bee:hookOnCurrentHive", bee),
+    makeP2PAudioConnectionBee: (bee: IBee) =>
+      ipcRenderer.invoke("bee:makeP2PAudioConnection", bee),
+    startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
+    startJackWithJacktripHubClientBee: (bee: IBee) =>
+      ipcRenderer.invoke("bee:startJackWithJacktripHubClient", bee),
+    startJackWithJacktripP2PServerBee: (bee: IBee) =>
+      ipcRenderer.invoke("bee:startJackWithJacktripP2PServer", bee),
+
+    // CONFIG
     saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
       ipcRenderer.invoke("bee:saveConfig", bee, config),
-    startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
-    startJackWithJacktripClientBee: (bee: IBee) =>
-      ipcRenderer.invoke("bee:startJackWithJacktripClient", bee),
-    startJackWithJacktripClientKweenB: () =>
-      ipcRenderer.invoke("kweenb:startJackWithJacktripClient"),
-    startHubServerOnTheKween: () =>
-      ipcRenderer.invoke("thekween:startHubServer"),
-    updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
+
+    /**
+     * KweenB
+     */
+
+    // JACK/JACKTRIP
+    killJackAndJacktripOnKweenB: () =>
+      ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
+    startJackWithJacktripHubClientKweenB: () =>
+      ipcRenderer.invoke("kweenb:startJackWithJacktripHubClient"),
+    startJackWithJacktripP2PClientKweenB: (bee: IBee) =>
+      ipcRenderer.invoke("kweenb:startJackWithJacktripP2PClient", bee),
+    makeP2PAudioConnectionsKweenB: () =>
+      ipcRenderer.invoke("kweenb:makeP2PAudioConnections"),
+    makeP2PAudioConnectionKweenB: (bee: IBee) =>
+      ipcRenderer.invoke("kweenb:makeP2PAudioConnection", bee),
+
+    /**
+     * Settings
+     */
+
+    // CRUD
+
+    fetchSettings: (): Promise<ISettings[]> =>
+      ipcRenderer.invoke("setting:fetchSettings"),
     updateSetting: (setting: ISetting) =>
       ipcRenderer.invoke("setting:updateSetting", setting),
-    makeAudioConnections: () =>
-      ipcRenderer.invoke("thekween:makeAudioConnections"),
-    validateHive: (): Promise<boolean> =>
-      ipcRenderer.invoke("thekween:validateHive"),
+
+    /**
+     * The Kween
+     */
+    theKween: {
+      killJackAndJacktripOnTheKween: () =>
+        ipcRenderer.invoke("thekween:killJackAndJacktrip"),
+      startHubServerOnTheKween: () =>
+        ipcRenderer.invoke("thekween:startHubServer"),
+      makeHubAudioConnections: () =>
+        ipcRenderer.invoke("thekween:makeHubAudioConnections"),
+      validateHive: (): Promise<boolean> =>
+        ipcRenderer.invoke("thekween:validateHive"),
+
+      fetchTheKween: (): Promise<ITheKween> =>
+        ipcRenderer.invoke("thekween:fetchTheKween"),
+      isZwerm3ApiRunningOnTheKween: (): Promise<boolean> =>
+        ipcRenderer.invoke("thekween:isZwerm3ApiRunningOnTheKween"),
+    },
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
@@ -121,6 +160,9 @@ contextBridge.exposeInMainWorld("kweenb", {
     unsubscribe: (topic: string) => ipcRenderer.send("mqtt:unsubscribe", topic),
   },
   events: {
+    onAppMode: (callback: any) => {
+      ipcRenderer.on("app-mode", callback);
+    },
     onClosing: (callback: any) => {
       ipcRenderer.on("closing", callback);
     },

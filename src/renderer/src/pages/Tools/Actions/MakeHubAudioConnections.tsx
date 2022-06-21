@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppContext } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const KillAllTheKweenProcesses = () => {
+export const MakeHubAudioConnections = () => {
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
   const { appContext } = useAppContext();
@@ -10,9 +10,9 @@ export const KillAllTheKweenProcesses = () => {
   const onRunClick = useCallback(async () => {
     appContext.setLoading(true);
     try {
-      await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
-      setOutput("Killed Jack & Jacktrip processes on The Kween");
-      setOutputColor("var(--green-status)");
+      await window.kweenb.methods.theKween.makeHubAudioConnections();
+      setOutput(`Audio connections were created`);
+      setOutputColor(`var(--green-status)`);
     } catch (e: any) {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
@@ -23,7 +23,7 @@ export const KillAllTheKweenProcesses = () => {
 
   return (
     <Action
-      description="Kill all Jack & Jacktrip processes on The Kween"
+      description="Make all audio connections on The Kween"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

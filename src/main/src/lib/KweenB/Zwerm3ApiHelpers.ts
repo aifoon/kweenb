@@ -7,6 +7,8 @@ import {
   IHubClients,
   IHubClientsResponse,
   ISetting,
+  ISystemClients,
+  ISystemClientsResponse,
 } from "@shared/interfaces";
 import fetch from "node-fetch";
 import { DEFAULT_BEE_CONFIG, ZWERM3API_PORT } from "../../consts";
@@ -171,6 +173,7 @@ const getAllConfig = async (ipAddress: string): Promise<IBeeConfig> => {
     useMqtt: (findKey("use_mqtt")?.value || 0) === "true",
     mqttBroker: findKey("mqtt_broker")?.value || "mqtt://localhost:1883",
     mqttChannel: findKey("mqtt_channel")?.value || "beeworker",
+    device: findKey("device")?.value || "device",
   };
 
   // return the bee configuration
@@ -202,6 +205,36 @@ const getHubClients = async (ipAddress: string): Promise<IHubClients> => {
 
   // return the hubclients
   return hubClientsResponse.hubClients;
+};
+
+/**
+ * Get the local jack system clients
+ * @param ipAddress
+ * @returns
+ */
+const getJackSystemClients = async (
+  ipAddress: string
+): Promise<ISystemClients> => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    return { playbackChannels: [], captureChannels: [] };
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "jack/systemclients");
+
+  // fetch the response
+  const response = await fetch(endpoint);
+
+  // validate the response
+  if (!response || response.status === 500)
+    throw new Error(FETCH_ERROR("getJackSystemClients"));
+
+  // convert to json
+  const jackSystemClientsResponse =
+    (await response.json()) as ISystemClientsResponse;
+
+  // return the hubclients
+  return jackSystemClientsResponse.systemClients;
 };
 
 /**
@@ -305,10 +338,10 @@ const startJack = async (ipAddress: string) => {
 };
 
 /**
- * Start Jack With Jacktrip Server
+ * Start Jack With Jacktrip Hub Server
  * @param ipAddress The ip address where the zwerm3api is running
  */
-const startJackWithJacktripServer = async (ipAddress: string) => {
+const startJackWithJacktripHubServer = async (ipAddress: string) => {
   // validate if Zwerm3API is running
   if (!(await isZwerm3ApiRunning(ipAddress)))
     throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
@@ -326,18 +359,23 @@ const startJackWithJacktripServer = async (ipAddress: string) => {
       sampleRate: settings.beeAudioSettings.jack.sampleRate,
       periods: settings.beeAudioSettings.jack.periods,
     },
+    killAllProcessesBeforeStart: true,
     jacktrip: {
-      hub: true,
-      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
       channels: settings.beeAudioSettings.jacktrip.channels,
       debug: false,
+      killAllJacktripBeforeStart: false,
+      localPort: settings.beeAudioSettings.jacktrip.localPort,
+      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
       realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
       hubPatchMode: 5,
     },
   };
 
   // create the endpoint
-  const endpoint = createFullEndpoint(ipAddress, "startJackWithJacktripServer");
+  const endpoint = createFullEndpoint(
+    ipAddress,
+    "startJackWithJacktripHubServer"
+  );
 
   // fetch the response
   const response = await fetch(endpoint, {
@@ -348,15 +386,15 @@ const startJackWithJacktripServer = async (ipAddress: string) => {
 
   // if we have an internal error
   if (response.status === 500) {
-    throw new Error(POST_ERROR("startJackWithJacktripServer"));
+    throw new Error(POST_ERROR("startJackWithJacktripHubServer"));
   }
 };
 
 /**
- * Start Jack With Jacktrip Client
+ * Start Jack With Jacktrip Hub Client
  * @param ipAddress The ip address where the zwerm3api is running
  */
-const startJackWithJacktripClient = async (
+const startJackWithJacktripHubClient = async (
   ipAddress: string,
   clientName: string = "beeworker"
 ) => {
@@ -377,23 +415,29 @@ const startJackWithJacktripClient = async (
       sampleRate: settings.beeAudioSettings.jack.sampleRate,
       periods: settings.beeAudioSettings.jack.periods,
     },
+    killAllProcessesBeforeStart: true,
     jacktrip: {
-      hub: true,
-      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
       channels: settings.beeAudioSettings.jacktrip.channels,
       debug: false,
+      killAllJacktripBeforeStart: false,
+      localPort: settings.beeAudioSettings.jacktrip.localPort,
+      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
       realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
       bitRate: settings.beeAudioSettings.jacktrip.bitRate,
       clientName,
       host: settings.theKweenSettings.ipAddress,
       receiveChannels: settings.beeAudioSettings.jacktrip.receiveChannels,
-      sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
       redundancy: settings.beeAudioSettings.jacktrip.redundancy,
+      remotePort: 4464,
+      sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
     },
   };
 
   // create the endpoint
-  const endpoint = createFullEndpoint(ipAddress, "startJackWithJacktripClient");
+  const endpoint = createFullEndpoint(
+    ipAddress,
+    "startJackWithJacktripHubClient"
+  );
 
   // fetch the response
   const response = await fetch(endpoint, {
@@ -404,7 +448,68 @@ const startJackWithJacktripClient = async (
 
   // if we have an internal error
   if (response.status === 500) {
-    throw new Error(POST_ERROR("startJackWithJacktripServer"));
+    throw new Error(POST_ERROR("startJackWithJacktripHubClient"));
+  }
+};
+
+/**
+ * Start Jack With Jacktrip P2P Server
+ * @param ipAddress The ip address where the zwerm3api is running
+ */
+const startJackWithJacktripP2PServer = async (
+  ipAddress: string,
+  clientName: string
+) => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+
+  // get the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // create the post body
+  const body = {
+    jack: {
+      device: settings.beeAudioSettings.jack.device,
+      inputChannels: settings.beeAudioSettings.jack.inputChannels,
+      outputChannels: settings.beeAudioSettings.jack.outputChannels,
+      bufferSize: settings.beeAudioSettings.jack.bufferSize,
+      sampleRate: settings.beeAudioSettings.jack.sampleRate,
+      periods: settings.beeAudioSettings.jack.periods,
+    },
+    killAllProcessesBeforeStart: true,
+    jacktrip: {
+      channels: settings.beeAudioSettings.jacktrip.channels,
+      debug: false,
+      killAllJacktripBeforeStart: false,
+      localPort: settings.beeAudioSettings.jacktrip.localPort,
+      queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
+      realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
+      bitRate: settings.beeAudioSettings.jacktrip.bitRate,
+      clientName,
+      connectDefaultAudioPorts: false,
+      receiveChannels: settings.beeAudioSettings.jacktrip.receiveChannels,
+      sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
+      redundancy: settings.beeAudioSettings.jacktrip.redundancy,
+    },
+  };
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(
+    ipAddress,
+    "startJackWithJacktripP2PServer"
+  );
+
+  // fetch the response
+  const response = await fetch(endpoint, {
+    method: "post",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // if we have an internal error
+  if (response.status === 500) {
+    throw new Error(POST_ERROR("startJackWithJacktripP2PServer"));
   }
 };
 
@@ -453,6 +558,7 @@ export default {
   connectChannel,
   getAllConfig,
   getHubClients,
+  getJackSystemClients,
   isJackRunning,
   isJacktripRunning,
   isZwerm3ApiRunning,
@@ -461,6 +567,7 @@ export default {
   killJacktrip,
   saveConfig,
   startJack,
-  startJackWithJacktripClient,
-  startJackWithJacktripServer,
+  startJackWithJacktripHubClient,
+  startJackWithJacktripHubServer,
+  startJackWithJacktripP2PServer,
 };

@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { IBee, IBeeConfig } from "@shared/interfaces";
+import { AppMode } from "@shared/enums";
 import { useAppContext } from "./useAppContext";
 import { useInterval } from "./useInterval";
 import { pollingInterval } from "../consts";
@@ -19,10 +20,10 @@ export function useBee(id: number) {
     isApiOn: false,
     isActive: false,
     config: {
-      jacktripVersion: "1.5.3",
       useMqtt: false,
       mqttBroker: "mqtt://localhost:1883",
       mqttChannel: "beeworker",
+      device: "",
     },
     status: {
       isJackRunning: false,
@@ -40,14 +41,23 @@ export function useBee(id: number) {
   }, [bee]);
 
   /**
-   * Hook on current hive (if active)
+   * Reconnect
    */
-  const hookOnCurrentHive = useCallback(async () => {
+  const reconnect = useCallback(async () => {
     try {
       appContext.setLoading(true);
-      await window.kweenb.methods.hookBeeOnCurrentHive(bee);
+      if (appContext.appMode === AppMode.Hub) {
+        await window.kweenb.methods.hookBeeOnCurrentHive(bee);
+      }
+      if (appContext.appMode === AppMode.P2P) {
+        await window.kweenb.methods.killJackAndJacktrip(bee);
+        await window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
+        await window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
+        await window.kweenb.methods.makeP2PAudioConnectionKweenB(bee);
+        await window.kweenb.methods.makeP2PAudioConnectionBee(bee);
+      }
     } catch (e: any) {
-      console.error(`hookOnCurrentHive: ${e.message}`);
+      console.error(`reconnect: ${e.message}`);
     } finally {
       appContext.setLoading(false);
     }
@@ -159,7 +169,7 @@ export function useBee(id: number) {
 
   return {
     bee,
-    hookOnCurrentHive,
+    reconnect,
     killJack,
     killJacktrip,
     killJackAndJacktrip,

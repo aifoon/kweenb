@@ -12,12 +12,12 @@ import {
 } from "@components/Buttons";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 
-interface BuildHiveModalProps
+interface ConnectBeesModalProps
   extends Pick<BaseModalProps, "open" | "onClose"> {}
 
-export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
+export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
-  const [isBuilding, setIsBuilding] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [activeIndexState, setActiveIndexState] = useState(
     TaskListItemState.Active
@@ -27,109 +27,86 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
 
   const closeModal = useCallback(() => {
     setActiveIndex(-1);
-    setIsBuilding(false);
+    setIsConnecting(false);
     onClose();
   }, []);
 
-  const buildHive = useCallback(async () => {
+  const connectBees = useCallback(async () => {
     // Set the default active state to active
     setActiveIndexState(TaskListItemState.Active);
 
-    // Set building state to true
-    setIsBuilding(true);
+    // Set connecting state to true
+    setIsConnecting(true);
 
-    /* Check if The Kween is online */
+    /* Check if the active bees are online */
     setActiveIndex(0);
-    const theKween = await window.kweenb.methods.theKween.fetchTheKween();
-    if (!theKween.isOnline) {
-      setIsBuilding(false);
-      setActiveIndexState(TaskListItemState.Error);
-      return;
-    }
-
-    /* Check if zwerm3 API is running on The Kween */
-    setActiveIndex(1);
-    const isZwerm3ApiRunningOnTheKween =
-      await window.kweenb.methods.theKween.isZwerm3ApiRunningOnTheKween();
-    if (!isZwerm3ApiRunningOnTheKween) {
-      setIsBuilding(false);
-      setActiveIndexState(TaskListItemState.Error);
-      return;
-    }
-
-    /* Check if all active bees are online */
-    setActiveIndex(2);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
     if (!activeBees || activeBees.length === 0) {
-      setIsBuilding(false);
+      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
     const hasOfflineBees = activeBees.filter((bee) => !bee.isOnline).length > 0;
     if (hasOfflineBees) {
-      setIsBuilding(false);
+      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
 
     /* Check if zwerm3 API is running on active bees */
-    setActiveIndex(3);
+    setActiveIndex(1);
     const hasBeesWithoutZwerm3ApiRunning =
       activeBees.filter((bee) => !bee.isApiOn).length > 0;
     if (hasBeesWithoutZwerm3ApiRunning) {
-      setIsBuilding(false);
+      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
 
-    /* Kill Jack & Jacktrip processes on The Kween */
-    setActiveIndex(4);
-    await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
-
     /* Kill Jack & Jacktrip processes on active bees */
-    setActiveIndex(5);
+    setActiveIndex(2);
     const killAllProcessesPromises = activeBees.map(async (bee) =>
       window.kweenb.methods.killJackAndJacktrip(bee)
     );
     await Promise.all(killAllProcessesPromises);
 
-    /* Start hub server on The Kween */
-    setActiveIndex(6);
-    await window.kweenb.methods.theKween.startHubServerOnTheKween();
-
-    /* Start Jack & Jacktrip on active bees */
-    setActiveIndex(7);
-    const startJackWithJacktripHubClientPromises = activeBees.map((bee) =>
-      window.kweenb.methods.startJackWithJacktripHubClientBee(bee)
-    );
-    await Promise.all(startJackWithJacktripHubClientPromises);
-
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(8);
+    setActiveIndex(3);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
-    /* Start Jack & Jacktrip processes on kweenb */
-    setActiveIndex(9);
-    await window.kweenb.methods.startJackWithJacktripHubClientKweenB();
+    /* Start Jack & Jacktrip P2P server on active bees */
+    setActiveIndex(4);
+    const startJackWithJacktripP2PServerPromises = activeBees.map((bee) =>
+      window.kweenb.methods.startJackWithJacktripP2PServerBee(bee)
+    );
+    await Promise.all(startJackWithJacktripP2PServerPromises);
 
-    /* Validate if the hive contains all bees and kweenb */
-    setActiveIndex(10);
-    const isValid = await window.kweenb.methods.theKween.validateHive();
-    if (!isValid) {
-      setIsBuilding(false);
-      setActiveIndexState(TaskListItemState.Error);
-      return;
-    }
+    /* Start Jack & Jacktrip P2P clients on KweenB */
+    setActiveIndex(5);
+    const startJackWithJacktripP2PClientPromises = activeBees.map((bee) =>
+      window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee)
+    );
+    await Promise.all(startJackWithJacktripP2PClientPromises);
 
-    /* Make audio connections */
-    setActiveIndex(11);
-    await window.kweenb.methods.theKween.makeHubAudioConnections();
+    /* Make all P2P audio connections on KweenB */
+    setActiveIndex(6);
+    const makeP2PAudioConnectionKweenBPromises = activeBees.map((bee) =>
+      window.kweenb.methods.makeP2PAudioConnectionKweenB(bee)
+    );
+    await Promise.all(makeP2PAudioConnectionKweenBPromises);
+
+    /* Make P2P audio connection on active bees */
+    setActiveIndex(7);
+    const makeP2PAudioConnectionBeePromises = activeBees.map((bee) =>
+      window.kweenb.methods.makeP2PAudioConnectionBee(bee)
+    );
+    await Promise.all(makeP2PAudioConnectionBeePromises);
 
     /* Close the modal */
     setActiveIndex(-1);
 
     // Set building state to false
-    setIsBuilding(false);
+    setIsConnecting(false);
 
     // Close the modal
     closeModal();
@@ -139,18 +116,14 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
     <BaseModal open={isOpen} onClose={closeModal}>
       <TaskList
         tasks={[
-          "Check if The Kween is online",
-          "Check if zwerm3 API is running on The Kween",
           "Check if all active bees are online",
           "Check if zwerm3 API is running on active bees",
-          "Kill Jack & Jacktrip processes on The Kween",
           "Kill Jack & Jacktrip processes on active bees",
-          "Start hub server on The Kween",
-          "Start Jack & Jacktrip on active bees",
-          "Kill Jack & Jacktrip processes on kweenb",
-          "Start Jack & Jacktrip on kweenb",
-          "Validate if the hive contains all bees and kweenb",
-          "Make all audio connections on The Kween",
+          "Kill Jack & Jacktrip processes on KweenB",
+          "Start Jack & Jacktrip P2P server on active bees",
+          "Start Jack & Jacktrip P2P clients on KweenB",
+          "Make all P2P audio connections on KweenB",
+          "Make P2P audio connection on active bees",
         ]}
         activeIndex={activeIndex}
         activeIndexState={activeIndexState}
@@ -158,7 +131,7 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
       <ConfirmModalFooter>
         <Flex justifyContent="flex-end">
           <ButtonGroup>
-            {!isBuilding && (
+            {!isConnecting && (
               <Button
                 type="button"
                 onClick={onClose}
@@ -170,9 +143,9 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
             )}
             <Button
               type="button"
-              onClick={() => buildHive()}
+              onClick={() => connectBees()}
               buttonUse={ButtonUse.Dark}
-              disabled={isBuilding}
+              disabled={isConnecting}
               buttonSize={ButtonSize.Small}
             >
               Start

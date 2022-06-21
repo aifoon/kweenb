@@ -16,6 +16,10 @@ export default [
     value: "-1"
   },
   {
+    key: "beeJacktripBitRate",
+    value: "16"
+  },
+  {
     key: "beeJackBufferSize",
     value: "512"
   },
@@ -28,8 +32,8 @@ export default [
     value: "-1"
   },
   {
-    key: "beeJacktripBitRate",
-    value: "16"
+    key: "beeJacktripLocalPort",
+    value: "4464"
   },
   {
     key: "beeJacktripQueueBufferLength",
@@ -74,6 +78,10 @@ export default [
   {
     key: "kweenbJackBufferSize",
     value: "128"
+  },
+  {
+    key: "kweenbJacktripLocalPort",
+    value: "4464"
   },
   {
     key: "kweenbJackSampleRate",

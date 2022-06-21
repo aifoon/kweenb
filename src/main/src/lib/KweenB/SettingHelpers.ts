@@ -30,6 +30,7 @@ const getAllSettings = async (): Promise<ISettings> => {
       },
       jacktrip: {
         bitRate: Number(findKey("beeJacktripBitRate")?.value || 16),
+        localPort: Number(findKey("beeJacktripLocalPort")?.value || 4464),
         channels: Number(findKey("beeJacktripChannels")?.value || 2),
         queueBufferLength: Number(
           findKey("beeJacktripQueueBufferLength")?.value || 4
@@ -55,6 +56,7 @@ const getAllSettings = async (): Promise<ISettings> => {
       },
       jacktrip: {
         bitRate: Number(findKey("kweenbJacktripBitRate")?.value || 16),
+        localPort: Number(findKey("kweenbJacktripLocalPort")?.value || 4464),
         queueBufferLength: Number(
           findKey("kweenbJacktripQueueBufferLength")?.value || 4
         ),

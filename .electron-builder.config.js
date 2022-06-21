@@ -17,6 +17,18 @@ const config = {
     output: "bin",
     buildResources: "buildResources",
   },
+  mac: {
+    target: {
+      target: "default",
+      arch: ["x64", "arm64"],
+    },
+  },
+  linux: {
+    target: ["AppImage", "deb"],
+    category: "Utility",
+    maintainer: "aifoon",
+    vendor: "aifoon",
+  },
   files: ["src/**/dist/**"],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION,
