@@ -11,7 +11,7 @@ export const KillAllBeeProcesses = () => {
     appContext.setLoading(true);
     try {
       const activeBees = await window.kweenb.methods.fetchActiveBees();
-      const killAllProcessesPromises = activeBees.map(async (bee) =>
+      const killAllProcessesPromises = activeBees.map((bee) =>
         window.kweenb.methods.killJackAndJacktrip(bee)
       );
       await Promise.all(killAllProcessesPromises);
