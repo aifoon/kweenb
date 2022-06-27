@@ -13,7 +13,7 @@ import {
 // import * as log from "electron-log";
 import { AppMode, BeeActiveState } from "@shared/enums";
 import { IBee } from "@shared/interfaces";
-import { DEBUG_JACK_JACKTRIP } from "../../consts";
+import { DEBUG_JACK_JACKTRIP, DEBUG_KWEENB } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
@@ -214,7 +214,8 @@ const makeP2PAudioConnections = async () => {
   activeBees.forEach(async (bee) => {
     const captureChannel = `system:capture_${bee.id}`;
     const sendChannel = `${bee.name}:send_1`;
-    console.log(`** Connecting ${captureChannel} with ${sendChannel}`);
+    if (DEBUG_KWEENB)
+      console.log(`** Connecting ${captureChannel} with ${sendChannel}`);
     await connectChannel({
       source: captureChannel,
       destination: sendChannel,

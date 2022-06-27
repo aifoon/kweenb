@@ -6,6 +6,7 @@ import path from "path";
 import { PingConfig } from "ping";
 
 export const DEBUG_JACK_JACKTRIP = false;
+export const DEBUG_KWEENB = false;
 export const MAIN_PATH = `${
   process.env.NODE_ENV === "development"
     ? path.join(__dirname, "..")
