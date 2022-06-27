@@ -65,7 +65,7 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
 
     /* Kill Jack & Jacktrip processes on active bees */
     setActiveIndex(2);
-    const killAllProcessesPromises = activeBees.map(async (bee) =>
+    const killAllProcessesPromises = activeBees.map((bee) =>
       window.kweenb.methods.killJackAndJacktrip(bee)
     );
     await Promise.all(killAllProcessesPromises);

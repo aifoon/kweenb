@@ -41,18 +41,20 @@ export const DisconnectBeesModal = ({
     // Set cleaning state to true
     setIsDisconnecting(true);
 
-    /* Get the active bees */
+    /* Fetch active bees */
+    setActiveIndex(0);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
 
     /* Kill Jack & Jacktrip processes on active bees */
-    setActiveIndex(0);
-    const killAllProcessesPromises = activeBees.map(async (bee) => {
-      if (bee.isOnline) window.kweenb.methods.killJackAndJacktrip(bee);
+    setActiveIndex(1);
+    const killAllProcessesPromises = activeBees.map((bee) => {
+      if (bee.isOnline) return window.kweenb.methods.killJackAndJacktrip(bee);
+      return Promise.resolve();
     });
     await Promise.all(killAllProcessesPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(1);
+    setActiveIndex(2);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
     /* Close the modal */
@@ -69,6 +71,7 @@ export const DisconnectBeesModal = ({
     <BaseModal open={isOpen} onClose={closeModal}>
       <TaskList
         tasks={[
+          "Fetch active bees",
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on kweenb",
         ]}

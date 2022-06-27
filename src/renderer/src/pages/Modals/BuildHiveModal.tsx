@@ -88,7 +88,7 @@ export const BuildHiveModal = ({ open, onClose }: BuildHiveModalProps) => {
 
     /* Kill Jack & Jacktrip processes on active bees */
     setActiveIndex(5);
-    const killAllProcessesPromises = activeBees.map(async (bee) =>
+    const killAllProcessesPromises = activeBees.map((bee) =>
       window.kweenb.methods.killJackAndJacktrip(bee)
     );
     await Promise.all(killAllProcessesPromises);

@@ -459,7 +459,7 @@ const startJackWithJacktripHubClient = async (
 const startJackWithJacktripP2PServer = async (
   ipAddress: string,
   clientName: string
-) => {
+): Promise<void> => {
   // validate if Zwerm3API is running
   if (!(await isZwerm3ApiRunning(ipAddress)))
     throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));

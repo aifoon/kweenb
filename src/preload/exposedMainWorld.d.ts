@@ -49,14 +49,14 @@ declare global {
         fetchInActiveBeesData(): Promise<IBee[]>;
 
         // JACK/JACKTRIP
-        killJackAndJacktrip(bee: IBee): void;
+        killJackAndJacktrip(bee: IBee): Promise<void>;
         killJack(bee: IBee);
         killJacktrip(bee: IBee): void;
         hookBeeOnCurrentHive(bee: Ibee): void;
         makeP2PAudioConnectionBee(bee: IBee): Promise<void>;
         startJack(bee: IBee): void;
-        startJackWithJacktripHubClientBee(bee: IBee): void;
-        startJackWithJacktripP2PServerBee(bee: IBee): void;
+        startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
+        startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;
 
         // CONFIG
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
@@ -65,10 +65,10 @@ declare global {
          * KweenB
          */
 
-        disconnectP2PAudioConnectionsKweenB(): void;
-        killJackAndJacktripOnKweenB(): void;
-        startJackWithJacktripHubClientKweenB(): void;
-        startJackWithJacktripP2PClientKweenB(bee: IBee): void;
+        disconnectP2PAudioConnectionsKweenB(): Promise<void>;
+        killJackAndJacktripOnKweenB(): Promise<void>;
+        startJackWithJacktripHubClientKweenB(): Promise<void>;
+        startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
         makeP2PAudioConnectionsKweenB(): Promise<void>;
         makeP2PAudioConnectionKweenB(bee: IBee): Promise<void>;
 
@@ -86,10 +86,10 @@ declare global {
         theKween: {
           fetchTheKween(): Promise<ITheKween>;
           isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
-          killJackAndJacktripOnTheKween(): void;
-          startHubServerOnTheKween(): void;
+          killJackAndJacktripOnTheKween(): Promise<void>;
+          startHubServerOnTheKween(): Promise<void>;
           validateHive(): Promise<boolean>;
-          makeHubAudioConnections(): void;
+          makeHubAudioConnections(): Promise<void>;
         };
       };
       readonly actions: {

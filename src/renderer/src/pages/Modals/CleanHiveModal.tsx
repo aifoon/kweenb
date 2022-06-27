@@ -47,9 +47,10 @@ export const CleanHiveModal = ({ open, onClose }: CleanHiveModalProps) => {
 
     /* Kill Jack & Jacktrip processes on active bees */
     setActiveIndex(1);
-    const killAllProcessesPromises = activeBees.map(async (bee) =>
-      window.kweenb.methods.killJackAndJacktrip(bee)
-    );
+    const killAllProcessesPromises = activeBees.map((bee) => {
+      if (bee.isOnline) return window.kweenb.methods.killJackAndJacktrip(bee);
+      return Promise.resolve();
+    });
     await Promise.all(killAllProcessesPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
