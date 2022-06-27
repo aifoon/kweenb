@@ -46,9 +46,9 @@ export const DisconnectBeesModal = ({
 
     /* Kill Jack & Jacktrip processes on active bees */
     setActiveIndex(0);
-    const killAllProcessesPromises = activeBees.map(async (bee) =>
-      window.kweenb.methods.killJackAndJacktrip(bee)
-    );
+    const killAllProcessesPromises = activeBees.map(async (bee) => {
+      if (bee.isOnline) window.kweenb.methods.killJackAndJacktrip(bee);
+    });
     await Promise.all(killAllProcessesPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
