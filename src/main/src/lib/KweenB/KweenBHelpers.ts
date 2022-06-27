@@ -7,16 +7,17 @@ import {
   startJackDmpAsync,
   startJacktripHubClientAsync,
   startJacktripP2PClientAsync,
-  getJackSystemClients,
-  getJackHubClients,
   connectChannel,
+  disconnectChannel,
 } from "@zwerm3/jack";
 // import * as log from "electron-log";
 import { AppMode, BeeActiveState } from "@shared/enums";
 import { IBee } from "@shared/interfaces";
+import { DEBUG_JACK_JACKTRIP } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
+import TheKweenHelpers from "./TheKweenHelpers";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -24,17 +25,19 @@ import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 const closeApplication = async (appMode: AppMode) => {
   // close all the bees
   const bees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
-  const beeKillPromises = bees.map(async (bee) =>
-    Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress)
-  );
+  const beeKillPromises = bees.map(async (bee) => {
+    if (bee.isOnline) Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
+  });
   await Promise.all(beeKillPromises);
 
   // close the hub/hive in hub mode
   if (appMode === AppMode.Hub) {
     const settings = await SettingHelpers.getAllSettings();
-    await Zwerm3ApiHelpers.killJackAndJacktrip(
-      settings.theKweenSettings.ipAddress
-    );
+    const theKween = await TheKweenHelpers.getTheKween();
+    if (theKween.isOnline)
+      await Zwerm3ApiHelpers.killJackAndJacktrip(
+        settings.theKweenSettings.ipAddress
+      );
   }
 
   // close kweenb
@@ -159,7 +162,7 @@ const startJackWithJacktripP2PClient = async (
 
   await startJackDmpAsync(jack, {
     onLog: async (message) => {
-      console.log(message);
+      if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
   });
 
@@ -169,8 +172,23 @@ const startJackWithJacktripP2PClient = async (
 
   await startJacktripP2PClientAsync(jacktrip, {
     onLog: async (message) => {
-      console.log(message);
+      if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
+  });
+};
+
+/**
+ * Disconnect all P2P audio connections
+ */
+const disconnectAllP2PAudioConnections = async () => {
+  const activeBees = await BeeHelpers.getAllBeesData();
+  activeBees.forEach(async (bee) => {
+    const captureChannel = `system:capture_${bee.id}`;
+    const sendChannel = `${bee.name}:send_1`;
+    await disconnectChannel({
+      source: captureChannel,
+      destination: sendChannel,
+    });
   });
 };
 
@@ -179,53 +197,34 @@ const startJackWithJacktripP2PClient = async (
  * @param bee IBee
  */
 const makeP2PAudioConnection = async (bee: IBee) => {
-  // get the system clients
-  const jackSystemClients = getJackSystemClients();
-  const hubClients = getJackHubClients();
-
-  // loop over active bees and make connections
   const captureChannel = `system:capture_${bee.id}`;
   const sendChannel = `${bee.name}:send_1`;
-  if (
-    jackSystemClients.captureChannels.includes(captureChannel) &&
-    hubClients.sendChannels.includes(sendChannel)
-  ) {
-    connectChannel({
-      source: captureChannel,
-      destination: sendChannel,
-    });
-  }
+  await connectChannel({
+    source: captureChannel,
+    destination: sendChannel,
+  });
 };
 
 /**
  * Make all the P2P audio connection on kweenb
  */
 const makeP2PAudioConnections = async () => {
-  // get the system clients
-  const jackSystemClients = getJackSystemClients();
-  const hubClients = getJackHubClients();
-
   // get all active bees
   const activeBees = await BeeHelpers.getAllBeesData();
-
-  // loop over active bees and make connections
-  activeBees.forEach((bee) => {
+  activeBees.forEach(async (bee) => {
     const captureChannel = `system:capture_${bee.id}`;
     const sendChannel = `${bee.name}:send_1`;
-    if (
-      jackSystemClients.captureChannels.includes(captureChannel) &&
-      hubClients.sendChannels.includes(sendChannel)
-    ) {
-      connectChannel({
-        source: captureChannel,
-        destination: sendChannel,
-      });
-    }
+    console.log(`** Connecting ${captureChannel} with ${sendChannel}`);
+    await connectChannel({
+      source: captureChannel,
+      destination: sendChannel,
+    });
   });
 };
 
 export default {
   closeApplication,
+  disconnectAllP2PAudioConnections,
   killJackAndJacktrip,
   makeP2PAudioConnection,
   makeP2PAudioConnections,

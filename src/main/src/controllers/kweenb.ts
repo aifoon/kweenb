@@ -22,6 +22,20 @@ export const killJackAndJacktrip = async () => {
 };
 
 /**
+ * Disconnect all the P2P audio connections on kweenb
+ */
+export const disconnectAllP2PAudioConnections = async () => {
+  try {
+    await kweenBHelpers.disconnectAllP2PAudioConnections();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "disconnectAllP2PAudioConnections()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Make all the P2P audio connection on kweenb
  */
 export const makeP2PAudioConnections = async () => {

@@ -102,6 +102,8 @@ contextBridge.exposeInMainWorld("kweenb", {
      */
 
     // JACK/JACKTRIP
+    disconnectP2PAudioConnectionsKweenB: () =>
+      ipcRenderer.invoke("kweenb:disconnectP2PAudioConnections"),
     killJackAndJacktripOnKweenB: () =>
       ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
     startJackWithJacktripHubClientKweenB: () =>

@@ -22,6 +22,7 @@ import {
   StartJackWithJacktripP2PClientOnKweenB,
   MakeP2PAudioConnectionsOnKweenB,
   MakeP2PAudioConnectionOnActiveBees,
+  DisconnectP2PAudioConnectionsOnKweenB,
 } from "./Actions";
 
 export const Tools = () => {
@@ -55,8 +56,9 @@ export const Tools = () => {
               <KillAllKweenBProcesses />
               <StartJackWithJacktripP2PServerOnActiveBees />
               <StartJackWithJacktripP2PClientOnKweenB />
-              <MakeP2PAudioConnectionsOnKweenB />
               <MakeP2PAudioConnectionOnActiveBees />
+              <DisconnectP2PAudioConnectionsOnKweenB />
+              <MakeP2PAudioConnectionsOnKweenB />
             </>
           )}
         </ActionsContainer>

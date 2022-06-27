@@ -297,25 +297,14 @@ const makeP2PAudioConnection = async (bee: IBee) => {
   // validate if we found a Bee
   if (!bee) throw new Error(BEE_IS_UNDEFINED());
 
-  // get the system clients
-  const jackSystemClients = await Zwerm3ApiHelpers.getJackSystemClients(
-    bee.ipAddress
-  );
-  const hubClients = await Zwerm3ApiHelpers.getHubClients(bee.ipAddress);
-
   // loop over active bees and make connections
   const playbackChannel = `system:playback_1`;
   const receiveChannel = `${bee.name}:receive_1`;
-  if (
-    jackSystemClients.playbackChannels.includes(playbackChannel) &&
-    hubClients.receiveChannels.includes(receiveChannel)
-  ) {
-    Zwerm3ApiHelpers.connectChannel(
-      bee.ipAddress,
-      receiveChannel,
-      playbackChannel
-    );
-  }
+  await Zwerm3ApiHelpers.connectChannel(
+    bee.ipAddress,
+    receiveChannel,
+    playbackChannel
+  );
 };
 
 /**

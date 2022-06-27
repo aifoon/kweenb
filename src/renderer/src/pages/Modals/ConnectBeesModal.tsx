@@ -88,19 +88,16 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
     );
     await Promise.all(startJackWithJacktripP2PClientPromises);
 
-    /* Make all P2P audio connections on KweenB */
-    setActiveIndex(6);
-    const makeP2PAudioConnectionKweenBPromises = activeBees.map((bee) =>
-      window.kweenb.methods.makeP2PAudioConnectionKweenB(bee)
-    );
-    await Promise.all(makeP2PAudioConnectionKweenBPromises);
-
     /* Make P2P audio connection on active bees */
-    setActiveIndex(7);
+    setActiveIndex(6);
     const makeP2PAudioConnectionBeePromises = activeBees.map((bee) =>
       window.kweenb.methods.makeP2PAudioConnectionBee(bee)
     );
     await Promise.all(makeP2PAudioConnectionBeePromises);
+
+    /* Make all P2P audio connections on KweenB */
+    setActiveIndex(7);
+    await window.kweenb.methods.makeP2PAudioConnectionsKweenB();
 
     /* Close the modal */
     setActiveIndex(-1);
@@ -122,8 +119,8 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
           "Kill Jack & Jacktrip processes on KweenB",
           "Start Jack & Jacktrip P2P server on active bees",
           "Start Jack & Jacktrip P2P clients on KweenB",
-          "Make all P2P audio connections on KweenB",
           "Make P2P audio connection on active bees",
+          "Make all P2P audio connections on KweenB",
         ]}
         activeIndex={activeIndex}
         activeIndexState={activeIndexState}

@@ -53,7 +53,7 @@ declare global {
         killJack(bee: IBee);
         killJacktrip(bee: IBee): void;
         hookBeeOnCurrentHive(bee: Ibee): void;
-        makeP2PAudioConnectionBee(bee: IBee): void;
+        makeP2PAudioConnectionBee(bee: IBee): Promise<void>;
         startJack(bee: IBee): void;
         startJackWithJacktripHubClientBee(bee: IBee): void;
         startJackWithJacktripP2PServerBee(bee: IBee): void;
@@ -65,11 +65,12 @@ declare global {
          * KweenB
          */
 
+        disconnectP2PAudioConnectionsKweenB(): void;
         killJackAndJacktripOnKweenB(): void;
         startJackWithJacktripHubClientKweenB(): void;
         startJackWithJacktripP2PClientKweenB(bee: IBee): void;
-        makeP2PAudioConnectionsKweenB(): void;
-        makeP2PAudioConnectionKweenB(bee: IBee): void;
+        makeP2PAudioConnectionsKweenB(): Promise<void>;
+        makeP2PAudioConnectionKweenB(bee: IBee): Promise<void>;
 
         /**
          * Settings

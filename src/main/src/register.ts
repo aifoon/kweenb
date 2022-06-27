@@ -34,6 +34,7 @@ import {
   startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
   makeP2PAudioConnections as makeP2PAudioConnectionsKweenB,
   makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
+  disconnectAllP2PAudioConnections,
 } from "./controllers/kweenb";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -112,6 +113,10 @@ export const registerMethods = () => {
   ipcMain.handle(
     "kweenb:makeP2PAudioConnections",
     makeP2PAudioConnectionsKweenB
+  );
+  ipcMain.handle(
+    "kweenb:disconnectP2PAudioConnections",
+    disconnectAllP2PAudioConnections
   );
   ipcMain.handle("kweenb:makeP2PAudioConnection", makeP2PAudioConnectionKweenB);
 

@@ -5,6 +5,7 @@
 import path from "path";
 import { PingConfig } from "ping";
 
+export const DEBUG_JACK_JACKTRIP = false;
 export const MAIN_PATH = `${
   process.env.NODE_ENV === "development"
     ? path.join(__dirname, "..")
@@ -14,7 +15,6 @@ export const SEQUELIZE_LOGGING = false;
 export const BEE_POLLING_SECONDS = 5;
 export const ZWERM3API_PORT = 3000;
 export const DEFAULT_BEE_CONFIG = {
-  jacktripVersion: "1.5.3",
   useMqtt: false,
   mqttBroker: "mqtt://localhost:1883",
   mqttChannel: "beeworker",
