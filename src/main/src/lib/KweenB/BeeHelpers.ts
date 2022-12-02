@@ -298,12 +298,18 @@ const makeP2PAudioConnection = async (bee: IBee) => {
   if (!bee) throw new Error(BEE_IS_UNDEFINED());
 
   // loop over active bees and make connections
-  const playbackChannel = `system:playback_1`;
+  const playbackChannel1 = `system:playback_1`;
+  const playbackChannel2 = `system:playback_2`;
   const receiveChannel = `${bee.name}:receive_1`;
   await Zwerm3ApiHelpers.connectChannel(
     bee.ipAddress,
     receiveChannel,
-    playbackChannel
+    playbackChannel1
+  );
+  await Zwerm3ApiHelpers.connectChannel(
+    bee.ipAddress,
+    receiveChannel,
+    playbackChannel2
   );
 };
 
