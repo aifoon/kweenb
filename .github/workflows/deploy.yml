@@ -14,8 +14,9 @@ jobs:
           node-version: 14
       - id: get_version
         uses: battila7/get-version-action@v2
-      - uses: elgohr/Github-Release-Action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          title: "${{ steps.get_version.outputs.version }}"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            LICENSE.txt
