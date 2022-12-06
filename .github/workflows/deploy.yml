@@ -16,5 +16,5 @@ jobs:
         uses: battila7/get-version-action@v2
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.KWEENB_REPO_TOKEN }}"
           prerelease: false
