@@ -20,12 +20,7 @@ jobs:
         with:
           repo_token: "${{ secrets.KWEENB_REPO_TOKEN }}"
           prerelease: false
-      - uses: xresloader/upload-to-github-release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.KWEENB_REPO_TOKEN }}
-        with:
-          file: "bin/*.dmg"
-          verbose: true
-          prerelease: true
+          files: |
+            bin/*.dmg
 
 
