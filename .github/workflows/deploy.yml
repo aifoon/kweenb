@@ -12,9 +12,22 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: 14
-      - id: get_version
-        uses: battila7/get-version-action@v2
+      - name: install dependencies
+        run: npm install
+      - name: compiling the application
+        run: npm compile
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.KWEENB_REPO_TOKEN }}"
           prerelease: false
+      - id: keydb
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+      - uses: Shopify/upload-to-release@v1
+        with:
+          name: ${{ steps.keydb.outputs.release }}
+          path: bin/*.dmg
+          repo-token: ${{ secrets.KWEENB_REPO_TOKEN }}
+
+
