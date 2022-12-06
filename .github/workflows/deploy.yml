@@ -15,7 +15,7 @@ jobs:
       - name: install dependencies
         run: npm install
       - name: compiling the application
-        run: npm compile
+        run: npm run compile
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.KWEENB_REPO_TOKEN }}"
