@@ -35,5 +35,8 @@ npm-debug.log.*
 # Do not add database
 kweenb.sqlite
 
+# Do not environment variables
+.env
+
 # Do not add installed state
 installed

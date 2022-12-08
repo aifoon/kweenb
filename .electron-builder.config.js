@@ -19,7 +19,7 @@ const config = {
   },
   mac: {
     target: {
-      target: "default",
+      target: "dmg",
       arch: ["x64", "arm64"],
     },
   },
