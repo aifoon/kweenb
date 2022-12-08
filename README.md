@@ -19,6 +19,9 @@ There are three project that needs to be build in order to compile into OS binar
 - `build:main` - Builds the main code.
 - `build:preload` - Builds the preload code.
 - `build:renderer` - Builds the renderer code.
+- `prepare-publish` - Prepares the publication (clearing old binaries)
+- `publish` - Publishes the code to GitHub
+- `publish-test` - Publish testing (only publication)
 - `compile` - Compile the binaries.
 - `typecheck` - Typecheck the main, preload and renderer project.
 - `typecheck:main`- Typechecks the main project.

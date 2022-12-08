@@ -47,7 +47,7 @@ const publish = async () => {
   ).data[0].sha;
 
   // version does not exist, create a new ref with the last commit
-  octokit.rest.git.createRef({
+  await octokit.rest.git.createRef({
     owner,
     repo,
     ref: `refs/tags/${tagname}`,
@@ -86,7 +86,6 @@ const publish = async () => {
     if (commits.data && commits.data.total_commits > 0) {
       releaseNotes += `# What's Changed \n${commits.data.commits
         .map((c) => {
-          console.log(c);
           return `- [${c.commit.message}](${c.html_url}) by ${c.committer.login}`;
         })
         .join("\n")}`;
@@ -112,19 +111,27 @@ const publish = async () => {
    * Upload the binaries
    */
 
-  // fs.readdirSync(binDir)
-  //   .filter((file) => file.endsWith(".dmg"))
-  //   .forEach(async (file) => {
-  //     const binaryFile = fs.readFileSync(path.join(binDir, file));
-  //     logger.info(`Uploading binary ${file}...`);
-  //     await octokit.rest.repos.uploadReleaseAsset({
-  //       owner,
-  //       repo,
-  //       name: file,
-  //       release_id: release.data.id,
-  //       data: binaryFile,
-  //     });
-  //   });
+  logger.info(`Uploading binaries...`);
+  const binariesUploadPromises = fs
+    .readdirSync(binDir)
+    .filter((file) => file.endsWith(".dmg"))
+    .map(async (file) => {
+      const binaryFile = fs.readFileSync(path.join(binDir, file));
+      await octokit.rest.repos.uploadReleaseAsset({
+        owner,
+        repo,
+        name: file,
+        release_id: release.data.id,
+        data: binaryFile,
+      });
+    });
+  await Promise.all(binariesUploadPromises);
+
+  /**
+   * Done
+   */
+
+  logger.info(`Version ${version} has been published`);
 };
 
 publish();

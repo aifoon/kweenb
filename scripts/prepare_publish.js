@@ -6,11 +6,6 @@ const { createLogger } = require("vite");
 // create the logger
 const logger = createLogger("info", { prefix: "[scripts]" });
 
-// validate the tagname
-if (!process.env.npm_config_tagname) {
-  throw new Error("tagName is required.");
-}
-
 // set the binary dir
 const binDir = path.join(process.cwd(), "bin");
 

@@ -1,6 +1,6 @@
 {
   "name": "kweenb",
-  "version": "1.0.15",
+  "version": "1.0.3",
   "private": true,
   "description": "KweenB is an audio management application for the Zwerm3 project of Aifoon (BE).",
   "scripts": {
@@ -9,9 +9,9 @@
     "build:preload": "cd ./src/preload && vite build",
     "build:renderer": "cd ./src/renderer && vite build",
     "watch": "node scripts/watch.js",
-    "publish-test": "node scripts/publish.js",
-    "publish": "npm run prepare-publish && npm run compile && node scripts/publish.js",
     "prepare-publish": "node scripts/prepare_publish.js",
+    "publish": "npm run prepare-publish && npm run compile && node scripts/publish.js",
+    "publish-test": "node scripts/publish.js",
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --config.asar=false",
     "compile:linux": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --linux --x64",
     "typecheck": "npm run typecheck-main && npm run typecheck-preload && npm run typecheck-renderer",
