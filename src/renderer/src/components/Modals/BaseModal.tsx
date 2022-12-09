@@ -87,7 +87,7 @@ export const BaseModal = ({
     <BaseModalStyled
       aria-labelledby="unstyled-modal-title"
       aria-describedby="unstyled-modal-description"
-      BackdropComponent={Backdrop}
+      slots={{ backdrop: Backdrop }}
       open={isOpen}
       onClose={handleClose}
     >

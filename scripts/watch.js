@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const { createServer, build, createLogger } = require("vite");
 const electronPath = require("electron");
 const { spawn } = require("child_process");
@@ -48,9 +46,9 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
     const protocol = server.https ? "https:" : "http:";
     const host = server.host || "localhost";
     const port = server.port; // Vite searches for and occupies the first free port: 3000, 3001, 3002 and so on
-    const path = "/";
-    process.env.VITE_DEV_SERVER_URL = `${protocol}//${host}:${port}${path}`;
-    console.log(process.env.VITE_DEV_SERVER_URL);
+    process.env.VITE_DEV_SERVER_PORT = port;
+    process.env.VITE_DEV_SERVER_HOST = host;
+    process.env.VITE_DEV_SERVER_URL = `${protocol}//${host}:${port}`;
   }
 
   const logger = createLogger(LOG_LEVEL, {

@@ -1,6 +1,6 @@
 import { join, resolve } from "path";
 import { builtinModules } from "module";
-import react from "vite-preset-react";
+import react from "@vitejs/plugin-react";
 import { chrome } from "../../.electron-vendors.cache.json";
 
 const PACKAGE_ROOT = __dirname;

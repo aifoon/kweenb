@@ -7,11 +7,9 @@
     },
   },
   "include": [
-    "../shared/**/*",
-    "../preload/**/*",
-    "../../types/**/*.d.ts",
+    "../shared/**/*.ts",
+    "src/**/*.ts",
+    "exposedMainWorld.d.ts"
   ],
-  "exclude": [
-    "../preload/dist/"
-  ]
+  "exclude": ["dist/**/*.*"]
 }

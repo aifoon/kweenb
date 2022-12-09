@@ -38,7 +38,7 @@ export default class ElectronApp {
       process.env.NODE_ENV === "development" ||
       process.env.DEBUG_PROD === "true";
     this.isProduction = process.env.NODE_ENV === "production";
-    this.port = process.env.VITE_DEV_SERVER_URL || 3000;
+    this.port = process.env.VITE_DEV_SERVER_PORT || 3000;
   }
 
   /**
@@ -49,7 +49,7 @@ export default class ElectronApp {
    */
   resolveHtmlPath(htmlFileName: string): string {
     if (this.isDevelopment) {
-      const url = new URL(`http://localhost:${this.port}`);
+      const url = new URL(`http://localhost:${this.port}/`);
       url.pathname = htmlFileName;
       return url.href;
     }
@@ -75,7 +75,7 @@ export default class ElectronApp {
       height: this.options.browserHeight,
       icon: this.options?.iconPath ? this.options.iconPath : "",
       webPreferences: {
-        nativeWindowOpen: true,
+        // nativeWindowOpen: true,
         webviewTag: false,
         preload: path.join(__dirname, "../../preload/dist/index.cjs"),
       },

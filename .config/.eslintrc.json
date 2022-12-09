@@ -1,95 +1,94 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "airbnb",
+    "airbnb-typescript",
+    "prettier"
+  ],
+  "globals": {
+    "NodeJS": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": false
     },
-    "extends": [
-        "airbnb",
-        "airbnb-typescript",
-        "prettier"
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": ["**/*.js"],
+  "plugins": [
+    "prettier"
+  ],
+  "rules": {
+    /**
+      * React Rules
+      */
+
+    "react/jsx-filename-extension": [
+      1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
     ],
-    "globals": {
-        "NodeJS": true
-    },
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 12,
-        "sourceType": "module",
-        "project": "tsconfig.json",
-        "tsconfigRootDir": "./"
-    },
-    "ignorePatterns": [".eslintrc.json"],
-    "plugins": [
-        "prettier"
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off", // Since we do not use prop-types
+    "react/require-default-props": "off", // Since we do not use prop-types
+    "react/jsx-props-no-spreading": "off",
+    "react/function-component-definition": [
+      2,
+      {
+        "namedComponents": "arrow-function",
+        "unnamedComponents": "arrow-function"
+      }
     ],
-    "rules": {
-        /**
-         * React Rules
-         */
 
-        "react/jsx-filename-extension": [
-            1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
-        ],
-        "react/react-in-jsx-scope": "off",
-        "react/prop-types": "off", // Since we do not use prop-types
-        "react/require-default-props": "off", // Since we do not use prop-types
-        "react/jsx-props-no-spreading": "off",
-        "react/function-component-definition": [
-            2,
-            {
-                "namedComponents": "arrow-function",
-                "unnamedComponents": "arrow-function"
-            }
-        ],
+    /**
+      * TypeScript ESLint
+      */
 
-        /**
-         * TypeScript ESLint
-         */
+    "@typescript-eslint/no-unused-vars": ["warn"],
+    "@typescript-eslint/no-shadow": "error",
 
-        "@typescript-eslint/no-unused-vars": ["warn"],
-        "@typescript-eslint/no-shadow": "error",
+    /**
+      * Prettier
+      */
 
-        /**
-         * Prettier
-         */
+    "prettier/prettier": "error",
 
-        "prettier/prettier": "error",
+    /**
+      * General ESLint
+      */
 
-        /**
-         * General ESLint
-         */
-
-        "no-console": "off",
-        "import/prefer-default-export": "off",
-        "no-unused-vars": "off",
-        "no-param-reassign": "off",
-        "guard-for-in": "off",
-        "no-shadow": "off",
-        "no-underscore-dangle": "off",
-        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
-        "import/extensions": [
-            "error",
-            "always",
-            {
-                "js": "never",
-                "jsx": "never",
-                "ts": "never",
-                "tsx": "never"
-            }
-        ]
-    },
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"],
-                "moduleDirectory": ["node_modules", "src/"]
-            },
-            "typescript": {
-                "project": "./tsconfig.json"
-            }
-        }
+    "no-console": "off",
+    "import/prefer-default-export": "off",
+    "no-unused-vars": "off",
+    "no-param-reassign": "off",
+    "guard-for-in": "off",
+    "no-shadow": "off",
+    "no-underscore-dangle": "off",
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "import/extensions": [
+      "error",
+      "always",
+      {
+          "js": "never",
+          "jsx": "never",
+          "ts": "never",
+          "tsx": "never"
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
+        "moduleDirectory": ["node_modules", "src/"]
+      },
+      "typescript": {
+        "project": "./tsconfig.json"
+      }
     }
+  }
 }

@@ -19,11 +19,9 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "../renderer/**/*",
+    "src/**/*.tsx",
     "types.d.ts",
     "../preload/exposedMainWorld.d.ts"
   ],
-  "exclude": [
-    "../main/**/*"
-  ]
+  "exclude": ["dist/**/*.*"]
 }

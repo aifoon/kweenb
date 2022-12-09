@@ -1,23 +1,17 @@
 import { MemoryRouter as Router, Routes, Route } from "react-router-dom";
 import { Flex } from "@components/.";
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import { AppContextProvider } from "./context/AppContextProvider";
-import {
-  DesignSystem,
-  Settings,
-  ManageBees,
-  BeeConfig,
-} from "./pages";
+import { DesignSystem, Settings, ManageBees, BeeConfig } from "./pages";
 import { Z3Navigation, Z3Sidebar } from "./layout";
 import { Tools } from "./pages/Tools/Tools";
 
 const startDesignSystem = false;
 
-export const App = () => {
-  return (
-    <Router>
-      <DndProvider backend={HTML5Backend}>
+export const App = () => (
+  <Router>
+    <DndProvider backend={HTML5Backend}>
       {startDesignSystem && (
         <Routes>
           <Route path="/" element={<DesignSystem />} />
@@ -38,7 +32,6 @@ export const App = () => {
           </Flex>
         </AppContextProvider>
       )}
-      </DndProvider>
-    </Router>
-  )
-};
+    </DndProvider>
+  </Router>
+);
