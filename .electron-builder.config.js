@@ -8,7 +8,6 @@ require("dotenv").config();
 const config = {
   appId: "be.aifoon.kweenb",
   productName: "kweenb",
-  asar: true,
   asarUnpack: ["node_modules/sqlite3"],
   copyright: "aifoon vzw",
   afterSign: "scripts/notarize.js",
@@ -17,6 +16,7 @@ const config = {
     buildResources: "buildResources",
   },
   mac: {
+    asar: true,
     hardenedRuntime: true,
     entitlements: ".config/entitlements.mac.plist",
     entitlementsInherit: ".config/entitlements.mac.plist",
@@ -30,10 +30,15 @@ const config = {
     sign: false,
   },
   linux: {
-    target: ["AppImage", "deb"],
+    asar: false,
     category: "Utility",
     maintainer: "aifoon",
     vendor: "aifoon",
+    icon: "buildResources/icon.png",
+    target: {
+      target: "deb",
+      arch: ["x64", "arm64"],
+    },
   },
   files: ["src/**/dist/**"],
   extraMetadata: {

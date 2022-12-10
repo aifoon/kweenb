@@ -13,7 +13,7 @@
     "publish": "npm run prepare-publish && npm run compile && node scripts/publish.js",
     "publish-test": "node scripts/publish.js",
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
-    "compile:linux": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --linux --x64",
+    "compile:linux": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --linux",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer",
     "typecheck:main": "tsc --noEmit -p src/main/tsconfig.json",
     "typecheck:preload": "tsc --noEmit -p src/preload/tsconfig.json",
@@ -29,6 +29,7 @@
   "license": "ISC",
   "devDependencies": {
     "@electron/notarize": "^1.2.3",
+    "@electron/rebuild": "^3.2.10",
     "@octokit/rest": "^19.0.5",
     "@types/deep-equal": "^1.0.1",
     "@types/node": "^18.11.12",
