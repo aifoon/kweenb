@@ -76,7 +76,7 @@ export default class MenuBuilder {
       label: "kweenb",
       submenu: [
         {
-          label: "Over kweenb",
+          label: "About kweenb",
           click: () => {
             this.mainWindow.webContents.send("about-kweenb");
           },

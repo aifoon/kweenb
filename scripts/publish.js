@@ -36,7 +36,7 @@ const publish = async () => {
 
   // validate
   if (tagExists) {
-    logger.warn(`Version ${version} already published.`);
+    logger.error(`Version ${version} already published.`);
     return;
   }
 
