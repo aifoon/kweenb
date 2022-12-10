@@ -3,9 +3,10 @@
  * for the first time
  */
 
-import path from "path";
+import * as path from "path";
 import fs from "fs";
 import { Utils } from "@shared/utils";
+import { app } from "electron";
 import { MAIN_PATH } from "./consts";
 import settings from "./.firstboot/settings";
 import Setting from "./models/Setting";
@@ -23,11 +24,20 @@ const beforeFirstBoot = async () => {
 };
 
 /**
+ * Return the path of the installed file
+ * @returns
+ */
+const getInstalledFilePath = () =>
+  process.env.NODE_ENV === "development"
+    ? path.join(MAIN_PATH, "installed")
+    : path.join(app.getPath("userData"), "installed");
+
+/**
  * After the first boot
  */
 const afterFirstBoot = () => {
   try {
-    const installedFile = path.join(MAIN_PATH, "installed");
+    const installedFile = getInstalledFilePath();
     const d = new Date();
     fs.writeFileSync(
       installedFile,
@@ -45,7 +55,7 @@ const afterFirstBoot = () => {
  * @returns boolean
  */
 const hasBootedForTheFirstTime = (): boolean =>
-  fs.existsSync(path.join(MAIN_PATH, "installed"));
+  fs.existsSync(getInstalledFilePath());
 
 /**
  * Seeding the default settings

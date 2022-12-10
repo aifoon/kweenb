@@ -2,6 +2,7 @@
  * A Database Instance
  */
 
+import { app } from "electron";
 import { join } from "path";
 import { Sequelize } from "sequelize";
 import { SEQUELIZE_LOGGING } from "./consts";
@@ -43,5 +44,5 @@ class Database {
 export default new Database(
   process.env.NODE_ENV === "development"
     ? "kweenb.sqlite"
-    : join(__dirname, "kweenb.sqlite")
+    : join(app.getPath("userData"), "kweenb.sqlite")
 );

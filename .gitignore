@@ -40,3 +40,6 @@ kweenb.sqlite
 
 # Do not add installed state
 installed
+
+# Do not add certificates
+.config/*.p12

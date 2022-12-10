@@ -44,6 +44,7 @@ const config = {
       input: join(PACKAGE_ROOT, "index.html"),
       external: [...builtinModules],
     },
+    chunkSizeWarningLimit: 5000,
     emptyOutDir: true,
     brotliSize: false,
   },
