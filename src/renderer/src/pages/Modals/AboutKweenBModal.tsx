@@ -1,0 +1,66 @@
+import { BaseModal } from "@components/Modals/BaseModal";
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+
+type AboutKweenBModalProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+const AboutKweenBModalWrapper = styled.div`
+  font-size: 0.9rem;
+`;
+
+const AboutKweenBModalContentBlock = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const AboutKweenBModalTitle = styled.div`
+  font-weight: bold;
+`;
+
+export const AboutKweenBModal = ({ open, onClose }: AboutKweenBModalProps) => {
+  const [isOpen, setIsOpen] = useState(open);
+  const [kweenbVersion, setKweenBVersion] = useState("");
+
+  useEffect(() => {
+    window.kweenb.methods.getKweenBVersion().then((_kweenbVersion) => {
+      setKweenBVersion(_kweenbVersion);
+    });
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(open);
+  }, [open]);
+
+  return (
+    <BaseModal title="Over kweenb" open={isOpen} onClose={onClose}>
+      <AboutKweenBModalWrapper>
+        <AboutKweenBModalContentBlock>
+          <AboutKweenBModalTitle>Version</AboutKweenBModalTitle>
+          <div>{kweenbVersion && `v${kweenbVersion}`}</div>
+        </AboutKweenBModalContentBlock>
+        <AboutKweenBModalContentBlock>
+          <AboutKweenBModalTitle>Description</AboutKweenBModalTitle>
+          <div>
+            KweenB is a speaker audio management application for zwerm3 project
+            of Aifoon (BE).
+          </div>
+        </AboutKweenBModalContentBlock>
+        <AboutKweenBModalContentBlock>
+          <AboutKweenBModalTitle>Authors</AboutKweenBModalTitle>
+          <div>
+            <ul>
+              <li>Tim De Paepe</li>
+              <li>Kasper Jordaens</li>
+            </ul>
+          </div>
+        </AboutKweenBModalContentBlock>
+        <AboutKweenBModalContentBlock>
+          <AboutKweenBModalTitle>Support</AboutKweenBModalTitle>
+          <div>tim.depaepe@gmail.com</div>
+        </AboutKweenBModalContentBlock>
+      </AboutKweenBModalWrapper>
+    </BaseModal>
+  );
+};

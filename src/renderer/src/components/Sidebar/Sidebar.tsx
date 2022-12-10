@@ -1,3 +1,4 @@
+import { version } from "os";
 import React, { ReactElement } from "react";
 import styled from "styled-components";
 import sidebarLogo from "../../images/sidebar-logo.png";
@@ -10,6 +11,7 @@ interface SidebarProps {
   width?: string;
   height?: string;
   fixedToSide?: boolean;
+  versionNumber?: string;
 }
 
 const SidebarContainer = styled.aside<SidebarProps>`
@@ -47,8 +49,16 @@ const SidebarButtonsWrapper = styled.div`
 `;
 
 const SidebarLogoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   text-align: center;
   opacity: 0.5;
+  & > img {
+    width: 80px;
+  }
+  & > .version {
+    font-size: 0.8rem;
+  }
 `;
 
 export const Sidebar = ({
@@ -57,6 +67,7 @@ export const Sidebar = ({
   width = "200px",
   height = "200px",
   fixedToSide = false,
+  versionNumber = "",
 }: SidebarProps) => (
   <SidebarContainer width={width} height={height} fixedToSide={fixedToSide}>
     <div>
@@ -72,7 +83,10 @@ export const Sidebar = ({
       )}
     </div>
     <SidebarLogoWrapper>
-      <img src={sidebarLogo} alt="Sidebar Logo" />
+      <div>
+        <img src={sidebarLogo} alt="Sidebar Logo" />
+      </div>
+      {versionNumber && <div className="version">v{versionNumber}</div>}
     </SidebarLogoWrapper>
   </SidebarContainer>
 );

@@ -12,22 +12,6 @@ import { AppMode } from "@shared/enums";
 declare global {
   interface Window {
     /**
-     * Expose Environment versions.
-     * @example
-     * console.log(window.versions)
-     */
-    readonly versions: NodeJS.ProcessVersions;
-
-    /**
-     * Safe expose node.js API
-     * @example
-     * window.nodeCrypto('data')
-     */
-    readonly nodeCrypto: {
-      sha256sum(data: import("crypto").BinaryLike): string;
-    };
-
-    /**
      * The KweenB methods
      */
     readonly kweenb: {
@@ -66,6 +50,7 @@ declare global {
          */
 
         disconnectP2PAudioConnectionsKweenB(): Promise<void>;
+        getKweenBVersion(): Promise<string>;
         killJackAndJacktripOnKweenB(): Promise<void>;
         startJackWithJacktripHubClientKweenB(): Promise<void>;
         startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
@@ -101,6 +86,7 @@ declare global {
         unsubscribe(topic: string);
       };
       readonly events: {
+        onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;
         onAppMode(
           callback: (event: IpcMessageEvent, appMode: AppMode) => void
         ): () => void;

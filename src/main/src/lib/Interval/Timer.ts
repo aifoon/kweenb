@@ -15,6 +15,5 @@ export default class Timer extends IntervalWorker {
   worker(): void {
     if (this.state === IntervalWorkerState.Pause) return;
     this.currentTimer += 1;
-    console.log(this.currentTimer);
   }
 }

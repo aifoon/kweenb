@@ -2,10 +2,26 @@
  * All the KweenB controller endpoints
  */
 
+import { app } from "electron";
 import { IBee } from "@shared/interfaces";
 import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
+
+/**
+ * Get the KweenB Version
+ * @returns
+ */
+export const getKweenBVersion = () => {
+  try {
+    return app.getVersion();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "getKweenBVersion()", message: e.message },
+      true
+    );
+  }
+};
 
 /**
  * Kill all jack and jacktrip processes

@@ -1,9 +1,4 @@
-if (process.env.VITE_APP_VERSION === undefined) {
-  const now = new Date();
-  process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${
-    now.getUTCMonth() + 1
-  }.${now.getUTCDate()}-${now.getUTCHours() * 60 + now.getUTCMinutes()}`;
-}
+const { version } = require("./package.json");
 
 /**
  * @type {import('electron-builder').Configuration}
@@ -13,6 +8,7 @@ const config = {
   appId: "com.kweenb.app",
   productName: "kweenb",
   copyright: "Copyright © 2022 aifoon vzw.",
+  buildVersion: version,
   directories: {
     output: "bin",
     buildResources: "buildResources",
@@ -31,7 +27,7 @@ const config = {
   },
   files: ["src/**/dist/**"],
   extraMetadata: {
-    version: process.env.VITE_APP_VERSION,
+    version,
   },
 };
 

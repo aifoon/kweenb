@@ -21,9 +21,6 @@ const BaseModalStyled = styled(ModalUnstyled)`
   display: flex;
   align-items: center;
   justify-content: center;
-  &:focus-visible {
-    outline: none;
-  }
 `;
 
 const Backdrop = styled("div")`
@@ -42,6 +39,9 @@ const ModalContentContainer = styled.div`
   background-color: var(--primary-200);
   border-radius: var(--radiusMedium);
   padding: 20px;
+  &:focus-visible {
+    outline: none;
+  }
 `;
 
 const ModalHeaderContainer = styled.div<{

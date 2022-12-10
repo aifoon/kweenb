@@ -2,15 +2,14 @@ const fs = require("fs");
 const path = require("path");
 const { Octokit } = require("@octokit/rest");
 require("dotenv").config();
-const { createLogger } = require("vite");
 var { version } = require("../package.json");
+const logger = require("./logger");
 
 /**
  * Prepare API requests
  */
 
 const octokit = new Octokit({ auth: process.env.GH_TOKEN });
-const logger = createLogger("info", { prefix: "[scripts]" });
 const binDir = path.join(process.cwd(), "bin");
 const tagname = `v${version}`;
 const owner = "aifoon";
@@ -18,11 +17,14 @@ const repo = "kweenb";
 
 const publish = async () => {
   // show the outer world what we are doing
-  logger.info("Creating new release...");
+  logger.info("Start publishing!");
 
   /**
    * The current tags for this repo
    */
+
+  // logging
+  logger.info(`Creating a tag for version ${version}...`);
 
   let { data: tagData } = await octokit.rest.repos.listTags({
     owner,
@@ -57,6 +59,9 @@ const publish = async () => {
   /**
    * Generate the Release Notes
    */
+
+  // logging
+  logger.info("Generating release notes...");
 
   // define the release notes
   let releaseNotes = "";
@@ -96,6 +101,9 @@ const publish = async () => {
    * Create a new release
    */
 
+  // logging
+  logger.info(`Creating a release from tag...`);
+
   const release = await octokit.rest.repos.createRelease({
     owner,
     repo,
@@ -111,7 +119,9 @@ const publish = async () => {
    * Upload the binaries
    */
 
-  logger.info(`Uploading binaries...`);
+  // logging
+  logger.info(`Uploading binaries to release...`);
+
   const binariesUploadPromises = fs
     .readdirSync(binDir)
     .filter((file) => file.endsWith(".dmg"))
@@ -131,7 +141,8 @@ const publish = async () => {
    * Done
    */
 
-  logger.info(`Version ${version} has been published`);
+  logger.info(`Version ${version} has been published!`);
+  console.log("");
 };
 
 publish();

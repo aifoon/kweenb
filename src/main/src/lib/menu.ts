@@ -76,6 +76,13 @@ export default class MenuBuilder {
       label: "kweenb",
       submenu: [
         {
+          label: "Over kweenb",
+          click: () => {
+            this.mainWindow.webContents.send("about-kweenb");
+          },
+        },
+        { type: "separator" },
+        {
           label: "Hide kweenb",
           accelerator: "Command+H",
           selector: "hide:",
