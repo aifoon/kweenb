@@ -34,7 +34,7 @@ export const AboutKweenBModal = ({ open, onClose }: AboutKweenBModalProps) => {
   }, [open]);
 
   return (
-    <BaseModal title="Over kweenb" open={isOpen} onClose={onClose}>
+    <BaseModal title="About kweenb" open={isOpen} onClose={onClose}>
       <AboutKweenBModalWrapper>
         <AboutKweenBModalContentBlock>
           <AboutKweenBModalTitle>Version</AboutKweenBModalTitle>
