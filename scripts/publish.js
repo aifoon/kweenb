@@ -41,8 +41,6 @@ const publish = async () => {
 
   // if tag doesn't exist, create one
   if (!tagExists) {
-    logger.info("eqdsfds");
-
     // get the last commit
     const lastCommitSha = (
       await octokit.rest.repos.listCommits({
@@ -64,12 +62,10 @@ const publish = async () => {
    * Generate the Release Notes
    */
 
+  let releaseNotes = "";
   if (!tagExists) {
     // logging
     logger.info("Generating release notes...");
-
-    // define the release notes
-    let releaseNotes = "";
 
     // get the tagdata with the new tag
     let { data: updatedTagData } = await octokit.rest.repos.listTags({
