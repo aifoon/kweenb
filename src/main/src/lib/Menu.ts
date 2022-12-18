@@ -10,9 +10,9 @@ import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 
-interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
+interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
-  submenu?: DarwinMenuItemConstructorOptions[] | Menu;
+  submenu?: CustomMenuItemConstructorOptions[] | Menu;
 }
 
 export default class MenuBuilder {
@@ -36,10 +36,12 @@ export default class MenuBuilder {
     }
 
     // get the template based on the OS
-    const template =
-      process.platform === "darwin"
-        ? this.buildDarwinTemplate()
-        : this.buildDefaultTemplate();
+    let template;
+    if (process.platform === "darwin") {
+      template = this.buildDarwinTemplate();
+    } else {
+      template = this.buildLinuxTemplate();
+    }
 
     // create the menu and set it as application menu
     const menu = Menu.buildFromTemplate(template);
@@ -72,7 +74,7 @@ export default class MenuBuilder {
    */
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     // The About Menu
-    const subMenuAbout: DarwinMenuItemConstructorOptions = {
+    const subMenuAbout: CustomMenuItemConstructorOptions = {
       label: "kweenb",
       submenu: [
         {
@@ -105,7 +107,7 @@ export default class MenuBuilder {
     };
 
     // The file menu
-    const subMenuFile: DarwinMenuItemConstructorOptions = {
+    const subMenuFile: CustomMenuItemConstructorOptions = {
       label: "File",
       submenu: [
         {
@@ -175,7 +177,7 @@ export default class MenuBuilder {
     };
 
     // The Mode Menu
-    const subMenuMode: DarwinMenuItemConstructorOptions = {
+    const subMenuMode: CustomMenuItemConstructorOptions = {
       label: "Mode",
       submenu: [
         {
@@ -199,7 +201,7 @@ export default class MenuBuilder {
     };
 
     // The Developer View Menu
-    const subMenuViewDev: MenuItemConstructorOptions = {
+    const subMenuViewDev: CustomMenuItemConstructorOptions = {
       label: "View",
       submenu: [
         {
@@ -227,7 +229,7 @@ export default class MenuBuilder {
     };
 
     // The Production View Menu
-    const subMenuViewProd: MenuItemConstructorOptions = {
+    const subMenuViewProd: CustomMenuItemConstructorOptions = {
       label: "View",
       submenu: [
         {
@@ -241,7 +243,7 @@ export default class MenuBuilder {
     };
 
     // The Window Menu
-    const subMenuWindow: DarwinMenuItemConstructorOptions = {
+    const subMenuWindow: CustomMenuItemConstructorOptions = {
       label: "Window",
       submenu: [
         {
@@ -261,6 +263,130 @@ export default class MenuBuilder {
       this.isDevelopment ? subMenuViewDev : subMenuViewProd,
       subMenuWindow,
     ];
+  }
+
+  /**
+   * Builds the Linux Template
+   *
+   * @returns The MenuItems needed for the template
+   */
+  buildLinuxTemplate(): MenuItemConstructorOptions[] {
+    // The About Menu
+    const subMenuAbout: CustomMenuItemConstructorOptions = {
+      label: "kweenb",
+      submenu: [
+        {
+          label: "About kweenb",
+          click: () => {
+            this.mainWindow.webContents.send("about-kweenb");
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Quit",
+          accelerator: "CTRL+Q",
+          click: () => {
+            app.quit();
+          },
+        },
+      ],
+    };
+
+    // The file menu
+    const subMenuFile: CustomMenuItemConstructorOptions = {
+      label: "File",
+      submenu: [
+        {
+          label: "Export bees",
+          click: () => {
+            // Opens file dialog looking for bees data
+            dialog
+              .showSaveDialog(this.mainWindow, {
+                defaultPath: "kweenb-bees.json",
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                BeeHelpers.exportBees(result.filePath || "");
+              });
+          },
+        },
+        {
+          label: "Import bees",
+          click: () => {
+            // Opens file dialog looking for the bees data
+            dialog
+              .showOpenDialog(this.mainWindow, {
+                properties: ["openFile"],
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                if (result.filePaths && result.filePaths.length > 0) {
+                  BeeHelpers.importBees(result.filePaths[0]);
+                  this.mainWindow.webContents.send("imported-bees");
+                }
+              });
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Export settings",
+          click: () => {
+            // Opens file dialog looking for settings data
+            dialog
+              .showSaveDialog(this.mainWindow, {
+                defaultPath: "kweenb-settings.json",
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                SettingsHelper.exportSettings(result.filePath || "");
+              });
+          },
+        },
+        {
+          label: "Import settings",
+          click: () => {
+            // Opens file dialog looking for the bees data
+            dialog
+              .showOpenDialog(this.mainWindow, {
+                properties: ["openFile"],
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+              .then((result) => {
+                if (result.filePaths && result.filePaths.length > 0) {
+                  SettingsHelper.importSettings(result.filePaths[0]);
+                  this.mainWindow.webContents.send("imported-settings");
+                }
+              });
+          },
+        },
+      ],
+    };
+
+    // The Mode Menu
+    const subMenuMode: CustomMenuItemConstructorOptions = {
+      label: "Mode",
+      submenu: [
+        {
+          label: "Hub",
+          type: "radio",
+          click: () => {
+            this.mainWindow.webContents.send("app-mode", AppMode.Hub);
+            KweenBGlobal.kweenb.appMode = AppMode.Hub;
+          },
+        },
+        {
+          label: "P2P",
+          type: "radio",
+          checked: true,
+          click: () => {
+            this.mainWindow.webContents.send("app-mode", AppMode.P2P);
+            KweenBGlobal.kweenb.appMode = AppMode.P2P;
+          },
+        },
+      ],
+    };
+
+    return [subMenuAbout, subMenuFile, subMenuMode];
   }
 
   /**

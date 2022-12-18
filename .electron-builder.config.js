@@ -11,9 +11,9 @@ const config = {
   asarUnpack: ["node_modules/sqlite3"],
   copyright: "aifoon vzw",
   afterSign: "scripts/notarize.js",
+  artifactName: "${name}-${version}-${os}-${arch}.${ext}",
   directories: {
     output: "bin",
-    buildResources: "buildResources",
   },
   mac: {
     asar: true,
@@ -30,17 +30,17 @@ const config = {
     sign: false,
   },
   linux: {
-    asar: false,
+    asar: true,
     category: "Utility",
     maintainer: "aifoon",
     vendor: "aifoon",
     icon: "buildResources/icon.png",
     target: {
       target: "deb",
-      arch: ["x64", "arm64"],
+      arch: ["x64", "arm64", "armv7l"],
     },
   },
-  files: ["src/**/dist/**"],
+  files: ["buildResources/**/*", "src/**/dist/**"],
   extraMetadata: {
     version,
   },

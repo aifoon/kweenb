@@ -36,64 +36,72 @@ const publish = async () => {
 
   // validate
   if (tagExists) {
-    logger.error(`Version ${version} already published.`);
-    return;
+    logger.info(`Tag ${version} already exists.`);
   }
 
-  // get the last commit
-  const lastCommitSha = (
-    await octokit.rest.repos.listCommits({
+  // if tag doesn't exist, create one
+  if (!tagExists) {
+    logger.info("eqdsfds");
+
+    // get the last commit
+    const lastCommitSha = (
+      await octokit.rest.repos.listCommits({
+        owner,
+        repo,
+      })
+    ).data[0].sha;
+
+    // version does not exist, create a new ref with the last commit
+    await octokit.rest.git.createRef({
       owner,
       repo,
-    })
-  ).data[0].sha;
-
-  // version does not exist, create a new ref with the last commit
-  await octokit.rest.git.createRef({
-    owner,
-    repo,
-    ref: `refs/tags/${tagname}`,
-    sha: lastCommitSha,
-  });
+      ref: `refs/tags/${tagname}`,
+      sha: lastCommitSha,
+    });
+  }
 
   /**
    * Generate the Release Notes
    */
 
-  // logging
-  logger.info("Generating release notes...");
+  if (!tagExists) {
+    // logging
+    logger.info("Generating release notes...");
 
-  // define the release notes
-  let releaseNotes = "";
+    // define the release notes
+    let releaseNotes = "";
 
-  // get the tagdata with the new tag
-  let { data: updatedTagData } = await octokit.rest.repos.listTags({
-    owner,
-    repo,
-  });
-
-  // get the current, requested tag
-  const currentTag = updatedTagData.find((tag) => tag.name === tagname);
-  // get the previous tag, so we can find the difference between the two
-  const previousTag =
-    updatedTagData[updatedTagData.findIndex((tag) => tag.name === tagname) + 1];
-
-  // if we found the current and previous tag
-  if (currentTag && previousTag) {
-    // get the commits
-    const commits = await octokit.repos.compareCommitsWithBasehead({
+    // get the tagdata with the new tag
+    let { data: updatedTagData } = await octokit.rest.repos.listTags({
       owner,
       repo,
-      basehead: `${previousTag.name}...${currentTag.name}`,
     });
 
-    // if we have commits, please note what has changed
-    if (commits.data && commits.data.total_commits > 0) {
-      releaseNotes += `# What's Changed \n${commits.data.commits
-        .map((c) => {
-          return `- [${c.commit.message}](${c.html_url}) by ${c.committer.login}`;
-        })
-        .join("\n")}`;
+    // get the current, requested tag
+    const currentTag = updatedTagData.find((tag) => tag.name === tagname);
+    // get the previous tag, so we can find the difference between the two
+    const previousTag =
+      updatedTagData[
+        updatedTagData.findIndex((tag) => tag.name === tagname) + 1
+      ];
+
+    // if we found the current and previous tag
+    if (currentTag && previousTag) {
+      // get the commits
+      const commits = await octokit.repos.compareCommitsWithBasehead({
+        owner,
+        repo,
+        basehead: `${previousTag.name}...${currentTag.name}`,
+      });
+
+      // if we have commits, please note what has changed
+      if (commits.data && commits.data.total_commits > 0) {
+        releaseNotes += `# What's Changed \n${commits.data.commits
+          .map((c) => {
+            return `- [${c.commit.message}](${c.html_url}) by ${c.committer.login}`;
+          })
+          .join("\n")}`;
+      }
     }
   }
 
@@ -101,19 +109,33 @@ const publish = async () => {
    * Create a new release
    */
 
-  // logging
-  logger.info(`Creating a release from tag...`);
+  let release;
+  if (!tagExists) {
+    // logging
+    logger.info(`Creating a release from tag...`);
 
-  const release = await octokit.rest.repos.createRelease({
-    owner,
-    repo,
-    tag_name: tagname,
-    name: tagname,
-    body: releaseNotes,
-    draft: false,
-    prerelease: false,
-    generate_release_notes: false,
-  });
+    release = await octokit.rest.repos.createRelease({
+      owner,
+      repo,
+      tag_name: tagname,
+      name: tagname,
+      body: releaseNotes,
+      draft: false,
+      prerelease: false,
+      generate_release_notes: false,
+    });
+  } else {
+    const allReleases = await octokit.rest.repos.listReleases({
+      owner,
+      repo,
+    });
+    const r = allReleases.data.filter((r) => r.tag_name === tagname).pop();
+    release = await octokit.rest.repos.getRelease({
+      owner,
+      repo,
+      release_id: r.id,
+    });
+  }
 
   /**
    * Upload the binaries
@@ -124,7 +146,7 @@ const publish = async () => {
 
   const binariesUploadPromises = fs
     .readdirSync(binDir)
-    .filter((file) => file.endsWith(".dmg"))
+    .filter((file) => file.endsWith(".dmg") || file.endsWith(".deb"))
     .map(async (file) => {
       const binaryFile = fs.readFileSync(path.join(binDir, file));
       await octokit.rest.repos.uploadReleaseAsset({
@@ -135,7 +157,7 @@ const publish = async () => {
         data: binaryFile,
       });
     });
-  await Promise.all(binariesUploadPromises);
+  await Promise.allSettled(binariesUploadPromises);
 
   /**
    * Done

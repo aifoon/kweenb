@@ -9,9 +9,6 @@
 
 import path from "path";
 import { app } from "electron";
-// import installExtension, {
-//   REACT_DEVELOPER_TOOLS,
-// } from "electron-devtools-installer";
 import aedes from "aedes";
 import net from "net";
 import { ElectronApp } from "./lib";
@@ -37,7 +34,7 @@ const resourcePath = app.isPackaged
 app.on("window-all-closed", async () => {
   // Do not respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (process.platform === "darwin") {
+  if (process.platform === "darwin" || process.platform === "linux") {
     app.quit();
   }
 });
@@ -55,9 +52,6 @@ const initApp = async () => {
   try {
     // when the application is ready
     await app.whenReady();
-
-    // install react extension
-    // await installExtension(REACT_DEVELOPER_TOOLS);
 
     // check if the first start script ran before going further
     await firstBoot();
