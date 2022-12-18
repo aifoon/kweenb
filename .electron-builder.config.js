@@ -21,6 +21,7 @@ const config = {
     entitlements: ".config/entitlements.mac.plist",
     entitlementsInherit: ".config/entitlements.mac.plist",
     gatekeeperAssess: false,
+    icon: "build/mac/icon.icns",
     target: {
       target: "dmg",
       arch: ["x64", "arm64"],
@@ -34,7 +35,6 @@ const config = {
     category: "Utility",
     maintainer: "aifoon",
     vendor: "aifoon",
-    icon: "buildResources/icon.png",
     target: {
       target: "deb",
       arch: ["x64", "arm64", "armv7l"],
