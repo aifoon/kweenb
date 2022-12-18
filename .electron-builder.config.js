@@ -21,7 +21,6 @@ const config = {
     entitlements: ".config/entitlements.mac.plist",
     entitlementsInherit: ".config/entitlements.mac.plist",
     gatekeeperAssess: false,
-    icon: "build/mac/icon.icns",
     target: {
       target: "dmg",
       arch: ["x64", "arm64"],
