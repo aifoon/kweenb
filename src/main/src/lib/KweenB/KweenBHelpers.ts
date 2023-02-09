@@ -9,10 +9,12 @@ import {
   startJacktripP2PClientAsync,
   connectChannel,
   disconnectChannel,
+  Zwerm3Jack,
 } from "@zwerm3/jack";
 // import * as log from "electron-log";
 import { AppMode, BeeActiveState } from "@shared/enums";
 import { IBee } from "@shared/interfaces";
+import fs from "fs";
 import { DEBUG_JACK_JACKTRIP, DEBUG_KWEENB } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
@@ -223,6 +225,30 @@ const makeP2PAudioConnections = async () => {
   });
 };
 
+/**
+ * Sets the folder path where the jack binaries can be found
+ * @param jackFolderPath string
+ */
+const setJackFolderPath = (jackFolderPath: string) => {
+  if (fs.existsSync(jackFolderPath)) {
+    Zwerm3Jack.default.jackFolderPath = jackFolderPath;
+  } else {
+    throw new Error("The given Jack folder does not exist");
+  }
+};
+
+/**
+ * Sets the path to the jacktrip binary
+ * @param jacktripBinPath string
+ */
+const setJacktripBinPath = (jacktripBinPath: string) => {
+  if (fs.existsSync(jacktripBinPath)) {
+    Zwerm3Jack.default.jacktripBinPath = jacktripBinPath;
+  } else {
+    throw new Error("The given Jacktrip binary does not exist");
+  }
+};
+
 export default {
   closeApplication,
   disconnectAllP2PAudioConnections,
@@ -231,4 +257,6 @@ export default {
   makeP2PAudioConnections,
   startJackWithJacktripHubClient,
   startJackWithJacktripP2PClient,
+  setJackFolderPath,
+  setJacktripBinPath,
 };

@@ -13,5 +13,19 @@ export function useSetting() {
     window.kweenb.methods.updateSetting(setting);
   }, []);
 
-  return { updateSetting };
+  /**
+   * Sets the Jack folder path
+   */
+  const setJackFolderPath = useCallback((jackFolderPath) => {
+    window.kweenb.actions.setJackFolderPath(jackFolderPath);
+  }, []);
+
+  /**
+   * Sets the Jacktrip binary path
+   */
+  const setJacktripBinPath = useCallback((jacktripBinPath) => {
+    window.kweenb.actions.setJacktripBinPath(jacktripBinPath);
+  }, []);
+
+  return { updateSetting, setJackFolderPath, setJacktripBinPath };
 }

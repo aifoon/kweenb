@@ -176,6 +176,26 @@ export default class MenuBuilder {
       ],
     };
 
+    /**
+     * The Edit menu
+     */
+    const subMenuEdit: CustomMenuItemConstructorOptions = {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+        {
+          label: "Select All",
+          accelerator: "CmdOrCtrl+A",
+          selector: "selectAll:",
+        },
+      ],
+    };
+
     // The Mode Menu
     const subMenuMode: CustomMenuItemConstructorOptions = {
       label: "Mode",
@@ -259,6 +279,7 @@ export default class MenuBuilder {
     return [
       subMenuAbout,
       subMenuFile,
+      subMenuEdit,
       subMenuMode,
       this.isDevelopment ? subMenuViewDev : subMenuViewProd,
       subMenuWindow,

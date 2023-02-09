@@ -121,6 +121,14 @@ export default [
   },
   {
     key: "thekweenIpAddress",
-    value: "192.168.0.143"
+    value: "192.168.0.2"
+  },
+  {
+    key: "kweenbJackFolderPath",
+    value: ""
+  },
+  {
+    key: "kweenbJacktripBinPath",
+    value: ""
   }
 ]

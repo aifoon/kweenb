@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 /**
  * A KweenB instance that will control the requests coming from renderer
@@ -6,6 +7,7 @@
 import { AppMode } from "@shared/enums";
 import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
+import { Zwerm3Jack } from "@zwerm3/jack";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { MQTT } from "./lib/Mqtt";
@@ -37,6 +39,36 @@ class KweenB {
 
   public set appMode(appMode: AppMode) {
     this._appMode = appMode;
+  }
+
+  /**
+   * Init KweenB functions
+   */
+
+  /**
+   * This is an initializer, to init settinges, etc. on boot
+   * initJackFolderPath: inits the jackfolder whenever we find one in the database
+   * initJacktripBinPath: inits the jacktrip binary whenever we find one in the database
+   */
+  public async init() {
+    this.initJackFolderPath();
+    this.initJacktripBinPath();
+  }
+
+  private async initJackFolderPath() {
+    const settings = await SettingHelpers.getAllSettings();
+    if (settings.kweenBSettings.jackFolderPath) {
+      Zwerm3Jack.default.jackFolderPath =
+        settings.kweenBSettings.jackFolderPath;
+    }
+  }
+
+  private async initJacktripBinPath() {
+    const settings = await SettingHelpers.getAllSettings();
+    if (settings.kweenBSettings.jacktripBinPath) {
+      Zwerm3Jack.default.jacktripBinPath =
+        settings.kweenBSettings.jacktripBinPath;
+    }
   }
 
   /**

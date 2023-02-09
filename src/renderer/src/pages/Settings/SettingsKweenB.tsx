@@ -27,7 +27,7 @@ export const SettingsKweenB = ({
   kweenbSettings,
   kweenbAudioSettings,
 }: BeeSettingsKweenBProps) => {
-  const { updateSetting } = useSetting();
+  const { updateSetting, setJackFolderPath, setJacktripBinPath } = useSetting();
   const { appContext } = useAppContext();
   const handleOnValidatedBlurAndChange = (e: any) => {
     updateSetting({
@@ -39,12 +39,14 @@ export const SettingsKweenB = ({
     <Formik
       initialValues={{
         mqttBroker: kweenbSettings.mqttBroker,
+        jackFolderPath: kweenbSettings.jackFolderPath,
         jackDevice: kweenbAudioSettings.jack.device,
         jackInputChannels: kweenbAudioSettings.jack.inputChannels,
         jackOutputChannels: kweenbAudioSettings.jack.outputChannels,
         jackBufferSize: kweenbAudioSettings.jack.bufferSize,
         jackSampleRate: kweenbAudioSettings.jack.sampleRate,
         jackPeriods: kweenbAudioSettings.jack.periods,
+        jacktripBinPath: kweenbSettings.jacktripBinPath,
         jacktripBitRate: kweenbAudioSettings.jacktrip.bitRate,
         jacktripChannels: kweenbAudioSettings.jacktrip.channels,
         jacktripRedundancy: kweenbAudioSettings.jacktrip.redundancy,
@@ -105,6 +107,8 @@ export const SettingsKweenB = ({
           .min(1, "The amount of receive channels is min 1")
           .max(64, "The amount of receive channels is max 20")
           .required("The amount of receive channels is required"),
+        jackFolderPath: Yup.string(),
+        jacktripBinPath: Yup.string(),
       })}
       onSubmit={() => {}}
     >
@@ -193,8 +197,6 @@ export const SettingsKweenB = ({
                     label="MQTT Broker"
                     type="text"
                     labelWidth="150px"
-                    min={1}
-                    max={99}
                     name="mqttBroker"
                     placeholder="e.g. mqtt://localhost:1883"
                   />
@@ -304,6 +306,34 @@ export const SettingsKweenB = ({
                       placeholder="e.g. 4464"
                     />
                   )}
+                </Card>
+                <Card title="Paths">
+                  <TextField
+                    onValidatedBlur={(e) => {
+                      handleOnValidatedBlurAndChange(e);
+                      setJackFolderPath(e.target.value);
+                    }}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Jack folder"
+                    type="text"
+                    labelWidth="150px"
+                    name="jackFolderPath"
+                    placeholder="/usr/local/bin"
+                  />
+                  <TextField
+                    onValidatedBlur={(e) => {
+                      handleOnValidatedBlurAndChange(e);
+                      setJacktripBinPath(e.target.value);
+                    }}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Jacktrip binary"
+                    type="text"
+                    labelWidth="150px"
+                    name="jacktripBinPath"
+                    placeholder="jacktrip"
+                  />
                 </Card>
               </CardVerticalStack>
             </Grid>

@@ -19,7 +19,7 @@ import {
 } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
-import { KweenBGlobal } from "./kweenb";
+import { KweenB, KweenBGlobal } from "./kweenb";
 
 /**
  * Get the resources path
@@ -78,6 +78,10 @@ const initApp = async () => {
     // create interval workers
     // these will do the dirty work, polling, etc.
     registerIntervalWorkers();
+
+    // init the kweenb internal logic
+    // this will pass settings to external libs, etc.
+    await KweenBGlobal.kweenb.init();
 
     // creates an internal MQTT broker
     aedesServer.listen(1883);

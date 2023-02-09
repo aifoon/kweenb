@@ -122,6 +122,10 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     subscribe: (topic: string) => ipcRenderer.send("mqtt:subscribe", topic),
     unsubscribe: (topic: string) => ipcRenderer.send("mqtt:unsubscribe", topic),
+    setJackFolderPath: (jackFolderPath: string) =>
+      ipcRenderer.send("kweenb:setJackFolderPath", jackFolderPath),
+    setJacktripBinPath: (jacktripBinPath: string) =>
+      ipcRenderer.send("kweenb:setJacktripBinPath", jacktripBinPath),
   },
   events: {
     onAboutKweenB: (callback: any) => {

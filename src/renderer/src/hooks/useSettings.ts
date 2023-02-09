@@ -53,5 +53,10 @@ export function useSettings() {
     return () => removeEventListener();
   }, []);
 
-  return { loading, settings, updateSetting, reloadSettings };
+  return {
+    loading,
+    settings,
+    updateSetting,
+    reloadSettings,
+  };
 }

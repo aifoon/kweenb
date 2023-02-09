@@ -36,6 +36,8 @@ import {
   makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
   disconnectAllP2PAudioConnections,
   getKweenBVersion,
+  setJackFolderPath,
+  setJacktripBinPath,
 } from "./controllers/kweenb";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -57,6 +59,8 @@ export const registerActions = () => {
   ipcMain.on("bee:beesPoller", beesPoller);
   ipcMain.on("bee:beePoller", beePoller);
   ipcMain.on("bee:setBeeActive", setBeeActive);
+  ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
+  ipcMain.on("kweenb:setJacktripBinPath", setJacktripBinPath);
   ipcMain.on("mqtt:subscribe", subscribe);
   ipcMain.on("mqtt:unsubscribe", unsubscribe);
 };

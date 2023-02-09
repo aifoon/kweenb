@@ -84,6 +84,8 @@ declare global {
         setBeeActive(id: number, active: boolean): void;
         subscribe(topic: string);
         unsubscribe(topic: string);
+        setJackFolderPath(jackFolderPath: string);
+        setJacktripBinPath(jacktripBinPath: string);
       };
       readonly events: {
         onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;

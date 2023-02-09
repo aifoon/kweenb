@@ -68,6 +68,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
 
     // Handle an error
     window.kweenb.events.onError((event, error) => {
+      console.log(error.message);
       showToast({
         message: error.message,
         severity: "error",
@@ -125,10 +126,14 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
       {/* The Toast messages for the whole app */}
       <div>
         <Snackbar
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
           open={openToast}
           autoHideDuration={3000}
-          onClose={handleCloseToast}
+          onClose={(event, reason) => {
+            if (reason === "timeout") {
+              handleCloseToast();
+            }
+          }}
           message={toast.message}
         >
           <Alert

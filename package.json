@@ -66,7 +66,7 @@
     "@types/source-map-support": "^0.5.4",
     "@types/styled-components": "^5.1.17",
     "@vitejs/plugin-react": "^3.0.0",
-    "@zwerm3/jack": "^1.2.17",
+    "@zwerm3/jack": "^1.2.19",
     "aedes": "^0.47.0",
     "chalk": "^4.1.2",
     "deep-equal": "^2.0.5",

@@ -7,6 +7,7 @@ import { IBee } from "@shared/interfaces";
 import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
+import { KweenBGlobal } from "../kweenb";
 
 /**
  * Get the KweenB Version
@@ -119,5 +120,39 @@ export const startJackWithJacktripP2PClient = async (
       { where: "startJackWithJacktripP2PClient()", message: e.message },
       true
     );
+  }
+};
+
+/**
+ * Sets the Jack folder path
+ */
+export const setJackFolderPath = (
+  event: Electron.IpcMainInvokeEvent,
+  jackFolderPath: string
+) => {
+  try {
+    if (jackFolderPath) kweenBHelpers.setJackFolderPath(jackFolderPath);
+  } catch (e: any) {
+    KweenBGlobal.kweenb.throwError({
+      where: "setJackFolderPath()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Sets the Jacktrip binary path
+ */
+export const setJacktripBinPath = (
+  event: Electron.IpcMainInvokeEvent,
+  jacktripBinPath: string
+) => {
+  try {
+    if (jacktripBinPath) kweenBHelpers.setJacktripBinPath(jacktripBinPath);
+  } catch (e: any) {
+    KweenBGlobal.kweenb.throwError({
+      where: "setJacktripBinPath()",
+      message: e.message,
+    });
   }
 };
