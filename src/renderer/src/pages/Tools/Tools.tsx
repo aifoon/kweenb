@@ -39,9 +39,9 @@ export const Tools = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: "50%" }}>Description</TableCell>
-              <TableCell style={{ width: "25%" }}>Output</TableCell>
-              <TableCell style={{ width: "25%" }} />
+              <TableCell style={{ width: "45%" }}>Description</TableCell>
+              <TableCell style={{ width: "45%" }}>Output</TableCell>
+              <TableCell style={{ width: "10%" }} />
             </TableRow>
           </TableHead>
           <TableBody>
