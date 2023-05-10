@@ -5,7 +5,10 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Utils } from "@shared/utils";
 import { useDrag } from "react-dnd";
+import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
+import { ChannelType } from "@shared/interfaces";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
+import { ToggleButton } from "../Buttons/ToggleButton";
 import { Label, LabelType } from "../Label";
 
 /**
@@ -18,12 +21,16 @@ export interface BeeCardProps {
   online?: boolean;
   jackIsRunning?: boolean;
   jackTripIsRunning?: boolean;
+  channelType: ChannelType;
+  channel1: number;
+  channel2: number;
   apiOn?: boolean;
   ipAddress?: string;
   loading?: boolean;
   draggable?: boolean;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onChannelTypeChange?: (channelType: ChannelType) => void;
 }
 
 export const BeeCardContainer = styled.div`
@@ -33,7 +40,11 @@ export const BeeCardContainer = styled.div`
   height: 100%; /* Fixed height of the BeeCard */
   background-color: var(--beeCardBg);
 
-  h2 {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin: 0;
     font-weight: bold;
   }
@@ -95,10 +106,14 @@ export const BeeCard = ({
   jackTripIsRunning = false,
   apiOn = false,
   loading = false,
+  channelType = ChannelType.MONO,
+  channel1 = 0,
+  channel2 = 0,
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
   onBeeDeleteClick,
+  onChannelTypeChange,
   draggable = false,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
@@ -169,10 +184,42 @@ export const BeeCard = ({
         </Grid>
 
         <BeeCardSection>
-          <h2>{Utils.addLeadingZero(number)}</h2>
+          <h3>{Utils.addLeadingZero(number)}</h3>
           <p>{name}</p>
           <p>{ipAddress}</p>
         </BeeCardSection>
+
+        {/* Uncomment this when working on the mono/stereo shizzle again */}
+
+        {/* <BeeCardSection>
+          <Grid container spacing={1}>
+            <Grid item xs={12}>
+              <ToggleButton
+                state1={{
+                  text: "Mono",
+                  buttonUse: ButtonUse.Normal,
+                  buttonType: ButtonType.SecondaryWhite,
+                  onClick: () => {
+                    if (onChannelTypeChange)
+                      onChannelTypeChange(ChannelType.MONO);
+                  },
+                }}
+                state2={{
+                  text: "Stereo",
+                  buttonUse: ButtonUse.Normal,
+                  buttonType: ButtonType.SecondaryWhite,
+                  onClick: () => {
+                    if (onChannelTypeChange)
+                      onChannelTypeChange(ChannelType.STEREO);
+                  },
+                }}
+                buttonSize={ButtonSize.Small}
+                toggleStateOnClick
+                state={channelType === ChannelType.MONO ? 1 : 2}
+              />
+            </Grid>
+          </Grid>
+        </BeeCardSection> */}
 
         <BeeCardSection>
           <Grid container spacing={1}>

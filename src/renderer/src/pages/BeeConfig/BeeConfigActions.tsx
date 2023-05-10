@@ -62,17 +62,24 @@ export const BeeConfigActions = ({
 
       {/* Jacktrip */}
 
-      <BeeConfigActionsSection title="Jacktrip">
-        <BeeConfigActionsRunJacktrip
-          onStart={() => {
-            if (onStartJacktrip) onStartJacktrip();
-          }}
-          onStop={() => {
-            if (onStopJacktrip) onStopJacktrip();
-          }}
-          isRunning={currentIsJacktripRunning}
-        />
-      </BeeConfigActionsSection>
+      {/* Only the running jacktrip whenever a Jacktrip instance
+          is started. We don't know the configuration of all the bees/kweenb.
+          Only when we started the whole connection flow, we now what params
+          we can add to Jacktrip.
+      */}
+      {isJacktripRunning && (
+        <BeeConfigActionsSection title="Jacktrip">
+          <BeeConfigActionsRunJacktrip
+            onStart={() => {
+              if (onStartJacktrip) onStartJacktrip();
+            }}
+            onStop={() => {
+              if (onStopJacktrip) onStopJacktrip();
+            }}
+            isRunning={currentIsJacktripRunning}
+          />
+        </BeeConfigActionsSection>
+      )}
 
       {/* Killing processes */}
 

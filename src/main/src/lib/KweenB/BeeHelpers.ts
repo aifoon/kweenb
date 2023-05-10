@@ -3,7 +3,13 @@
  */
 
 import { BeeActiveState } from "@shared/enums";
-import { IBee, IBeeConfig, IBeeInput, IBeeStatus } from "@shared/interfaces";
+import {
+  IBee,
+  IBeeConfig,
+  IBeeInput,
+  IBeeStatus,
+  ChannelType,
+} from "@shared/interfaces";
 import ping from "ping";
 import fs from "fs";
 import Bee from "../../models/Bee";
@@ -69,7 +75,8 @@ const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
  * @returns
  */
 const createBee = async (bee: IBeeInput): Promise<IBee> => {
-  const { id, ipAddress, name, isActive } = await Bee.create({ ...bee });
+  const { id, ipAddress, name, isActive, channelType, channel1 } =
+    await Bee.create({ ...bee });
   return {
     id,
     ipAddress,
@@ -79,6 +86,9 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     isApiOn: false,
     config: DEFAULT_BEE_CONFIG,
     status: DEFAULT_BEE_STATUS,
+    channelType,
+    channel1,
+    channel2: 0,
   };
 };
 
@@ -126,7 +136,15 @@ const getAllBees = async (
   // create an array with bees, and use connectivity list to see
   // if the bee is online
   const beesWithConfigAndStatusList: Promise<IBee>[] = bees.map(
-    async ({ id, name, ipAddress, isActive }) => {
+    async ({
+      id,
+      name,
+      ipAddress,
+      isActive,
+      channelType,
+      channel1,
+      channel2,
+    }) => {
       // set offline by default
       let isOnline = false;
 
@@ -154,6 +172,9 @@ const getAllBees = async (
         isActive,
         isOnline,
         isApiOn,
+        channelType,
+        channel1,
+        channel2,
         config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
         status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
       };
@@ -189,18 +210,22 @@ const getAllBeesData = async (
   }
 
   // create an array with bees, without extra status and config checks
-  const beesList: IBee[] = bees.map(({ id, name, ipAddress, isActive }) =>
-    // return the bee, according to the IBee interface
-    ({
-      id,
-      name,
-      ipAddress,
-      isActive,
-      isOnline: false,
-      isApiOn: false,
-      config: DEFAULT_BEE_CONFIG,
-      status: DEFAULT_BEE_STATUS,
-    })
+  const beesList: IBee[] = bees.map(
+    ({ id, name, ipAddress, isActive, channelType, channel1, channel2 }) =>
+      // return the bee, according to the IBee interface
+      ({
+        id,
+        name,
+        ipAddress,
+        isActive,
+        isOnline: false,
+        isApiOn: false,
+        channelType,
+        channel1,
+        channel2,
+        config: DEFAULT_BEE_CONFIG,
+        status: DEFAULT_BEE_STATUS,
+      })
   );
 
   // await until config and statusses are received
@@ -236,6 +261,9 @@ const getBee = async (id: number): Promise<IBee> => {
     isActive: bee.isActive,
     isApiOn,
     isOnline,
+    channelType: bee.channelType,
+    channel1: bee.channel1,
+    channel2: bee.channel2,
     config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
     status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
   };
@@ -344,12 +372,17 @@ const exportBees = async (filePath: string) => {
   const bees = await getAllBees(false, BeeActiveState.ALL);
 
   // map bees to raw data
-  const beeData = bees.map(({ name, ipAddress, isActive, id }) => ({
-    id,
-    name,
-    ipAddress,
-    isActive,
-  }));
+  const beeData = bees.map(
+    ({ name, ipAddress, isActive, id, channelType, channel1, channel2 }) => ({
+      id,
+      name,
+      ipAddress,
+      isActive,
+      channelType,
+      channel1,
+      channel2,
+    })
+  );
 
   // write the file
   fs.writeFileSync(filePath, JSON.stringify(beeData), "utf8");
@@ -377,7 +410,15 @@ const importBees = async (filePath: string) => {
     JSON.stringify(a) === JSON.stringify(b);
 
   // create the expected array result
-  const expectedObjectKeys = ["id", "name", "ipAddress", "isActive"];
+  const expectedObjectKeys = [
+    "id",
+    "name",
+    "ipAddress",
+    "isActive",
+    "channelType",
+    "channel1",
+    "channel2",
+  ];
 
   // eslint-disable-next-line no-restricted-syntax
   for (const bee of beeData) {

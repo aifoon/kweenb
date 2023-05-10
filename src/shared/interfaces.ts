@@ -25,6 +25,11 @@ export interface IHubClientsResponse {
  * For Bee
  */
 
+export enum ChannelType {
+  MONO = "mono",
+  STEREO = "stereo",
+}
+
 export interface IBee {
   id: number;
   name: string;
@@ -34,6 +39,9 @@ export interface IBee {
   isApiOn: boolean;
   config: IBeeConfig;
   status: IBeeStatus;
+  channelType: ChannelType;
+  channel1: number;
+  channel2?: number;
 }
 
 export interface IBeeInput {
@@ -41,6 +49,8 @@ export interface IBeeInput {
   name: string;
   ipAddress: string;
   isActive: boolean;
+  channelType: ChannelType;
+  channel1: number;
 }
 
 export interface IBeeConfig {

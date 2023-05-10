@@ -1,3 +1,4 @@
+import { ChannelType } from "@shared/interfaces";
 import { DataTypes, Model } from "sequelize";
 import Database from "../database";
 
@@ -12,6 +13,12 @@ class Bee extends Model {
   declare ipAddress: string;
 
   declare isActive: boolean;
+
+  declare channelType: ChannelType;
+
+  declare channel1: number;
+
+  declare channel2: number;
 }
 
 /**
@@ -35,6 +42,19 @@ Bee.init(
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+    },
+    channelType: {
+      type: DataTypes.ENUM("mono", "stereo"),
+      allowNull: false,
+      defaultValue: "mono",
+    },
+    channel1: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    channel2: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {

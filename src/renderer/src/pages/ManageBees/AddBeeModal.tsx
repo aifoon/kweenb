@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
-import { IBeeInput } from "@shared/interfaces";
+import { ChannelType, IBeeInput } from "@shared/interfaces";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 
 interface AddBeeModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
@@ -44,7 +44,11 @@ export const AddBeeModal = ({
             .isValidIpAddress("The IP Address is invalid"),
         })}
         onSubmit={async (values) => {
-          onBeeSubmitted(values);
+          onBeeSubmitted({
+            ...values,
+            channelType: ChannelType.MONO,
+            channel1: values.id,
+          });
         }}
       >
         {({ isSubmitting }) => (

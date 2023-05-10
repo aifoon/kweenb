@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { IBee, IBeeConfig } from "@shared/interfaces";
+import { ChannelType, IBee, IBeeConfig } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 import { useAppContext } from "./useAppContext";
 import { useInterval } from "./useInterval";
@@ -19,6 +19,9 @@ export function useBee(id: number) {
     isOnline: false,
     isApiOn: false,
     isActive: false,
+    channel1: 0,
+    channel2: 0,
+    channelType: ChannelType.MONO,
     config: {
       useMqtt: false,
       mqttBroker: "mqtt://localhost:1883",

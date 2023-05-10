@@ -16,6 +16,7 @@ export enum ButtonUse {
 export enum ButtonType {
   Primary,
   Secondary,
+  SecondaryWhite,
   Tertiary,
   TertiaryWhite,
 }
@@ -65,6 +66,7 @@ export const Button = styled.button.attrs(({ key }) => ({
   background-color: ${({ buttonUse = ButtonUse.Normal, buttonType }) => {
     if (
       buttonType === ButtonType.Secondary ||
+      buttonType === ButtonType.SecondaryWhite ||
       buttonType === ButtonType.Tertiary ||
       buttonType === ButtonType.TertiaryWhite
     ) {
@@ -83,6 +85,10 @@ export const Button = styled.button.attrs(({ key }) => ({
     }
     if (buttonType === ButtonType.TertiaryWhite) {
       return `color: var(--white);`;
+    }
+    if (buttonType === ButtonType.SecondaryWhite) {
+      return `border: 1px solid var(--white);
+              color: var(--white);`;
     }
     return "";
   }}

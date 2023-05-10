@@ -173,7 +173,7 @@ const getAllConfig = async (ipAddress: string): Promise<IBeeConfig> => {
     useMqtt: (findKey("use_mqtt")?.value || 0) === "true",
     mqttBroker: findKey("mqtt_broker")?.value || "mqtt://localhost:1883",
     mqttChannel: findKey("mqtt_channel")?.value || "beeworker",
-    device: findKey("device")?.value || "device",
+    device: findKey("device")?.value || "",
   };
 
   // return the bee configuration
