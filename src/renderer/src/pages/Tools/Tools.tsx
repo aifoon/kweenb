@@ -1,8 +1,14 @@
 import { Card } from "@components/Cards";
 import React from "react";
-import { ActionsHeader, ActionsContainer } from "@components/Actions";
 import { useAppContext } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import { PageHeader } from "../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import {
@@ -30,7 +36,47 @@ export const Tools = () => {
   return (
     <Z3Page pageHeader={<PageHeader title="Tools" />}>
       <Card title="Actions">
-        <ActionsContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ width: "50%" }}>Description</TableCell>
+              <TableCell style={{ width: "25%" }}>Output</TableCell>
+              <TableCell style={{ width: "25%" }} />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {appContext.appMode === AppMode.Hub && (
+              <>
+                <TheKweenOnline />
+                <IsZwerm3ApiRunningOnTheKween />
+                <ActiveBeesOnline />
+                <IsZwerm3ApiRunningOnBees />
+                <KillAllTheKweenProcesses />
+                <KillAllBeeProcesses />
+                <StartHubServerOnTheKween />
+                <StartJackWithJacktripHubClientOnActiveBees />
+                <KillAllKweenBProcesses />
+                <StartJackWithJacktripHubClientOnKweenB />
+                <ValidateHive />
+                <MakeHubAudioConnections />
+              </>
+            )}
+            {appContext.appMode === AppMode.P2P && (
+              <>
+                <ActiveBeesOnline />
+                <IsZwerm3ApiRunningOnBees />
+                <KillAllBeeProcesses />
+                <KillAllKweenBProcesses />
+                <StartJackWithJacktripP2PServerOnActiveBees />
+                <StartJackWithJacktripP2PClientOnKweenB />
+                <MakeP2PAudioConnectionOnActiveBees />
+                <DisconnectP2PAudioConnectionsOnKweenB />
+                <MakeP2PAudioConnectionsOnKweenB />
+              </>
+            )}
+          </TableBody>
+        </Table>
+        {/* <ActionsContainer>
           <ActionsHeader />
           {appContext.appMode === AppMode.Hub && (
             <>
@@ -61,7 +107,7 @@ export const Tools = () => {
               <MakeP2PAudioConnectionsOnKweenB />
             </>
           )}
-        </ActionsContainer>
+        </ActionsContainer> */}
       </Card>
     </Z3Page>
   );

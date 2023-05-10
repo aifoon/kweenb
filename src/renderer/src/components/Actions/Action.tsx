@@ -1,23 +1,6 @@
-import styled from "styled-components";
 import { Button, ButtonUse, ButtonType, ButtonSize } from "@components/Buttons";
 import { useEffect, useState } from "react";
-
-export const ActionContainer = styled.div`
-  display: grid;
-  grid-template-columns: 50% 1fr 125px;
-  column-gap: 0px;
-  margin-bottom: 0px;
-  font-size: var(--smallText);
-  & div:last-child {
-    border-right: 1px solid var(--primary-100);
-  }
-`;
-
-const ActionDataContainer = styled.div`
-  padding: 10px 10px;
-  border-left: 1px solid var(--primary-100);
-  border-bottom: 1px solid var(--primary-100);
-`;
+import { TableCell, TableRow } from "@mui/material";
 
 type ActionProps = {
   description: string;
@@ -46,12 +29,12 @@ export const Action = ({
   }, [outputColor]);
 
   return (
-    <ActionContainer>
-      <ActionDataContainer>{description}</ActionDataContainer>
-      <ActionDataContainer style={{ color: currentOutputColor }}>
+    <TableRow>
+      <TableCell>{description}</TableCell>
+      <TableCell style={{ color: currentOutputColor }}>
         {currentOutput}
-      </ActionDataContainer>
-      <ActionDataContainer>
+      </TableCell>
+      <TableCell>
         <Button
           style={{ width: "100%" }}
           buttonSize={ButtonSize.Small}
@@ -63,7 +46,7 @@ export const Action = ({
         >
           {actionButtonLabel}
         </Button>
-      </ActionDataContainer>
-    </ActionContainer>
+      </TableCell>
+    </TableRow>
   );
 };
