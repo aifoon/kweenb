@@ -1,4 +1,3 @@
-import { version } from "os";
 import React, { ReactElement } from "react";
 import styled from "styled-components";
 import sidebarLogo from "../../images/sidebar-logo.png";

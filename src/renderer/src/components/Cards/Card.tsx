@@ -4,7 +4,7 @@ import { ButtonGroup } from "../Buttons";
 import { ButtonProps } from "../Buttons/Button";
 
 interface CardProps {
-  title: string;
+  title?: string;
   footerButtons?: ReactElement<ButtonProps>[];
   hideFooterButtons?: boolean;
   children?: React.ReactNode;
@@ -57,7 +57,7 @@ export const Card = ({
 
   return (
     <CardWrapper className={`card ${className}`}>
-      <CardHeaderWrapper>{title}</CardHeaderWrapper>
+      {title && <CardHeaderWrapper>{title}</CardHeaderWrapper>}
       <CardInnerWrapper>{children}</CardInnerWrapper>
       {footerButtons && !currentHideFooterButtons && (
         <CardFooterWrapper>

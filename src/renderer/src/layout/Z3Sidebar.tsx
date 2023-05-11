@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { StatusBulletType } from "@components/StatusBullet";
 import {
@@ -9,6 +9,7 @@ import {
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SettingsIcon from "@mui/icons-material/Settings";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import NearMeIcon from "@mui/icons-material/NearMe";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
 import { AppMode } from "@shared/enums";
@@ -24,6 +25,12 @@ const sidebarButtons = [
     title: "Swarm",
     pathNames: ["/", "/swarm/*"],
     icon: <EmojiNatureIcon />,
+  },
+  {
+    key: "positioning",
+    title: "Positioning",
+    pathNames: ["/positioning"],
+    icon: <NearMeIcon />,
   },
   {
     key: "settings",

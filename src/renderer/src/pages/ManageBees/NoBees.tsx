@@ -5,31 +5,14 @@ import {
   ButtonUse,
   ButtonType,
 } from "@components/Buttons/Button";
-import styled from "styled-components";
+import { Z3PageCentered } from "@renderer/src/layout/Z3PageCentered";
 
 interface NoBeesProps {
   onAddBeeClicked: () => void;
 }
 
-const EmptyBeesContainer = styled.div`
-  display: flex;
-  height: var(--contentHeight);
-  padding-left: var(--sidebarWidth);
-  width: 100%;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  h2 {
-    margin-top: 0;
-  }
-  p {
-    margin-bottom: 2rem;
-    color: var(--secondary-100);
-  }
-`;
-
 export const NoBees = ({ onAddBeeClicked }: NoBeesProps) => (
-  <EmptyBeesContainer>
+  <Z3PageCentered>
     <div style={{ width: "500px", textAlign: "center" }}>
       <h2>Welcome to KweenB!</h2>
       <p>
@@ -47,5 +30,5 @@ export const NoBees = ({ onAddBeeClicked }: NoBeesProps) => (
         Start by adding your first bee
       </Button>
     </div>
-  </EmptyBeesContainer>
+  </Z3PageCentered>
 );

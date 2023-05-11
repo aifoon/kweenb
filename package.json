@@ -92,7 +92,8 @@
     "vite": "^4.0.0",
     "vite-tsconfig-paths": "^3.3.17",
     "wildcard-match": "^5.1.2",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+    "zustand": "^4.3.8"
   },
   "browserslist": [
     "last 1 electron version"

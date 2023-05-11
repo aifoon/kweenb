@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { PageHeaderProps } from "@components/PageHeader";
 import { Z3Content } from "./Z3Content";
 
-interface Z3PageProps {
+export interface Z3PageProps {
   pageHeader?: React.ReactElement<PageHeaderProps>;
   children?: React.ReactNode;
 }

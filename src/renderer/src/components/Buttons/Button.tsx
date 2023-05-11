@@ -31,6 +31,7 @@ export interface ButtonProps {
   buttonUse?: ButtonUse;
   buttonType?: ButtonType;
   buttonSize?: ButtonSize;
+  textAlign?: 'left' | 'center' | 'right';
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import ModalUnstyled from "@mui/base/ModalUnstyled";
+import ModalUnstyled from "@mui/base/Modal";
 import styled from "styled-components";
 import { CloseButton } from "./CloseButton";
 

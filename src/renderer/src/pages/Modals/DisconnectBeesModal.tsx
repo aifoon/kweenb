@@ -94,11 +94,11 @@ export const DisconnectBeesModal = ({
             <Button
               type="button"
               onClick={() => disconnectBees()}
-              buttonUse={ButtonUse.Dark}
+              buttonUse={ButtonUse.Danger}
               disabled={isDisconnecting}
               buttonSize={ButtonSize.Small}
             >
-              Start
+              Disconnect Bees
             </Button>
           </ButtonGroup>
         </Flex>

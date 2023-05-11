@@ -141,11 +141,11 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
             <Button
               type="button"
               onClick={() => connectBees()}
-              buttonUse={ButtonUse.Dark}
+              buttonUse={ButtonUse.Normal}
               disabled={isConnecting}
               buttonSize={ButtonSize.Small}
             >
-              Start
+              Connect Bees
             </Button>
           </ButtonGroup>
         </Flex>

@@ -95,7 +95,9 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     window.kweenb.events.onClosing(() => setLoading(true));
 
     // Handle a change in the app mode
-    window.kweenb.events.onAppMode((event, _appMode) => setAppMode(_appMode));
+    window.kweenb.events.onAppMode((event, _appMode) => {
+      setAppMode(_appMode);
+    });
   }, []);
 
   const appContextValue = useMemo(
@@ -109,7 +111,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
       setAppMode,
       appMode,
     }),
-    []
+    [appMode]
   );
 
   return (

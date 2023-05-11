@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useBees, useShowState, useConfirmation } from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
-import { IBeeInput } from "@shared/interfaces";
+import { ChannelType, IBeeInput } from "@shared/interfaces";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
   InActiveBee,
@@ -108,6 +108,9 @@ export const ManageBees = () => {
                         ipAddress={ipAddress}
                         apiOn={isApiOn}
                         online={isOnline}
+                        channelType={ChannelType.MONO}
+                        channel1={id}
+                        channel2={id}
                         jackIsRunning={status?.isJackRunning}
                         jackTripIsRunning={status?.isJacktripRunning}
                       />
