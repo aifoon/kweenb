@@ -74,7 +74,6 @@ const getAllSettings = async (): Promise<ISettings> => {
       },
     },
     kweenBSettings: {
-      mqttBroker: String(findKey("kweenbMqttBroker")?.value || ""),
       jackFolderPath: String(findKey("kweenbJackFolderPath")?.value || ""),
       jacktripBinPath: String(findKey("kweenbJacktripBinPath")?.value || ""),
     },

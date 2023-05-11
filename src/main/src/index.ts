@@ -9,8 +9,6 @@
 
 import path from "path";
 import { app } from "electron";
-import aedes from "aedes";
-import net from "net";
 import { ElectronApp } from "./lib";
 import {
   registerActions,
@@ -38,12 +36,6 @@ app.on("window-all-closed", async () => {
     app.quit();
   }
 });
-
-/**
- * Create internal MQTT broker
- */
-const a = aedes();
-const aedesServer = net.createServer(a.handle);
 
 /**
  * A function that will initialise our application
@@ -83,9 +75,6 @@ const initApp = async () => {
     // this will pass settings to external libs, etc.
     await KweenBGlobal.kweenb.init();
 
-    // creates an internal MQTT broker
-    aedesServer.listen(1883);
-
     // on activation
     app.on("activate", () => {
       // On macOS it's common to re-create a window in the app when the
@@ -102,7 +91,6 @@ const initApp = async () => {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("closing");
       }
-      if (aedesServer && aedesServer.listening) await aedesServer.close();
       await KweenBHelpers.closeApplication(KweenBGlobal.kweenb.appMode);
       app.exit(0);
     });

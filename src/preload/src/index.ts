@@ -106,6 +106,15 @@ contextBridge.exposeInMainWorld("kweenb", {
       isZwerm3ApiRunningOnTheKween: (): Promise<boolean> =>
         ipcRenderer.invoke("thekween:isZwerm3ApiRunningOnTheKween"),
     },
+
+    /**
+     * Positioning
+     */
+    positioning: {
+      connectPozyxMqttBroker: (pozyxMqttBrokerUrl: string): Promise<boolean> => {
+        return ipcRenderer.invoke("positioning:connectPozyxMqttBroker", pozyxMqttBrokerUrl);
+      },
+    }
   },
   actions: {
     sayHello: (name: string) => ipcRenderer.send("hello", name),
@@ -120,8 +129,9 @@ contextBridge.exposeInMainWorld("kweenb", {
     beesPoller: (action: "start" | "stop" | "pause"): void => {
       ipcRenderer.send("bee:beesPoller", action);
     },
-    subscribe: (topic: string) => ipcRenderer.send("mqtt:subscribe", topic),
-    unsubscribe: (topic: string) => ipcRenderer.send("mqtt:unsubscribe", topic),
+    disconnectPozyxMqttBroker: (): void => {
+      ipcRenderer.send("positioning:disconnectPozyxMqttBroker");
+    },
     setJackFolderPath: (jackFolderPath: string) =>
       ipcRenderer.send("kweenb:setJackFolderPath", jackFolderPath),
     setJacktripBinPath: (jacktripBinPath: string) =>
@@ -152,11 +162,6 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     onInfo: (callback: any) => {
       ipcRenderer.on("info", callback);
-    },
-    onMqttMessage: (callback: any) => {
-      const channel = "mqtt-message";
-      ipcRenderer.on(channel, callback);
-      return () => ipcRenderer.removeAllListeners(channel);
     },
     onSuccess: (callback: any) => {
       ipcRenderer.on("success", callback);

@@ -76,14 +76,20 @@ declare global {
           validateHive(): Promise<boolean>;
           makeHubAudioConnections(): Promise<void>;
         };
+
+        /**
+        * Positioning
+        */
+        positioning: {
+          connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;
+        }
       };
       readonly actions: {
         hello(name: string): void;
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        disconnectPozyxMqttBroker(): void;
         setBeeActive(id: number, active: boolean): void;
-        subscribe(topic: string);
-        unsubscribe(topic: string);
         setJackFolderPath(jackFolderPath: string);
         setJacktripBinPath(jacktripBinPath: string);
       };
@@ -106,13 +112,6 @@ declare global {
         ): () => void;
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
-        ): () => void;
-        onMqttMessage(
-          callback: (
-            event: IpcMessageEvent,
-            topic: string,
-            message: string
-          ) => void
         ): () => void;
         onSuccess(
           callback: (event: IpcMessageEvent, message: string) => void

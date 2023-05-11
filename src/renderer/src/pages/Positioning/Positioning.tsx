@@ -20,7 +20,10 @@ export const Positioning = () => {
   const [value, setValue] = useState(0);
 
   const disconnectPozyxMqttBroker = useCallback(
-    () => pozyxBrokerDisconnect(),
+    () => {
+      window.kweenb.actions.disconnectPozyxMqttBroker();
+      pozyxBrokerDisconnect();
+    },
     []
   );
 

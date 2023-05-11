@@ -52,7 +52,7 @@ import {
   startHubServer,
   validateHive,
 } from "./controllers/thekween";
-import { subscribe, unsubscribe } from "./controllers/mqtt";
+import { connectPozyxMqttBroker, disconnectPozyxMqttBroker } from "./controllers/positioning";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
@@ -61,8 +61,7 @@ export const registerActions = () => {
   ipcMain.on("bee:setBeeActive", setBeeActive);
   ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
   ipcMain.on("kweenb:setJacktripBinPath", setJacktripBinPath);
-  ipcMain.on("mqtt:subscribe", subscribe);
-  ipcMain.on("mqtt:unsubscribe", unsubscribe);
+  ipcMain.on("positioning:disconnectPozyxMqttBroker", disconnectPozyxMqttBroker);
 };
 
 export const registerMethods = () => {
@@ -151,6 +150,11 @@ export const registerMethods = () => {
     "thekween:isZwerm3ApiRunningOnTheKween",
     isZwerm3ApiRunningOnTheKween
   );
+
+  /**
+   * Positioning
+   */
+   ipcMain.handle("positioning:connectPozyxMqttBroker", connectPozyxMqttBroker);
 };
 
 export const registerIntervalWorkers = () => {

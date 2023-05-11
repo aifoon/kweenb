@@ -38,7 +38,6 @@ export const SettingsKweenB = ({
   return (
     <Formik
       initialValues={{
-        mqttBroker: kweenbSettings.mqttBroker,
         jackFolderPath: kweenbSettings.jackFolderPath,
         jackDevice: kweenbAudioSettings.jack.device,
         jackInputChannels: kweenbAudioSettings.jack.inputChannels,
@@ -58,7 +57,6 @@ export const SettingsKweenB = ({
         jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
       }}
       validationSchema={Yup.object().shape({
-        mqttBroker: Yup.string(),
         jackDevice: Yup.string(),
         jackBufferSize: Yup.number()
           .required("The buffer size is required")
@@ -189,18 +187,7 @@ export const SettingsKweenB = ({
                     placeholder="e.g. 2"
                   />
                 </Card>
-                <Card title="MQTT">
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="MQTT Broker"
-                    type="text"
-                    labelWidth="150px"
-                    name="mqttBroker"
-                    placeholder="e.g. mqtt://localhost:1883"
-                  />
-                </Card>
+
               </CardVerticalStack>
             </Grid>
             <Grid item xs={12} md={6}>

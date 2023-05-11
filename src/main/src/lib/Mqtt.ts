@@ -1,6 +1,7 @@
 /**
  * Creates an MQTT class
  */
+import { IError } from "@shared/interfaces";
 import * as mqtt from "mqtt";
 import * as ping from "ping";
 
@@ -13,17 +14,102 @@ export class MQTT {
 
   public _mqttClient: mqtt.MqttClient;
 
-  private _onMessage: (topic: string, payload: any) => void;
+  private _onMessage: ((topic: string, payload: any) => void) | undefined;
+
+  private _onError: ((error: IError) => void) | undefined;
+
+  private _onConnect: () => void | undefined;
 
   constructor(
     brokerUrl: string,
-    onMessage: (topic: string, payload: any) => void
+    options: {
+      onMessage?: (topic: string, payload: any) => void,
+      onError?: (error: IError) => void,
+      onConnect: () => void
+    }
   ) {
     this._brokerUrl = brokerUrl;
-    this._onMessage = onMessage;
+    this._onMessage = options.onMessage;
+    this._onError = options.onError;
+    this._onConnect = options.onConnect;
     this.init();
   }
 
+  /**
+   * Gets the current broken url
+   */
+  public get brokerUrl() {
+    return this._brokerUrl;
+  }
+
+  /**
+   * Connect to an MQTT client
+   * @returns
+   */
+  public async connectToMqttClient() {
+    // get the online state of the mqtt broker
+    const mqttConnectivity = await ping.promise.probe(this._host, {
+      timeout: 1,
+      deadline: 1,
+    });
+
+    // check if mqtt is reachable
+    if (!mqttConnectivity) return null;
+
+    // create the MQTT client promise and wait until connected
+    const connectSync = new Promise<mqtt.MqttClient>((resolve, reject) => {
+      // try connecting to MQTT
+      this._mqttClient = mqtt.connect(
+        this._brokerUrl, {
+          reconnectPeriod: 1000,
+          connectTimeout: 1000
+        }
+      );
+
+      // whenever we encounter an error, close the connection
+      this._mqttClient.on('error', (error) => {
+        const errorMessage = error.message.includes("ECONNREFUSED") ?
+            "Cannot connect to MQTT broker." :
+            error.message
+        if(this._onError) this._onError({
+          message: errorMessage,
+          where: "connectToMqttClient"
+        });
+        this._mqttClient.end();
+        reject(errorMessage)
+      })
+
+      // whenever we are connected,
+      this._mqttClient.on("connect", () => {
+        // let them now
+        if(this._onConnect) this._onConnect();
+
+        // whenever we receive a message
+        this._mqttClient.on("message", (topic, message) => {
+          if(this._onMessage) this._onMessage(topic, message);
+        });
+
+        // resolve the promise
+        resolve(this._mqttClient);
+      });
+    });
+
+    // return the promise
+    return connectSync;
+  }
+
+  /**
+   * Disconnect from current MQTT client
+   */
+  public disconnectMqttClient() {
+    if(this._mqttClient && this._mqttClient.connected) {
+      this._mqttClient.end(true);
+    }
+  }
+
+  /**
+   * Initialize the MQTT connection
+   */
   private init() {
     let url = this._brokerUrl;
     if (url.startsWith("mqtt://")) {
@@ -35,60 +121,19 @@ export class MQTT {
   }
 
   /**
-   * Connect to an MQTT client
-   * @returns
-   */
-  private async connectToMqttClient() {
-    // get the online state of the mqtt broker
-    const mqttConnectivity = await ping.promise.probe(this._host, {
-      timeout: 1,
-      deadline: 1,
-    });
-
-    // check if mqtt is reachable
-    if (!mqttConnectivity) return null;
-
-    // create the MQTT client promise and wait until connected
-    const connectSync = new Promise<mqtt.MqttClient>((resolve) => {
-      const mc = mqtt.connect(this._brokerUrl);
-      mc.on("connect", () => {
-        mc.on("message", this._onMessage);
-        resolve(mc);
-      });
-    });
-
-    // return the promise
-    return connectSync;
-  }
-
-  /**
-   * Get the MQTT singleton
-   * @returns
-   */
-  public async getMQTTClient(): Promise<mqtt.MqttClient> {
-    if (this._mqttClient) return this._mqttClient;
-
-    const mqttClient = await this.connectToMqttClient();
-    if (!mqttClient) throw new Error("Cannot connect to MQTT broker.");
-    this._mqttClient = mqttClient;
-    return this.getMQTTClient();
-  }
-
-  /**
    * Subscribe to a topic
    * @param topic The topic to subscribe
    * @param callback Callback whenever we receive a message
    * @returns
    */
   public async subscribe(topic: string) {
-    // get an mqtt instance
-    const mqttClient = await this.getMQTTClient();
-
     // validate
-    if (!mqttClient) return;
+    if (!this._mqttClient || !this._mqttClient.connected) return;
+
+    console.log('subscribe');
 
     // subscribe to topic
-    mqttClient.subscribe(topic);
+    this._mqttClient.subscribe(topic);
   }
 
   /**
@@ -97,13 +142,10 @@ export class MQTT {
    * @returns
    */
   public async unsubscribe(topic: string) {
-    // get an mqtt instance
-    const mqttClient = await this.getMQTTClient();
-
     // validate
-    if (!mqttClient) return;
+    if (!this._mqttClient || !this._mqttClient.connected) return;
 
     // unsubscribe topic
-    await mqttClient.unsubscribe(topic);
+    await this._mqttClient.unsubscribe(topic);
   }
 }

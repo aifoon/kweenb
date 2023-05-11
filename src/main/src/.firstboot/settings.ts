@@ -60,10 +60,6 @@ export default [
     value: "true"
   },
   {
-    key: "kweenbMqttBroker",
-    value: "mqtt://192.168.0.143:1883"
-  },
-  {
     key: "kweenbJackDevice",
     value: ""
   },

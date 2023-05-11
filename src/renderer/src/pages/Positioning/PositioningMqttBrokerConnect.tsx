@@ -27,8 +27,9 @@ export const PositioningMqttBrokerConnect = () => {
             "The MQTT url is invalid (e.g. mqtt://127.0.0.1:1883)"
           ),
       })}
-      onSubmit={() => {
-        pozyBrokerConnect();
+      onSubmit={async (values) => {
+        const connected = await window.kweenb.methods.positioning.connectPozyxMqttBroker(values.pozyxMqttBroker);
+        if(connected) pozyBrokerConnect();
       }}
     >
       {() => (

@@ -130,7 +130,6 @@ export interface IKweenBAudioSettings {
 }
 
 export interface IKweenBSettings {
-  mqttBroker: string;
   jackFolderPath: string;
   jacktripBinPath: string;
 }

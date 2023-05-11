@@ -44,7 +44,6 @@ const config = {
         "node:http",
         "mqtt",
         "@zwerm3/jack",
-        "aedes",
         ...builtinModules,
       ],
       output: {

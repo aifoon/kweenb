@@ -10,7 +10,6 @@ import { Loader } from "@components/Loader";
 import { Utils } from "@shared/utils";
 import { BeeConfigActions } from "./BeeConfigActions";
 import { BeeConfigConfig } from "./BeeConfigConfig";
-import { BeeConfigLogging } from "./BeeConfigLogging";
 import { BeeConfigSettings } from "./BeeConfigSettings";
 
 export const BeeConfig = () => {
@@ -66,9 +65,6 @@ export const BeeConfig = () => {
             />
             <BeeConfigConfig onUpdate={saveConfig} beeConfig={bee.config} />
           </CardVerticalStack>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <BeeConfigLogging mqttTopic={bee.name} />
         </Grid>
       </Grid>
     </Z3Page>
