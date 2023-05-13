@@ -11,6 +11,7 @@ export enum InputFieldSize {
 }
 
 export interface InputFieldProps {
+  singleLine?: boolean;
   label: string;
   orientation?: InputFieldOrientation;
   size?: InputFieldSize;
@@ -42,7 +43,9 @@ export const InputField = styled.div<Omit<InputFieldProps, "label">>`
     `;
   }}
   width:${({ width }) => width};
-  margin-bottom: 20px;
+  ${({singleLine}) => {
+    return !singleLine ? 'margin-bottom: 20px;' : '';
+  }}};
   ${({ size }) => {
     if (size === InputFieldSize.Small) {
       return `

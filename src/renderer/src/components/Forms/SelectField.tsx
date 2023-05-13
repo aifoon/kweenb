@@ -17,6 +17,7 @@ export interface SelectItem {
 }
 
 export interface SelectFieldProps {
+  singleLine?: boolean;
   selectItems?: SelectItem[];
 }
 
@@ -45,6 +46,7 @@ export const SelectField = (
     name,
     size = InputFieldSize.Medium,
     label,
+    singleLine = false,
     labelWidth = "",
     selectItems = [],
     width = "100%",
@@ -66,12 +68,13 @@ export const SelectField = (
 
   return (
     <InputField
+      singleLine={singleLine}
       size={size}
       labelWidth={labelWidth}
       width={width}
       orientation={orientation}
     >
-      <label htmlFor={name}>{label}</label>
+      {label && <label htmlFor={name}>{label}</label>}
       <FormControl fullWidth>
         <CustomSelect
           className={meta.touched && meta.error ? "invalid" : ""}

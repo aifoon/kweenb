@@ -6,6 +6,9 @@ import {
   IError,
   ISetting,
   ITheKween,
+  IPozyxData,
+  PositioningTargetType,
+  PositioningControllerAlgorithm
 } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 
@@ -82,6 +85,7 @@ declare global {
         */
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;
+          getAllTagIds(): Promise<string[]>;
         }
       };
       readonly actions: {
@@ -90,8 +94,18 @@ declare global {
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         disconnectPozyxMqttBroker(): void;
         setBeeActive(id: number, active: boolean): void;
+        setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;
         setJackFolderPath(jackFolderPath: string);
         setJacktripBinPath(jacktripBinPath: string);
+
+        /**
+         * Positioning
+         */
+
+        positioning: {
+          enablePositioningControllerAlgorithm: (algorithm: PositioningControllerAlgorithm, enabled: boolean) => void;
+          enablePositioningControllerTargetType: (targetType: PositioningTargetType, enabled: boolean) => void;
+        }
       };
       readonly events: {
         onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;
@@ -112,6 +126,9 @@ declare global {
         ): () => void;
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
+        onPozyxData(
+          callback: (event: IpcMessageEvent, pozyxData: Map<string, IPozyxData>) => void
         ): () => void;
         onSuccess(
           callback: (event: IpcMessageEvent, message: string) => void

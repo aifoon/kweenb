@@ -130,8 +130,6 @@ export class MQTT {
     // validate
     if (!this._mqttClient || !this._mqttClient.connected) return;
 
-    console.log('subscribe');
-
     // subscribe to topic
     this._mqttClient.subscribe(topic);
   }

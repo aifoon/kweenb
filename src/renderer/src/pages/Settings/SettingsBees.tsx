@@ -227,6 +227,7 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
                   placeholder="e.g. 1"
                 />
                 <SelectField
+                singleLine={false}
                   onValidatedBlur={handleOnValidatedBlurAndChange}
                   orientation={InputFieldOrientation.Horizontal}
                   size={InputFieldSize.Small}

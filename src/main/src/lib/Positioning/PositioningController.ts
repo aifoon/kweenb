@@ -1,0 +1,93 @@
+import { IPozyxData, PositioningControllerAlgorithm, PositioningTargetType } from "@shared/interfaces";
+import { ReaperOsc } from "./OSC";
+import { OscBase } from "./OSC/OscBase";
+import { VolumeControlXY } from "./Controllers/VolumeControlXY";
+import { PositioningControllerBase } from "./Controllers/PositioningControllerBase";
+
+export interface PositioningTarget {
+  targetType: PositioningTargetType,
+  target: OscBase,
+  enabled: boolean
+}
+
+export class PositioningController {
+  private _targets: PositioningTarget[] = [];
+
+  private _postioningControllerAlgorithms: Map<PositioningControllerAlgorithm, PositioningControllerBase> = new Map();
+
+  private _enabledPositioningControllerAlgorithms: PositioningControllerAlgorithm[] = [];
+
+  constructor() {
+    // add some default targets
+    this.addPositioningTarget(PositioningTargetType.Reaper, new ReaperOsc('127.0.0.1', 8111));
+
+    // add some active algorithms
+    this.initPositioningControllerAlgorithms();
+
+    this.enablePositioningControllerAlgorithm(PositioningControllerAlgorithm.VOLUME_CONTROL_XY, false);
+  }
+
+  /**
+   * Init the active positioning controller algorithms
+   */
+  private initPositioningControllerAlgorithms() {
+    /**
+     * TODO: Add algorithms here
+     * In order to let the conroller work, add the algorithm to the _enabledPositingControllerAlgorithms array
+     */
+
+    // Volume Control for XY positions
+    this._postioningControllerAlgorithms
+      .set(PositioningControllerAlgorithm.VOLUME_CONTROL_XY, new VolumeControlXY(this._targets));
+  }
+
+  /**
+   * Adds a new target to the list of targets
+   * @param target The target to add
+   */
+  private addPositioningTarget(targetType: PositioningTargetType, target: OscBase) {
+    this._targets.push({ targetType, target, enabled: false });
+  }
+
+  /**
+   * Enables/Disables a target
+   * @param targetType The target type to enable
+   */
+  public enableTargetType(targetType: PositioningTargetType, enable: boolean) {
+    const target = this._targets.find(target => target.targetType === targetType);
+    if (target) target.enabled = enable;
+  }
+
+  /**
+   * Enabels/Disables a positioning controller algorithm
+   * @param algorithm The algorithm to enable
+   * @param enable True to enable, false to disable
+   */
+  public enablePositioningControllerAlgorithm(algorithm: PositioningControllerAlgorithm, enable: boolean) {
+    if(enable && !this._enabledPositioningControllerAlgorithms.includes(algorithm)) {
+      this._enabledPositioningControllerAlgorithms.push(algorithm);
+    } else {
+      const index = this._enabledPositioningControllerAlgorithms.indexOf(algorithm);
+      this._enabledPositioningControllerAlgorithms.splice(index, 1);
+    }
+  }
+
+  /**
+   * Sets options for a certain algorithm
+   * @param algorithm The algorithm to set the options for
+   * @param options The options to set
+   */
+  public setOptions(algorithm: PositioningControllerAlgorithm, options: any) {
+    this._postioningControllerAlgorithms.get(algorithm)?.setOptions(options);
+  }
+
+  /**
+   * Action when new positioning data is received
+   * @param pozyxData The new positioning data
+   */
+  public positioningUpdateReceived(pozyxData: Map<string, IPozyxData>) {
+    this._enabledPositioningControllerAlgorithms.forEach(algorithm => {
+      this._postioningControllerAlgorithms.get(algorithm)?.sendToTargets(pozyxData);
+    });
+  }
+}

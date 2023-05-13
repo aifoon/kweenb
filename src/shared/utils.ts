@@ -22,4 +22,12 @@ export const Utils = {
    * @returns
    */
   capitalize: (s: string) => (s && s[0].toUpperCase() + s.slice(1)) || "",
+
+  /**
+   * A function that will compare two arrays
+   */
+  compareArrays: (a: any, b: any) => {
+    return a.length === b.length &&
+           a.every((element: any, index: any) => element === b[index]);
+  }
 };

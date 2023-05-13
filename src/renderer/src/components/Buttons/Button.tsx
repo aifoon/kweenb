@@ -77,6 +77,9 @@ export const Button = styled.button.attrs(({ key }) => ({
   }};
   ${({ buttonType, buttonUse = ButtonUse.Normal }) => {
     const colorByButtonUse = getColorByButtonUse(buttonUse);
+    if (buttonType === ButtonType.Primary) {
+      return `border: 1px solid ${colorByButtonUse};`;
+    }
     if (buttonType === ButtonType.Secondary) {
       return `border: 1px solid ${colorByButtonUse};
               color: ${colorByButtonUse};`;

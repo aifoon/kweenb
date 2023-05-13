@@ -7,6 +7,8 @@ import { useSettings } from "./useSettings";
 import { useShowState } from "./useShowState";
 import { useConfirmation } from "./useConfirmation";
 import { usePositioningStore } from "./usePositioningStore";
+import { usePozyxData }  from './usePozyxData';
+import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 
 export {
   useInterval,
@@ -14,6 +16,8 @@ export {
   useBees,
   useAppContext,
   usePositioningStore,
+  usePositioningTargetSelector,
+  usePozyxData,
   useSetting,
   useSettings,
   useShowState,

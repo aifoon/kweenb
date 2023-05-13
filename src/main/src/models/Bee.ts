@@ -19,6 +19,8 @@ class Bee extends Model {
   declare channel1: number;
 
   declare channel2: number;
+
+  declare pozyxTagId: string;
 }
 
 /**
@@ -56,6 +58,10 @@ Bee.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    pozyxTagId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   },
   {
     sequelize: Database.getSequelize(),

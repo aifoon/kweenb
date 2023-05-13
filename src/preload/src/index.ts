@@ -6,6 +6,8 @@ import {
   ISetting,
   ISettings,
   ITheKween,
+  PositioningControllerAlgorithm,
+  PositioningTargetType,
 } from "@shared/interfaces";
 
 /**
@@ -114,12 +116,10 @@ contextBridge.exposeInMainWorld("kweenb", {
       connectPozyxMqttBroker: (pozyxMqttBrokerUrl: string): Promise<boolean> => {
         return ipcRenderer.invoke("positioning:connectPozyxMqttBroker", pozyxMqttBrokerUrl);
       },
+      getAllTagIds: (): Promise<string[]> => ipcRenderer.invoke("positioning:getAllTagIds")
     }
   },
   actions: {
-    sayHello: (name: string) => ipcRenderer.send("hello", name),
-    setBeeActive: (id: number, active: boolean) =>
-      ipcRenderer.send("bee:setBeeActive", id, active),
     beePoller: (
       action: "start" | "stop" | "pause",
       params: any[] = []
@@ -132,10 +132,26 @@ contextBridge.exposeInMainWorld("kweenb", {
     disconnectPozyxMqttBroker: (): void => {
       ipcRenderer.send("positioning:disconnectPozyxMqttBroker");
     },
+    sayHello: (name: string) => ipcRenderer.send("hello", name),
+    setBeeActive: (id: number, active: boolean) =>
+      ipcRenderer.send("bee:setBeeActive", id, active),
+    setBeePozyxTagId: (bee: IBee, pozyxTagId: string) =>
+      ipcRenderer.send("bee:setBeePozyxTagId", bee, pozyxTagId),
     setJackFolderPath: (jackFolderPath: string) =>
       ipcRenderer.send("kweenb:setJackFolderPath", jackFolderPath),
     setJacktripBinPath: (jacktripBinPath: string) =>
       ipcRenderer.send("kweenb:setJacktripBinPath", jacktripBinPath),
+
+    /**
+     * Positioning
+     */
+
+    positioning: {
+      enablePositioningControllerAlgorithm: (algorithm: PositioningControllerAlgorithm, enabled: boolean) =>
+        ipcRenderer.send("positioning:enablePositioningControllerAlgorithm", algorithm, enabled),
+      enablePositioningControllerTargetType: (targetType: PositioningTargetType, enabled: boolean) =>
+        ipcRenderer.send("positioning:enablePositioningControllerTargetType", targetType, enabled),
+    }
   },
   events: {
     onAboutKweenB: (callback: any) => {
@@ -162,6 +178,11 @@ contextBridge.exposeInMainWorld("kweenb", {
     },
     onInfo: (callback: any) => {
       ipcRenderer.on("info", callback);
+    },
+    onPozyxData: (callback: any) => {
+      const channel = "pozyx-data";
+      ipcRenderer.on(channel, callback);
+      return () => ipcRenderer.removeAllListeners(channel);
     },
     onSuccess: (callback: any) => {
       ipcRenderer.on("success", callback);

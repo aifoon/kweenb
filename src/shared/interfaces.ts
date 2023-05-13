@@ -42,6 +42,7 @@ export interface IBee {
   channelType: ChannelType;
   channel1: number;
   channel2?: number;
+  pozyxTagId?: string;
 }
 
 export interface IBeeInput {
@@ -73,6 +74,43 @@ export interface ISystemClients {
 export interface ISystemClientsResponse {
   message: string;
   systemClients: ISystemClients;
+}
+
+/**
+ * For Positioning
+ */
+
+export interface IPositioningData {
+  x: number,
+  y: number,
+  z: number
+}
+
+export interface IOrientationData {
+  yaw: number,
+  pitch: number,
+  roll: number
+}
+
+export interface ITagData {
+  coordinates: IPositioningData,
+}
+
+export interface IPozyxData {
+  version: string,
+  tagId: string,
+  success: boolean,
+  timestamp: number,
+  data: ITagData
+}
+
+export enum PositioningTargetType {
+  Reaper = 'Reaper',
+  Ableton = 'Ableton',
+}
+
+export enum PositioningControllerAlgorithm {
+  VOLUME_CONTROL_XY
 }
 
 /**

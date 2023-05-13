@@ -27,6 +27,7 @@ import {
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
   hookOnCurrentHive,
   makeP2PAudioConnection as makeP2PAudioConnectionBee,
+  setBeePozyxTagId,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -52,16 +53,19 @@ import {
   startHubServer,
   validateHive,
 } from "./controllers/thekween";
-import { connectPozyxMqttBroker, disconnectPozyxMqttBroker } from "./controllers/positioning";
+import { connectPozyxMqttBroker, disconnectPozyxMqttBroker, enablePositioningControllerAlgorithm, enablePositioningControllerTargetType, getAllTagIds } from "./controllers/positioning";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
   ipcMain.on("bee:beesPoller", beesPoller);
   ipcMain.on("bee:beePoller", beePoller);
   ipcMain.on("bee:setBeeActive", setBeeActive);
+  ipcMain.on("bee:setBeePozyxTagId", setBeePozyxTagId);
   ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
   ipcMain.on("kweenb:setJacktripBinPath", setJacktripBinPath);
   ipcMain.on("positioning:disconnectPozyxMqttBroker", disconnectPozyxMqttBroker);
+  ipcMain.on("positioning:enablePositioningControllerTargetType", enablePositioningControllerTargetType);
+  ipcMain.on("positioning:enablePositioningControllerAlgorithm", enablePositioningControllerAlgorithm);
 };
 
 export const registerMethods = () => {
@@ -155,6 +159,7 @@ export const registerMethods = () => {
    * Positioning
    */
    ipcMain.handle("positioning:connectPozyxMqttBroker", connectPozyxMqttBroker);
+   ipcMain.handle("positioning:getAllTagIds", getAllTagIds);
 };
 
 export const registerIntervalWorkers = () => {

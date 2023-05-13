@@ -89,6 +89,7 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     channelType,
     channel1,
     channel2: 0,
+    pozyxTagId: "",
   };
 };
 
@@ -144,6 +145,7 @@ const getAllBees = async (
       channelType,
       channel1,
       channel2,
+      pozyxTagId
     }) => {
       // set offline by default
       let isOnline = false;
@@ -175,6 +177,7 @@ const getAllBees = async (
         channelType,
         channel1,
         channel2,
+        pozyxTagId,
         config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
         status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
       };
@@ -211,7 +214,7 @@ const getAllBeesData = async (
 
   // create an array with bees, without extra status and config checks
   const beesList: IBee[] = bees.map(
-    ({ id, name, ipAddress, isActive, channelType, channel1, channel2 }) =>
+    ({ id, name, ipAddress, isActive, channelType, channel1, channel2, pozyxTagId }) =>
       // return the bee, according to the IBee interface
       ({
         id,
@@ -223,6 +226,7 @@ const getAllBeesData = async (
         channelType,
         channel1,
         channel2,
+        pozyxTagId,
         config: DEFAULT_BEE_CONFIG,
         status: DEFAULT_BEE_STATUS,
       })
@@ -264,6 +268,7 @@ const getBee = async (id: number): Promise<IBee> => {
     channelType: bee.channelType,
     channel1: bee.channel1,
     channel2: bee.channel2,
+    pozyxTagId: bee.pozyxTagId,
     config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
     status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
   };
@@ -373,7 +378,7 @@ const exportBees = async (filePath: string) => {
 
   // map bees to raw data
   const beeData = bees.map(
-    ({ name, ipAddress, isActive, id, channelType, channel1, channel2 }) => ({
+    ({ name, ipAddress, isActive, id, channelType, channel1, channel2, pozyxTagId }) => ({
       id,
       name,
       ipAddress,
@@ -381,6 +386,7 @@ const exportBees = async (filePath: string) => {
       channelType,
       channel1,
       channel2,
+      pozyxTagId
     })
   );
 
@@ -418,6 +424,7 @@ const importBees = async (filePath: string) => {
     "channelType",
     "channel1",
     "channel2",
+    "pozyxTagId"
   ];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -433,6 +440,29 @@ const importBees = async (filePath: string) => {
   beeData.forEach(async (bee) => Bee.create(bee));
 };
 
+/**
+ * Sets the pozyx tag id for a bee
+ * @param bee The bee
+ * @param pozyxTagId The pozyx tag id
+ */
+const setBeePozyxTagId = async (bee: IBee, pozyxTagId: string) => {
+  // get the bee
+  const requestedBee = await Bee.findOne({ where: { id: bee.id } });
+
+  // validate if we found a Bee
+  if (!requestedBee) throw new Error(NO_BEE_FOUND_WITH_ID(bee.id));
+
+  // validate
+  if (!bee.isActive)
+    throw new Error(`Bee is not active.`);
+
+requestedBee.pozyxTagId = pozyxTagId;
+await requestedBee.save();
+// console.log({ pozyxTagId, bee });
+//   // set the state and save
+//   await Bee.update({ pozyxTagId: "test" }, { where: { id: bee.id } });
+}
+
 export default {
   createBee,
   exportBees,
@@ -445,4 +475,5 @@ export default {
   hookOnCurrentHive,
   makeP2PAudioConnection,
   setBeeActive,
+  setBeePozyxTagId
 };

@@ -353,6 +353,28 @@ export const setBeeActive = async (
 };
 
 /**
+ * Sets a Pozyx tag on a bee
+ * @param event The invoke event
+ * @param bee The bee
+ * @param pozyxTagId The Pozyx tag ID
+ * @returns
+ */
+export const setBeePozyxTagId = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee,
+  pozyxTagId: string
+) => {
+  try {
+    await BeeHelpers.setBeePozyxTagId(bee, pozyxTagId);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "setBeePozyxTagId()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Start Jack on a specific bee
  * @param event The Invoke event
  * @param bee
