@@ -1,15 +1,11 @@
-import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
-import { ToggleButton } from "@components/Buttons/ToggleButton";
 import { useBees, usePositioningTargetSelector } from "@renderer/src/hooks";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { PositioningTargetTypeSelector } from "@components/Positioning/PositioningTargetSelector";
 import {
-  IBee,
   PositioningControllerAlgorithm,
   VolumeControlXYOptions,
 } from "@shared/interfaces";
 import { Card, CardVerticalStack, CardSection } from "@components/Cards";
-import styled from "styled-components";
 import { NumberSlider } from "@components/Slider";
 import { LabelHorizontal } from "@components/Layout/LabelHorizontal";
 import { SelectTag } from "@components/Positioning/SelectTag";

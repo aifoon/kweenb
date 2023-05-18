@@ -28,8 +28,11 @@ export const PositioningMqttBrokerConnect = () => {
           ),
       })}
       onSubmit={async (values) => {
-        const connected = await window.kweenb.methods.positioning.connectPozyxMqttBroker(values.pozyxMqttBroker);
-        if(connected) pozyBrokerConnect();
+        const connected =
+          await window.kweenb.methods.positioning.connectPozyxMqttBroker(
+            values.pozyxMqttBroker
+          );
+        if (connected) pozyBrokerConnect();
       }}
     >
       {() => (

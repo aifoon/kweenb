@@ -1,23 +1,20 @@
 import { BeeTagTableRow } from "@components/Positioning/BeeTagTableRow";
 import {
   Grid,
-  Select,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  MenuItem,
 } from "@mui/material";
-import { useBees, usePozyxData } from "@renderer/src/hooks";
+import { useBees } from "@renderer/src/hooks";
 import Yup from "@renderer/src/yup-ext";
 import { IBee } from "@shared/interfaces";
+import { on } from "events";
 import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 
-type PositioningRoutingProps = {};
-
-export const PositioningRouting = (props: PositioningRoutingProps) => {
+export const PositioningRouting = () => {
   const [tags, setTags] = useState<string[]>([]);
   const { activeBees } = useBees();
 
@@ -48,7 +45,7 @@ export const PositioningRouting = (props: PositioningRoutingProps) => {
             "The MQTT url is invalid (e.g. mqtt://127.0.0.1:1883)"
           ),
       })}
-      onSubmit={async (values) => {}}
+      onSubmit={(values) => {}}
     >
       {() => (
         <Grid container spacing={2}>

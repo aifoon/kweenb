@@ -1,16 +1,19 @@
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import { usePozyxData } from "@renderer/src/hooks";
-import { IPozyxData } from "@shared/interfaces";
-import React, { useEffect } from "react";
+import React from "react";
 
-type PositioningDataProps = {};
-
-export const PositioningData = (props: PositioningDataProps) => {
+export const PositioningData = () => {
   const { pozyxDataArray } = usePozyxData();
 
-  if(!pozyxDataArray || pozyxDataArray.length === 0) return(<div>No data</div>)
+  if (!pozyxDataArray || pozyxDataArray.length === 0) return <div>No data</div>;
 
-  return(
+  return (
     <Table>
       <TableHead>
         <TableRow>
@@ -22,15 +25,14 @@ export const PositioningData = (props: PositioningDataProps) => {
       </TableHead>
       <TableBody>
         {pozyxDataArray.map((pozyxData) => (
-            <TableRow key={pozyxData.tagId}>
-              <TableCell>{pozyxData.tagId}</TableCell>
-              <TableCell align="right">{pozyxData.data.coordinates.x}</TableCell>
-              <TableCell align="right">{pozyxData.data.coordinates.y}</TableCell>
-              <TableCell align="right">{pozyxData.data.coordinates.z}</TableCell>
-            </TableRow>
-          )
-        )}
+          <TableRow key={pozyxData.tagId}>
+            <TableCell>{pozyxData.tagId}</TableCell>
+            <TableCell align="right">{pozyxData.data.coordinates.x}</TableCell>
+            <TableCell align="right">{pozyxData.data.coordinates.y}</TableCell>
+            <TableCell align="right">{pozyxData.data.coordinates.z}</TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
-  )
+  );
 };

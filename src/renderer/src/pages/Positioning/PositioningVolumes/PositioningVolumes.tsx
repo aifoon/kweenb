@@ -4,12 +4,9 @@ import { Z3PageContentSidebar } from "@renderer/src/layout/Z3PageContentSidebar"
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { VolumeControl } from "./VolumeControl";
-import { FlyingTag } from "./FlyingTag";
 import { SwarmGroups } from "./SwarmGroups";
 
-type PositioningVolumesProps = {};
-
-export const PositioningVolumes = (props: PositioningVolumesProps) => {
+export const PositioningVolumes = () => {
   const navigate = useNavigate();
   const params = useParams();
 
@@ -27,30 +24,11 @@ export const PositioningVolumes = (props: PositioningVolumesProps) => {
             >
               Volume Control
             </Button>,
-            <Button
-              key="flyingTag"
-              style={{ textAlign: "left" }}
-              onClick={() => navigate("/positioning/volumes/flying-tag")}
-              buttonType={ButtonType.TertiaryWhite}
-              buttonSize={ButtonSize.Small}
-            >
-              Flying Tag
-            </Button>,
-            <Button
-              key="swarmGroups"
-              style={{ textAlign: "left" }}
-              onClick={() => navigate("/positioning/volumes/swarm-groups")}
-              buttonType={ButtonType.TertiaryWhite}
-              buttonSize={ButtonSize.Small}
-            >
-              Swarm Groups
-            </Button>,
           ]}
         />
       }
     >
       {(!params.tab || params.tab === "volume-control") && <VolumeControl />}
-      {params.tab === "flying-tag" && <FlyingTag />}
       {params.tab === "swarm-groups" && <SwarmGroups />}
     </Z3PageContentSidebar>
   );

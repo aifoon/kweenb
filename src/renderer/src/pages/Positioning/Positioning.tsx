@@ -7,7 +7,8 @@ import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { Tab } from "@mui/material";
 import { PositioningMqttBrokerConnect } from "./PositioningMqttBrokerConnect";
-import { PositioningData, PositioningRouting } from ".";
+import { PositioningData } from "./PositioningData";
+import { PositioningRouting } from "./PositioningRouting";
 import { PositioningVolumes } from "./PositioningVolumes/PositioningVolumes";
 
 export const Positioning = () => {
@@ -19,13 +20,10 @@ export const Positioning = () => {
   );
   const [value, setValue] = useState(0);
 
-  const disconnectPozyxMqttBroker = useCallback(
-    () => {
-      window.kweenb.actions.disconnectPozyxMqttBroker();
-      pozyxBrokerDisconnect();
-    },
-    []
-  );
+  const disconnectPozyxMqttBroker = useCallback(() => {
+    window.kweenb.actions.disconnectPozyxMqttBroker();
+    pozyxBrokerDisconnect();
+  }, []);
 
   const handleChange = async (
     event: React.SyntheticEvent<Element, Event>,
