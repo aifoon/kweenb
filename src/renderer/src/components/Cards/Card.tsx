@@ -9,6 +9,7 @@ interface CardProps {
   hideFooterButtons?: boolean;
   children?: React.ReactNode;
   className?: string;
+  introduction?: string;
 }
 
 const CardWrapper = styled.div`
@@ -41,12 +42,19 @@ const CardFooterWrapper = styled(CardInnerWrapper)`
     var(--cardHeaderPaddingBottom) var(--cardHeaderPaddingLeft);
 `;
 
+const CardIntroduction = styled.div`
+  color: var(--white);
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+`;
+
 export const Card = ({
   title,
   footerButtons,
   children,
   className = "",
   hideFooterButtons = false,
+  introduction = "",
 }: CardProps) => {
   const [currentHideFooterButtons, setCurrentHideFooterButtons] =
     useState(hideFooterButtons);
@@ -58,7 +66,10 @@ export const Card = ({
   return (
     <CardWrapper className={`card ${className}`}>
       {title && <CardHeaderWrapper>{title}</CardHeaderWrapper>}
-      <CardInnerWrapper>{children}</CardInnerWrapper>
+      <CardInnerWrapper>
+        {introduction && <CardIntroduction>{introduction}</CardIntroduction>}
+        {children}
+      </CardInnerWrapper>
       {footerButtons && !currentHideFooterButtons && (
         <CardFooterWrapper>
           <ButtonGroup>{footerButtons.map((button) => button)}</ButtonGroup>

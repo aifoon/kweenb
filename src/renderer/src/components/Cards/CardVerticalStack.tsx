@@ -5,7 +5,7 @@ export const CardVerticalStack = styled.div`
   flex-direction: column;
 
   & > .card {
-    margin-bottom: 40px;
+    margin-bottom: var(--cardMarginBottom);
   }
 
   & > .card:last-child {

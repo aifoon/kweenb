@@ -73,12 +73,14 @@
       "error",
       "always",
       {
-          "js": "never",
-          "jsx": "never",
-          "ts": "never",
-          "tsx": "never"
+        "": "never",
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
       }
     ]
+    // "import/extensions": "off"
   },
   "settings": {
     "import/resolver": {

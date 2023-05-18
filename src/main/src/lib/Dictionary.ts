@@ -3,7 +3,7 @@
  */
 
 export default class Dictionary<T> {
-  private memory = new Map<string, T>()
+  private memory = new Map<string, T>();
 
   setValue(key: string, value: T) {
     this.memory.set(key, value);

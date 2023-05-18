@@ -53,7 +53,15 @@ import {
   startHubServer,
   validateHive,
 } from "./controllers/thekween";
-import { connectPozyxMqttBroker, disconnectPozyxMqttBroker, enablePositioningControllerAlgorithm, enablePositioningControllerTargetType, getAllTagIds } from "./controllers/positioning";
+import {
+  connectPozyxMqttBroker,
+  disconnectPozyxMqttBroker,
+  enablePositioningControllerAlgorithm,
+  enablePositioningControllerTargetType,
+  getAllTagIds,
+  getTargetsAndOptionsForAlgorithm,
+  updatePositioningControllerAlgorithmOptions,
+} from "./controllers/positioning";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
@@ -63,9 +71,22 @@ export const registerActions = () => {
   ipcMain.on("bee:setBeePozyxTagId", setBeePozyxTagId);
   ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
   ipcMain.on("kweenb:setJacktripBinPath", setJacktripBinPath);
-  ipcMain.on("positioning:disconnectPozyxMqttBroker", disconnectPozyxMqttBroker);
-  ipcMain.on("positioning:enablePositioningControllerTargetType", enablePositioningControllerTargetType);
-  ipcMain.on("positioning:enablePositioningControllerAlgorithm", enablePositioningControllerAlgorithm);
+  ipcMain.on(
+    "positioning:disconnectPozyxMqttBroker",
+    disconnectPozyxMqttBroker
+  );
+  ipcMain.on(
+    "positioning:enablePositioningControllerTargetType",
+    enablePositioningControllerTargetType
+  );
+  ipcMain.on(
+    "positioning:enablePositioningControllerAlgorithm",
+    enablePositioningControllerAlgorithm
+  );
+  ipcMain.on(
+    "positioning:updatePositioningControllerAlgorithmOptions",
+    updatePositioningControllerAlgorithmOptions
+  );
 };
 
 export const registerMethods = () => {
@@ -158,8 +179,12 @@ export const registerMethods = () => {
   /**
    * Positioning
    */
-   ipcMain.handle("positioning:connectPozyxMqttBroker", connectPozyxMqttBroker);
-   ipcMain.handle("positioning:getAllTagIds", getAllTagIds);
+  ipcMain.handle("positioning:connectPozyxMqttBroker", connectPozyxMqttBroker);
+  ipcMain.handle("positioning:getAllTagIds", getAllTagIds);
+  ipcMain.handle(
+    "positioning:getTargetsAndOptionsForAlgorithm",
+    getTargetsAndOptionsForAlgorithm
+  );
 };
 
 export const registerIntervalWorkers = () => {

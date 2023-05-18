@@ -1,3 +1,3 @@
-import { ReaperOsc } from './ReaperOsc';
+import { ReaperOsc } from "./ReaperOsc";
 
-export { ReaperOsc }
+export { ReaperOsc };

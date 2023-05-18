@@ -2,7 +2,8 @@ import { IPozyxData } from "@shared/interfaces";
 import Dictionary from "../Dictionary";
 
 export class PozyxData {
-  private static _pozyxData: Dictionary<IPozyxData> = new Dictionary<IPozyxData>();
+  private static _pozyxData: Dictionary<IPozyxData> =
+    new Dictionary<IPozyxData>();
 
   private static _onNewPozyxData: (pozyxData: IPozyxData) => void;
 

@@ -7,12 +7,18 @@ export interface PageSidebarProps {
 }
 
 const PageSideBarWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 15px;
-  background-color: var(--primary-300);
-  padding: 1rem;
-  border-radius: var(--radiusLarge);
+  display: flex;
+  flex-direction: column;
+  & > button {
+    margin-bottom: 1rem;
+  }
+  // display: grid;
+  // grid-template-columns: 1fr;
+  // grid-template-rows: 300px 1fr;
+  // grid-gap: 15px;
+  // background-color: var(--primary-300);
+  // padding: 1rem;
+  // border-radius: var(--radiusLarge);
 `;
 
 export const PageSidebar = ({ buttons }: PageSidebarProps) => (

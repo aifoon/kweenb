@@ -113,11 +113,21 @@ contextBridge.exposeInMainWorld("kweenb", {
      * Positioning
      */
     positioning: {
-      connectPozyxMqttBroker: (pozyxMqttBrokerUrl: string): Promise<boolean> => {
-        return ipcRenderer.invoke("positioning:connectPozyxMqttBroker", pozyxMqttBrokerUrl);
-      },
-      getAllTagIds: (): Promise<string[]> => ipcRenderer.invoke("positioning:getAllTagIds")
-    }
+      connectPozyxMqttBroker: (pozyxMqttBrokerUrl: string): Promise<boolean> =>
+        ipcRenderer.invoke(
+          "positioning:connectPozyxMqttBroker",
+          pozyxMqttBrokerUrl
+        ),
+      getAllTagIds: (): Promise<string[]> =>
+        ipcRenderer.invoke("positioning:getAllTagIds"),
+      getTargetsAndOptionsForAlgorithm: (
+        algorithm: PositioningControllerAlgorithm
+      ) =>
+        ipcRenderer.invoke(
+          "positioning:getTargetsAndOptionsForAlgorithm",
+          algorithm
+        ),
+    },
   },
   actions: {
     beePoller: (
@@ -147,11 +157,34 @@ contextBridge.exposeInMainWorld("kweenb", {
      */
 
     positioning: {
-      enablePositioningControllerAlgorithm: (algorithm: PositioningControllerAlgorithm, enabled: boolean) =>
-        ipcRenderer.send("positioning:enablePositioningControllerAlgorithm", algorithm, enabled),
-      enablePositioningControllerTargetType: (targetType: PositioningTargetType, enabled: boolean) =>
-        ipcRenderer.send("positioning:enablePositioningControllerTargetType", targetType, enabled),
-    }
+      enablePositioningControllerAlgorithm: (
+        algorithm: PositioningControllerAlgorithm,
+        enabled: boolean
+      ) =>
+        ipcRenderer.send(
+          "positioning:enablePositioningControllerAlgorithm",
+          algorithm,
+          enabled
+        ),
+      enablePositioningControllerTargetType: (
+        targetType: PositioningTargetType,
+        enabled: boolean
+      ) =>
+        ipcRenderer.send(
+          "positioning:enablePositioningControllerTargetType",
+          targetType,
+          enabled
+        ),
+      updatePositioningControllerAlgorithmOptions: <TAlgorithmOptions>(
+        algorithm: PositioningControllerAlgorithm,
+        options: TAlgorithmOptions
+      ) =>
+        ipcRenderer.send(
+          "positioning:updatePositioningControllerAlgorithmOptions",
+          algorithm,
+          options
+        ),
+    },
   },
   events: {
     onAboutKweenB: (callback: any) => {

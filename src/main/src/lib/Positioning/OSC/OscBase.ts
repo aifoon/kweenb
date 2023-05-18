@@ -1,4 +1,4 @@
-import { Client, Message } from 'node-osc';
+import { Client, Message } from "node-osc";
 
 export class OscBase {
   private _oscClient;
@@ -13,10 +13,10 @@ export class OscBase {
 
   async send(address: string, value: any): Promise<void> {
     return new Promise((resolve, reject) => {
-     this._oscClient.send(new Message(address, value), (err) => {
-      if(err) reject(err);
-      else resolve();
-     });
+      this._oscClient.send(new Message(address, value), (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
   }
 }

@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
-type SwarmGroupsProps = {}
+type SwarmGroupsProps = {};
 
-export const SwarmGroups = (props: SwarmGroupsProps) => {
-  return (
-    <div>The swarm groups feature is not yet implemented.</div>
-  )
-}
+export const SwarmGroups = (props: SwarmGroupsProps) => (
+  <div>The swarm groups feature is not yet implemented.</div>
+);

@@ -43,9 +43,7 @@ export const InputField = styled.div<Omit<InputFieldProps, "label">>`
     `;
   }}
   width:${({ width }) => width};
-  ${({singleLine}) => {
-    return !singleLine ? 'margin-bottom: 20px;' : '';
-  }}};
+  ${({ singleLine }) => (!singleLine ? "margin-bottom: 20px;" : "")}};
   ${({ size }) => {
     if (size === InputFieldSize.Small) {
       return `

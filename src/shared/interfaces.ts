@@ -81,36 +81,50 @@ export interface ISystemClientsResponse {
  */
 
 export interface IPositioningData {
-  x: number,
-  y: number,
-  z: number
+  x: number;
+  y: number;
+  z: number;
 }
 
 export interface IOrientationData {
-  yaw: number,
-  pitch: number,
-  roll: number
+  yaw: number;
+  pitch: number;
+  roll: number;
 }
 
 export interface ITagData {
-  coordinates: IPositioningData,
+  coordinates: IPositioningData;
 }
 
 export interface IPozyxData {
-  version: string,
-  tagId: string,
-  success: boolean,
-  timestamp: number,
-  data: ITagData
+  version: string;
+  tagId: string;
+  success: boolean;
+  timestamp: number;
+  data: ITagData;
 }
 
 export enum PositioningTargetType {
-  Reaper = 'Reaper',
-  Ableton = 'Ableton',
+  Reaper = "Reaper",
 }
 
 export enum PositioningControllerAlgorithm {
-  VOLUME_CONTROL_XY
+  VOLUME_CONTROL_XY,
+}
+
+export interface ITargetAndOptionsForPositioningAlgorithm<TAlgorithmOptions> {
+  options: TAlgorithmOptions;
+  targets: PositioningTargetType[];
+}
+
+/**
+ * For positioning algorithms
+ */
+
+export interface VolumeControlXYOptions {
+  bees: IBee[];
+  beeRadius: number;
+  tagId: string;
 }
 
 /**

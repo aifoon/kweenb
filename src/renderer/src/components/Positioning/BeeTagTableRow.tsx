@@ -1,33 +1,37 @@
-import { TableCell, TableRow, MenuItem, Select, SelectChangeEvent } from '@mui/material'
-import { IBee } from '@shared/interfaces'
-import React, { useState } from 'react'
+import {
+  TableCell,
+  TableRow,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
+import { IBee } from "@shared/interfaces";
+import React, { useState } from "react";
+import { SelectTag } from "./SelectTag";
 
 type BeeTagProps = {
-  bee: IBee
-  tags: string[]
-  selected?: string
-  onTagChange: (bee: IBee, pozyxTagId: string) => void
-}
+  bee: IBee;
+  tags: string[];
+  selected: string;
+  onTagChange: (bee: IBee, pozyxTagId: string) => void;
+};
 
-export const BeeTagTableRow = ({ bee, tags, onTagChange, selected = "" }: BeeTagProps) => {
-  const [selectedTag, setSelectedTag] = useState(selected ? selected : "None");
-  const innerTags = [ "None",...tags];
-
-  const handleChange = (event: SelectChangeEvent<string>) => {
-    setSelectedTag(event.target.value);
-    onTagChange(bee, event.target.value === "None" ? "" : event.target.value);
-  }
+export const BeeTagTableRow = ({
+  bee,
+  onTagChange,
+  tags,
+  selected,
+}: BeeTagProps) => {
+  const handleChange = (pozyxTagId: string) => {
+    onTagChange(bee, pozyxTagId === "None" ? "" : pozyxTagId);
+  };
 
   return (
     <TableRow>
       <TableCell>{bee.name}</TableCell>
       <TableCell align="right">
-        <Select defaultValue='None' value={selectedTag} size="small" onChange={handleChange}>
-          {innerTags.map((tag) =>
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
-          )}
-        </Select>
+        <SelectTag onChange={handleChange} tags={tags} selected={selected} />
       </TableCell>
     </TableRow>
-  )
-}
+  );
+};

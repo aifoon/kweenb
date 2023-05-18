@@ -8,7 +8,8 @@ import {
   ITheKween,
   IPozyxData,
   PositioningTargetType,
-  PositioningControllerAlgorithm
+  PositioningControllerAlgorithm,
+  ITargetAndOptionsForPositioningAlgorithm,
 } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 
@@ -81,12 +82,17 @@ declare global {
         };
 
         /**
-        * Positioning
-        */
+         * Positioning
+         */
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;
           getAllTagIds(): Promise<string[]>;
-        }
+          getTargetsAndOptionsForAlgorithm: <TAlgorithmOptions>(
+            algorithm: PositioningControllerAlgorithm
+          ) => Promise<
+            ITargetAndOptionsForPositioningAlgorithm<TAlgorithmOptions>
+          >;
+        };
       };
       readonly actions: {
         hello(name: string): void;
@@ -103,9 +109,19 @@ declare global {
          */
 
         positioning: {
-          enablePositioningControllerAlgorithm: (algorithm: PositioningControllerAlgorithm, enabled: boolean) => void;
-          enablePositioningControllerTargetType: (targetType: PositioningTargetType, enabled: boolean) => void;
-        }
+          enablePositioningControllerAlgorithm: (
+            algorithm: PositioningControllerAlgorithm,
+            enabled: boolean
+          ) => void;
+          enablePositioningControllerTargetType: (
+            targetType: PositioningTargetType,
+            enabled: boolean
+          ) => void;
+          updatePositioningControllerAlgorithmOptions: <TAlgorithmOptions>(
+            algorithm: PositioningControllerAlgorithm,
+            options: Partial<TAlgorithmOptions>
+          ) => void;
+        };
       };
       readonly events: {
         onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;
@@ -128,7 +144,10 @@ declare global {
           callback: (event: IpcMessageEvent, message: string) => void
         ): () => void;
         onPozyxData(
-          callback: (event: IpcMessageEvent, pozyxData: Map<string, IPozyxData>) => void
+          callback: (
+            event: IpcMessageEvent,
+            pozyxData: Map<string, IPozyxData>
+          ) => void
         ): () => void;
         onSuccess(
           callback: (event: IpcMessageEvent, message: string) => void

@@ -145,7 +145,7 @@ const getAllBees = async (
       channelType,
       channel1,
       channel2,
-      pozyxTagId
+      pozyxTagId,
     }) => {
       // set offline by default
       let isOnline = false;
@@ -214,7 +214,16 @@ const getAllBeesData = async (
 
   // create an array with bees, without extra status and config checks
   const beesList: IBee[] = bees.map(
-    ({ id, name, ipAddress, isActive, channelType, channel1, channel2, pozyxTagId }) =>
+    ({
+      id,
+      name,
+      ipAddress,
+      isActive,
+      channelType,
+      channel1,
+      channel2,
+      pozyxTagId,
+    }) =>
       // return the bee, according to the IBee interface
       ({
         id,
@@ -378,7 +387,16 @@ const exportBees = async (filePath: string) => {
 
   // map bees to raw data
   const beeData = bees.map(
-    ({ name, ipAddress, isActive, id, channelType, channel1, channel2, pozyxTagId }) => ({
+    ({
+      name,
+      ipAddress,
+      isActive,
+      id,
+      channelType,
+      channel1,
+      channel2,
+      pozyxTagId,
+    }) => ({
       id,
       name,
       ipAddress,
@@ -386,7 +404,7 @@ const exportBees = async (filePath: string) => {
       channelType,
       channel1,
       channel2,
-      pozyxTagId
+      pozyxTagId,
     })
   );
 
@@ -424,7 +442,7 @@ const importBees = async (filePath: string) => {
     "channelType",
     "channel1",
     "channel2",
-    "pozyxTagId"
+    "pozyxTagId",
   ];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -453,15 +471,12 @@ const setBeePozyxTagId = async (bee: IBee, pozyxTagId: string) => {
   if (!requestedBee) throw new Error(NO_BEE_FOUND_WITH_ID(bee.id));
 
   // validate
-  if (!bee.isActive)
-    throw new Error(`Bee is not active.`);
+  if (!bee.isActive) throw new Error(`Bee is not active.`);
 
-requestedBee.pozyxTagId = pozyxTagId;
-await requestedBee.save();
-// console.log({ pozyxTagId, bee });
-//   // set the state and save
-//   await Bee.update({ pozyxTagId: "test" }, { where: { id: bee.id } });
-}
+  // set the state and save
+  requestedBee.pozyxTagId = pozyxTagId;
+  await requestedBee.save();
+};
 
 export default {
   createBee,
@@ -475,5 +490,5 @@ export default {
   hookOnCurrentHive,
   makeP2PAudioConnection,
   setBeeActive,
-  setBeePozyxTagId
+  setBeePozyxTagId,
 };
