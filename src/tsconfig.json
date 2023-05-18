@@ -27,6 +27,7 @@
       "@shared/*": ["src/shared/*"],
     },
   },
+  "lib": ["dom"],
   "exclude": [
     "node_modules",
     "scripts/*.js"

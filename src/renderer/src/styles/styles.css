@@ -17,6 +17,9 @@
   /* Define color as color */
   --black: #000;
   --white: #FFF;
+  --primary-25: #ebebef;
+  --primary-50: #cbcdd8;
+  --primary-75: #abadbd;
   --primary-100: #565574;
   --primary-200: #38394E;
   --primary-300: #313246;

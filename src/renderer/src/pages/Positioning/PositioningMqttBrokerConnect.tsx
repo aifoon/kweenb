@@ -8,16 +8,17 @@ import {
 } from "@components/Forms/InputField";
 import { Button, ButtonSize } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import { usePositioningStore } from "@renderer/src/hooks";
+import { useLocalStorage, usePositioningStore } from "@renderer/src/hooks";
 
 export const PositioningMqttBrokerConnect = () => {
   const pozyBrokerConnect = usePositioningStore(
     (state) => state.pozyxBrokerConnect
   );
+  const [storedValue, setValue] = useLocalStorage("pozyxMqttBroker", "");
   return (
     <Formik
       initialValues={{
-        pozyxMqttBroker: "mqtt://127.0.0.1:1883",
+        pozyxMqttBroker: storedValue,
       }}
       validationSchema={Yup.object().shape({
         pozyxMqttBroker: Yup.string()
@@ -28,6 +29,7 @@ export const PositioningMqttBrokerConnect = () => {
           ),
       })}
       onSubmit={async (values) => {
+        setValue(values.pozyxMqttBroker);
         const connected =
           await window.kweenb.methods.positioning.connectPozyxMqttBroker(
             values.pozyxMqttBroker

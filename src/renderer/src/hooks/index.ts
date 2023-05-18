@@ -7,7 +7,8 @@ import { useSettings } from "./useSettings";
 import { useShowState } from "./useShowState";
 import { useConfirmation } from "./useConfirmation";
 import { usePositioningStore } from "./usePositioningStore";
-import { usePozyxData }  from './usePozyxData';
+import { usePozyxData } from "./usePozyxData";
+import { useLocalStorage } from "./useLocalStorage";
 import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 
 export {
@@ -17,6 +18,7 @@ export {
   useAppContext,
   usePositioningStore,
   usePositioningTargetSelector,
+  useLocalStorage,
   usePozyxData,
   useSetting,
   useSettings,

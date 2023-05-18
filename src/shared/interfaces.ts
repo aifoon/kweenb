@@ -125,6 +125,8 @@ export interface VolumeControlXYOptions {
   bees: IBee[];
   beeRadius: number;
   tagId: string;
+  maxVolume: number;
+  maxVolumeZoneRadius: number;
 }
 
 /**

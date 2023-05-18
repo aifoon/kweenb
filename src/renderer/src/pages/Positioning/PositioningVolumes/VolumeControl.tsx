@@ -25,7 +25,13 @@ export const VolumeControl = () => {
     updateOptionsForAlgorithm,
   } = usePositioningTargetSelector<VolumeControlXYOptions>(
     PositioningControllerAlgorithm.VOLUME_CONTROL_XY,
-    { bees: [], beeRadius: 0, tagId: "" }
+    {
+      bees: [],
+      beeRadius: 0,
+      tagId: "",
+      maxVolume: 1,
+      maxVolumeZoneRadius: 500,
+    }
   );
 
   /**
@@ -63,7 +69,7 @@ export const VolumeControl = () => {
       />
       <Card introduction="Select the distance tag that will control the volume. Then, select the bees and their radius in which they will be controlled via the distance tag.">
         <CardSection title="Distance from tag">
-          <LabelHorizontal label="Tag" labelWidth="150px" marginBottom="2rem">
+          <LabelHorizontal label="Tag" labelWidth="200px" marginBottom="2rem">
             {/* Reference Tag */}
 
             <SelectTag
@@ -75,12 +81,12 @@ export const VolumeControl = () => {
             />
           </LabelHorizontal>
         </CardSection>
-        <CardSection title="Select output bees">
+        <CardSection title="Output bees">
           {/* ToggleButton Matrix */}
 
           <LabelHorizontal
             label="Targetted Bees"
-            labelWidth="150px"
+            labelWidth="200px"
             marginBottom="2rem"
           >
             <ToggleButtonMatrix
@@ -102,7 +108,7 @@ export const VolumeControl = () => {
 
           <NumberSlider
             label="Distance"
-            labelWidth="150px"
+            labelWidth="200px"
             min={0}
             max={10000}
             step={100}
@@ -110,6 +116,33 @@ export const VolumeControl = () => {
               updateOptionsForAlgorithm({ beeRadius: value })
             }
             value={targetsAndOptionsForAlgorithm.options.beeRadius}
+          />
+        </CardSection>
+        <CardSection title="Maximum Volume">
+          {/* Max Volume Radius */}
+          <NumberSlider
+            label="Max volume radius"
+            marginBottom="2rem"
+            labelWidth="200px"
+            min={0}
+            max={3000}
+            step={100}
+            onChangeCommitted={(value) =>
+              updateOptionsForAlgorithm({ maxVolumeZoneRadius: value })
+            }
+            value={targetsAndOptionsForAlgorithm.options.maxVolumeZoneRadius}
+          />
+
+          <NumberSlider
+            label="Max volume"
+            labelWidth="200px"
+            min={0}
+            max={1}
+            step={0.1}
+            onChangeCommitted={(value) =>
+              updateOptionsForAlgorithm({ maxVolume: value })
+            }
+            value={targetsAndOptionsForAlgorithm.options.maxVolume}
           />
         </CardSection>
       </Card>

@@ -12,7 +12,8 @@ const CardSectionWrapper = styled.div`
     font-size: 1.2rem;
     margin: 0 0 1.8rem 0;
     padding: 0 0 9px 0;
-    border-bottom: 1px solid var(--textColor);
+    border-bottom: 1px solid var(--primary-100);
+    color: var(--primary-25);
   }
   margin-bottom: var(--cardMarginBottom);
 `;

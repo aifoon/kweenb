@@ -43,7 +43,7 @@ const CardFooterWrapper = styled(CardInnerWrapper)`
 `;
 
 const CardIntroduction = styled.div`
-  color: var(--white);
+  color: var(--primary-25);
   margin-bottom: 2rem;
   font-size: 0.9rem;
 `;
