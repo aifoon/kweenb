@@ -5,13 +5,17 @@ import {
   VolumeControlXYOptions,
 } from "@shared/interfaces";
 
+import { POSITIONING_INTERVAL_MS } from "../../../consts";
 import { ReaperOsc } from "../OSC";
 import { PositioningAlgorithmBase } from "./PositioningAlgorithmBase";
 import { PositioningTarget } from "../PositioningTarget";
+import { Easing } from "../Easing";
 
 const math = require("mathjs");
 
 export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOptions> {
+  private _currentVolumes: Map<number, number> = new Map();
+
   constructor(targets: PositioningTarget[]) {
     super(targets);
     this._options = {
@@ -63,6 +67,35 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
   }
 
   /**
+   * Caclulate volumes by pozyx data
+   * @param pozyxData
+   */
+  private calculateVolumesByPozyxData(pozyxData: Map<string, IPozyxData>) {
+    // define the output
+    const output: Map<number, number> = new Map();
+
+    // loop over bees
+    this._options.bees.forEach((bee) => {
+      // validate if we receive data from the distance tag
+      if (!this.validatePozyxData(bee, pozyxData) || !bee || !bee.pozyxTagId)
+        return;
+
+      // get the pozxy data of tag and bee
+      const pozyxDataOfTag = pozyxData.get(this._options.tagId);
+      const pozyxDataOfBee = pozyxData.get(bee.pozyxTagId);
+
+      // validate data
+      if (!pozyxDataOfTag || !pozyxDataOfBee) return;
+
+      // calculate the volume for this bee
+      output.set(bee.id, this.calculateVolume(pozyxDataOfTag, pozyxDataOfBee));
+    });
+
+    // return the output
+    return output;
+  }
+
+  /**
    * Validate the bee and pozyx data
    * @param bee The bee
    * @param pozyxData The pozyx data
@@ -91,30 +124,34 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
    * @param pozyxData The pozyx data
    */
   public sendToTargets(pozyxData: Map<string, IPozyxData>) {
+    // calculate the volumes
+    const newVolumes = this.calculateVolumesByPozyxData(pozyxData);
+
+    // get the bees
+    const bees = Array.from(newVolumes.keys());
+
+    // loop over target and set volumes
     this._targets.forEach((target) => {
-      this._options.bees.forEach((bee) => {
-        // validate if we receive data from the distance tag
-        if (!this.validatePozyxData(bee, pozyxData) || !bee || !bee.pozyxTagId)
-          return;
-
-        // get the pozxy data of tag and bee
-        const pozyxDataOfTag = pozyxData.get(this._options.tagId);
-        const pozyxDataOfBee = pozyxData.get(bee.pozyxTagId);
-
-        // validate data
-        if (!pozyxDataOfTag || !pozyxDataOfBee) return;
-
-        // calculate the volume
-        const volume = this.calculateVolume(pozyxDataOfTag, pozyxDataOfBee);
-
-        // send out to Reaper in case we have received data
+      bees.forEach((bee) => {
         if (
           target.targetType === PositioningTargetType.Reaper &&
           target.enabled
         ) {
-          (target.target as ReaperOsc).setTrackVolume(bee.id, volume);
+          // animate from the current volume to the new volume
+          // over a duration of 300ms (this is also the time it takes to receive new data),
+          new Easing().animate(
+            this._currentVolumes.get(bee) || 0,
+            newVolumes.get(bee) || 0,
+            POSITIONING_INTERVAL_MS,
+            (volume) => {
+              (target.target as ReaperOsc).setTrackVolume(bee, volume);
+            }
+          );
         }
       });
     });
+
+    // replace the current volumes
+    this._currentVolumes = newVolumes;
   }
 }

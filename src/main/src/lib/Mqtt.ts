@@ -23,9 +23,9 @@ export class MQTT {
   constructor(
     brokerUrl: string,
     options: {
-      onMessage?: (topic: string, payload: any) => void,
-      onError?: (error: IError) => void,
-      onConnect: () => void
+      onMessage?: (topic: string, payload: any) => void;
+      onError?: (error: IError) => void;
+      onConnect: () => void;
     }
   ) {
     this._brokerUrl = brokerUrl;
@@ -59,34 +59,33 @@ export class MQTT {
     // create the MQTT client promise and wait until connected
     const connectSync = new Promise<mqtt.MqttClient>((resolve, reject) => {
       // try connecting to MQTT
-      this._mqttClient = mqtt.connect(
-        this._brokerUrl, {
-          reconnectPeriod: 1000,
-          connectTimeout: 1000
-        }
-      );
+      this._mqttClient = mqtt.connect(this._brokerUrl, {
+        reconnectPeriod: 1000,
+        connectTimeout: 1000,
+      });
 
       // whenever we encounter an error, close the connection
-      this._mqttClient.on('error', (error) => {
-        const errorMessage = error.message.includes("ECONNREFUSED") ?
-            "Cannot connect to MQTT broker." :
-            error.message
-        if(this._onError) this._onError({
-          message: errorMessage,
-          where: "connectToMqttClient"
-        });
+      this._mqttClient.on("error", (error) => {
+        const errorMessage = error.message.includes("ECONNREFUSED")
+          ? "Cannot connect to MQTT broker."
+          : error.message;
+        if (this._onError)
+          this._onError({
+            message: errorMessage,
+            where: "connectToMqttClient",
+          });
         this._mqttClient.end();
-        reject(errorMessage)
-      })
+        reject(errorMessage);
+      });
 
       // whenever we are connected,
       this._mqttClient.on("connect", () => {
         // let them now
-        if(this._onConnect) this._onConnect();
+        if (this._onConnect) this._onConnect();
 
         // whenever we receive a message
         this._mqttClient.on("message", (topic, message) => {
-          if(this._onMessage) this._onMessage(topic, message);
+          if (this._onMessage) this._onMessage(topic, message);
         });
 
         // resolve the promise
@@ -102,7 +101,7 @@ export class MQTT {
    * Disconnect from current MQTT client
    */
   public disconnectMqttClient() {
-    if(this._mqttClient && this._mqttClient.connected) {
+    if (this._mqttClient && this._mqttClient.connected) {
       this._mqttClient.end(true);
     }
   }
@@ -128,7 +127,7 @@ export class MQTT {
    */
   public async subscribe(topic: string) {
     // validate
-    if (!this._mqttClient || !this._mqttClient.connected) return;
+    if (!this._mqttClient || !this._mqttClient.connected) return;
 
     // subscribe to topic
     this._mqttClient.subscribe(topic);
@@ -141,7 +140,7 @@ export class MQTT {
    */
   public async unsubscribe(topic: string) {
     // validate
-    if (!this._mqttClient || !this._mqttClient.connected) return;
+    if (!this._mqttClient || !this._mqttClient.connected) return;
 
     // unsubscribe topic
     await this._mqttClient.unsubscribe(topic);

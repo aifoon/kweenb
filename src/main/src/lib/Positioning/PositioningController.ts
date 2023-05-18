@@ -131,7 +131,7 @@ export class PositioningController {
    * Action when new positioning data is received
    * @param pozyxData The new positioning data
    */
-  public positioningUpdateReceived(pozyxData: Map<string, IPozyxData>) {
+  public positioningUpdate(pozyxData: Map<string, IPozyxData>) {
     this._enabledPositioningControllerAlgorithms.forEach((algorithm) => {
       this._postioningControllerAlgorithms
         .get(algorithm)

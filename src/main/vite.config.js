@@ -45,6 +45,8 @@ const config = {
         "mqtt",
         "@zwerm3/jack",
         "node-osc",
+        "mathjs",
+        "tween-functions",
         ...builtinModules,
       ],
       output: {

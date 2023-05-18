@@ -1,4 +1,5 @@
 import { IError, IPozyxData } from "@shared/interfaces";
+import { POSITIONING_INTERVAL_MS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import { MQTT } from "../Mqtt";
 import { PozyxData } from "./PozyxData";
@@ -6,6 +7,8 @@ import PositioningControllerSingleton from "./PositioningControllerSingleton";
 
 export class PozyxMqttBroker {
   private static _pozyxMqttBroker: MQTT;
+
+  private static _positioningControllerInterval: NodeJS.Timeout;
 
   /**
    * Gets true of the broker is connected
@@ -38,8 +41,10 @@ export class PozyxMqttBroker {
    * Disconnect the Pozyx MQTT broker
    * @param pozyxMqttBrokerUrl The url that reference the Pozyx MQTT broker
    */
-  public static async disconnectPozyxMqttBroker(pozyxMqttBrokerUrl: string) {
+  public static async disconnectPozyxMqttBroker() {
     await this._pozyxMqttBroker.disconnectMqttClient();
+    if (this._positioningControllerInterval)
+      clearInterval(this._positioningControllerInterval);
   }
 
   /**
@@ -56,14 +61,29 @@ export class PozyxMqttBroker {
       (pozyxMqttBrokerUrl && force)
     ) {
       this._pozyxMqttBroker = new MQTT(pozyxMqttBrokerUrl, {
-        onConnect: () =>
-          KweenBGlobal.kweenb.showSuccess("Connected to MQTT broker"),
+        onConnect: () => {
+          KweenBGlobal.kweenb.showSuccess("Connected to MQTT broker");
+          this.startPositioningControllerInterval();
+        },
         onError: (error: IError) => KweenBGlobal.kweenb.throwError(error),
         onMessage: (topic, message) =>
           message && topic && this.messageHandler(topic, message),
       });
     }
     return this._pozyxMqttBroker;
+  }
+
+  /**
+   * Start the positioning controller interval
+   */
+  private static startPositioningControllerInterval() {
+    if (this._positioningControllerInterval)
+      clearInterval(this._positioningControllerInterval);
+    this._positioningControllerInterval = setInterval(() => {
+      PositioningControllerSingleton.getInstance().positioningUpdate(
+        PozyxData.getAllPozyxData()
+      );
+    }, POSITIONING_INTERVAL_MS);
   }
 
   /**
@@ -83,11 +103,6 @@ export class PozyxMqttBroker {
         // let the renderer know that we have new data
         KweenBGlobal.kweenb.mainWindow.webContents.send(
           "pozyx-data",
-          PozyxData.getAllPozyxData()
-        );
-
-        // let the positioning controller know that we have new data
-        PositioningControllerSingleton.getInstance().positioningUpdateReceived(
           PozyxData.getAllPozyxData()
         );
 
