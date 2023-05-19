@@ -42,7 +42,9 @@ export class PozyxMqttBroker {
    * @param pozyxMqttBrokerUrl The url that reference the Pozyx MQTT broker
    */
   public static async disconnectPozyxMqttBroker() {
-    await this._pozyxMqttBroker.disconnectMqttClient();
+    const pozyxMqttBrokerInstance = this.getPozyxMqttBrokerInstance();
+    if (!pozyxMqttBrokerInstance) return;
+    await this.getPozyxMqttBrokerInstance().disconnectMqttClient();
     if (this._positioningControllerInterval)
       clearInterval(this._positioningControllerInterval);
   }

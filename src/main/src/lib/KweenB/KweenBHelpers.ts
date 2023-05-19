@@ -20,6 +20,7 @@ import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
+import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -42,7 +43,10 @@ const closeApplication = async (appMode: AppMode) => {
       );
   }
 
-  // close kweenb
+  // close mqtt broker
+  PozyxMqttBroker.disconnectPozyxMqttBroker();
+
+  // close jack/jacktrip
   await killAllProcesses();
 };
 

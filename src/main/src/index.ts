@@ -17,7 +17,7 @@ import {
 } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
-import { KweenB, KweenBGlobal } from "./kweenb";
+import { KweenBGlobal } from "./kweenb";
 
 /**
  * Get the resources path
