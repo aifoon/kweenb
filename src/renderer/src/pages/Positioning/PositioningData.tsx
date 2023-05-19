@@ -11,7 +11,8 @@ import React from "react";
 export const PositioningData = () => {
   const { pozyxDataArray } = usePozyxData();
 
-  if (!pozyxDataArray || pozyxDataArray.length === 0) return <div>No data</div>;
+  if (!pozyxDataArray || pozyxDataArray.length === 0)
+    return <div>Loading data...</div>;
 
   return (
     <Table>

@@ -87,6 +87,25 @@ export default createTheme({
         },
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          "&:hover": {
+            backgroundColor: "var(--primary-200)",
+            // borderRadius: "var(--radiusMedium)",
+          },
+          "&.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+            {
+              border: "none",
+              borderRadius: "var(--radiusMedium)",
+            },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            border: "none",
+            borderRadius: "var(--radiusMedium)",
+          },
+        },
+      },
+    },
     MuiSelect: {
       styleOverrides: {
         select: {
@@ -96,13 +115,20 @@ export default createTheme({
           outline: "none",
           borderRadius: "var(--radiusMedium)",
           "&:hover": {
-            background: "var(--primary-400)",
+            background: "transparent",
+            borderRadius: "var(--radiusMedium)",
+            border: "1px solid var(--primary-100)",
           },
         },
+        // root: {
+        //   "&.Mui-focused.MuiOutlinedInput-notchedOutline": {
+        //     boroderColor: "var(--primary-100)",
+        //   },
+        // },
         icon: {
           color: "var(--primary-100)",
         },
-      },
+      } as any,
       variants: [
         {
           props: { variant: "standard", size: "small" },
