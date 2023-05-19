@@ -7,4 +7,5 @@ export const validSampleRates = [
   22050, 32000, 44100, 48000, 88200, 96000, 192000,
 ];
 export const validBufferSizes = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
-export const pollingInterval = 3000;
+export const pollingInterval = 5000;
+export const retryOfflinePolling = 3;

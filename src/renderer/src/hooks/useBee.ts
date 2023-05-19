@@ -6,8 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 import { ChannelType, IBee, IBeeConfig } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 import { useAppContext } from "./useAppContext";
-import { useInterval } from "./useInterval";
-import { pollingInterval } from "../consts";
+import { useIntervalAsync } from "./useIntervalAsync";
+import { pollingInterval, retryOfflinePolling } from "../consts";
 
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);
@@ -166,8 +166,25 @@ export function useBee(id: number) {
   /**
    * Use an interval to fetch a bee
    */
-  useInterval(async () => {
-    await fetchBee();
+  useIntervalAsync(async () => {
+    async function retryAsyncFunction(
+      asyncFunction: (id: number) => Promise<IBee>,
+      currentBee: IBee,
+      maxRetries = 5
+    ): Promise<IBee> {
+      const result = await asyncFunction(id);
+      if (result.isOnline === currentBee.isOnline) return result;
+      if (result.isOnline || maxRetries === 0) {
+        return result;
+      }
+      return retryAsyncFunction(asyncFunction, currentBee, maxRetries - 1);
+    }
+    const fetchedBee = retryAsyncFunction(
+      window.kweenb.methods.fetchBee,
+      bee,
+      retryOfflinePolling
+    );
+    setBee(await fetchedBee);
   }, pollingInterval);
 
   return {

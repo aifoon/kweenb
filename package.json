@@ -95,6 +95,7 @@
     "react-router-dom": "^6.1.1",
     "react-scroll-to-bottom": "^4.2.0",
     "sequelize": "^6.16.1",
+    "set-interval-async": "^3.0.3",
     "sqlite3": "^5.0.8",
     "styled-components": "^5.3.3",
     "tween-functions": "^1.2.0",

@@ -59,11 +59,10 @@ export const ToggleButtonMatrix = ({
     <ToggleButttonMatrixGrid>
       <Grid container spacing={2}>
         {currentItems.map((item) => (
-          <Grid item xs={6} md={6} lg={2} xl={1}>
+          <Grid key={item.id} item xs={6} md={6} lg={2} xl={1}>
             <ToggleButton
               style={{ width: "100%" }}
               selected={selectedItems.includes(item.id)}
-              key={item.id}
               value={item.id}
               onChange={handleChange}
             >

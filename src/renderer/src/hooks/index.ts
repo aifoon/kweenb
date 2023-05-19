@@ -9,6 +9,7 @@ import { useConfirmation } from "./useConfirmation";
 import { usePositioningStore } from "./usePositioningStore";
 import { usePozyxData } from "./usePozyxData";
 import { useLocalStorage } from "./useLocalStorage";
+import { useIntervalAsync } from "./useIntervalAsync";
 import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 
 export {
@@ -18,6 +19,7 @@ export {
   useAppContext,
   usePositioningStore,
   usePositioningTargetSelector,
+  useIntervalAsync,
   useLocalStorage,
   usePozyxData,
   useSetting,
