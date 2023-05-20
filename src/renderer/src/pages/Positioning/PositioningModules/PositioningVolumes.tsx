@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { VolumeControl } from "./VolumeControl";
 import { SwarmGroups } from "./SwarmGroups";
 
-export const PositioningVolumes = () => {
+export const PositioningModules = () => {
   const navigate = useNavigate();
   const params = useParams();
 

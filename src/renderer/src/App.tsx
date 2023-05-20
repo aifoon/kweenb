@@ -9,7 +9,7 @@ import { Z3Navigation, Z3Sidebar } from "./layout";
 import { Tools } from "./pages/Tools/Tools";
 import theme from "./theme";
 import { Positioning } from "./pages/Positioning/Positioning";
-import { PositioningVolumes } from "./pages/Positioning/PositioningVolumes/PositioningVolumes";
+import { PositioningModules } from "./pages/Positioning/PositioningModules/PositioningVolumes";
 
 const startDesignSystem = false;
 
@@ -32,7 +32,7 @@ export const App = () => (
                 <Route path="/manage-bees" element={<ManageBees />} />
                 <Route path="/swarm/:id" element={<BeeConfig />} />
                 <Route path="/positioning" element={<Positioning />}>
-                  <Route path='volumes/:tab' element={<PositioningVolumes />} />
+                  <Route path='volumes/:tab' element={<PositioningModules />} />
                 </Route>
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/tools" element={<Tools />} />

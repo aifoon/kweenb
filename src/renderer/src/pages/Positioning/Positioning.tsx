@@ -9,7 +9,7 @@ import { Tab } from "@mui/material";
 import { PositioningMqttBrokerConnect } from "./PositioningMqttBrokerConnect";
 import { PositioningData } from "./PositioningData";
 import { PositioningRouting } from "./PositioningRouting";
-import { PositioningVolumes } from "./PositioningVolumes/PositioningVolumes";
+import { PositioningModules } from "./PositioningModules/PositioningVolumes";
 
 export const Positioning = () => {
   const pozyxBrokerConnected = usePositioningStore(
@@ -56,7 +56,7 @@ export const Positioning = () => {
           <Tabs value={value} onChange={handleChange}>
             <Tab label="Data" />
             <Tab label="Routing" />
-            <Tab label="Volumes" />
+            <Tab label="Modules" />
           </Tabs>
           <TabPanel value={value} index={0}>
             <PositioningData />
@@ -65,7 +65,7 @@ export const Positioning = () => {
             <PositioningRouting />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <PositioningVolumes />
+            <PositioningModules />
           </TabPanel>
         </Z3Page>
       )}
