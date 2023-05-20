@@ -9,7 +9,7 @@ import { Tab } from "@mui/material";
 import { PositioningMqttBrokerConnect } from "./PositioningMqttBrokerConnect";
 import { PositioningData } from "./PositioningData";
 import { PositioningRouting } from "./PositioningRouting";
-import { PositioningModules } from "./PositioningModules/PositioningVolumes";
+import { PositioningModules } from "./PositioningModules";
 
 export const Positioning = () => {
   const pozyxBrokerConnected = usePositioningStore(

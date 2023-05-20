@@ -127,6 +127,7 @@ export interface VolumeControlXYOptions {
   tagId: string;
   maxVolume: number;
   maxVolumeZoneRadius: number;
+  easingIntervalTime: number;
 }
 
 /**

@@ -3,6 +3,12 @@ import { linear } from "tween-functions";
 export class Easing {
   private _currentInterval: NodeJS.Timer;
 
+  private _intervalTime: number = 20;
+
+  constructor(intervalTime = 20) {
+    this._intervalTime = intervalTime;
+  }
+
   animate(
     startValue: number,
     endValue: number,
@@ -19,6 +25,6 @@ export class Easing {
       if (elapsedTime >= duration) {
         clearInterval(this._currentInterval);
       }
-    }, 20);
+    }, this._intervalTime);
   }
 }

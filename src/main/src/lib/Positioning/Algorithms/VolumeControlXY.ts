@@ -24,6 +24,7 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       tagId: "",
       maxVolume: 0.7,
       maxVolumeZoneRadius: 500,
+      easingIntervalTime: 20,
     };
   }
 
@@ -139,7 +140,7 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
         ) {
           // animate from the current volume to the new volume
           // over a duration of 300ms (this is also the time it takes to receive new data),
-          new Easing().animate(
+          new Easing(this._options.easingIntervalTime).animate(
             this._currentVolumes.get(bee) || 0,
             newVolumes.get(bee) || 0,
             POSITIONING_INTERVAL_MS,

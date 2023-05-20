@@ -9,7 +9,7 @@ import { Z3Navigation, Z3Sidebar } from "./layout";
 import { Tools } from "./pages/Tools/Tools";
 import theme from "./theme";
 import { Positioning } from "./pages/Positioning/Positioning";
-import { PositioningModules } from "./pages/Positioning/PositioningModules/PositioningVolumes";
+import { PositioningModules } from "./pages/Positioning/PositioningModules/PositioningModules";
 
 const startDesignSystem = false;
 

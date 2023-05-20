@@ -1,3 +1,3 @@
-import { PositioningVolumes } from "./PositioningVolumes";
+import { PositioningModules } from "./PositioningModules";
 
-export { PositioningVolumes };
+export { PositioningModules };

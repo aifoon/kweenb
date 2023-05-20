@@ -31,6 +31,7 @@ export const VolumeControl = () => {
       tagId: "",
       maxVolume: 1,
       maxVolumeZoneRadius: 500,
+      easingIntervalTime: 20,
     }
   );
 
@@ -143,6 +144,24 @@ export const VolumeControl = () => {
               updateOptionsForAlgorithm({ maxVolume: value })
             }
             value={targetsAndOptionsForAlgorithm.options.maxVolume}
+          />
+        </CardSection>
+        <CardSection
+          title="Advanced Settings"
+          introduction="The easing interval time (Z) will define how fast we send signals to the osc targets in milliseconds. When we want to set a new volume we do a linear increment from volume A to B over a duration (X time). The amount of signals send to the target is therefore t(B) - t(A) / Z or X / Z. The lower Z is, the more accurate the volume will be, but the more CPU power it will cost."
+        >
+          {/* Max Volume Radius */}
+          <NumberSlider
+            label="Easing interval time"
+            marginBottom="2rem"
+            labelWidth="200px"
+            min={5}
+            max={300}
+            step={5}
+            onChangeCommitted={(value) =>
+              updateOptionsForAlgorithm({ easingIntervalTime: value })
+            }
+            value={targetsAndOptionsForAlgorithm.options.easingIntervalTime}
           />
         </CardSection>
       </Card>
