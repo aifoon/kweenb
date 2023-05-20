@@ -15,15 +15,8 @@ import { AppMode } from "@shared/enums";
 
 declare global {
   interface Window {
-    /**
-     * The KweenB methods
-     */
     readonly kweenb: {
       readonly methods: {
-        /**
-         * Bee
-         */
-
         // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
@@ -40,7 +33,7 @@ declare global {
         killJackAndJacktrip(bee: IBee): Promise<void>;
         killJack(bee: IBee);
         killJacktrip(bee: IBee): void;
-        hookBeeOnCurrentHive(bee: Ibee): void;
+        hookBeeOnCurrentHive(bee: IBee): void;
         makeP2PAudioConnectionBee(bee: IBee): Promise<void>;
         startJack(bee: IBee): void;
         startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
@@ -69,9 +62,6 @@ declare global {
         fetchSettings(): Promise<ISettings>;
         updateSetting(setting: ISetting);
 
-        /**
-         * The Kween
-         */
         theKween: {
           fetchTheKween(): Promise<ITheKween>;
           isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
@@ -81,9 +71,6 @@ declare global {
           makeHubAudioConnections(): Promise<void>;
         };
 
-        /**
-         * Positioning
-         */
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;
           getAllTagIds(): Promise<string[]>;
@@ -103,10 +90,6 @@ declare global {
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;
         setJackFolderPath(jackFolderPath: string);
         setJacktripBinPath(jacktripBinPath: string);
-
-        /**
-         * Positioning
-         */
 
         positioning: {
           enablePositioningControllerAlgorithm: (
