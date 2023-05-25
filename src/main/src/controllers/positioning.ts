@@ -33,7 +33,7 @@ export const disconnectPozyxMqttBroker = (
   event: IpcMainEvent,
   pozyxMqttBrokerUrl: string
 ) => {
-  PozyxMqttBroker.disconnectPozyxMqttBroker(pozyxMqttBrokerUrl);
+  PozyxMqttBroker.disconnectPozyxMqttBroker();
 };
 
 /**
@@ -75,8 +75,10 @@ export const enablePositioningControllerTargetType = (
  * @param event
  * @returns
  */
-export const getAllTagIds = (event: IpcMainInvokeEvent) =>
-  Array.from(PozyxData.getAllPozyxData().keys());
+export const getAllTagIds = (event: IpcMainInvokeEvent) => {
+  const tags = Array.from(PozyxData.getAllPozyxData().keys());
+  return tags.sort();
+};
 
 /**
  * Gets the targets and options for a certain algorithm

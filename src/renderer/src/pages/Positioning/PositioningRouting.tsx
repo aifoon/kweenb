@@ -10,7 +10,6 @@ import {
 import { useBees } from "@renderer/src/hooks";
 import Yup from "@renderer/src/yup-ext";
 import { IBee } from "@shared/interfaces";
-import { on } from "events";
 import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 

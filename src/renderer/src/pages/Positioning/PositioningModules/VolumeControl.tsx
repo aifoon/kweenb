@@ -27,7 +27,7 @@ export const VolumeControl = () => {
     PositioningControllerAlgorithm.VOLUME_CONTROL_XY,
     {
       bees: [],
-      beeRadius: 0,
+      beeRadius: 2000,
       tagId: "",
       maxVolume: 1,
       maxVolumeZoneRadius: 500,
@@ -59,6 +59,9 @@ export const VolumeControl = () => {
   }, []);
 
   if (loading) return <div>Loading...</div>;
+
+  if (activeBees.length === 0)
+    return <div>There are no active bees available.</div>;
 
   return (
     <CardVerticalStack>
@@ -156,7 +159,7 @@ export const VolumeControl = () => {
             marginBottom="2rem"
             labelWidth="200px"
             min={5}
-            max={300}
+            max={200}
             step={5}
             onChangeCommitted={(value) =>
               updateOptionsForAlgorithm({ easingIntervalTime: value })

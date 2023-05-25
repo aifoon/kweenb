@@ -32,4 +32,4 @@ export const PING_CONFIG: PingConfig = {
 export const START_PORT_JACKTRIP = 4464;
 
 // this is the interval in which the positioning controller is called
-export const POSITIONING_INTERVAL_MS = 300;
+export const POSITIONING_INTERVAL_MS = 200;

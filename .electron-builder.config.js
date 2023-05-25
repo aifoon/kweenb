@@ -18,8 +18,8 @@ const config = {
   mac: {
     asar: true,
     hardenedRuntime: true,
-    entitlements: ".config/entitlements.mac.plist",
-    entitlementsInherit: ".config/entitlements.mac.plist",
+    entitlements: "./src/.config/entitlements.mac.plist",
+    entitlementsInherit: "./src/.config/entitlements.mac.plist",
     gatekeeperAssess: false,
     target: {
       target: "dmg",

@@ -20,7 +20,7 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     super(targets);
     this._options = {
       bees: [],
-      beeRadius: 0,
+      beeRadius: 2000,
       tagId: "",
       maxVolume: 0.7,
       maxVolumeZoneRadius: 500,
@@ -88,8 +88,15 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       // validate data
       if (!pozyxDataOfTag || !pozyxDataOfBee) return;
 
-      // calculate the volume for this bee
-      output.set(bee.id, this.calculateVolume(pozyxDataOfTag, pozyxDataOfBee));
+      try {
+        // calculate the volume for this bee
+        output.set(
+          bee.id,
+          this.calculateVolume(pozyxDataOfTag, pozyxDataOfBee)
+        );
+      } catch (e) {
+        console.error(e);
+      }
     });
 
     // return the output
@@ -106,6 +113,10 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     bee: IBee,
     pozyxData: Map<string, IPozyxData>
   ): boolean {
+    // validate if we receive data from the bee
+    if (bee === undefined) return false;
+    if (!bee.pozyxTagId) return false;
+
     // validate if we receive data from the distance tag
     if (pozyxData.get(this._options.tagId) === undefined) return false;
     const pozyxDataOfTag = pozyxData.get(this._options.tagId);
@@ -115,6 +126,10 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     if (!bee.pozyxTagId) return false;
     const pozyxDataOfBee = pozyxData.get(bee.pozyxTagId);
     if (pozyxDataOfBee === undefined) return false;
+
+    // validate if we have x's and y's
+    if (pozyxDataOfTag.data.coordinates.x === undefined) return false;
+    if (pozyxDataOfTag.data.coordinates.y === undefined) return false;
 
     // everything is fine
     return true;

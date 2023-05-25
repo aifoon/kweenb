@@ -65,6 +65,8 @@ export class PozyxMqttBroker {
       this._pozyxMqttBroker = new MQTT(pozyxMqttBrokerUrl, {
         onConnect: () => {
           KweenBGlobal.kweenb.showSuccess("Connected to MQTT broker");
+
+          // An interval that we use to update the positioning
           this.startPositioningControllerInterval();
         },
         onError: (error: IError) => KweenBGlobal.kweenb.throwError(error),
@@ -82,7 +84,14 @@ export class PozyxMqttBroker {
     if (this._positioningControllerInterval)
       clearInterval(this._positioningControllerInterval);
     this._positioningControllerInterval = setInterval(() => {
+      // update the positioning for our controllers
       PositioningControllerSingleton.getInstance().positioningUpdate(
+        PozyxData.getAllPozyxData()
+      );
+
+      // let the renderer know that we have new data
+      KweenBGlobal.kweenb.mainWindow.webContents.send(
+        "pozyx-data",
         PozyxData.getAllPozyxData()
       );
     }, POSITIONING_INTERVAL_MS);
@@ -100,13 +109,9 @@ export class PozyxMqttBroker {
         const pozyxData = JSON.parse(message.toString()).pop() as IPozyxData;
 
         // set the pozyx data in memory
-        PozyxData.setPozyxData(pozyxData);
-
-        // let the renderer know that we have new data
-        KweenBGlobal.kweenb.mainWindow.webContents.send(
-          "pozyx-data",
-          PozyxData.getAllPozyxData()
-        );
+        if (pozyxData.success) {
+          PozyxData.setPozyxData(pozyxData);
+        }
 
         // break the switch
         break;

@@ -1,9 +1,28 @@
 import { red } from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
 import { style } from "glamor";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 
 export default createTheme({
   components: {
+    MuiDataGrid: {
+      styleOverrides: {
+        columnHeader: {
+          backgroundColor: "var(--primary-100)",
+          textAlign: "right",
+          padding: "1rem",
+        },
+
+        cell: {
+          borderBottom: "1px solid var(--primary-100)",
+          padding: "1rem",
+        },
+        root: {
+          border: "none",
+          color: "var(--white)",
+        },
+      },
+    },
     MuiTableHead: {
       styleOverrides: {
         root: {
@@ -87,6 +106,7 @@ export default createTheme({
         },
       },
     },
+
     MuiInputBase: {
       styleOverrides: {
         root: {
