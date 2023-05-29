@@ -113,6 +113,12 @@
 html {
   font-size: var(--baseFontSize);
   box-sizing: border-box;
+  user-select: none;
+}
+
+::selection {
+  color: var(--primary-500);
+  background: var(--primary-100);
 }
 
 body {
