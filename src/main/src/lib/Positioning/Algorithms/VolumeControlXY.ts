@@ -5,6 +5,7 @@ import {
   VolumeControlXYOptions,
 } from "@shared/interfaces";
 
+import { LogarithmicVolumeCalculator } from "@shared/lib/LogarithmicVolumeCalculator";
 import { POSITIONING_INTERVAL_MS } from "../../../consts";
 import { ReaperOsc } from "../OSC";
 import { PositioningAlgorithmBase } from "./PositioningAlgorithmBase";
@@ -16,8 +17,11 @@ const math = require("mathjs");
 export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOptions> {
   private _currentVolumes: Map<number, number> = new Map();
 
+  private _logratithmicVolumeCalculator: LogarithmicVolumeCalculator;
+
   constructor(targets: PositioningTarget[]) {
     super(targets);
+    this._logratithmicVolumeCalculator = new LogarithmicVolumeCalculator(60);
     this._options = {
       bees: [],
       beeRadius: 2000,
@@ -49,19 +53,44 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     ];
 
     // calculate the distance between the tag and the bee
-    const distance = Number(math.distance(positionOfTag, positionOfBee));
+    let distance = 0;
+
+    // when the max volume zone radius is 0, calculate the distance between the tag and the bee
+    if (this._options.maxVolumeZoneRadius === 0) {
+      // calculate the distance between the tag and the bee
+      distance = Number(math.distance(positionOfTag, positionOfBee));
+    }
+
+    // when the max volume zone radius is not 0,
+    // calculate the distance between the tag and the circle by the position of a bee and
+    // the circle center of the max volume zone
+    else {
+      // Calculate the distance between the point and the circle's outer border
+      distance = Math.sqrt(
+        (positionOfTag[0] - positionOfBee[0]) ** 2 +
+          (positionOfTag[1] - positionOfBee[1]) ** 2
+      );
+
+      // Calculate the shortest distance by subtracting the circle's radius
+      distance = Math.abs(distance - this._options.maxVolumeZoneRadius);
+    }
 
     // validate if the bee is in the zone
     let volume = 0;
-    if (distance <= 0) volume = 0;
-    else if (distance <= this._options.maxVolumeZoneRadius)
-      volume = this._options.maxVolume;
+    if (distance > this._options.beeRadius) volume = 0;
     else if (distance <= this._options.beeRadius)
-      volume = this._options.maxVolume - distance / this._options.beeRadius;
+      volume = distance / this._options.beeRadius;
     else volume = 0;
 
+    // calculate the logarithmic volume
+    volume = this._logratithmicVolumeCalculator.calculate(
+      volume,
+      2,
+      this._options.maxVolume
+    ).vol;
+
     // validate if the volume is not negative
-    if (volume <= 0.1) volume = 0;
+    if (volume <= 0) volume = 0;
 
     // return the volume
     return volume;
@@ -109,27 +138,26 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
    * @param pozyxData The pozyx data
    * @returns Boolean if the data is valid
    */
-  private validatePozyxData(
-    bee: IBee,
-    pozyxData: Map<string, IPozyxData>
-  ): boolean {
+  private validatePozyxData(bee: IBee, pozyxData: Map<string, IPozyxData>) {
     // validate if we receive data from the bee
-    if (bee === undefined) return false;
-    if (!bee.pozyxTagId) return false;
+    if (!bee || !bee.pozyxTagId) {
+      return false;
+    }
 
-    // validate if we receive data from the distance tag
-    if (pozyxData.get(this._options.tagId) === undefined) return false;
-    const pozyxDataOfTag = pozyxData.get(this._options.tagId);
-    if (pozyxDataOfTag === undefined) return false;
+    const tagData = pozyxData.get(this._options.tagId);
+    const beeData = pozyxData.get(bee.pozyxTagId);
 
-    // validate if we receive data from the bee
-    if (!bee.pozyxTagId) return false;
-    const pozyxDataOfBee = pozyxData.get(bee.pozyxTagId);
-    if (pozyxDataOfBee === undefined) return false;
+    // validate if we receive data from the distance tag and bee
+    if (!tagData || !beeData) {
+      return false;
+    }
+
+    const tagCoordinates = tagData.data.coordinates;
 
     // validate if we have x's and y's
-    if (pozyxDataOfTag.data.coordinates.x === undefined) return false;
-    if (pozyxDataOfTag.data.coordinates.y === undefined) return false;
+    if (tagCoordinates.x === undefined || tagCoordinates.y === undefined) {
+      return false;
+    }
 
     // everything is fine
     return true;

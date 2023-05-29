@@ -1,5 +1,5 @@
 import { IPozyxData } from "@shared/interfaces";
-import Dictionary from "../Dictionary";
+import Dictionary from "@shared/lib/Dictionary";
 
 export class PozyxData {
   private static _pozyxData: Dictionary<IPozyxData> =
