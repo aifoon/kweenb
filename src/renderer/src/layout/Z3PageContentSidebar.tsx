@@ -1,4 +1,5 @@
 import { PageSidebarProps } from "@components/Sidebar/PageSidebar";
+import { Grid } from "@mui/material";
 import { ReactElement } from "react";
 import styled from "styled-components";
 
@@ -18,8 +19,12 @@ export const Z3PageContentSidebar = ({
   pageSidebar,
   children,
 }: Z3PageSidebarProps) => (
-  <Z3PageContentSidebarWrapper>
-    {pageSidebar}
-    <div>{children}</div>
-  </Z3PageContentSidebarWrapper>
+  <Grid container spacing={1}>
+    <Grid item xs={12} md={3} lg={2} xl={1}>
+      {pageSidebar}
+    </Grid>
+    <Grid item xs={12} md={9} lg={10} xl={11}>
+      {children}
+    </Grid>
+  </Grid>
 );

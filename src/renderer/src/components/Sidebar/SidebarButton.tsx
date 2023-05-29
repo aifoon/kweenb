@@ -5,6 +5,7 @@ export interface SidebarButtonProps {
   icon?: React.ReactElement<SvgIconProps>;
   text?: string;
   active?: boolean;
+  showLabel?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -50,6 +51,7 @@ export const SidebarButton = ({
   icon,
   text,
   active = false,
+  showLabel = false,
   onClick,
 }: SidebarButtonProps) => (
   <SidebarButtonWrapper onClick={onClick} active={active}>

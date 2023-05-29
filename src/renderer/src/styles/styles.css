@@ -98,7 +98,7 @@
 
   /* Measurements */
   --navigationHeight: 75px;
-  --sidebarWidth: 250px;
+  --sidebarWidth: 225px;
   --contentHeight: calc(100vh - var(--navigationHeight));
   --contentPaddingLeft: 40px;
   --contentPaddingRight: 40px;

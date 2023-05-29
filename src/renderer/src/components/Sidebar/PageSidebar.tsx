@@ -12,13 +12,6 @@ const PageSideBarWrapper = styled.div`
   & > button {
     margin-bottom: 1rem;
   }
-  // display: grid;
-  // grid-template-columns: 1fr;
-  // grid-template-rows: 300px 1fr;
-  // grid-gap: 15px;
-  // background-color: var(--primary-300);
-  // padding: 1rem;
-  // border-radius: var(--radiusLarge);
 `;
 
 export const PageSidebar = ({ buttons }: PageSidebarProps) => (

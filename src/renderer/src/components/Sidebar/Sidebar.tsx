@@ -3,6 +3,7 @@ import styled from "styled-components";
 import sidebarLogo from "../../images/sidebar-logo.png";
 import { SidebarButtonProps } from "./SidebarButton";
 import { SidebarBadgeProps } from "./SidebarStatusBadge";
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 interface SidebarProps {
   badges?: ReactElement<SidebarBadgeProps>[];
@@ -11,13 +12,12 @@ interface SidebarProps {
   height?: string;
   fixedToSide?: boolean;
   versionNumber?: string;
+  collapseble?: boolean;
 }
 
-const SidebarContainer = styled.aside<SidebarProps>`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 50px 20px 20px 20px;
+const SidebarWrapper = styled.div<SidebarProps>`
+  position: relative;
+  padding: 30px 20px;
   box-shadow: var(--level-2);
   background-color: var(--primary-400);
   ${({ fixedToSide }) => {
@@ -32,6 +32,32 @@ const SidebarContainer = styled.aside<SidebarProps>`
   }}
   ${({ width }) => `width: ${width}` || ""};
   ${({ height }) => `height: ${height}` || ""};
+`
+
+const SidebarCollapseButtonContainer = styled.div<SidebarProps>`
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  ${({ collapseble }) => (collapseble ? `display: flex;` : `display: none;`)}
+`
+
+const SidebarCollapseButton = styled.button`
+  background-color: var(--primary-200);
+  height: 35px;
+  width: 35px;
+  font-size: 5px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const SidebarContainer = styled.aside<SidebarProps>`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  ${({ collapseble }) => (collapseble ? `grid-template-rows: 50px 1fr 100px;` : `grid-template-rows: 1fr 100px;`)}
+  height: 100%;
 `;
 
 const SidebarBadgesWrapper = styled.div`
@@ -49,8 +75,9 @@ const SidebarButtonsWrapper = styled.div`
 
 const SidebarLogoWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  text-align: center;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-end;
   opacity: 0.5;
   & > img {
     width: 80px;
@@ -63,29 +90,37 @@ const SidebarLogoWrapper = styled.div`
 export const Sidebar = ({
   badges,
   buttons,
+  collapseble = false,
   width = "200px",
   height = "200px",
   fixedToSide = false,
   versionNumber = "",
 }: SidebarProps) => (
-  <SidebarContainer width={width} height={height} fixedToSide={fixedToSide}>
-    <div>
-      {badges && badges.length > 0 && (
-        <SidebarBadgesWrapper>
-          {badges.map((badge) => badge)}
-        </SidebarBadgesWrapper>
-      )}
-      {buttons && buttons.length && (
-        <SidebarButtonsWrapper>
-          {buttons.map((button) => button)}
-        </SidebarButtonsWrapper>
-      )}
-    </div>
-    <SidebarLogoWrapper>
+  <SidebarWrapper width={width} height={height} fixedToSide={fixedToSide}>
+    <SidebarContainer collapseble={collapseble}>
+      <SidebarCollapseButtonContainer collapseble={collapseble}>
+        <SidebarCollapseButton>
+          <MenuOpenIcon style={{fontSize: ".9rem"}} />
+        </SidebarCollapseButton>
+      </SidebarCollapseButtonContainer>
       <div>
-        <img src={sidebarLogo} alt="Sidebar Logo" />
+        {badges && badges.length > 0 && (
+          <SidebarBadgesWrapper>
+            {badges.map((badge) => badge)}
+          </SidebarBadgesWrapper>
+        )}
+        {buttons && buttons.length && (
+          <SidebarButtonsWrapper>
+            {buttons.map((button) => button)}
+          </SidebarButtonsWrapper>
+        )}
       </div>
-      {versionNumber && <div className="version">v{versionNumber}</div>}
-    </SidebarLogoWrapper>
-  </SidebarContainer>
+      <SidebarLogoWrapper>
+        <div>
+          <img src={sidebarLogo} alt="Sidebar Logo" />
+        </div>
+        {versionNumber && <div className="version">v{versionNumber}</div>}
+      </SidebarLogoWrapper>
+    </SidebarContainer>
+  </SidebarWrapper>
 );
