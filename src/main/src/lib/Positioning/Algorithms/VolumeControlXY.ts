@@ -21,7 +21,7 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
 
   constructor(targets: PositioningTarget[]) {
     super(targets);
-    this._logratithmicVolumeCalculator = new LogarithmicVolumeCalculator(60);
+    this._logratithmicVolumeCalculator = new LogarithmicVolumeCalculator(20);
     this._options = {
       bees: [],
       beeRadius: 2000,
@@ -78,9 +78,9 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     // validate if the bee is in the zone
     let volume = 0;
     if (distance > this._options.beeRadius) volume = 0;
-    else if (distance <= this._options.beeRadius)
-      volume = distance / this._options.beeRadius;
-    else volume = 0;
+    else if (distance <= this._options.beeRadius) {
+      volume = 1 - distance / this._options.beeRadius;
+    }
 
     // calculate the logarithmic volume
     volume = this._logratithmicVolumeCalculator.calculate(
