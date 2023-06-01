@@ -82,6 +82,8 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       volume = 1 - distance / this._options.beeRadius;
     }
 
+    console.log(volume);
+
     // calculate the logarithmic volume
     volume = this._logratithmicVolumeCalculator.calculate(
       volume,
@@ -181,11 +183,19 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
           target.targetType === PositioningTargetType.Reaper &&
           target.enabled
         ) {
+          // get current registerd volume
+          const currentBeeVolume = this._currentVolumes.get(bee) || 0;
+          const newBeeVolume = newVolumes.get(bee) || 0;
+
+          // if the current volume is NOT different than the calculated volume
+          // do NOT let them know
+          if (currentBeeVolume === newBeeVolume) return;
+
           // animate from the current volume to the new volume
-          // over a duration of 300ms (this is also the time it takes to receive new data),
+          // over a duration of POSITIONING_INTERVAL_MS_ms (this is also the time it takes to receive new data),
           new Easing(this._options.easingIntervalTime).animate(
-            this._currentVolumes.get(bee) || 0,
-            newVolumes.get(bee) || 0,
+            currentBeeVolume,
+            newBeeVolume,
             POSITIONING_INTERVAL_MS,
             (volume) => {
               (target.target as ReaperOsc).setTrackVolume(bee, volume);

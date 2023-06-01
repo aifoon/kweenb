@@ -8,7 +8,7 @@
  */
 
 import path from "path";
-import { app } from "electron";
+import { app, session } from "electron";
 import { ElectronApp } from "./lib";
 import {
   registerActions,
@@ -58,7 +58,14 @@ const initApp = async () => {
 
     // create hte window
     const mainWindow = await electronApp.createWindow();
-
+    // session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    //   callback({
+    //     responseHeaders: {
+    //       ...details.responseHeaders,
+    //       "Content-Security-Policy": ["default-src 'none'"],
+    //     },
+    //   });
+    // });
     // register actions to execute
     // (one way direction, from renderer to main)
     registerActions();

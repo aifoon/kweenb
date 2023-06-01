@@ -25,7 +25,7 @@ export class PositioningController {
     // add some default targets
     this.addPositioningTarget(
       PositioningTargetType.Reaper,
-      new ReaperOsc("127.0.0.1", 8111)
+      new ReaperOsc("127.0.0.1", 8112)
     );
 
     // add some active algorithms
