@@ -148,6 +148,11 @@ export interface ISettings {
   kweenBAudioSettings: IKweenBAudioSettings;
   kweenBSettings: IKweenBSettings;
   theKweenSettings: ITheKweenSettings;
+  positioningSettings: PositioningSettings;
+}
+
+export interface PositioningSettings {
+  updateRate: number;
 }
 
 export interface IAudioSettingsJack {

@@ -80,6 +80,9 @@ const getAllSettings = async (): Promise<ISettings> => {
     theKweenSettings: {
       ipAddress: findKey("thekweenIpAddress")?.value || "127.0.0.1",
     },
+    positioningSettings: {
+      updateRate: Number(findKey("positioningUpdateRate")?.value) || 200,
+    },
   };
 };
 
@@ -91,7 +94,12 @@ const getAllSettings = async (): Promise<ISettings> => {
 const updateSetting = async (setting: ISetting) => {
   if (!setting.key)
     throw new Error("Please provide a valid key for the requested setting.");
-  await Setting.update(setting, { where: { key: setting.key } });
+  const requestedSetting = await Setting.findOne({
+    where: { key: setting.key },
+  });
+  if (!requestedSetting)
+    await Setting.create({ key: setting.key, value: setting.value });
+  else await Setting.update(setting, { where: { key: setting.key } });
 };
 
 /**

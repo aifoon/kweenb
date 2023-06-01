@@ -43,14 +43,16 @@ export const Settings = () => {
           kweenbAudioSettings={settings.kweenBAudioSettings}
         />
       </TabPanel>
+      <TabPanel value={value} index={2}>
+        <SettingsPositioning
+          updateRate={settings.positioningSettings.updateRate}
+        />
+      </TabPanel>
       {appContext.appMode === AppMode.Hub && (
-        <TabPanel value={value} index={2}>
+        <TabPanel value={value} index={3}>
           <SettingsTheKween ipAddress={settings.theKweenSettings.ipAddress} />
         </TabPanel>
       )}
-      <TabPanel value={value} index={3}>
-        <SettingsPositioning updateRate={200} />
-      </TabPanel>
     </Z3Page>
   );
 };

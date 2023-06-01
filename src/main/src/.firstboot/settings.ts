@@ -126,5 +126,9 @@ export default [
   {
     key: "kweenbJacktripBinPath",
     value: ""
+  },
+  {
+    key: "positioningUpdateRate",
+    value: "200"
   }
 ]
