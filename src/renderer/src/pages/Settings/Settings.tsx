@@ -9,6 +9,7 @@ import { Z3Page } from "../../layout";
 import { SettingsBees } from "./SettingsBees";
 import { SettingsKweenB } from "./SettingsKweenB";
 import { SettingsTheKween } from "./SettingsTheKween";
+import { SettingsPositioning } from "./SettingsPositioning";
 
 export const Settings = () => {
   const { loading, settings, reloadSettings } = useSettings();
@@ -31,6 +32,7 @@ export const Settings = () => {
         <Tab label="Bee" />
         <Tab label="KweenB" />
         {appContext.appMode === AppMode.Hub && <Tab label="The Kween" />}
+        <Tab label="Positioning" />
       </Tabs>
       <TabPanel value={value} index={0}>
         <SettingsBees beeAudioSettings={settings.beeAudioSettings} />
@@ -46,6 +48,9 @@ export const Settings = () => {
           <SettingsTheKween ipAddress={settings.theKweenSettings.ipAddress} />
         </TabPanel>
       )}
+      <TabPanel value={value} index={3}>
+        <SettingsPositioning updateRate={200} />
+      </TabPanel>
     </Z3Page>
   );
 };

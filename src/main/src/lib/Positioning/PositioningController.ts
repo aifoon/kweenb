@@ -4,6 +4,7 @@ import {
   PositioningControllerAlgorithm,
   PositioningTargetType,
 } from "@shared/interfaces";
+import { REAPER_OSC_PORT } from "../../consts";
 import { ReaperOsc } from "./OSC";
 import { OscBase } from "./OSC/OscBase";
 import { VolumeControlXY } from "./Algorithms/VolumeControlXY";
@@ -25,7 +26,7 @@ export class PositioningController {
     // add some default targets
     this.addPositioningTarget(
       PositioningTargetType.Reaper,
-      new ReaperOsc("127.0.0.1", 8112)
+      new ReaperOsc("127.0.0.1", REAPER_OSC_PORT)
     );
 
     // add some active algorithms

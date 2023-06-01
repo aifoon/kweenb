@@ -2,7 +2,7 @@
  * Hook that will get the data, stored in our sqlite database
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChannelType, IBee, IBeeConfig } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 import { useAppContext } from "./useAppContext";
@@ -12,6 +12,7 @@ import { pollingInterval, retryOfflinePolling } from "../consts";
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);
   const { appContext } = useAppContext();
+  const isMounted = useRef(true);
   const [bee, setBee] = useState<IBee>({
     id: 0,
     name: "...",
@@ -39,7 +40,7 @@ export function useBee(id: number) {
    */
   const fetchBee = useCallback(async () => {
     const fetchedBee = await window.kweenb.methods.fetchBee(id);
-    setBee(fetchedBee);
+    if (isMounted.current) setBee(fetchedBee);
     return bee;
   }, [bee]);
 
@@ -155,12 +156,11 @@ export function useBee(id: number) {
    * When mounting, fetch all bees
    */
   useEffect(() => {
-    // fetch the bees
-    (async () => {
-      setLoading(true);
-      await fetchBee();
-      setLoading(false);
-    })();
+    setLoading(true);
+    fetchBee().then(() => setLoading(false));
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   /**
@@ -184,7 +184,9 @@ export function useBee(id: number) {
       bee,
       retryOfflinePolling
     );
-    setBee(await fetchedBee);
+    if (isMounted.current) {
+      setBee(await fetchedBee);
+    }
   }, pollingInterval);
 
   return {
