@@ -1,5 +1,6 @@
 import {
   IBee,
+  IPositioningSettings,
   IPozyxData,
   PositioningTargetType,
   VolumeControlXYOptions,
@@ -17,11 +18,11 @@ const math = require("mathjs");
 export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOptions> {
   private _currentVolumes: Map<number, number> = new Map();
 
-  private _logratithmicVolumeCalculator: LogarithmicVolumeCalculator;
+  private _logarithmicVolumeCalculator: LogarithmicVolumeCalculator;
 
-  constructor(targets: PositioningTarget[]) {
-    super(targets);
-    this._logratithmicVolumeCalculator = new LogarithmicVolumeCalculator(20);
+  constructor(targets: PositioningTarget[], settings?: IPositioningSettings) {
+    super(targets, settings);
+    this._logarithmicVolumeCalculator = new LogarithmicVolumeCalculator(20);
     this._options = {
       bees: [],
       beeRadius: 2000,
@@ -82,10 +83,8 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       volume = 1 - distance / this._options.beeRadius;
     }
 
-    console.log(volume);
-
     // calculate the logarithmic volume
-    volume = this._logratithmicVolumeCalculator.calculate(
+    volume = this._logarithmicVolumeCalculator.calculate(
       volume,
       2,
       this._options.maxVolume
@@ -191,14 +190,26 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
           // do NOT let them know
           if (currentBeeVolume === newBeeVolume) return;
 
+          // the positioning data comes in via an update rate defined in the settings
+          // the easing interval time is the time it takes to animate from the current volume to the new volume
+          // if this easing interval is the same as the update rate, a flaw can occur because update rate and easing can be out of sync due to fast calculations
+          // to prevent this, the easing interval is equal to update rate divided by a factor (e.g. 2)
+          // we have [updateRateFactor] the amount of time left in case of flaws
+          const updateRateFactor = 2;
+          const updateRate =
+            (this._positioningSettings?.updateRate || POSITIONING_INTERVAL_MS) /
+            updateRateFactor;
+
           // animate from the current volume to the new volume
           // over a duration of POSITIONING_INTERVAL_MS_ms (this is also the time it takes to receive new data),
           new Easing(this._options.easingIntervalTime).animate(
             currentBeeVolume,
             newBeeVolume,
-            POSITIONING_INTERVAL_MS,
+            updateRate,
             (volume) => {
-              (target.target as ReaperOsc).setTrackVolume(bee, volume);
+              if (target.target instanceof ReaperOsc) {
+                target.target.setTrackVolume(bee, volume);
+              }
             }
           );
         }

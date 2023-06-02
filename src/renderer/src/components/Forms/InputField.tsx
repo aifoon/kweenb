@@ -17,6 +17,7 @@ export interface InputFieldProps {
   size?: InputFieldSize;
   labelWidth?: string;
   width?: string;
+  disabled?: boolean;
   onValidatedBlur?: (e: any) => void;
   onValidatedChange?: (e: any) => void;
 }

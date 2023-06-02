@@ -261,6 +261,11 @@ input {
   font-size: var(--inputFieldLabelText);
 }
 
+input[disabled] {
+  color: var(--primary-75);
+  cursor: not-allowed;
+}
+
 ::placeholder {
   color: var(--primary-100)
 }

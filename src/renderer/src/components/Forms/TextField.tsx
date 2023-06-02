@@ -20,6 +20,7 @@ export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
     width = "100%",
     orientation = InputFieldOrientation.Vertical,
     onValidatedBlur,
+    disabled = false,
   } = props;
   return (
     <InputField
@@ -36,6 +37,7 @@ export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
           if (onValidatedBlur && !meta.error) onValidatedBlur(e);
           field.onBlur(e);
         }}
+        disabled={disabled}
         placeholder={placeholder}
         type={type}
       />

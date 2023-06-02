@@ -157,7 +157,9 @@ export function useBee(id: number) {
    */
   useEffect(() => {
     setLoading(true);
-    fetchBee().then(() => setLoading(false));
+    fetchBee().then(() => {
+      if (isMounted.current) setLoading(false);
+    });
     return () => {
       isMounted.current = false;
     };

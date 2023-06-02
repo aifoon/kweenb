@@ -1,14 +1,24 @@
-import { IPozyxData, VolumeControlXYOptions } from "@shared/interfaces";
+import { IPositioningSettings, IPozyxData } from "@shared/interfaces";
 import { PositioningTarget } from "../PositioningTarget";
 
 export abstract class PositioningAlgorithmBase<TAlgorithmOptions> {
   protected _targets: PositioningTarget[] = [];
 
-  constructor(targets: PositioningTarget[]) {
+  protected _positioningSettings: IPositioningSettings | undefined | null;
+
+  constructor(targets: PositioningTarget[], settings?: IPositioningSettings) {
     this._targets = targets;
+    this._positioningSettings = settings;
   }
 
   protected _options: TAlgorithmOptions;
+
+  /**
+   * Makes setting the settings possible
+   */
+  public set positioningSettings(settings: IPositioningSettings) {
+    this._positioningSettings = settings;
+  }
 
   /**
    * Sets options, needed for a certain algorithm to work

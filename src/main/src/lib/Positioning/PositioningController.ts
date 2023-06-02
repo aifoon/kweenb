@@ -1,4 +1,5 @@
 import {
+  IPositioningSettings,
   IPozyxData,
   ITargetAndOptionsForPositioningAlgorithm,
   PositioningControllerAlgorithm,
@@ -23,7 +24,7 @@ export class PositioningController {
     [];
 
   constructor() {
-    // add some default targets
+    // add the reaper target
     this.addPositioningTarget(
       PositioningTargetType.Reaper,
       new ReaperOsc("127.0.0.1", REAPER_OSC_PORT)
@@ -32,10 +33,20 @@ export class PositioningController {
     // add some active algorithms
     this.initPositioningControllerAlgorithms();
 
+    // disable the algorithms by default (only activate them in the UI)
     this.enablePositioningControllerAlgorithm(
       PositioningControllerAlgorithm.VOLUME_CONTROL_XY,
       false
     );
+  }
+
+  /**
+   * Sets the positioning settings
+   */
+  public set positioningSettings(settings: IPositioningSettings) {
+    this._postioningControllerAlgorithms.forEach((algorithm) => {
+      algorithm.positioningSettings = settings;
+    });
   }
 
   /**

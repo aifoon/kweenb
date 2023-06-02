@@ -47,7 +47,7 @@ export const Positioning = () => {
                   buttonType={ButtonType.Primary}
                   onClick={disconnectPozyxMqttBroker}
                 >
-                  Diconnect Pozyx MQTT
+                  Disconnect Pozyx
                 </Button>,
               ]}
             />

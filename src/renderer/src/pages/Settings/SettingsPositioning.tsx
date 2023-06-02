@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useSetting } from "@renderer/src/hooks";
+import { usePositioningStore, useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 import { Grid } from "@mui/material";
 
@@ -25,6 +25,9 @@ export const SettingsPositioning = ({
       value: e.target.value,
     });
   };
+  const pozyxBrokerConnected = usePositioningStore(
+    (state) => state.pozyxBrokerConnected
+  );
   return (
     <Formik
       initialValues={{
@@ -47,11 +50,12 @@ export const SettingsPositioning = ({
                   onValidatedBlur={handleOnValidatedBlurAndChange}
                   orientation={InputFieldOrientation.Horizontal}
                   size={InputFieldSize.Small}
-                  label="Update Rate"
+                  label="Update Rate (ms)"
                   type="number"
                   labelWidth="150px"
                   name="updateRate"
                   placeholder="e.g. 200"
+                  disabled={pozyxBrokerConnected}
                 />
               </Card>
             </Grid>

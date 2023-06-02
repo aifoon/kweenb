@@ -1,9 +1,11 @@
-import { IError, IPozyxData } from "@shared/interfaces";
+import { IError, IPositioningSettings, IPozyxData } from "@shared/interfaces";
+import Setting from "../../models/Setting";
 import { POSITIONING_INTERVAL_MS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import { MQTT } from "../Mqtt";
 import { PozyxData } from "./PozyxData";
 import PositioningControllerSingleton from "./PositioningControllerSingleton";
+import SettingHelpers from "../KweenB/SettingHelpers";
 
 export class PozyxMqttBroker {
   private static _pozyxMqttBroker: MQTT;
@@ -64,10 +66,15 @@ export class PozyxMqttBroker {
     ) {
       this._pozyxMqttBroker = new MQTT(pozyxMqttBrokerUrl, {
         onConnect: () => {
+          // show a success message
           KweenBGlobal.kweenb.showSuccess("Connected to MQTT broker");
 
-          // An interval that we use to update the positioning
-          this.startPositioningControllerInterval();
+          // get the positioning settings from the database
+          SettingHelpers.getAllSettings().then((settings) => {
+            this.startPositioningControllerInterval(
+              settings.positioningSettings
+            );
+          });
         },
         onError: (error: IError) => KweenBGlobal.kweenb.throwError(error),
         onMessage: (topic, message) =>
@@ -80,10 +87,18 @@ export class PozyxMqttBroker {
   /**
    * Start the positioning controller interval
    */
-  private static startPositioningControllerInterval() {
+  private static startPositioningControllerInterval(
+    positioningSettings: IPositioningSettings
+  ) {
+    // if we have an interval already, clear it
     if (this._positioningControllerInterval)
       clearInterval(this._positioningControllerInterval);
+
+    // set the positioning settings for the controller to use
     this._positioningControllerInterval = setInterval(() => {
+      PositioningControllerSingleton.getInstance().positioningSettings =
+        positioningSettings;
+
       // update the positioning for our controllers
       PositioningControllerSingleton.getInstance().positioningUpdate(
         PozyxData.getAllPozyxData()
@@ -94,7 +109,7 @@ export class PozyxMqttBroker {
         "pozyx-data",
         PozyxData.getAllPozyxData()
       );
-    }, POSITIONING_INTERVAL_MS);
+    }, positioningSettings.updateRate || POSITIONING_INTERVAL_MS);
   }
 
   /**
