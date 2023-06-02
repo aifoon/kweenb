@@ -109,8 +109,14 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
     closeModal();
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      connectBees();
+    }
+  }, [open]);
+
   return (
-    <BaseModal open={isOpen} onClose={closeModal}>
+    <BaseModal open={isOpen} onClose={closeModal} showCloseButton>
       <TaskList
         tasks={[
           "Check if all active bees are online",
@@ -125,31 +131,6 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
         activeIndex={activeIndex}
         activeIndexState={activeIndexState}
       />
-      <ConfirmModalFooter>
-        <Flex justifyContent="flex-end">
-          <ButtonGroup>
-            {!isConnecting && (
-              <Button
-                type="button"
-                onClick={onClose}
-                buttonType={ButtonType.TertiaryWhite}
-                buttonSize={ButtonSize.Small}
-              >
-                Cancel
-              </Button>
-            )}
-            <Button
-              type="button"
-              onClick={() => connectBees()}
-              buttonUse={ButtonUse.Normal}
-              disabled={isConnecting}
-              buttonSize={ButtonSize.Small}
-            >
-              Connect Bees
-            </Button>
-          </ButtonGroup>
-        </Flex>
-      </ConfirmModalFooter>
     </BaseModal>
   );
 };

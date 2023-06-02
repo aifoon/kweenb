@@ -9,6 +9,7 @@ export interface BaseModalProps {
   onClose?: any;
   children: React.ReactNode;
   title?: string;
+  showCloseButton?: boolean;
 }
 
 const BaseModalStyled = styled(ModalUnstyled)`
@@ -71,6 +72,7 @@ export const BaseModal = ({
   open,
   onClose,
   children,
+  showCloseButton = true,
 }: BaseModalProps) => {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -94,7 +96,7 @@ export const BaseModal = ({
       <ModalContentContainer>
         <ModalHeaderContainer hasTitle={!!title}>
           {title && <h4>{title}</h4>}
-          <CloseButton onClick={handleClose} />
+          {showCloseButton && <CloseButton onClick={handleClose} />}
         </ModalHeaderContainer>
         <div>{children}</div>
       </ModalContentContainer>
