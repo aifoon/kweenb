@@ -113,7 +113,7 @@ export const VolumeControl = () => {
           <NumberSlider
             label="Distance"
             labelWidth="200px"
-            min={0}
+            min={100}
             max={10000}
             step={100}
             onChangeCommitted={(value) =>

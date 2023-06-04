@@ -76,10 +76,13 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       distance = Math.abs(distance - this._options.maxVolumeZoneRadius);
     }
 
+    // validate distance
+    if (distance <= 0) distance = 0;
+
     // validate if the bee is in the zone
     let volume = 0;
-    if (distance > this._options.beeRadius) volume = 0;
-    else if (distance <= this._options.beeRadius) {
+    if (distance >= this._options.beeRadius) volume = 0;
+    else if (distance < this._options.beeRadius) {
       volume = 1 - distance / this._options.beeRadius;
     }
 
