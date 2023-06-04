@@ -23,12 +23,9 @@ export class PositioningController {
   private _enabledPositioningControllerAlgorithms: PositioningControllerAlgorithm[] =
     [];
 
-  constructor() {
-    // add the reaper target
-    this.addPositioningTarget(
-      PositioningTargetType.Reaper,
-      new ReaperOsc("127.0.0.1", REAPER_OSC_PORT)
-    );
+  constructor(positioningTargets: PositioningTarget[]) {
+    // init the targets
+    this._targets = positioningTargets;
 
     // add some active algorithms
     this.initPositioningControllerAlgorithms();
@@ -66,17 +63,6 @@ export class PositioningController {
   }
 
   /**
-   * Adds a new target to the list of targets
-   * @param target The target to add
-   */
-  private addPositioningTarget(
-    targetType: PositioningTargetType,
-    target: OscBase
-  ) {
-    this._targets.push({ targetType, target, enabled: false });
-  }
-
-  /**
    * Enables/Disables a target
    * @param targetType The target type to enable
    */
@@ -94,15 +80,16 @@ export class PositioningController {
     algorithm: PositioningControllerAlgorithm,
     enable: boolean
   ) {
-    if (
-      enable &&
-      !this._enabledPositioningControllerAlgorithms.includes(algorithm)
-    ) {
-      this._enabledPositioningControllerAlgorithms.push(algorithm);
+    if (enable) {
+      if (!this._enabledPositioningControllerAlgorithms.includes(algorithm)) {
+        this._enabledPositioningControllerAlgorithms.push(algorithm);
+      }
     } else {
       const index =
         this._enabledPositioningControllerAlgorithms.indexOf(algorithm);
-      this._enabledPositioningControllerAlgorithms.splice(index, 1);
+      if (index !== -1) {
+        this._enabledPositioningControllerAlgorithms.splice(index, 1);
+      }
     }
   }
 

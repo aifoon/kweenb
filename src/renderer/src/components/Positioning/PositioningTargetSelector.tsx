@@ -55,9 +55,8 @@ export const PositioningTargetTypeSelector = ({
                     true
                   );
                 }
-                if (onSelection) {
-                  onSelection();
-                }
+                if (onSelection) onSelection();
+
                 targets.find((t) => t.name === target.name)!.state = 2;
               },
             }}

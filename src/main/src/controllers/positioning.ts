@@ -37,7 +37,7 @@ export const disconnectPozyxMqttBroker = (
 };
 
 /**
- * Enable/Diable the positioning controller algorithm
+ * Enable/Disable the positioning controller algorithm
  * @param event The event
  * @param algorithm The algorithm to enable/disable
  * @param enable True to enable, false to disable

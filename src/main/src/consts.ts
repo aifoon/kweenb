@@ -33,4 +33,5 @@ export const START_PORT_JACKTRIP = 4464;
 
 // this is the interval in which the positioning controller is called
 export const POSITIONING_INTERVAL_MS = 200;
+export const OSCMONITOR_PORT = 8110;
 export const REAPER_OSC_PORT = 8111;

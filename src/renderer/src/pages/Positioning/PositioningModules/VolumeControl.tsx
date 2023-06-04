@@ -32,6 +32,7 @@ export const VolumeControl = () => {
       maxVolume: 1,
       maxVolumeZoneRadius: 500,
       easingIntervalTime: 20,
+      updateRateEasingFactor: 0.75,
     }
   );
 
@@ -149,10 +150,16 @@ export const VolumeControl = () => {
             value={targetsAndOptionsForAlgorithm.options.maxVolume}
           />
         </CardSection>
-        <CardSection
-          title="Advanced Settings"
-          introduction="The easing interval time (Z) will define how fast we send signals to the osc targets in milliseconds. When we want to set a new volume we do a linear increment from volume A to B over a duration (X time). The amount of signals send to the target is therefore t(B) - t(A) / Z or X / Z. The lower Z is, the more accurate the volume will be, but the more CPU power it will cost."
-        >
+        <CardSection title="Advanced Settings" introduction="">
+          <p style={{ marginBottom: "2rem" }}>
+            The easing interval time (Z) will define how fast we send signals to
+            the osc targets in milliseconds. When we want to set a new volume we
+            do a linear increment from volume A to B over a duration (X time).
+            The amount of signals send to the target is therefore t(B) - t(A) /
+            Z or X / Z. The lower Z is, the more accurate the volume will be,
+            but the more CPU power it will cost.
+          </p>
+
           {/* Max Volume Radius */}
           <NumberSlider
             label="Easing interval time"
@@ -165,6 +172,30 @@ export const VolumeControl = () => {
               updateOptionsForAlgorithm({ easingIntervalTime: value })
             }
             value={targetsAndOptionsForAlgorithm.options.easingIntervalTime}
+          />
+
+          <p style={{ marginBottom: "2rem" }}>
+            The update easing factor is a value that we use to multiply the
+            positioning update rate labelWidth. If you have an update rate of
+            300ms and a factor of 0.5, the easing will be calculated in a time
+            frame of 300ms * 0.5 = 150ms. This prevents overlap between the
+            update rate and the easing duration intervals in the background. Say
+            that the calculation of easing lasts longer than the update rate,
+            flaws can happen.
+          </p>
+
+          {/* Max Volume Radius */}
+          <NumberSlider
+            label="Update Easing Factor"
+            marginBottom="2rem"
+            labelWidth="200px"
+            min={0.05}
+            max={1}
+            step={0.05}
+            onChangeCommitted={(value) =>
+              updateOptionsForAlgorithm({ updateRateEasingFactor: value })
+            }
+            value={targetsAndOptionsForAlgorithm.options.updateRateEasingFactor}
           />
         </CardSection>
       </Card>

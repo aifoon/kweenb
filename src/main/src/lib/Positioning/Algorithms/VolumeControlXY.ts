@@ -2,13 +2,12 @@ import {
   IBee,
   IPositioningSettings,
   IPozyxData,
-  PositioningTargetType,
   VolumeControlXYOptions,
 } from "@shared/interfaces";
 
 import { LogarithmicVolumeCalculator } from "@shared/lib/LogarithmicVolumeCalculator";
 import { POSITIONING_INTERVAL_MS } from "../../../consts";
-import { ReaperOsc } from "../OSC";
+import { OscMonitor, ReaperOsc } from "../OSC";
 import { PositioningAlgorithmBase } from "./PositioningAlgorithmBase";
 import { PositioningTarget } from "../PositioningTarget";
 import { Easing } from "../Easing";
@@ -30,6 +29,7 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
       maxVolume: 0.7,
       maxVolumeZoneRadius: 500,
       easingIntervalTime: 20,
+      updateRateEasingFactor: 0.75,
     };
   }
 
@@ -179,44 +179,45 @@ export class VolumeControlXY extends PositioningAlgorithmBase<VolumeControlXYOpt
     const bees = Array.from(newVolumes.keys());
 
     // loop over target and set volumes
-    this._targets.forEach((target) => {
-      bees.forEach((bee) => {
-        if (
-          target.targetType === PositioningTargetType.Reaper &&
-          target.enabled
-        ) {
-          // get current registerd volume
-          const currentBeeVolume = this._currentVolumes.get(bee) || 0;
-          const newBeeVolume = newVolumes.get(bee) || 0;
+    bees.forEach((bee) => {
+      // get current registerd volume
+      const currentBeeVolume = this._currentVolumes.get(bee) || 0;
+      const newBeeVolume = newVolumes.get(bee) || 0;
 
-          // if the current volume is NOT different than the calculated volume
-          // do NOT let them know
-          if (currentBeeVolume === newBeeVolume) return;
+      // if the current volume is NOT different than the calculated volume
+      // do NOT let them know
+      if (currentBeeVolume === newBeeVolume) return;
 
-          // the positioning data comes in via an update rate defined in the settings
-          // the easing interval time is the time it takes to animate from the current volume to the new volume
-          // if this easing interval is the same as the update rate, a flaw can occur because update rate and easing can be out of sync due to fast calculations
-          // to prevent this, the easing interval is equal to update rate divided by a factor (e.g. 2)
-          // we have [updateRateFactor] the amount of time left in case of flaws
-          const updateRateFactor = 2;
-          const updateRate =
-            (this._positioningSettings?.updateRate || POSITIONING_INTERVAL_MS) /
-            updateRateFactor;
+      // the positioning data comes in via an update rate defined in the settings
+      // the easing interval time is the time it takes to animate from the current volume to the new volume
+      // if this easing interval is the same as the update rate, a flaw can occur because update rate and easing can be out of sync due to fast calculations
+      // to prevent this, the easing interval is equal to update rate divided by a factor (e.g. 2)
+      // we have [updateRateFactor] the amount of time left in case of flaws
+      const updateRate =
+        (this._positioningSettings?.updateRate || POSITIONING_INTERVAL_MS) *
+        this._options.updateRateEasingFactor;
 
-          // animate from the current volume to the new volume
-          // over a duration of POSITIONING_INTERVAL_MS_ms (this is also the time it takes to receive new data),
-          new Easing(this._options.easingIntervalTime).animate(
-            currentBeeVolume,
-            newBeeVolume,
-            updateRate,
-            (volume) => {
-              if (target.target instanceof ReaperOsc) {
-                target.target.setTrackVolume(bee, volume);
-              }
+      // animate from the current volume to the new volume
+      // over a duration of POSITIONING_INTERVAL_MS_ms (this is also the time it takes to receive new data),
+      new Easing(this._options.easingIntervalTime).animate(
+        currentBeeVolume,
+        newBeeVolume,
+        updateRate,
+        async (volume) => {
+          const promises: Promise<void>[] = [];
+          this._targets.forEach((target) => {
+            if (target.target instanceof ReaperOsc && target.enabled) {
+              promises.push(target.target.setTrackVolume(bee, volume));
             }
-          );
+            if (target.target instanceof OscMonitor && target.enabled) {
+              promises.push(
+                target.target.sendDebugMessage(`/track/${bee}/volume`, volume)
+              );
+            }
+          });
+          await Promise.all(promises);
         }
-      });
+      );
     });
 
     // replace the current volumes

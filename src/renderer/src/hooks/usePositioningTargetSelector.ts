@@ -26,6 +26,7 @@ export function usePositioningTargetSelector<TAlgorithmOptions>(
   );
 
   const handleOnClear = useCallback(() => {
+    console.log("clear", algorithm);
     window.kweenb.actions.positioning.enablePositioningControllerAlgorithm(
       algorithm,
       false
@@ -33,6 +34,7 @@ export function usePositioningTargetSelector<TAlgorithmOptions>(
   }, []);
 
   const handleOnSelection = useCallback(() => {
+    console.log("select", algorithm);
     window.kweenb.actions.positioning.enablePositioningControllerAlgorithm(
       algorithm,
       true

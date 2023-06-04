@@ -105,6 +105,7 @@ export interface IPozyxData {
 }
 
 export enum PositioningTargetType {
+  OscMonitor = "OscMonitor",
   Reaper = "Reaper",
 }
 
@@ -128,6 +129,7 @@ export interface VolumeControlXYOptions {
   maxVolume: number;
   maxVolumeZoneRadius: number;
   easingIntervalTime: number;
+  updateRateEasingFactor: number;
 }
 
 /**
