@@ -43,3 +43,6 @@ installed
 
 # Do not add certificates
 .config/*.p12
+
+# Do not add keys
+#*.key

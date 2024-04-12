@@ -34,6 +34,7 @@ import { Console } from "@renderer/src/components/Console";
 import { SwitchField } from "@renderer/src/components/Forms/SwitchField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
+import { ChannelType } from "@shared/interfaces";
 
 // Icons
 
@@ -296,6 +297,9 @@ const DesignSystem = () => {
             online
             jackIsRunning
             number={4}
+            channelType={ChannelType.MONO}
+            channel1={1}
+            channel2={2}
           />
         </DesignSystemSection>
 

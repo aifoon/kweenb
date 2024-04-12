@@ -39,17 +39,19 @@ export const Positioning = () => {
           pageHeader={
             <PageHeader
               title="Positioning"
-              buttons={[
-                <Button
-                  key="disconnectPozyxMqttBroker"
-                  buttonSize={ButtonSize.Small}
-                  buttonUse={ButtonUse.Danger}
-                  buttonType={ButtonType.Primary}
-                  onClick={disconnectPozyxMqttBroker}
-                >
-                  Disconnect Pozyx
-                </Button>,
-              ]}
+              buttons={
+                <>
+                  <Button
+                    key="disconnectPozyxMqttBroker"
+                    buttonSize={ButtonSize.Small}
+                    buttonUse={ButtonUse.Danger}
+                    buttonType={ButtonType.Primary}
+                    onClick={disconnectPozyxMqttBroker}
+                  >
+                    Disconnect Pozyx
+                  </Button>
+                </>
+              }
             />
           }
         >
