@@ -10,7 +10,7 @@ const config = {
   productName: "kweenb",
   asarUnpack: ["node_modules/sqlite3"],
   copyright: "aifoon vzw",
-  // afterSign: "scripts/notarize.js",
+  afterSign: "scripts/notarize.js",
   artifactName: "${name}-${version}-${os}-${arch}.${ext}",
   directories: {
     output: "bin",
