@@ -28,6 +28,8 @@ import {
   hookOnCurrentHive,
   makeP2PAudioConnection as makeP2PAudioConnectionBee,
   setBeePozyxTagId,
+  getBeeConfig,
+  getCurrentBeeStates,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -98,6 +100,7 @@ export const registerMethods = () => {
   ipcMain.handle("bee:createBee", createBee);
   ipcMain.handle("bee:deleteBee", deleteBee);
   ipcMain.handle("bee:updateBee", updateBee);
+  ipcMain.handle("bee:getCurrentBeeStates", getCurrentBeeStates);
   ipcMain.handle("bee:fetchBee", fetchBee);
   ipcMain.handle("bee:fetchActiveBees", fetchActiveBees);
   ipcMain.handle("bee:fetchActiveBeesData", fetchActiveBeesData);
@@ -123,6 +126,7 @@ export const registerMethods = () => {
   );
 
   // CONFIG
+  ipcMain.handle("bee:getBeeConfig", getBeeConfig);
   ipcMain.handle("bee:saveConfig", saveConfig);
 
   /**

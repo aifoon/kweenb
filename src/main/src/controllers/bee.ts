@@ -2,11 +2,12 @@
  * A module with all the kweenb data stuff
  */
 
-import { IBee, IBeeConfig, IBeeInput } from "@shared/interfaces";
+import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import { BeeActiveState } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
+import BeeSsh from "../lib/KweenB/BeeSsh";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
@@ -90,6 +91,9 @@ export const createBee = async (
     // create a new bee
     const createdBee = await BeeHelpers.createBee(bee);
 
+    // because bees in the worker are initialize at startup, we need to append this manually
+    KweenBGlobal.kweenb.beeStates.addBees([createdBee]);
+
     // show confirmation when bee was added
     KweenBGlobal.kweenb.showSuccess(
       `Bee ${Utils.addLeadingZero(createdBee.id)} was created successfully.`
@@ -112,7 +116,13 @@ export const createBee = async (
  */
 export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
   try {
+    // remove the bee in the database
     Bee.destroy({ where: { id } });
+
+    // remove the bee in the worker
+    KweenBGlobal.kweenb.beeStates.removeBee(id);
+
+    // show confirmation when bee was deleted
     KweenBGlobal.kweenb.showInfo(
       `Bee ${Utils.addLeadingZero(id)} was deleted successfully.`
     );
@@ -128,7 +138,7 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
  */
 export const fetchActiveBees = async () => {
   try {
-    return await BeeHelpers.getAllBees(true, BeeActiveState.ACTIVE);
+    return await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
   } catch (e: any) {
     throw new KweenBException({
       where: "fetchActiveBees()",
@@ -157,12 +167,9 @@ export const fetchActiveBeesData = async () => {
  * Fetch all the bees
  * @returns A Promise that will result an object of format IBee
  */
-export const fetchAllBees = async (
-  event: Electron.IpcMainInvokeEvent,
-  pollForOnline: boolean = true
-): Promise<IBee[]> => {
+export const fetchAllBees = async (): Promise<IBee[]> => {
   try {
-    return await BeeHelpers.getAllBees(pollForOnline, BeeActiveState.ALL);
+    return await BeeHelpers.getAllBees(BeeActiveState.ALL);
   } catch (e: any) {
     throw new KweenBException({ where: "fetchAllBees()", message: e.message });
   }
@@ -189,7 +196,7 @@ export const fetchAllBeesData = async (): Promise<IBee[]> => {
  */
 export const fetchInActiveBees = async () => {
   try {
-    return await BeeHelpers.getAllBees(false, BeeActiveState.INACTIVE);
+    return await BeeHelpers.getAllBees(BeeActiveState.INACTIVE);
   } catch (e: any) {
     throw new KweenBException({
       where: "fetchInActiveBees()",
@@ -224,11 +231,54 @@ export const fetchBee = async (
   id: number
 ): Promise<IBee> => {
   try {
-    const bee = await BeeHelpers.getBee(id);
-    return bee;
+    return await BeeHelpers.getBee(id);
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Get the bee config
+ * @param event
+ * @param id The ID of the bee
+ * @returns
+ */
+export const getBeeConfig = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee | number
+): Promise<IBeeConfig> => {
+  try {
+    if (typeof bee === "number") {
+      return await BeeHelpers.getBeeConfig(bee);
+    } else {
+      return await BeeHelpers.getBeeConfig(bee.id);
+    }
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "getBeeConfig()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Get the current bee states
+ * @param event
+ * @param bees The list of bees
+ * @returns
+ */
+export const getCurrentBeeStates = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[]
+): Promise<IBeeState[]> => {
+  try {
+    return await BeeHelpers.getCurrentBeeStates(bees);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "getCurrentBeeStates()", message: e.message },
       true
     );
   }
@@ -263,7 +313,7 @@ export const killJackAndJacktrip = async (
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
+    await BeeSsh.killJackAndJacktrip(bee.ipAddress);
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
@@ -282,7 +332,7 @@ export const killJack = async (
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.killJack(bee.ipAddress);
+    await BeeSsh.killJack(bee.ipAddress);
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJack()", message: e.message },
@@ -301,8 +351,7 @@ export const killJacktrip = async (
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.killJacktrip(bee.ipAddress);
-    // KweenBGlobal.kweenb.showSuccess("Killed Jacktrip processes.");
+    await BeeSsh.killJacktrip(bee.ipAddress);
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJacktrip()", message: e.message },

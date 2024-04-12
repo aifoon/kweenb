@@ -32,7 +32,7 @@ export const App = () => (
                 <Route path="/manage-bees" element={<ManageBees />} />
                 <Route path="/swarm/:id" element={<BeeConfig />} />
                 <Route path="/positioning" element={<Positioning />}>
-                  <Route path='volumes/:tab' element={<PositioningModules />} />
+                  <Route path="volumes/:tab" element={<PositioningModules />} />
                 </Route>
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/tools" element={<Tools />} />

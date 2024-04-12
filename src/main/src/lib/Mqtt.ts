@@ -48,6 +48,7 @@ export class MQTT {
    */
   public async connectToMqttClient() {
     // get the online state of the mqtt broker
+    // @deprecated: ping.promise.probe is a deprecated method, but it is still used in the codebase
     const mqttConnectivity = await ping.promise.probe(this._host, {
       timeout: 1,
       deadline: 1,

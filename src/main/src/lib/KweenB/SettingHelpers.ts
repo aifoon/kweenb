@@ -142,14 +142,14 @@ const importSettings = async (filePath: string) => {
     const objectKeys = Object.keys(setting);
     if (!equals(objectKeys, expectedObjectKeys)) return;
   }
-
-  // loop over settings and update
-  settingsData.forEach(async (setting) => {
-    await Setting.update(
-      { value: setting.value },
-      { where: { key: setting.key } }
-    );
-  });
+  try {
+    // loop over settings and update
+    settingsData.forEach(async (setting) => {
+      await Setting.upsert({ key: setting.key, value: setting.value });
+    });
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 export default {

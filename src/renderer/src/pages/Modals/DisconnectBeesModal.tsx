@@ -45,16 +45,30 @@ export const DisconnectBeesModal = ({
     setActiveIndex(0);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
 
-    /* Kill Jack & Jacktrip processes on active bees */
+    /* Check realtime status of active bees */
     setActiveIndex(1);
-    const killAllProcessesPromises = activeBees.map((bee) => {
-      if (bee.isOnline) return window.kweenb.methods.killJackAndJacktrip(bee);
-      return Promise.resolve();
-    });
-    await Promise.all(killAllProcessesPromises);
+    const currentBeeStates = await window.kweenb.methods.getCurrentBeeStates(activeBees);
+    // check if in currentBeeStates, every state has a lastPingResponse
+    // if not, set activeIndexState to TaskListItemState.Error
+    const hasLastPingResponse = currentBeeStates.every((state) => state.lastPingResponse);
+    if (!hasLastPingResponse) {
+      setActiveIndexState(TaskListItemState.Error);
+      return;
+    }
+
+    /* Kill Jack & Jacktrip processes on active bees */
+    setActiveIndex(2);
+    for (let i = 0; i < activeBees.length; i += 10) {
+      const beeGroup = activeBees.slice(i, i + 10);
+      const killAllProcessesPromises = beeGroup.map((bee) => {
+        if (bee.isOnline) return window.kweenb.methods.killJackAndJacktrip(bee);
+        return Promise.resolve();
+      });
+      await Promise.all(killAllProcessesPromises);
+    }
 
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(2);
+    setActiveIndex(3);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
     /* Close the modal */
@@ -72,6 +86,7 @@ export const DisconnectBeesModal = ({
       <TaskList
         tasks={[
           "Fetch active bees",
+          "Realtime check to see if every active bee is alive",
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on kweenb",
         ]}

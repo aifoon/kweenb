@@ -11,7 +11,6 @@ export default {
       ipcRenderer.invoke("thekween:makeHubAudioConnections"),
     validateHive: (): Promise<boolean> =>
       ipcRenderer.invoke("thekween:validateHive"),
-
     fetchTheKween: (): Promise<ITheKween> =>
       ipcRenderer.invoke("thekween:fetchTheKween"),
     isZwerm3ApiRunningOnTheKween: (): Promise<boolean> =>

@@ -1,5 +1,5 @@
 import { Card } from "@components/Cards";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
 import { TextField, SwitchField } from "@renderer/src/components/Forms";
 import {
@@ -18,13 +18,26 @@ export const BeeConfigConfig = ({
   beeConfig,
   onUpdate,
 }: BeeConfigConfigProps) => {
+  // set internal state to manage the form
+  const [currentBeeConfig, setCurrentBeeConfig] =
+    useState<IBeeConfig>(beeConfig);
+
+  // handle the change of the form fields
   const handleOnValidatedBlurAndChange = (e: any) => {
     onUpdate({ [e.target.name]: e.target.value });
   };
+
+  // update the internal state when the beeConfig changes
+  useEffect(() => {
+    setCurrentBeeConfig(beeConfig);
+  }, [beeConfig]);
+
+  // render the form
   return (
     <Card title="Config">
       <Formik
-        initialValues={{ ...beeConfig }}
+        enableReinitialize={true}
+        initialValues={{ ...currentBeeConfig }}
         validationSchema={Yup.object().shape({
           jacktripVersion: Yup.string().required(
             "A Jacktrip Version is required!"

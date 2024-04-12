@@ -16,11 +16,12 @@ interface LabelProps {
 
 export const Label = styled.div<LabelProps>`
   ${({ inline }) => (inline ? "display: inline-block" : "display: block")};
-  padding: 0px 8px;
+  padding: 0px 0px;
   text-align: center;
   text-transform: uppercase;
+  width: 100%;
   font-weight: bold;
-  font-size: var(--smallText);
+  font-size: 10px;
   ${({ type }) => {
     switch (type) {
       case LabelType.Primary:

@@ -42,11 +42,13 @@ const config = {
         "node:fs",
         "node:path",
         "node:http",
+        "node:child_process",
         "mqtt",
         "@zwerm3/jack",
         "node-osc",
         "mathjs",
         "tween-functions",
+        "node-ssh",
         ...builtinModules,
       ],
       output: {

@@ -68,7 +68,7 @@
     "guard-for-in": "off",
     "no-shadow": "off",
     "no-underscore-dangle": "off",
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true, "projectDependencies": false }],
     "import/extensions": [
       "error",
       "always",

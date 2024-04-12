@@ -45,6 +45,7 @@
   --grey-800: #eaecef;
   --grey-900: #f2f3f5;
   --green-status: #26A843;
+  --yellow-status: #9f8f16;
   --red-status: #e53a2f;
 
   /* Color intentions */
@@ -85,7 +86,7 @@
   --level-4: 0 20px 25px -5px rgba(0, 24, 88, 0.1), 0 10px 10px -5px rgba(0, 24, 88, 0.04);
 
   /* Border radiuses */
-  --radiusLarge: 15px;
+  --radiusLarge: 9px;
   --radiusMedium: 7px;
 
   /* Card */

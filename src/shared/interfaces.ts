@@ -37,12 +37,12 @@ export interface IBee {
   isOnline: boolean;
   isActive: boolean;
   isApiOn: boolean;
-  config: IBeeConfig;
   status: IBeeStatus;
   channelType: ChannelType;
   channel1: number;
   channel2?: number;
   pozyxTagId?: string;
+  networkPerformanceMs: number;
 }
 
 export interface IBeeInput {
@@ -64,6 +64,15 @@ export interface IBeeConfig {
 export interface IBeeStatus {
   isJackRunning: boolean;
   isJacktripRunning: boolean;
+}
+
+export interface IBeeState {
+  bee: IBee;
+  lastPingResponse: Date | null;
+  isApiOn: boolean;
+  isJackRunning: boolean;
+  isJacktripRunning: boolean;
+  networkPerformanceMs: number;
 }
 
 export interface ISystemClients {

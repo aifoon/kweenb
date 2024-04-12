@@ -1,5 +1,7 @@
 import { useInterval } from "./useInterval";
+import { useAppStore } from "./useAppStore";
 import { useBee } from "./useBee";
+import { useBeeConfig } from "./useBeeConfig";
 import { useBees } from "./useBees";
 import { useAppContext } from "./useAppContext";
 import { useSetting } from "./useSetting";
@@ -15,6 +17,7 @@ import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 export {
   useInterval,
   useBee,
+  useBeeConfig,
   useBees,
   useAppContext,
   usePositioningStore,

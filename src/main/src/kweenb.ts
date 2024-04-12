@@ -10,6 +10,8 @@ import { BrowserWindow } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
+import { BeeSshConnections } from "./lib/Dictionaries";
+import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 
 /**
  * A KweenB class
@@ -18,6 +20,10 @@ class KweenB {
   private _mainWindow: BrowserWindow;
 
   private _appMode: AppMode;
+
+  private _beeStatesWorker: BeeStatesWorker;
+
+  private _beeSshConnections: BeeSshConnections;
 
   constructor(mainWindow: BrowserWindow) {
     this._mainWindow = mainWindow;
@@ -40,6 +46,18 @@ class KweenB {
     this._appMode = appMode;
   }
 
+  public get beeStates() {
+    return this._beeStatesWorker.beeStates;
+  }
+
+  public get beeStatesWorker() {
+    return this._beeStatesWorker;
+  }
+
+  public get beeSshConnections() {
+    return this._beeSshConnections;
+  }
+
   /**
    * Init KweenB functions
    */
@@ -48,12 +66,26 @@ class KweenB {
    * This is an initializer, to init settinges, etc. on boot
    * initJackFolderPath: inits the jackfolder whenever we find one in the database
    * initJacktripBinPath: inits the jacktrip binary whenever we find one in the database
+   * initBeeStatesWorker: inits the bee states worker
    */
   public async init() {
-    this.initJackFolderPath();
-    this.initJacktripBinPath();
+    // init the jack folder path
+    await this.initJackFolderPath();
+
+    // init the jacktrip binary path
+    await this.initJacktripBinPath();
+
+    // init the bee states worker
+    this._beeStatesWorker = new BeeStatesWorker();
+    await this._beeStatesWorker.init();
+
+    // init the bee ssh connections
+    this._beeSshConnections = new BeeSshConnections();
   }
 
+  /**
+   * Inits the jack folder path
+   */
   private async initJackFolderPath() {
     const settings = await SettingHelpers.getAllSettings();
     if (settings.kweenBSettings.jackFolderPath) {
@@ -62,6 +94,9 @@ class KweenB {
     }
   }
 
+  /**
+   * Inits the jacktrip binary path
+   */
   private async initJacktripBinPath() {
     const settings = await SettingHelpers.getAllSettings();
     if (settings.kweenBSettings.jacktripBinPath) {

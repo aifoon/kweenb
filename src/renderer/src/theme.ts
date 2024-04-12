@@ -3,8 +3,67 @@ import { createTheme } from "@mui/material/styles";
 import { style } from "glamor";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 
+declare module "@mui/material/styles" {
+  interface TypographyVariants {
+    superSmall: React.CSSProperties;
+    extraSmall: React.CSSProperties;
+    small: React.CSSProperties;
+    normal: React.CSSProperties;
+  }
+
+  // allow configuration using `createTheme`
+  interface TypographyVariantsOptions {
+    superSmall: React.CSSProperties;
+    extraSmall: React.CSSProperties;
+    small: React.CSSProperties;
+    normal: React.CSSProperties;
+  }
+}
+
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
+    superSmall: true;
+    extraSmall: true;
+    small: true;
+    normal: true;
+  }
+}
+
 export default createTheme({
+  typography: {
+    superSmall: {
+      fontSize: "0.5rem",
+    },
+    extraSmall: {
+      fontSize: "0.7rem",
+    },
+    small: {
+      fontSize: "0.9rem",
+    },
+    normal: {
+      fontSize: "1rem",
+    },
+  },
   components: {
+    MuiTypography: {
+      defaultProps: {
+        variantMapping: {
+          h1: "h1",
+          h2: "h2",
+          h3: "h3",
+          h4: "h4",
+          h5: "h5",
+          h6: "h6",
+        },
+      },
+    },
+    MuiIcon: {
+      styleOverrides: {
+        fontSizeSmall: "1rem",
+        fontSizeInherit: "1.25rem",
+        fontSizeLarge: "1.5rem",
+      },
+    },
     MuiDataGrid: {
       styleOverrides: {
         columnHeader: {
@@ -74,8 +133,7 @@ export default createTheme({
           color: "var(--white)",
           borderRadius: "var(--radiusMedium)",
           "&.Mui-selected": {
-            border: "1px solid var(--primary-400)",
-            backgroundColor: "var(--primary-400)",
+            backgroundColor: "var(--primary-300)",
             color: "var(--white)",
             "&:hover": {
               backgroundColor: "var(--primary-400)",
@@ -84,7 +142,6 @@ export default createTheme({
         },
       },
     },
-
     MuiSlider: {
       styleOverrides: {
         track: {
@@ -106,7 +163,6 @@ export default createTheme({
         },
       },
     },
-
     MuiInputBase: {
       styleOverrides: {
         root: {

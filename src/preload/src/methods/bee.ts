@@ -1,5 +1,5 @@
 import { ipcRenderer } from "electron";
-import { IBee, IBeeConfig, IBeeInput } from "@shared/interfaces";
+import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
 
 /**
  * All CRUD methods for the Bee
@@ -11,6 +11,8 @@ const crudBee = {
     ipcRenderer.invoke("bee:deleteBee", id);
   },
   updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
+  getCurrentBeeStates: (bees: IBee[]): Promise<IBeeState[]> =>
+    ipcRenderer.invoke("bee:getCurrentBeeStates", bees),
   fetchBee: (id: number): Promise<IBee> =>
     ipcRenderer.invoke("bee:fetchBee", id),
   fetchActiveBees: (): Promise<IBee[]> =>
@@ -50,6 +52,8 @@ const jackJacktripBee = {
  * Configuration methods for the bee
  */
 const configBee = {
+  getBeeConfig: (bee: IBee | number): Promise<IBeeConfig> =>
+    ipcRenderer.invoke("bee:getBeeConfig", bee),
   saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
     ipcRenderer.invoke("bee:saveConfig", bee, config),
 };

@@ -38,10 +38,7 @@ export default class BeesPoller extends IntervalWorker {
       if (this.state === IntervalWorkerState.Pause) return;
 
       // fetch all the bees
-      const touchedBees = await beeHelpers.getAllBees(
-        true,
-        BeeActiveState.ACTIVE
-      );
+      const touchedBees = await beeHelpers.getAllBees(BeeActiveState.ACTIVE);
 
       // if there are no bees, current and touchd, return nothing
       if (this._currentBees.length === 0 && touchedBees.length === 0) return;

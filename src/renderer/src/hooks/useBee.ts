@@ -22,13 +22,8 @@ export function useBee(id: number) {
     isActive: false,
     channel1: 0,
     channel2: 0,
+    networkPerformanceMs: 0,
     channelType: ChannelType.MONO,
-    config: {
-      useMqtt: false,
-      mqttBroker: "mqtt://localhost:1883",
-      mqttChannel: "beeworker",
-      device: "",
-    },
     status: {
       isJackRunning: false,
       isJacktripRunning: false,
@@ -40,8 +35,10 @@ export function useBee(id: number) {
    */
   const fetchBee = useCallback(async () => {
     const fetchedBee = await window.kweenb.methods.fetchBee(id);
-    if (isMounted.current) setBee(fetchedBee);
-    return bee;
+    if (isMounted.current) {
+      setBee(fetchedBee);
+    }
+    return fetchedBee;
   }, [bee]);
 
   /**
@@ -157,7 +154,7 @@ export function useBee(id: number) {
    */
   useEffect(() => {
     setLoading(true);
-    fetchBee().then(() => {
+    fetchBee().then((bee) => {
       if (isMounted.current) setLoading(false);
     });
     return () => {
@@ -169,25 +166,8 @@ export function useBee(id: number) {
    * Use an interval to fetch a bee
    */
   useIntervalAsync(async () => {
-    async function retryAsyncFunction(
-      asyncFunction: (id: number) => Promise<IBee>,
-      currentBee: IBee,
-      maxRetries = 5
-    ): Promise<IBee> {
-      const result = await asyncFunction(id);
-      if (result.isOnline === currentBee.isOnline) return result;
-      if (result.isOnline || maxRetries === 0) {
-        return result;
-      }
-      return retryAsyncFunction(asyncFunction, currentBee, maxRetries - 1);
-    }
-    const fetchedBee = retryAsyncFunction(
-      window.kweenb.methods.fetchBee,
-      bee,
-      retryOfflinePolling
-    );
     if (isMounted.current) {
-      setBee(await fetchedBee);
+      setBee(await window.kweenb.methods.fetchBee(id));
     }
   }, pollingInterval);
 

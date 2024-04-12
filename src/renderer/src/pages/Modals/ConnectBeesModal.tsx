@@ -46,17 +46,24 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
-    const hasOfflineBees = activeBees.filter((bee) => !bee.isOnline).length > 0;
-    if (hasOfflineBees) {
+
+    /* Check realtime status of active bees */
+    setActiveIndex(1);
+    const currentBeeStates = await window.kweenb.methods.getCurrentBeeStates(activeBees);
+    // check if in currentBeeStates, every state has a lastPingResponse
+    // if not, set activeIndexState to TaskListItemState.Error
+    const hasLastPingResponse = currentBeeStates.every((state) => state.lastPingResponse);
+    if (!hasLastPingResponse) {
       setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
 
     /* Check if zwerm3 API is running on active bees */
-    setActiveIndex(1);
-    const hasBeesWithoutZwerm3ApiRunning =
-      activeBees.filter((bee) => !bee.isApiOn).length > 0;
+    setActiveIndex(2);
+    // check if currentBeeStates, every state has isApiOn
+    // if not, set activeIndexState to TaskListItemState.Error
+    const hasBeesWithoutZwerm3ApiRunning = activeBees.filter((bee) => !bee.isApiOn).length > 0;
     if (hasBeesWithoutZwerm3ApiRunning) {
       setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
@@ -64,39 +71,39 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
     }
 
     /* Kill Jack & Jacktrip processes on active bees */
-    setActiveIndex(2);
+    setActiveIndex(3);
     const killAllProcessesPromises = activeBees.map((bee) =>
       window.kweenb.methods.killJackAndJacktrip(bee)
     );
     await Promise.all(killAllProcessesPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(3);
+    setActiveIndex(4);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
     /* Start Jack & Jacktrip P2P server on active bees */
-    setActiveIndex(4);
-    const startJackWithJacktripP2PServerPromises = activeBees.map((bee) =>
-      window.kweenb.methods.startJackWithJacktripP2PServerBee(bee)
-    );
+    setActiveIndex(5);
+    const startJackWithJacktripP2PServerPromises = activeBees.map((bee) => {
+      return window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
+    });
     await Promise.all(startJackWithJacktripP2PServerPromises);
 
     /* Start Jack & Jacktrip P2P clients on KweenB */
-    setActiveIndex(5);
-    const startJackWithJacktripP2PClientPromises = activeBees.map((bee) =>
-      window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee)
-    );
+    setActiveIndex(6);
+    const startJackWithJacktripP2PClientPromises = activeBees.map((bee) => {
+      return window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
+    });
     await Promise.all(startJackWithJacktripP2PClientPromises);
 
     /* Make P2P audio connection on active bees */
-    setActiveIndex(6);
+    setActiveIndex(7);
     const makeP2PAudioConnectionBeePromises = activeBees.map((bee) =>
       window.kweenb.methods.makeP2PAudioConnectionBee(bee)
     );
     await Promise.all(makeP2PAudioConnectionBeePromises);
 
     /* Make all P2P audio connections on KweenB */
-    setActiveIndex(7);
+    setActiveIndex(8);
     await window.kweenb.methods.makeP2PAudioConnectionsKweenB();
 
     /* Close the modal */
@@ -119,7 +126,8 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
     <BaseModal open={isOpen} onClose={closeModal} showCloseButton>
       <TaskList
         tasks={[
-          "Check if all active bees are online",
+          "Fetch active bees",
+          "Realtime check to see if every active bee is alive",
           "Check if zwerm3 API is running on active bees",
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on KweenB",

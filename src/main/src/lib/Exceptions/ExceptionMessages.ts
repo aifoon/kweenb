@@ -16,6 +16,11 @@ export const FETCH_ERROR = (functionName: string, what: string = "") =>
     what ? ` ${what}` : ""
   }`;
 
+export const SSH_ERROR = (functionName: string, what: string = "") =>
+  ` Something went wrong while executing ssh command (${functionName}).${
+    what ? ` ${what}` : ""
+  }`;
+
 export const POST_ERROR = (functionName: string, what: string = "") =>
   `Something went wrong while posting (${functionName}).${
     what ? ` ${what}` : ""

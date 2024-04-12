@@ -21,6 +21,7 @@ declare global {
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
         updateBee(bee: Partial<IBee>);
+        getCurrentBeeStates(bees: IBee[]): Promise<IBeeState[]>;
         fetchBee(id: number): Promise<IBee>;
         fetchActiveBees(): Promise<IBee[]>;
         fetchActiveBeesData(): Promise<IBee[]>;
@@ -40,6 +41,7 @@ declare global {
         startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;
 
         // CONFIG
+        getBeeConfig(bee: IBee | number): Promise<IBeeConfig>;
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
 
         /**

@@ -7,10 +7,9 @@ import {
   IBee,
   IBeeConfig,
   IBeeInput,
+  IBeeState,
   IBeeStatus,
-  ChannelType,
 } from "@shared/interfaces";
-import ping from "ping";
 import fs from "fs";
 import Bee from "../../models/Bee";
 import {
@@ -22,11 +21,10 @@ import {
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
-import {
-  DEFAULT_BEE_CONFIG,
-  DEFAULT_BEE_STATUS,
-  PING_CONFIG,
-} from "../../consts";
+import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
+import { KweenBGlobal } from "../../kweenb";
+import { spawn } from "child_process";
+import BeeSsh from "./BeeSsh";
 
 /**
  * Get the bee configuration
@@ -48,28 +46,6 @@ const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
 };
 
 /**
- * Get the bee status
- * @param id
- * @returns
- */
-const getBeeStatus = async (id: number): Promise<IBeeStatus> => {
-  // get the bee behind the id
-  const bee = await Bee.findOne({ where: { id } });
-
-  // validate
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // get the statuses
-  const beeStatus = {
-    isJackRunning: await Zwerm3ApiHelpers.isJackRunning(bee.ipAddress),
-    isJacktripRunning: await Zwerm3ApiHelpers.isJacktripRunning(bee.ipAddress),
-  };
-
-  // return the configuration
-  return beeStatus;
-};
-
-/**
  * Creates a new bee
  * @param bee
  * @returns
@@ -84,8 +60,8 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     isActive,
     isOnline: false,
     isApiOn: false,
-    config: DEFAULT_BEE_CONFIG,
     status: DEFAULT_BEE_STATUS,
+    networkPerformanceMs: 0,
     channelType,
     channel1,
     channel2: 0,
@@ -99,7 +75,6 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
  * @returns
  */
 const getAllBees = async (
-  pollForOnline: boolean = false,
   activeState: BeeActiveState = BeeActiveState.ACTIVE
 ) => {
   // get the bees
@@ -119,25 +94,10 @@ const getAllBees = async (
       break;
   }
 
-  // init the connectivity list
-  let connectivityList: ping.PingResponse[] = [];
-
-  // if we need to poll for online behavior
-  if (pollForOnline) {
-    // get all the ip addresses of our bees and map the ping promises
-    const beeIpAddresses = bees.map(({ ipAddress }) =>
-      ping.promise.probe(ipAddress, PING_CONFIG)
-    );
-
-    // check connectivity, by ping to device
-    // wait untill all addresses are pinged
-    connectivityList = await Promise.all(beeIpAddresses);
-  }
-
   // create an array with bees, and use connectivity list to see
   // if the bee is online
-  const beesWithConfigAndStatusList: Promise<IBee>[] = bees.map(
-    async ({
+  const beesWithConfigAndStatusList: Promise<IBee>[] = bees.map(async (bee) => {
+    const {
       id,
       name,
       ipAddress,
@@ -146,43 +106,31 @@ const getAllBees = async (
       channel1,
       channel2,
       pozyxTagId,
-    }) => {
-      // set offline by default
-      let isOnline = false;
+    } = bee;
 
-      // if we are polling for online, check the status
-      if (pollForOnline) {
-        // find the host in our bee list
-        const beeHost = connectivityList.find(
-          ({ inputHost }) => inputHost === ipAddress
-        );
+    // check if the bee is online
+    const isOnline = KweenBGlobal.kweenb.beeStates.isOnline(id);
 
-        // check if the bee is online
-        isOnline = beeHost ? beeHost.alive : false;
-      }
-
-      // check if API is on
-      const isApiOn = isOnline
-        ? await Zwerm3ApiHelpers.isZwerm3ApiRunning(ipAddress)
-        : false;
-
-      // return the bee, according to the IBee interface
-      return {
-        id,
-        name,
-        ipAddress,
-        isActive,
-        isOnline,
-        isApiOn,
-        channelType,
-        channel1,
-        channel2,
-        pozyxTagId,
-        config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
-        status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
-      };
-    }
-  );
+    // return the bee, according to the IBee interface
+    return {
+      id,
+      name,
+      ipAddress,
+      isActive,
+      isOnline,
+      isApiOn: KweenBGlobal.kweenb.beeStates.isApiOn(id),
+      channelType,
+      channel1,
+      channel2,
+      pozyxTagId,
+      networkPerformanceMs:
+        KweenBGlobal.kweenb.beeStates.getNetworkPerformanceMs(id),
+      status: {
+        isJackRunning: KweenBGlobal.kweenb.beeStates.isJackRunning(id),
+        isJacktripRunning: KweenBGlobal.kweenb.beeStates.isJacktripRunning(id),
+      },
+    };
+  });
 
   // await until config and statusses are received
   return Promise.all(beesWithConfigAndStatusList);
@@ -232,6 +180,7 @@ const getAllBeesData = async (
         isActive,
         isOnline: false,
         isApiOn: false,
+        networkPerformanceMs: 0,
         channelType,
         channel1,
         channel2,
@@ -257,30 +206,73 @@ const getBee = async (id: number): Promise<IBee> => {
   // validate if we found a Bee
   if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
 
-  // get all the ip addresses of our bees and map the ping promises
-  const beeConnectivity = await ping.promise.probe(bee.ipAddress, PING_CONFIG);
-
-  // check if the bee is online
-  const isOnline = beeConnectivity.alive;
-
-  // check if the api is on
-  const isApiOn = await Zwerm3ApiHelpers.isZwerm3ApiRunning(bee.ipAddress);
-
   // return the bee, according to the IBee interface
-  return {
+  const beeData = {
     id: bee.id,
     ipAddress: bee.ipAddress,
     name: bee.name,
     isActive: bee.isActive,
-    isApiOn,
-    isOnline,
+    isApiOn: KweenBGlobal.kweenb.beeStates.isApiOn(id),
+    isOnline: KweenBGlobal.kweenb.beeStates.isOnline(id),
+    networkPerformanceMs:
+      KweenBGlobal.kweenb.beeStates.getNetworkPerformanceMs(id),
     channelType: bee.channelType,
     channel1: bee.channel1,
     channel2: bee.channel2,
     pozyxTagId: bee.pozyxTagId,
-    config: isOnline ? await getBeeConfig(id) : DEFAULT_BEE_CONFIG,
-    status: isOnline ? await getBeeStatus(id) : DEFAULT_BEE_STATUS,
+    status: {
+      isJackRunning: KweenBGlobal.kweenb.beeStates.isJackRunning(id),
+      isJacktripRunning: KweenBGlobal.kweenb.beeStates.isJacktripRunning(id),
+    },
   };
+
+  // return the bee data
+  return beeData;
+};
+
+/**
+ * Get the current bee states (this is the realtime data, not the cached data in BeeStatesWorker)
+ * @param bees
+ * @returns
+ */
+const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
+  // initiate promises
+  const beeStatesPromises: Promise<IBeeState>[] = [];
+
+  // loop through the bees
+  for (const bee of bees) {
+    beeStatesPromises.push(
+      new Promise(async (resolve) => {
+        // create a new bee state
+        const iBeeState: IBeeState = {
+          bee,
+          lastPingResponse: null,
+          isApiOn: false,
+          isJackRunning: false,
+          isJacktripRunning: false,
+          networkPerformanceMs: 0,
+        };
+
+        // check if the bee is online
+        const child = spawn("utils/is_online.sh", [bee.ipAddress]);
+
+        // listen for the response
+        child.stdout.on("data", async (isOnline) => {
+          if (isOnline.toString().trim() === "true") {
+            iBeeState.lastPingResponse = new Date();
+            iBeeState.isApiOn = await BeeSsh.isZwerm3ApiRunning(bee.ipAddress);
+            iBeeState.isJackRunning = await BeeSsh.isJackRunning(bee.ipAddress);
+            iBeeState.isJacktripRunning = await BeeSsh.isJacktripRunning(
+              bee.ipAddress
+            );
+          }
+          resolve(iBeeState);
+        });
+      })
+    );
+  }
+
+  return await Promise.all(beeStatesPromises);
 };
 
 /**
@@ -383,7 +375,7 @@ const exportBees = async (filePath: string) => {
   if (!filePath) return;
 
   // get all the bees
-  const bees = await getAllBees(false, BeeActiveState.ALL);
+  const bees = await getAllBees(BeeActiveState.ALL);
 
   // map bees to raw data
   const beeData = bees.map(
@@ -454,8 +446,14 @@ const importBees = async (filePath: string) => {
   // delete all data and replace with the file's data
   await Bee.destroy({ where: {} });
 
+  // clear the bee states
+  KweenBGlobal.kweenb.beeStatesWorker.beeStates.clear();
+
   // loop over bees and create the bee
   beeData.forEach(async (bee) => Bee.create(bee));
+
+  // init the bee states worker
+  KweenBGlobal.kweenb.beeStatesWorker.init();
 };
 
 /**
@@ -486,7 +484,7 @@ export default {
   getAllBeesData,
   getBee,
   getBeeConfig,
-  getBeeStatus,
+  getCurrentBeeStates,
   hookOnCurrentHive,
   makeP2PAudioConnection,
   setBeeActive,

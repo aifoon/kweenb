@@ -17,6 +17,7 @@ const getTheKween = async (): Promise<ITheKween> => {
   const settings = await SettingHelpers.getAllSettings();
 
   // get the online state of the kween
+  // @deprecated: ping.promise.probe is a deprecated method, but it is still used in the codebase
   const theKweenConnectivity = await ping.promise.probe(
     settings.theKweenSettings.ipAddress,
     PING_CONFIG

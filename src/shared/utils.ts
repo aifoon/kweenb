@@ -13,7 +13,7 @@ export const Utils = {
     if (typeof number === "string") {
       incoming = Number(number);
     }
-    return incoming < 10 ? `0${incoming}` : `${incoming}`;
+    return Number(incoming) < 10 ? `0${incoming}` : `${incoming}`;
   },
 
   /**
@@ -27,7 +27,23 @@ export const Utils = {
    * A function that will compare two arrays
    */
   compareArrays: (a: any, b: any) => {
-    return a.length === b.length &&
-           a.every((element: any, index: any) => element === b[index]);
-  }
+    return (
+      a.length === b.length &&
+      a.every((element: any, index: any) => element === b[index])
+    );
+  },
+
+  /**
+   * Get the time difference between two dates in seconds
+   * @param date1 The first date
+   * @param date2 The second date
+   * @returns The time difference in seconds
+   */
+  getTimeDifferenceInSeconds: (date1: Date, date2: Date): number => {
+    const differenceInMilliseconds = Math.abs(
+      date2.getTime() - date1.getTime()
+    );
+    const differenceInSeconds = Math.floor(differenceInMilliseconds / 1000);
+    return differenceInSeconds;
+  },
 };

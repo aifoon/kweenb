@@ -5,7 +5,7 @@ import { CardVerticalStack } from "@components/Cards";
 import { PageHeader } from "@components/PageHeader";
 import { StatusBullet, StatusBulletType } from "@components/StatusBullet";
 import { Z3Page } from "@renderer/src/layout";
-import { useBee } from "@renderer/src/hooks";
+import { useBee, useBeeConfig } from "@renderer/src/hooks";
 import { Loader } from "@components/Loader";
 import { Utils } from "@shared/utils";
 import { BeeConfigActions } from "./BeeConfigActions";
@@ -26,6 +26,7 @@ export const BeeConfig = () => {
     startJack,
     updateBeeSetting,
   } = useBee(numberizedId);
+  const { beeConfig } = useBeeConfig(numberizedId);
 
   if (loading) return <Loader />;
 
@@ -63,7 +64,7 @@ export const BeeConfig = () => {
               ipAddress={bee.ipAddress}
               name={bee.name}
             />
-            <BeeConfigConfig onUpdate={saveConfig} beeConfig={bee.config} />
+            <BeeConfigConfig onUpdate={saveConfig} beeConfig={beeConfig} />
           </CardVerticalStack>
         </Grid>
       </Grid>

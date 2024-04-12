@@ -2,6 +2,11 @@ import { createContext } from "react";
 import { AppMode } from "@shared/enums";
 import { ToastMessage } from "../interfaces";
 
+/**
+ * NOTE: not everything is converted to Zustand, this is a work in progress
+ * The Application Context below is still using React Context
+ */
+
 export interface AppContextValue {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenBuildSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;

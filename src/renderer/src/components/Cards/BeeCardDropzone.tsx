@@ -2,12 +2,16 @@ import React from "react";
 import styled from "styled-components";
 import { useDrop } from "react-dnd";
 import { BeeCardContainer } from "./BeeCard";
+import { Typography } from "@mui/material";
 
 type BeeCardDropzoneProps = {
   onInActiveBeeDropped?: (number: number) => void;
+  collapsed?: boolean;
 };
 
-const BeeCardDropzoneContainer = styled(BeeCardContainer)`
+const BeeCardDropzoneContainer = styled(BeeCardContainer)<{
+  collapsed: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,11 +19,12 @@ const BeeCardDropzoneContainer = styled(BeeCardContainer)`
   border: 1px dashed var(--grey-400);
   color: var(--grey-400);
   text-align: center;
-  min-height: 236px;
+  min-height: ${(props) => (props.collapsed ? "74px" : "176px")};
 `;
 
 export const BeeCardDropzone = ({
   onInActiveBeeDropped,
+  collapsed = true,
 }: BeeCardDropzoneProps) => {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: "InActiveBee",
@@ -34,9 +39,10 @@ export const BeeCardDropzone = ({
   return (
     <BeeCardDropzoneContainer
       style={{ background: canDrop && isOver ? "var(--primary-300)" : "none" }}
+      collapsed={collapsed}
       ref={drop}
     >
-      drop a non-active bee
+      <Typography variant="extraSmall">drop inactive bee</Typography>
     </BeeCardDropzoneContainer>
   );
 };

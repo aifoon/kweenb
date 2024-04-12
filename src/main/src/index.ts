@@ -10,11 +10,7 @@
 import path from "path";
 import { app, session } from "electron";
 import { ElectronApp } from "./lib";
-import {
-  registerActions,
-  registerIntervalWorkers,
-  registerMethods,
-} from "./register";
+import { registerActions, registerMethods } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "./kweenb";
@@ -58,14 +54,7 @@ const initApp = async () => {
 
     // create hte window
     const mainWindow = await electronApp.createWindow();
-    // session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    //   callback({
-    //     responseHeaders: {
-    //       ...details.responseHeaders,
-    //       "Content-Security-Policy": ["default-src 'none'"],
-    //     },
-    //   });
-    // });
+
     // register actions to execute
     // (one way direction, from renderer to main)
     registerActions();
@@ -76,11 +65,15 @@ const initApp = async () => {
 
     // create interval workers
     // these will do the dirty work, polling, etc.
-    registerIntervalWorkers();
+    // registerIntervalWorkers();
 
     // init the kweenb internal logic
-    // this will pass settings to external libs, etc.
+    // this will pass settings to external libs, initialize dictionaries and workers etc.
     await KweenBGlobal.kweenb.init();
+
+    // setInterval(() => {
+    //   console.log(KweenBGlobal.kweenb.beeSshConnections.amountOfSshInstances);
+    // }, 2000);
 
     // on activation
     app.on("activate", () => {

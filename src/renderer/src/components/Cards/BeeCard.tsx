@@ -1,15 +1,17 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
-import { CircularProgress, Grid } from "@mui/material";
+import { Box, CircularProgress, Grid, Typography } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Utils } from "@shared/utils";
 import { useDrag } from "react-dnd";
-import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { ChannelType } from "@shared/interfaces";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
-import { ToggleButton } from "../Buttons/ToggleButton";
 import { Label, LabelType } from "../Label";
+import {
+  NetworkPerformance,
+  NetworkPerformancePresentationType,
+} from "./NetworkPerformance";
 
 /**
  * Types & Enums
@@ -19,6 +21,7 @@ export interface BeeCardProps {
   number: number;
   name?: string;
   online?: boolean;
+  collapsed?: boolean;
   jackIsRunning?: boolean;
   jackTripIsRunning?: boolean;
   channelType: ChannelType;
@@ -28,6 +31,7 @@ export interface BeeCardProps {
   ipAddress?: string;
   loading?: boolean;
   draggable?: boolean;
+  networkPerformanceMs?: number;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onChannelTypeChange?: (channelType: ChannelType) => void;
@@ -36,7 +40,7 @@ export interface BeeCardProps {
 export const BeeCardContainer = styled.div`
   position: relative;
   border-radius: var(--radiusLarge);
-  padding: 1rem;
+  padding: 0.85rem;
   height: 100%; /* Fixed height of the BeeCard */
   background-color: var(--beeCardBg);
 
@@ -102,6 +106,7 @@ const ToolButton = styled.a`
 export const BeeCard = ({
   number = 0,
   online = true,
+  collapsed = true,
   jackIsRunning = false,
   jackTripIsRunning = false,
   apiOn = false,
@@ -109,6 +114,7 @@ export const BeeCard = ({
   channelType = ChannelType.MONO,
   channel1 = 0,
   channel2 = 0,
+  networkPerformanceMs = 0,
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
@@ -121,13 +127,21 @@ export const BeeCard = ({
   const [isJackTripIsRunning, setIsJackTripIsRunning] =
     useState(jackTripIsRunning);
   const [isApiOn, setIsApiOn] = useState(apiOn);
+  const [currentNetworkPerformanceMs, setCurrentNetworkPerformanceMs] =
+    useState(networkPerformanceMs);
   const [isLoading, setIsLoading] = useState(loading);
+  const [isCollapsed, setIsCollapsed] = useState(collapsed);
 
   /**
    * Some effects
    */
 
   useEffect(() => setIsOnline(online), [online]);
+  useEffect(() => setIsCollapsed(collapsed), [collapsed]);
+  useEffect(
+    () => setCurrentNetworkPerformanceMs(currentNetworkPerformanceMs),
+    [currentNetworkPerformanceMs]
+  );
   useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
   useEffect(() => setIsApiOn(apiOn), [apiOn]);
   useEffect(
@@ -160,38 +174,111 @@ export const BeeCard = ({
         </BeeCardLoader>
       )}
       <>
-        <Grid container>
-          <Grid item xs={4}>
-            <StatusBullet
-              type={
-                isOnline ? StatusBulletType.Active : StatusBulletType.NotActive
-              }
-              size={16}
-            />
-          </Grid>
-          <Grid item xs={8}>
-            <ToolButtonGroup>
-              <ToolButton onClick={onBeeDeleteClick}>
-                <DeleteForeverIcon fontSize="small" />
-              </ToolButton>
-              {isOnline && isApiOn && (
-                <ToolButton onClick={onBeeConfigClick}>
-                  <SettingsIcon fontSize="small" />
-                </ToolButton>
-              )}
-            </ToolButtonGroup>
-          </Grid>
-        </Grid>
+        {isCollapsed && (
+          <Box
+            display={"grid"}
+            gridTemplateColumns={"1fr 0.6fr"}
+            alignItems={"center"}
+          >
+            <Box
+              display={"grid"}
+              alignItems={"center"}
+              gridTemplateColumns={"1fr"}
+            >
+              <Box display={"flex"} alignItems={"center"} gap={1}>
+                <StatusBullet
+                  type={
+                    isOnline
+                      ? StatusBulletType.Active
+                      : StatusBulletType.NotActive
+                  }
+                  size={8}
+                />
+                <Typography variant="small">{name}</Typography>
+              </Box>
+              <Box display={"flex"} alignItems={"center"}>
+                <NetworkPerformance
+                  networkPresentationType={
+                    NetworkPerformancePresentationType.DETAILED
+                  }
+                  networkPerformanceMs={networkPerformanceMs}
+                />
+              </Box>
+            </Box>
+            <Box
+              display={"grid"}
+              alignItems={"center"}
+              gap={1}
+              gridTemplateColumns={"1fr 1fr"}
+              width={"100%"}
+            >
+              <Label
+                type={isApiOn ? LabelType.Primary : LabelType.Secondary}
+                style={{ gridColumn: "1 / span 2" }}
+              >
+                Z3
+              </Label>
+              <Label
+                type={isJackIsRunning ? LabelType.Primary : LabelType.Secondary}
+              >
+                JA
+              </Label>
+              <Label
+                type={
+                  isJackTripIsRunning ? LabelType.Primary : LabelType.Secondary
+                }
+              >
+                JT
+              </Label>
+            </Box>
+            <div></div>
+          </Box>
+        )}
+        {!isCollapsed && (
+          <>
+            <Grid container>
+              <Grid item xs={6}>
+                <Box display={"flex"} alignItems={"center"} gap={1}>
+                  <StatusBullet
+                    type={
+                      isOnline
+                        ? StatusBulletType.Active
+                        : StatusBulletType.NotActive
+                    }
+                    size={16}
+                  />
+                </Box>
+              </Grid>
+              <Grid style={{ display: "hidden" }} item xs={6}>
+                <ToolButtonGroup>
+                  <ToolButton onClick={onBeeDeleteClick}>
+                    <DeleteForeverIcon fontSize="small" />
+                  </ToolButton>
+                  {isOnline && isApiOn && (
+                    <ToolButton onClick={onBeeConfigClick}>
+                      <SettingsIcon fontSize="small" />
+                    </ToolButton>
+                  )}
+                </ToolButtonGroup>
+              </Grid>
+            </Grid>
 
-        <BeeCardSection>
-          <h3>{Utils.addLeadingZero(number)}</h3>
-          <p>{name}</p>
-          <p>{ipAddress}</p>
-        </BeeCardSection>
+            <BeeCardSection>
+              <Box
+                display={"grid"}
+                gridTemplateColumns={"1fr"}
+                alignItems={"center"}
+              >
+                <Typography display="block" variant="h6">
+                  {`${Utils.addLeadingZero(number)} - ${name}`}
+                </Typography>
+                <Typography variant="small">{ipAddress}</Typography>
+              </Box>
+            </BeeCardSection>
 
-        {/* Uncomment this when working on the mono/stereo shizzle again */}
+            {/* Uncomment this when working on the mono/stereo shizzle again */}
 
-        {/* <BeeCardSection>
+            {/* <BeeCardSection>
           <Grid container spacing={1}>
             <Grid item xs={12}>
               <ToggleButton
@@ -221,31 +308,47 @@ export const BeeCard = ({
           </Grid>
         </BeeCardSection> */}
 
-        <BeeCardSection>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <Label type={isApiOn ? LabelType.Primary : LabelType.Secondary}>
-                Zwerm3 API
-              </Label>
-            </Grid>
-            <Grid item xs={5}>
-              <Label
-                type={isJackIsRunning ? LabelType.Primary : LabelType.Secondary}
-              >
-                Jack
-              </Label>
-            </Grid>
-            <Grid item xs={7}>
-              <Label
-                type={
-                  isJackTripIsRunning ? LabelType.Primary : LabelType.Secondary
-                }
-              >
-                JackTrip
-              </Label>
-            </Grid>
-          </Grid>
-        </BeeCardSection>
+            <BeeCardSection>
+              <Grid container spacing={1}>
+                <Grid item xs={4}>
+                  <Label
+                    type={isApiOn ? LabelType.Primary : LabelType.Secondary}
+                  >
+                    API
+                  </Label>
+                </Grid>
+                <Grid item xs={8}>
+                  <NetworkPerformance
+                    networkPresentationType={
+                      NetworkPerformancePresentationType.DETAILED
+                    }
+                    networkPerformanceMs={networkPerformanceMs}
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <Label
+                    type={
+                      isJackIsRunning ? LabelType.Primary : LabelType.Secondary
+                    }
+                  >
+                    Jack
+                  </Label>
+                </Grid>
+                <Grid item xs={7}>
+                  <Label
+                    type={
+                      isJackTripIsRunning
+                        ? LabelType.Primary
+                        : LabelType.Secondary
+                    }
+                  >
+                    JackTrip
+                  </Label>
+                </Grid>
+              </Grid>
+            </BeeCardSection>
+          </>
+        )}
       </>
     </BeeCardContainer>
   );

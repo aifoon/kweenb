@@ -21,11 +21,15 @@ import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
+import { KweenBGlobal } from "../../kweenb";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
  */
 const closeApplication = async (appMode: AppMode) => {
+  // kill the workers
+  KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
+
   // close all the bees
   const bees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
   const beeKillPromises = bees.map(async (bee) => {

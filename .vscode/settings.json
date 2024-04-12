@@ -1,18 +1,18 @@
 {
   "search.useIgnoreFiles": false,
   "search.exclude": {
-      "**/.next": true,
-      "**/build": true,
-      "**/node_modules": true,
-      "**/out": true,
-      "**/script.js": true,
-      "**/*-cache": true,
-      "**/dist": true,
-      "yarn.lock": true,
-      "**/*.mdx": true
+    "**/.next": true,
+    "**/build": true,
+    "**/node_modules": true,
+    "**/out": true,
+    "**/script.js": true,
+    "**/*-cache": true,
+    "**/dist": true,
+    "yarn.lock": true,
+    "**/*.mdx": true
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "editor.formatOnSave": false,
   "editor.codeActionsOnSaveTimeout": 6000,
@@ -29,10 +29,10 @@
     "editor.formatOnSave": false
   },
   "[typescript]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
   },
   "[typescriptreact]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
   },
   "[json]": {
     "editor.formatOnSave": true
@@ -45,9 +45,8 @@
   ],
   "eslint.alwaysShowStatus": true,
   "eslint.workingDirectories": ["./src"],
-  "eslint.packageManager": "yarn",
   "files.eol": "\n",
   // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
   "typescript.tsc.autoDetect": "off",
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

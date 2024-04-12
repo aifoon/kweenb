@@ -13,6 +13,7 @@ export const BeeCardWithPolling = ({
   online,
   jackIsRunning,
   jackTripIsRunning,
+  collapsed,
 }: BeeCardProps) => {
   const { bee, loading } = useBee(number);
   return (
@@ -30,12 +31,14 @@ export const BeeCardWithPolling = ({
       channel1={1}
       channel2={2}
       jackIsRunning={loading ? jackIsRunning : bee.status.isJackRunning}
+      networkPerformanceMs={loading ? 0 : bee.networkPerformanceMs}
       jackTripIsRunning={
         loading ? jackTripIsRunning : bee.status.isJacktripRunning
       }
       onChannelTypeChange={(channelType: ChannelType) =>
         console.log("ok", channelType)
       }
+      collapsed={collapsed}
     />
   );
 };

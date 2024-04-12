@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useDrop } from "react-dnd";
 import { InActiveBeeNumber } from "./InActiveBee";
+import { Typography } from "@mui/material";
 
 interface InActiveBeeNumberDropzoneProps {
   onBeeCardDropped?: (number: number) => void;
@@ -39,7 +40,7 @@ export const InActiveBeeDropzone = ({
       style={{ background: canDrop && isOver ? "var(--primary-300)" : "none" }}
     >
       <InActiveBeeNumberDropzone>00</InActiveBeeNumberDropzone>
-      drop an active bee
+      <Typography variant="extraSmall">drop an active bee</Typography>
     </InActiveBeeDropzoneContainer>
   );
 };

@@ -18,6 +18,7 @@ import {
   ZWERM3_API_NOTRUNNING,
 } from "../Exceptions/ExceptionMessages";
 import SettingHelpers from "./SettingHelpers";
+import BeeSsh from "./BeeSsh";
 
 interface ApiResponse {
   message: string;
@@ -43,22 +44,7 @@ const createFullEndpoint = (ipAddress: string, endpoint: string): string =>
  */
 const isZwerm3ApiRunning = async (ipAddress: string) => {
   try {
-    const endpoint = createFullEndpoint(ipAddress, "jackPaths");
-
-    // with this trick, we can abort the fetch after one second
-    const controller = new AbortController();
-
-    // set the timeout
-    const id = setTimeout(() => controller.abort(), 1000);
-
-    // do the fetch
-    await fetch(endpoint, {
-      signal: controller.signal,
-    });
-
-    // clears the timeout that is running
-    clearTimeout(id);
-    return true;
+    return await BeeSsh.isZwerm3ApiRunning(ipAddress);
   } catch (e: any) {
     return false;
   }

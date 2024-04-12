@@ -6,9 +6,21 @@ import {
   ButtonType,
 } from "@components/Buttons/Button";
 import { PageHeader } from "@components/PageHeader";
-import { Grid } from "@mui/material";
+import {
+  Grid,
+  ToggleButton,
+  ToggleButtonGroup,
+  ButtonGroup,
+} from "@mui/material";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import DnsIcon from "@mui/icons-material/Dns";
 import { useNavigate } from "react-router-dom";
-import { useBees, useShowState, useConfirmation } from "@renderer/src/hooks";
+import {
+  useBees,
+  useShowState,
+  useConfirmation,
+  useAppContext,
+} from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
 import { ChannelType, IBeeInput } from "@shared/interfaces";
@@ -22,6 +34,7 @@ import { Z3Page } from "../../layout";
 import { AddBeeModal } from "./AddBeeModal";
 import { NoBees } from "./NoBees";
 import { BeeCardWithPolling } from "./BeeCardWithPolling";
+import { useAppStore } from "@renderer/src/hooks/useAppStore";
 
 export const ManageBees = () => {
   const { open, handleOpen, handleClose } = useShowState(false);
@@ -40,6 +53,10 @@ export const ManageBees = () => {
     setBeeActive,
   } = useBees();
   const navigate = useNavigate();
+  const manageBeesCollapsed = useAppStore((state) => state.manageBeesCollapsed);
+  const setManageBeesCollapsed = useAppStore(
+    (state) => state.setManageBeesCollapsed
+  );
 
   if (loading) return <Loader />;
 
@@ -79,26 +96,56 @@ export const ManageBees = () => {
           pageHeader={
             <PageHeader
               title="Swarm"
-              buttons={[
-                <Button
-                  key="addNewBee"
-                  buttonSize={ButtonSize.Small}
-                  buttonUse={ButtonUse.Normal}
-                  buttonType={ButtonType.Primary}
-                  onClick={handleOpen}
-                >
-                  Add New Bee
-                </Button>,
-              ]}
+              buttons={
+                <>
+                  <ToggleButtonGroup
+                    style={{ fontSize: "1rem" }}
+                    size="small"
+                    aria-label="Small sizes"
+                  >
+                    <ToggleButton
+                      selected={manageBeesCollapsed}
+                      value="collapsed"
+                      aria-label="left aligned"
+                      onClick={() =>
+                        setManageBeesCollapsed(!manageBeesCollapsed)
+                      }
+                    >
+                      <ViewListIcon fontSize="small" />
+                    </ToggleButton>
+                    <ToggleButton
+                      selected={!manageBeesCollapsed}
+                      value="full"
+                      aria-label="left aligned"
+                      onClick={() =>
+                        setManageBeesCollapsed(!manageBeesCollapsed)
+                      }
+                    >
+                      <DnsIcon fontSize="small" />
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                  <ButtonGroup aria-label="Action Button Group">
+                    <Button
+                      key="addNewBee"
+                      buttonSize={ButtonSize.Small}
+                      buttonUse={ButtonUse.Normal}
+                      buttonType={ButtonType.Primary}
+                      onClick={handleOpen}
+                    >
+                      Add New Bee
+                    </Button>
+                  </ButtonGroup>
+                </>
+              }
             />
           }
         >
           <Grid container spacing={5}>
-            <Grid item sm={12} md={7} lg={9}>
-              <Grid container spacing={5}>
+            <Grid item sm={12} md={8} lg={9}>
+              <Grid container spacing={3}>
                 {activeBees.map(
                   ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
-                    <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={6}>
+                    <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={4}>
                       <BeeCardWithPolling
                         key={id}
                         number={id}
@@ -113,6 +160,7 @@ export const ManageBees = () => {
                         channel2={id}
                         jackIsRunning={status?.isJackRunning}
                         jackTripIsRunning={status?.isJacktripRunning}
+                        collapsed={manageBeesCollapsed}
                       />
                     </Grid>
                   )
@@ -124,15 +172,16 @@ export const ManageBees = () => {
                   xl={3}
                   xs={12}
                   sm={12}
-                  md={6}
+                  md={4}
                 >
                   <BeeCardDropzone
+                    collapsed={manageBeesCollapsed}
                     onInActiveBeeDropped={onInActiveBeeDropped}
                   />
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item sm={12} md={5} lg={3}>
+            <Grid item sm={12} md={4} lg={3}>
               <InActiveBees>
                 <InActiveBeeDropzone onBeeCardDropped={onBeeCardDropped} />
                 {inActiveBees.length > 0 &&
