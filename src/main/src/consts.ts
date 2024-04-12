@@ -5,6 +5,7 @@
 import path, { join } from "path";
 import { PingConfig } from "ping";
 import { app } from "electron";
+import { resourcesPath } from "@shared/resources";
 
 export const DEBUG_JACK_JACKTRIP = false;
 export const DEBUG_KWEENB = false;
@@ -15,11 +16,8 @@ export const MAIN_PATH = `${
 }`;
 
 // the path to the private key we use for SSH connections
-export const SSH_PRIVATE_KEY_PATH = `${
-  process.env.NODE_ENV === "development"
-    ? "kweenb.key"
-    : join(app.getPath("userData"), "kweenb.key")
-}`;
+export const SSH_PRIVATE_KEY_PATH = `${resourcesPath}/kweenb.key`;
+
 // the username we use for SSH connections
 export const SSH_USERNAME_BEE = "pi";
 

@@ -7,6 +7,7 @@ import {
 } from "../../consts";
 import { BeeStates } from "../Dictionaries";
 import BeeSsh from "./BeeSsh";
+import { resourcesPath } from "@shared/resources";
 
 interface SshOutputState {
   ipAddress: string;
@@ -16,8 +17,8 @@ interface SshOutputState {
 
 class BeeStatesWorker {
   private _beeStates: BeeStates;
-  private _updateBeeStatesInterval: NodeJS.Timer;
-  private _updateBeeNetworkPerformanceInterval: NodeJS.Timer;
+  private _updateBeeStatesInterval: NodeJS.Timeout;
+  private _updateBeeNetworkPerformanceInterval: NodeJS.Timeout;
 
   constructor() {
     this._beeStates = new BeeStates();
@@ -75,7 +76,9 @@ class BeeStatesWorker {
     try {
       // spawn a child process to check if the bees are online
       exec(
-        `utils/is_online_multiple.sh ${ipAddresses.join(" ")}`,
+        `${resourcesPath}/scripts/is_online_multiple.sh ${ipAddresses.join(
+          " "
+        )}`,
         (error, onlineStatus, stderr) => {
           try {
             // convert the json
@@ -106,7 +109,7 @@ class BeeStatesWorker {
 
                 // spawn a child process to check the network performance
                 const childNetworkPerformance = spawn(
-                  "utils/network_performance.sh",
+                  `${resourcesPath}/scripts/network_performance.sh`,
                   [state.ipAddress]
                 );
 
@@ -142,7 +145,9 @@ class BeeStatesWorker {
     try {
       // spawn a child process to check if the bees are online
       exec(
-        `utils/is_online_multiple.sh ${ipAddresses.join(" ")}`,
+        `${resourcesPath}/scripts/is_online_multiple.sh ${ipAddresses.join(
+          " "
+        )}`,
         (error, onlineStatus, stderr) => {
           try {
             // convert the json

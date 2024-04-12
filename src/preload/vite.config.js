@@ -40,6 +40,12 @@ const config = {
     emptyOutDir: true,
     brotliSize: false,
   },
+  rollupOptions: {
+    warn: (warning) => {
+      if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+      warn(warning.message);
+    },
+  },
 };
 
 export default config;

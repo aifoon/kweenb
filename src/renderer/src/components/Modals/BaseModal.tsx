@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import ModalUnstyled from "@mui/base/Modal";
+import Modal from "@mui/material/Modal";
 import styled from "styled-components";
 import { CloseButton } from "./CloseButton";
 
@@ -12,7 +12,7 @@ export interface BaseModalProps {
   showCloseButton?: boolean;
 }
 
-const BaseModalStyled = styled(ModalUnstyled)`
+const BaseModalStyled = styled(Modal)`
   position: fixed;
   z-index: 1300;
   right: 0;

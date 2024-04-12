@@ -42,6 +42,10 @@ const config = {
         "node:fs",
         "node:path",
         "node:http",
+        "node:https",
+        "node:zlib",
+        "node:process",
+        "node:stream/web",
         "node:child_process",
         "mqtt",
         "@zwerm3/jack",
@@ -57,6 +61,12 @@ const config = {
     },
     emptyOutDir: true,
     brotliSize: false,
+  },
+  rollupOptions: {
+    warn: (warning) => {
+      if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+      warn(warning.message);
+    },
   },
 };
 

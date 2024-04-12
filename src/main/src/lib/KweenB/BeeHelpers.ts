@@ -3,13 +3,7 @@
  */
 
 import { BeeActiveState } from "@shared/enums";
-import {
-  IBee,
-  IBeeConfig,
-  IBeeInput,
-  IBeeState,
-  IBeeStatus,
-} from "@shared/interfaces";
+import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
 import fs from "fs";
 import Bee from "../../models/Bee";
 import {
@@ -25,6 +19,7 @@ import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import { spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
+import { resourcesPath } from "@shared/resources";
 
 /**
  * Get the bee configuration
@@ -254,7 +249,9 @@ const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
         };
 
         // check if the bee is online
-        const child = spawn("utils/is_online.sh", [bee.ipAddress]);
+        const child = spawn(`${resourcesPath}/scripts/is_online.sh`, [
+          bee.ipAddress,
+        ]);
 
         // listen for the response
         child.stdout.on("data", async (isOnline) => {

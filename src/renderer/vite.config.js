@@ -43,6 +43,16 @@ const config = {
     rollupOptions: {
       input: join(PACKAGE_ROOT, "index.html"),
       external: [...builtinModules],
+      onwarn(warning, warn) {
+        // Suppress "Module level directives cause errors when bundled" warnings
+        if (
+          warning.code === "MODULE_LEVEL_DIRECTIVE" ||
+          warning.code === "SOURCEMAP_ERROR"
+        ) {
+          return;
+        }
+        warn(warning);
+      },
     },
     chunkSizeWarningLimit: 5000,
     emptyOutDir: true,

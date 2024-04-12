@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { exit } = require("process");
 const logger = require("./logger");
 
 // set the binary dir
