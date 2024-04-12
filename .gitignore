@@ -45,4 +45,4 @@ installed
 .config/*.p12
 
 # Do not add keys
-#*.key
+*.key
