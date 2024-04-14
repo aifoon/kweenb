@@ -10,6 +10,20 @@ import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "../kweenb";
 
 /**
+ * Disconnect all the P2P audio connections on kweenb
+ */
+export const disconnectAllP2PAudioConnections = async () => {
+  try {
+    await kweenBHelpers.disconnectAllP2PAudioConnections();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "disconnectAllP2PAudioConnections()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Get the KweenB Version
  * @returns
  */
@@ -33,20 +47,6 @@ export const killJackAndJacktrip = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Disconnect all the P2P audio connections on kweenb
- */
-export const disconnectAllP2PAudioConnections = async () => {
-  try {
-    await kweenBHelpers.disconnectAllP2PAudioConnections();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "disconnectAllP2PAudioConnections()", message: e.message },
       true
     );
   }
@@ -80,6 +80,40 @@ export const makeP2PAudioConnection = async (
       { where: "makeP2PAudioConnection()", message: e.message },
       true
     );
+  }
+};
+
+/**
+ * Sets the Jack folder path
+ */
+export const setJackFolderPath = (
+  event: Electron.IpcMainInvokeEvent,
+  jackFolderPath: string
+) => {
+  try {
+    if (jackFolderPath) kweenBHelpers.setJackFolderPath(jackFolderPath);
+  } catch (e: any) {
+    KweenBGlobal.kweenb.throwError({
+      where: "setJackFolderPath()",
+      message: e.message,
+    });
+  }
+};
+
+/**
+ * Sets the Jacktrip binary path
+ */
+export const setJacktripBinPath = (
+  event: Electron.IpcMainInvokeEvent,
+  jacktripBinPath: string
+) => {
+  try {
+    if (jacktripBinPath) kweenBHelpers.setJacktripBinPath(jacktripBinPath);
+  } catch (e: any) {
+    KweenBGlobal.kweenb.throwError({
+      where: "setJacktripBinPath()",
+      message: e.message,
+    });
   }
 };
 
@@ -120,39 +154,5 @@ export const startJackWithJacktripP2PClient = async (
       { where: "startJackWithJacktripP2PClient()", message: e.message },
       true
     );
-  }
-};
-
-/**
- * Sets the Jack folder path
- */
-export const setJackFolderPath = (
-  event: Electron.IpcMainInvokeEvent,
-  jackFolderPath: string
-) => {
-  try {
-    if (jackFolderPath) kweenBHelpers.setJackFolderPath(jackFolderPath);
-  } catch (e: any) {
-    KweenBGlobal.kweenb.throwError({
-      where: "setJackFolderPath()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Sets the Jacktrip binary path
- */
-export const setJacktripBinPath = (
-  event: Electron.IpcMainInvokeEvent,
-  jacktripBinPath: string
-) => {
-  try {
-    if (jacktripBinPath) kweenBHelpers.setJacktripBinPath(jacktripBinPath);
-  } catch (e: any) {
-    KweenBGlobal.kweenb.throwError({
-      where: "setJacktripBinPath()",
-      message: e.message,
-    });
   }
 };

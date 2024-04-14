@@ -51,8 +51,7 @@ export const AboutKweenBModal = ({ open, onClose }: AboutKweenBModalProps) => {
           <AboutKweenBModalTitle>Authors</AboutKweenBModalTitle>
           <div>
             <ul>
-              <li>Tim De Paepe</li>
-              <li>Kasper Jordaens</li>
+              <li>Tim De Paepe (tim.depaepe@gmail.com)</li>
             </ul>
           </div>
         </AboutKweenBModalContentBlock>

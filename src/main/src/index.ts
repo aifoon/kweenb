@@ -71,10 +71,6 @@ const initApp = async () => {
     // this will pass settings to external libs, initialize dictionaries and workers etc.
     await KweenBGlobal.kweenb.init();
 
-    // setInterval(() => {
-    //   console.log(KweenBGlobal.kweenb.beeSshConnections.amountOfSshInstances);
-    // }, 2000);
-
     // on activation
     app.on("activate", () => {
       // On macOS it's common to re-create a window in the app when the

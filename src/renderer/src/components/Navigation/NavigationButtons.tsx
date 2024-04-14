@@ -14,11 +14,12 @@ export interface NavigationButtonsProps {
 const NavigationButtonsWrapper = styled.div`
   display: flex;
 `;
-
 export const NavigationButtons = ({ buttons }: NavigationButtonsProps) => (
-  <NavigationButtonsWrapper>
-    <ButtonGroup>{buttons.map((button) => button)}</ButtonGroup>
-  </NavigationButtonsWrapper>
+  <>
+    <NavigationButtonsWrapper>
+      <ButtonGroup>{buttons.map((button) => button)}</ButtonGroup>
+    </NavigationButtonsWrapper>
+  </>
 );
 
 export default NavigationButtons;

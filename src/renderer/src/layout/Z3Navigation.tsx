@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   ButtonSize,
@@ -8,6 +8,7 @@ import {
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useAppContext } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
+import ConnectBeesMenu from "@renderer/src/layout/ConnectBeesMenu";
 
 export const Z3Navigation = () => {
   const { appContext } = useAppContext();
@@ -33,6 +34,7 @@ export const Z3Navigation = () => {
       >
         build hive
       </Button>,
+      <ConnectBeesMenu key="connectBees" />,
     ];
   } else {
     buttons = [
@@ -45,14 +47,7 @@ export const Z3Navigation = () => {
       >
         disconnect bees
       </Button>,
-      <Button
-        key="connectBees"
-        buttonSize={ButtonSize.Small}
-        buttonUse={ButtonUse.Grey}
-        onClick={() => appContext.setOpenConnectBeesModal(true)}
-      >
-        connect bees
-      </Button>,
+      <ConnectBeesMenu key="connectBees" />,
     ];
   }
 

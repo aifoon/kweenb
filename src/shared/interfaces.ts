@@ -151,6 +151,24 @@ export interface ISetting {
 }
 
 /**
+ * For Presets
+ */
+
+export interface IAudioPreset {
+  fileName: string;
+  name: string;
+  description: string;
+  bee: {
+    jack: IAudioSettingsJack;
+    jacktrip: IAudioSettingsJackTrip;
+  };
+  kweenb: {
+    jack: IAudioSettingsJack;
+    jacktrip: IAudioSettingsJackTrip;
+  };
+}
+
+/**
  * The Audio Settings for a bee
  */
 

@@ -2,10 +2,10 @@
  * A file with some constants
  */
 
-import path, { join } from "path";
+import path from "path";
 import { PingConfig } from "ping";
-import { app } from "electron";
 import { resourcesPath } from "@shared/resources";
+import { app } from "electron";
 
 export const DEBUG_JACK_JACKTRIP = false;
 export const DEBUG_KWEENB = false;
@@ -43,6 +43,12 @@ export const DEFAULT_BEE_CONFIG = {
   mqttChannel: "beeworker",
   device: "",
 };
+
+// the path to the presets folder
+export const PRESETS_FOLDER_PATH =
+  process.env.NODE_ENV === "development"
+    ? `${resourcesPath}/presets`
+    : path.join(app.getPath("userData"), "presets");
 
 // the default status of a bee
 export const DEFAULT_BEE_STATUS = {

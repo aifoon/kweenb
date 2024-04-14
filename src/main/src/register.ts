@@ -64,6 +64,7 @@ import {
   getTargetsAndOptionsForAlgorithm,
   updatePositioningControllerAlgorithmOptions,
 } from "./controllers/positioning";
+import { activatePreset, getAudioPresets } from "./controllers/presets";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
@@ -163,6 +164,13 @@ export const registerMethods = () => {
   // CRUD
   ipcMain.handle("setting:fetchSettings", fetchSettings);
   ipcMain.handle("setting:updateSetting", updateSetting);
+
+  /**
+   * Presets
+   */
+
+  ipcMain.handle("presets:getAudioPresets", getAudioPresets);
+  ipcMain.handle("presets:activatePreset", activatePreset);
 
   /**
    * The Kween

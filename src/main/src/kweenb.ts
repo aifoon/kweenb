@@ -12,6 +12,7 @@ import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { BeeSshConnections } from "./lib/Dictionaries";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
+import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
 
 /**
  * A KweenB class
@@ -74,6 +75,9 @@ class KweenB {
 
     // init the jacktrip binary path
     await this.initJacktripBinPath();
+
+    // init the presets folder path (copy resources to presets folder)
+    initPresetsFolder();
 
     // init the bee states worker
     this._beeStatesWorker = new BeeStatesWorker();

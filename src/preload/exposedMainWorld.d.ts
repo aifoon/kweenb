@@ -64,6 +64,13 @@ declare global {
         fetchSettings(): Promise<ISettings>;
         updateSetting(setting: ISetting);
 
+        /**
+         * Presets
+         */
+
+        getAudioPresets(): Promise<IAudioPreset[]>;
+        activatePreset(fileName: string): Promise<void>;
+
         theKween: {
           fetchTheKween(): Promise<ITheKween>;
           isZwerm3ApiRunningOnTheKween(): Promise<boolean>;

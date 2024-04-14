@@ -5,10 +5,12 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
   dialog,
+  shell,
 } from "electron";
 import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
+import { PRESETS_FOLDER_PATH } from "../consts";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -171,6 +173,14 @@ export default class MenuBuilder {
                   this.mainWindow.webContents.send("imported-settings");
                 }
               });
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Open presets folder",
+          click: () => {
+            // Opens file dialog looking for the bees data
+            shell.openPath(PRESETS_FOLDER_PATH);
           },
         },
       ],

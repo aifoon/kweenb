@@ -1,0 +1,34 @@
+---
+name: 4 Bees
+description: Audio preset for 4 bees
+bee:
+  jack:
+    device: hw:sndrpihifiberry
+    inputChannels: -1
+    outputChannels: -1
+    sampleRate: 44100
+    bufferSize: 128
+    periods: 24
+  jacktrip:
+    realtimePriority: true
+    channels: 1
+    sendChannels: 1
+    receiveChannels: 1
+    bitRate: 16
+    queueBufferLength: 8
+    redundancy: 1
+    localPort: 4464
+kweenb:
+  jack:
+    device:
+    inputChannels: -1
+    outputChannels: -1
+    sampleRate: 44100
+    bufferSize: 128
+    periods: 24
+  jacktrip:
+    realtimePriority: true
+    channels: 1
+    bitRate: 16
+    queueBufferLength: 8
+    redundancy: 4
