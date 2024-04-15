@@ -72,4 +72,13 @@ export const Utils = {
     const differenceInSeconds = Math.floor(differenceInMilliseconds / 1000);
     return differenceInSeconds;
   },
+
+  /**
+   * A function that checks if a number has decimals
+   * @param number The number to check
+   * @returns True if the number has decimals, false otherwise
+   */
+  hasDecimals: (number: number): boolean => {
+    return number % 1 !== 0;
+  },
 };

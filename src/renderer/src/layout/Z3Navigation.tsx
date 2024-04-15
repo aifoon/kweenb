@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   ButtonSize,
@@ -10,6 +10,7 @@ import { useAppContext, useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import ConnectBeesMenu from "@renderer/src/pages/Menu/ConnectBeesMenu";
 import { Box, Divider, Typography } from "@mui/material";
+import { Utils } from "@shared/utils";
 
 export const Z3Navigation = () => {
   const { appContext } = useAppContext();
@@ -79,7 +80,14 @@ export const Z3Navigation = () => {
                 marginRight: "10px",
               }}
             >
-              <Typography variant="small">
+              <Typography
+                variant="small"
+                color={
+                  Utils.hasDecimals(currentLatency)
+                    ? "var(--red-status)"
+                    : "var(--text-color"
+                }
+              >
                 Current latency is {currentLatency}ms
               </Typography>
             </Box>
