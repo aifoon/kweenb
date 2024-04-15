@@ -64,6 +64,40 @@ export default createTheme({
         fontSizeLarge: "1.5rem",
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          color: "var(--buttonTextColor)",
+          backgroundColor: "var(--secondary-500)",
+          textTransform: "uppercase",
+          outline: "none",
+          border: "none",
+          fontWeight: 600,
+          borderRadius: "var(--radiusMedium)",
+          padding: "var(--mediumButtonPadding)",
+          cursor: "pointer",
+          boxShadow: "none",
+          fontSize: "1rem",
+          transition: "0.1s ease-in-out opacity",
+        },
+      },
+      variants: [
+        {
+          props: {
+            variant: "contained",
+            size: "small",
+          },
+          style: {
+            fontSize: "var(--smallText)",
+            padding: "var(--smallButtonPadding)",
+            lineHeight: "normal",
+            "&:hover": {
+              backgroundColor: "var(--secondary-500)",
+            },
+          },
+        },
+      ],
+    },
     MuiDataGrid: {
       styleOverrides: {
         columnHeader: {
@@ -131,6 +165,7 @@ export default createTheme({
           backgroundColor: "transparent",
           border: "1px solid var(--primary-100)",
           color: "var(--white)",
+          padding: "6px",
           borderRadius: "var(--radiusMedium)",
           "&.Mui-selected": {
             backgroundColor: "var(--primary-300)",

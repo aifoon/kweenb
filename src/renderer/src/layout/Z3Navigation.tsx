@@ -8,7 +8,7 @@ import {
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useAppContext } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
-import ConnectBeesMenu from "@renderer/src/layout/ConnectBeesMenu";
+import ConnectBeesMenu from "@renderer/src/pages/Menu/ConnectBeesMenu";
 
 export const Z3Navigation = () => {
   const { appContext } = useAppContext();

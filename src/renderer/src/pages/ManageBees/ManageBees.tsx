@@ -1,26 +1,17 @@
 import React from "react";
-import {
-  Button,
-  ButtonSize,
-  ButtonUse,
-  ButtonType,
-} from "@components/Buttons/Button";
+import { ButtonSize, ButtonUse, ButtonType } from "@components/Buttons/Button";
 import { PageHeader } from "@components/PageHeader";
 import {
   Grid,
   ToggleButton,
   ToggleButtonGroup,
   ButtonGroup,
+  Button,
 } from "@mui/material";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import DnsIcon from "@mui/icons-material/Dns";
 import { useNavigate } from "react-router-dom";
-import {
-  useBees,
-  useShowState,
-  useConfirmation,
-  useAppContext,
-} from "@renderer/src/hooks";
+import { useBees, useShowState, useConfirmation } from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
 import { ChannelType, IBeeInput } from "@shared/interfaces";
@@ -60,17 +51,51 @@ export const ManageBees = () => {
 
   if (loading) return <Loader />;
 
+  /**
+   * When a bee is submitted, create the bee and close the modal
+   * @param beeInput
+   */
   const onBeeSubmitted = async (beeInput: IBeeInput) => {
     await createBee(beeInput);
     handleClose();
   };
 
+  /**
+   * When an inactive bee is dropped, set the bee to active
+   * @param number
+   */
   const onInActiveBeeDropped = async (number: number) => {
     await setBeeActive(number, true);
   };
 
+  /**
+   * When a bee card is dropped, set the bee to inactive
+   * @param number
+   */
   const onBeeCardDropped = async (number: number) => {
     await setBeeActive(number, false);
+  };
+
+  /**
+   * Move bees to active or inactive
+   * @param active
+   */
+  const moveBees = async (active: number[]) => {
+    const filteredActive = active.filter((id) => {
+      return (
+        inActiveBees.some((bee) => bee.id === id) ||
+        activeBees.some((bee) => bee.id === id)
+      );
+    });
+    const deactivatePromises = activeBees
+      .filter((bee) => !active.includes(bee.id))
+      .map((bee) => setBeeActive(bee.id, false));
+
+    const activatePromises = filteredActive
+      .filter((id) => !activeBees.map((bee) => bee.id).includes(id))
+      .map((id) => setBeeActive(id, true));
+
+    await Promise.all([...deactivatePromises, ...activatePromises]);
   };
 
   return (
@@ -126,10 +151,77 @@ export const ManageBees = () => {
                   </ToggleButtonGroup>
                   <ButtonGroup aria-label="Action Button Group">
                     <Button
+                      key="beesClear"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() => moveBees([])}
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      key="bees14"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() => moveBees([1, 2, 3, 4])}
+                    >
+                      1-4
+                    </Button>
+                    <Button
+                      key="bees18"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() => moveBees([1, 2, 3, 4, 5, 6, 7, 8])}
+                    >
+                      1-8
+                    </Button>
+                    <Button
+                      key="bees112"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() =>
+                        moveBees([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                      }
+                    >
+                      1-12
+                    </Button>
+                    <Button
+                      key="bees116"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() =>
+                        moveBees([
+                          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                        ])
+                      }
+                    >
+                      1-16
+                    </Button>
+                    <Button
+                      key="beesAll"
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={() =>
+                        moveBees([
+                          ...activeBees.map((bee) => bee.id),
+                          ...inActiveBees.map((bee) => bee.id),
+                        ])
+                      }
+                    >
+                      All
+                    </Button>
+                  </ButtonGroup>
+                  <ButtonGroup aria-label="Action Button Group">
+                    <Button
                       key="addNewBee"
-                      buttonSize={ButtonSize.Small}
-                      buttonUse={ButtonUse.Normal}
-                      buttonType={ButtonType.Primary}
+                      size="small"
+                      variant="contained"
+                      color="primary"
                       onClick={handleOpen}
                     >
                       Add New Bee
