@@ -34,6 +34,32 @@ export const Utils = {
   },
 
   /**
+   * A function that will round a number to a specified number of decimal places
+   * @param number The number to round
+   * @param decimals The number of decimal places to round to
+   * @returns The rounded number
+   */
+  roundToDecimals: (number: number, decimals: number): number => {
+    const factor = Math.pow(10, decimals);
+    return Math.round(number * factor) / factor;
+  },
+
+  /**
+   * Calculate the latency of the audio system
+   * @param sampleRate The sample rate of the audio system
+   * @param bufferSize The buffer size of the audio system
+   * @param periods The number of periods
+   * @returns
+   */
+  calculateLatency: (
+    sampleRate: number,
+    bufferSize: number,
+    periods: number
+  ) => {
+    return Utils.roundToDecimals((bufferSize / sampleRate) * periods * 1000, 2);
+  },
+
+  /**
    * Get the time difference between two dates in seconds
    * @param date1 The first date
    * @param date2 The second date

@@ -25,7 +25,7 @@ export default abstract class IntervalWorker implements IIntervalWorker {
 
   public state: IntervalWorkerState;
 
-  private currentInterval: NodeJS.Timer | null;
+  private currentInterval: NodeJS.Timeout | null;
 
   public isAsync: boolean;
 

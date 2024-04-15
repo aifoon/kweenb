@@ -1,5 +1,5 @@
 import { Card, CardVerticalStack } from "@components/Cards";
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import { TextField, SelectField, SwitchField } from "@components/Forms";
 import {
@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useAppContext, useSetting } from "@renderer/src/hooks";
+import { useAppContext, useAppStore, useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 import { Grid } from "@mui/material";
 import {
@@ -28,34 +28,102 @@ export const SettingsKweenB = ({
   kweenbAudioSettings,
 }: BeeSettingsKweenBProps) => {
   const { updateSetting, setJackFolderPath, setJacktripBinPath } = useSetting();
+  const updateCurrentLatency = useAppStore(
+    (state) => state.updateCurrentLatency
+  );
   const { appContext } = useAppContext();
-  const handleOnValidatedBlurAndChange = (e: any) => {
-    updateSetting({
+
+  /**
+   * The initial values
+   */
+
+  const initialValues = {
+    jackFolderPath: kweenbSettings.jackFolderPath,
+    jackDevice: kweenbAudioSettings.jack.device,
+    jackInputChannels: kweenbAudioSettings.jack.inputChannels,
+    jackOutputChannels: kweenbAudioSettings.jack.outputChannels,
+    jackBufferSize: kweenbAudioSettings.jack.bufferSize,
+    jackSampleRate: kweenbAudioSettings.jack.sampleRate,
+    jackPeriods: kweenbAudioSettings.jack.periods,
+    jacktripBinPath: kweenbSettings.jacktripBinPath,
+    jacktripBitRate: kweenbAudioSettings.jacktrip.bitRate,
+    jacktripChannels: kweenbAudioSettings.jacktrip.channels,
+    jacktripRedundancy: kweenbAudioSettings.jacktrip.redundancy,
+    jacktripLocalPort: kweenbAudioSettings.jacktrip.localPort,
+    jacktripQueueBufferLength: kweenbAudioSettings.jacktrip.queueBufferLength,
+    jacktripRealtimePriority: kweenbAudioSettings.jacktrip.realtimePriority,
+    jacktripSendChannels: kweenbAudioSettings.jacktrip.sendChannels,
+    jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
+  };
+
+  // remember the latency values
+  const [latencyValues, setLatencyValues] = useState<{
+    jackBufferSize: number;
+    jackSampleRate: number;
+    jackPeriods: number;
+  }>({
+    jackBufferSize: initialValues.jackBufferSize,
+    jackSampleRate: initialValues.jackSampleRate,
+    jackPeriods: initialValues.jackPeriods,
+  });
+
+  // remember the latency
+  const [latency, setLatency] = useState<number>(
+    Utils.calculateLatency(
+      initialValues.jackSampleRate,
+      initialValues.jackBufferSize,
+      initialValues.jackPeriods
+    )
+  );
+
+  /**
+   * Handle the change of the input field and update the setting
+   * @param e
+   */
+  const handleOnValidatedBlurAndChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // update the setting in the database
+    await updateSetting({
       key: `kweenb${Utils.capitalize(e.target.name)}`,
       value: e.target.value,
     });
+
+    if (
+      e.target.name === "jackBufferSize" ||
+      e.target.name === "jackSampleRate" ||
+      e.target.name === "jackPeriods"
+    ) {
+      const { name, value } = e.target;
+      const { jackBufferSize, jackSampleRate, jackPeriods } = latencyValues;
+
+      // update the latency values
+      const updatedLatencyValues = {
+        jackBufferSize:
+          name === "jackBufferSize" ? Number(value) : jackBufferSize,
+        jackSampleRate:
+          name === "jackSampleRate" ? Number(value) : jackSampleRate,
+        jackPeriods: name === "jackPeriods" ? Number(value) : jackPeriods,
+      };
+
+      // calculate the latency
+      const updatedLatency = Utils.calculateLatency(
+        updatedLatencyValues.jackSampleRate,
+        updatedLatencyValues.jackBufferSize,
+        updatedLatencyValues.jackPeriods
+      );
+
+      // update the latency and form values
+      setLatency(updatedLatency);
+      setLatencyValues(updatedLatencyValues);
+
+      // update to total latency
+      updateCurrentLatency();
+    }
   };
   return (
     <Formik
-      initialValues={{
-        jackFolderPath: kweenbSettings.jackFolderPath,
-        jackDevice: kweenbAudioSettings.jack.device,
-        jackInputChannels: kweenbAudioSettings.jack.inputChannels,
-        jackOutputChannels: kweenbAudioSettings.jack.outputChannels,
-        jackBufferSize: kweenbAudioSettings.jack.bufferSize,
-        jackSampleRate: kweenbAudioSettings.jack.sampleRate,
-        jackPeriods: kweenbAudioSettings.jack.periods,
-        jacktripBinPath: kweenbSettings.jacktripBinPath,
-        jacktripBitRate: kweenbAudioSettings.jacktrip.bitRate,
-        jacktripChannels: kweenbAudioSettings.jacktrip.channels,
-        jacktripRedundancy: kweenbAudioSettings.jacktrip.redundancy,
-        jacktripLocalPort: kweenbAudioSettings.jacktrip.localPort,
-        jacktripQueueBufferLength:
-          kweenbAudioSettings.jacktrip.queueBufferLength,
-        jacktripRealtimePriority: kweenbAudioSettings.jacktrip.realtimePriority,
-        jacktripSendChannels: kweenbAudioSettings.jacktrip.sendChannels,
-        jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
-      }}
+      initialValues={initialValues}
       validationSchema={Yup.object().shape({
         jackDevice: Yup.string(),
         jackBufferSize: Yup.number()
@@ -115,7 +183,7 @@ export const SettingsKweenB = ({
           <Grid container spacing={5}>
             <Grid item xs={12} md={6}>
               <CardVerticalStack>
-                <Card title="Jack">
+                <Card title="Jack" headerSubtitle={`${latency}ms`}>
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
@@ -187,7 +255,6 @@ export const SettingsKweenB = ({
                     placeholder="e.g. 2"
                   />
                 </Card>
-
               </CardVerticalStack>
             </Grid>
             <Grid item xs={12} md={6}>

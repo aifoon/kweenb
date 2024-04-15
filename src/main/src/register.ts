@@ -41,6 +41,7 @@ import {
   getKweenBVersion,
   setJackFolderPath,
   setJacktripBinPath,
+  calculateCurrentLatency,
 } from "./controllers/kweenb";
 import { KweenBGlobal } from "./kweenb";
 import BeesPoller from "./lib/Interval/BeesPoller";
@@ -138,6 +139,7 @@ export const registerMethods = () => {
   ipcMain.handle("kweenb:getKweenBVersion", getKweenBVersion);
 
   // JACK/JACKTRIP
+  ipcMain.handle("kweenb:calculateCurrentLatency", calculateCurrentLatency);
   ipcMain.handle("kweenb:killJackAndJacktrip", killJackAndJacktripOnKweenB);
   ipcMain.handle(
     "kweenb:startJackWithJacktripHubClient",

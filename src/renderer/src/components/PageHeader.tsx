@@ -2,10 +2,11 @@ import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonProps } from "./Buttons/Button";
 import { StatusBulletProps } from "./StatusBullet";
-import { ButtonGroup, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 export interface PageHeaderProps {
   title: string;
+  subtitle?: string;
   buttons?: ReactElement;
   secondaryButtons?: ReactElement<ButtonProps>[];
   statusBullet?: ReactElement<StatusBulletProps>;
@@ -21,21 +22,18 @@ const PageHeaderWrapper = styled.div`
   }
 `;
 
-const PageHeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  div + div {
-    margin-left: 20px;
-  }
-`;
-
 export const PageHeader = ({
   title,
   buttons,
-  statusBullet,
+  subtitle = "",
 }: PageHeaderProps) => (
   <PageHeaderWrapper>
     <h3>{title}</h3>
-    <PageHeaderActions>{buttons}</PageHeaderActions>
+    <Box display="flex" alignItems="center" gap={2}>
+      {subtitle && <Typography variant="small">{subtitle}</Typography>}
+      <Box display={"flex"} alignItems={"center"} gap={2}>
+        {buttons}
+      </Box>
+    </Box>
   </PageHeaderWrapper>
 );

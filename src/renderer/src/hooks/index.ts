@@ -20,6 +20,7 @@ export {
   useBeeConfig,
   useBees,
   useAppContext,
+  useAppStore,
   usePositioningStore,
   usePositioningTargetSelector,
   useIntervalAsync,

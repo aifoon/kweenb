@@ -1,5 +1,5 @@
 import { Card, CardVerticalStack } from "@components/Cards";
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import { SelectField, SwitchField, TextField } from "@components/Forms";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@renderer/src/consts";
 import { Utils } from "@shared/utils";
 import { IBeeAudioSettings } from "@shared/interfaces";
-import { useSetting } from "@renderer/src/hooks";
+import { useAppStore, useSetting } from "@renderer/src/hooks";
 import { Grid } from "@mui/material";
 
 interface BeeSettingsBeesProps {
@@ -23,30 +23,100 @@ interface BeeSettingsBeesProps {
 
 export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
   const { updateSetting } = useSetting();
-  const handleOnValidatedBlurAndChange = (e: any) => {
-    updateSetting({
+  const updateCurrentLatency = useAppStore(
+    (state) => state.updateCurrentLatency
+  );
+
+  /**
+   * The initial values
+   */
+
+  const initialValues = {
+    jackDevice: beeAudioSettings.jack.device,
+    jackInputChannels: beeAudioSettings.jack.inputChannels,
+    jackOutputChannels: beeAudioSettings.jack.outputChannels,
+    jackBufferSize: beeAudioSettings.jack.bufferSize,
+    jackSampleRate: beeAudioSettings.jack.sampleRate,
+    jackPeriods: beeAudioSettings.jack.periods,
+    jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
+    jacktripChannels: beeAudioSettings.jacktrip.channels,
+    jacktripLocalPort: beeAudioSettings.jacktrip.localPort,
+    jacktripRedundancy: beeAudioSettings.jacktrip.redundancy,
+    jacktripQueueBufferLength: beeAudioSettings.jacktrip.queueBufferLength,
+    jacktripRealtimePriority: beeAudioSettings.jacktrip.realtimePriority,
+    jacktripSendChannels: beeAudioSettings.jacktrip.sendChannels,
+    jacktripReceiveChannels: beeAudioSettings.jacktrip.receiveChannels,
+  };
+
+  // remember the latency values
+  const [latencyValues, setLatencyValues] = useState<{
+    jackBufferSize: number;
+    jackSampleRate: number;
+    jackPeriods: number;
+  }>({
+    jackBufferSize: initialValues.jackBufferSize,
+    jackSampleRate: initialValues.jackSampleRate,
+    jackPeriods: initialValues.jackPeriods,
+  });
+
+  // remember the latency
+  const [latency, setLatency] = useState<number>(
+    Utils.calculateLatency(
+      initialValues.jackSampleRate,
+      initialValues.jackBufferSize,
+      initialValues.jackPeriods
+    )
+  );
+
+  /**
+   * Handle the change of the input field and update the setting
+   * @param e
+   */
+  const handleOnValidatedBlurAndChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // update the setting in the database
+    await updateSetting({
       key: `bee${Utils.capitalize(e.target.name)}`,
       value: e.target.value,
     });
+
+    if (
+      e.target.name === "jackBufferSize" ||
+      e.target.name === "jackSampleRate" ||
+      e.target.name === "jackPeriods"
+    ) {
+      const { name, value } = e.target;
+      const { jackBufferSize, jackSampleRate, jackPeriods } = latencyValues;
+
+      // update the latency values
+      const updatedLatencyValues = {
+        jackBufferSize:
+          name === "jackBufferSize" ? Number(value) : jackBufferSize,
+        jackSampleRate:
+          name === "jackSampleRate" ? Number(value) : jackSampleRate,
+        jackPeriods: name === "jackPeriods" ? Number(value) : jackPeriods,
+      };
+
+      // calculate the latency
+      const updatedLatency = Utils.calculateLatency(
+        updatedLatencyValues.jackSampleRate,
+        updatedLatencyValues.jackBufferSize,
+        updatedLatencyValues.jackPeriods
+      );
+
+      // update the latency and form values
+      setLatency(updatedLatency);
+      setLatencyValues(updatedLatencyValues);
+
+      // update to total latency
+      updateCurrentLatency();
+    }
   };
+
   return (
     <Formik
-      initialValues={{
-        jackDevice: beeAudioSettings.jack.device,
-        jackInputChannels: beeAudioSettings.jack.inputChannels,
-        jackOutputChannels: beeAudioSettings.jack.outputChannels,
-        jackBufferSize: beeAudioSettings.jack.bufferSize,
-        jackSampleRate: beeAudioSettings.jack.sampleRate,
-        jackPeriods: beeAudioSettings.jack.periods,
-        jacktripBitRate: beeAudioSettings.jacktrip.bitRate,
-        jacktripChannels: beeAudioSettings.jacktrip.channels,
-        jacktripLocalPort: beeAudioSettings.jacktrip.localPort,
-        jacktripRedundancy: beeAudioSettings.jacktrip.redundancy,
-        jacktripQueueBufferLength: beeAudioSettings.jacktrip.queueBufferLength,
-        jacktripRealtimePriority: beeAudioSettings.jacktrip.realtimePriority,
-        jacktripSendChannels: beeAudioSettings.jacktrip.sendChannels,
-        jacktripReceiveChannels: beeAudioSettings.jacktrip.receiveChannels,
-      }}
+      initialValues={initialValues}
       validationSchema={Yup.object().shape({
         jackDevice: Yup.string(),
         jackBufferSize: Yup.number()
@@ -99,187 +169,189 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
       })}
       onSubmit={() => {}}
     >
-      {() => (
-        <Form>
-          <Grid container spacing={5}>
-            <Grid item xs={12} md={6}>
-              <CardVerticalStack>
-                <Card title="Jack">
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
+      {(props) => {
+        return (
+          <Form>
+            <Grid container spacing={5}>
+              <Grid item xs={12} md={6}>
+                <CardVerticalStack>
+                  <Card title="Jack" headerSubtitle={`${latency}ms`}>
+                    <TextField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Device"
+                      type="text"
+                      labelWidth="150px"
+                      name="jackDevice"
+                      placeholder="e.g. hw:Set"
+                    />
+                    <TextField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Input Channels"
+                      type="number"
+                      min={-1}
+                      max={20}
+                      labelWidth="150px"
+                      name="jackInputChannels"
+                      placeholder="e.g. 2"
+                    />
+                    <TextField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Output Channels"
+                      type="number"
+                      min={-1}
+                      max={20}
+                      labelWidth="150px"
+                      name="jackOutputChannels"
+                      placeholder="e.g. 2"
+                    />
+                    <SelectField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Sample rate"
+                      labelWidth="150px"
+                      selectItems={validSampleRates.map((value) => ({
+                        label: value.toString(),
+                        value,
+                      }))}
+                      name="jackSampleRate"
+                    />
+                    <SelectField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Buffersize"
+                      labelWidth="150px"
+                      selectItems={validBufferSizes.map((value) => ({
+                        label: value.toString(),
+                        value,
+                      }))}
+                      name="jackBufferSize"
+                    />
+                    <TextField
+                      onValidatedBlur={handleOnValidatedBlurAndChange}
+                      orientation={InputFieldOrientation.Horizontal}
+                      size={InputFieldSize.Small}
+                      label="Periods/Buffer"
+                      type="number"
+                      min={0}
+                      max={20}
+                      labelWidth="150px"
+                      name="jackPeriods"
+                      placeholder="e.g. 2"
+                    />
+                  </Card>
+                </CardVerticalStack>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card title="Jacktrip">
+                  <SwitchField
+                    onValidatedChange={(e) => {
+                      handleOnValidatedBlurAndChange(e);
+                    }}
+                    name="jacktripRealtimePriority"
+                    label="Realtime priority"
+                    labelWidth="150px"
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
-                    label="Device"
-                    type="text"
-                    labelWidth="150px"
-                    name="jackDevice"
-                    placeholder="e.g. hw:Set"
                   />
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
-                    label="Input Channels"
+                    label="Channels"
                     type="number"
-                    min={-1}
-                    max={20}
                     labelWidth="150px"
-                    name="jackInputChannels"
+                    min={1}
+                    max={99}
+                    name="jacktripChannels"
                     placeholder="e.g. 2"
                   />
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
-                    label="Output Channels"
+                    label="Send Channels"
                     type="number"
-                    min={-1}
+                    min={1}
                     max={20}
                     labelWidth="150px"
-                    name="jackOutputChannels"
-                    placeholder="e.g. 2"
-                  />
-                  <SelectField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Sample rate"
-                    labelWidth="150px"
-                    selectItems={validSampleRates.map((value) => ({
-                      label: value.toString(),
-                      value,
-                    }))}
-                    name="jackSampleRate"
-                  />
-                  <SelectField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Buffersize"
-                    labelWidth="150px"
-                    selectItems={validBufferSizes.map((value) => ({
-                      label: value.toString(),
-                      value,
-                    }))}
-                    name="jackBufferSize"
+                    name="jacktripSendChannels"
+                    placeholder="e.g. 1"
                   />
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
-                    label="Periods/Buffer"
+                    label="Receive Channels"
+                    type="number"
+                    min={1}
+                    max={20}
+                    labelWidth="150px"
+                    name="jacktripReceiveChannels"
+                    placeholder="e.g. 1"
+                  />
+                  <SelectField
+                    singleLine={false}
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Bitrate"
+                    labelWidth="150px"
+                    selectItems={validBitrates.map((value) => ({
+                      label: value.toString(),
+                      value,
+                    }))}
+                    name="jacktripBitRate"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Queue Buffer Length"
                     type="number"
                     min={0}
-                    max={20}
+                    max={99}
                     labelWidth="150px"
-                    name="jackPeriods"
-                    placeholder="e.g. 2"
+                    name="jacktripQueueBufferLength"
+                    placeholder="e.g. 4"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Redundancy"
+                    type="number"
+                    min={0}
+                    max={99}
+                    labelWidth="150px"
+                    name="jacktripRedundancy"
+                    placeholder="e.g. 1"
+                  />
+                  <TextField
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Local Port"
+                    type="number"
+                    min={4464}
+                    max={4490}
+                    labelWidth="150px"
+                    name="jacktripLocalPort"
+                    placeholder="e.g. 4464"
                   />
                 </Card>
-              </CardVerticalStack>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Card title="Jacktrip">
-                <SwitchField
-                  onValidatedChange={(e) => {
-                    handleOnValidatedBlurAndChange(e);
-                  }}
-                  name="jacktripRealtimePriority"
-                  label="Realtime priority"
-                  labelWidth="150px"
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Channels"
-                  type="number"
-                  labelWidth="150px"
-                  min={1}
-                  max={99}
-                  name="jacktripChannels"
-                  placeholder="e.g. 2"
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Send Channels"
-                  type="number"
-                  min={1}
-                  max={20}
-                  labelWidth="150px"
-                  name="jacktripSendChannels"
-                  placeholder="e.g. 1"
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Receive Channels"
-                  type="number"
-                  min={1}
-                  max={20}
-                  labelWidth="150px"
-                  name="jacktripReceiveChannels"
-                  placeholder="e.g. 1"
-                />
-                <SelectField
-                singleLine={false}
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Bitrate"
-                  labelWidth="150px"
-                  selectItems={validBitrates.map((value) => ({
-                    label: value.toString(),
-                    value,
-                  }))}
-                  name="jacktripBitRate"
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Queue Buffer Length"
-                  type="number"
-                  min={0}
-                  max={99}
-                  labelWidth="150px"
-                  name="jacktripQueueBufferLength"
-                  placeholder="e.g. 4"
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Redundancy"
-                  type="number"
-                  min={0}
-                  max={99}
-                  labelWidth="150px"
-                  name="jacktripRedundancy"
-                  placeholder="e.g. 1"
-                />
-                <TextField
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  orientation={InputFieldOrientation.Horizontal}
-                  size={InputFieldSize.Small}
-                  label="Local Port"
-                  type="number"
-                  min={4464}
-                  max={4490}
-                  labelWidth="150px"
-                  name="jacktripLocalPort"
-                  placeholder="e.g. 4464"
-                />
-              </Card>
-            </Grid>
-          </Grid>
-        </Form>
-      )}
+          </Form>
+        );
+      }}
     </Formik>
   );
 };

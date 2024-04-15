@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonProps } from "@renderer/src/components/Buttons/Button";
 import { ButtonGroup } from "../Buttons/ButtonGroup";
+import { Box } from "@mui/material";
 
 /**
  * Types & Interfaces
@@ -16,9 +17,9 @@ const NavigationButtonsWrapper = styled.div`
 `;
 export const NavigationButtons = ({ buttons }: NavigationButtonsProps) => (
   <>
-    <NavigationButtonsWrapper>
-      <ButtonGroup>{buttons.map((button) => button)}</ButtonGroup>
-    </NavigationButtonsWrapper>
+    <Box display="flex" gap={1}>
+      {buttons.map((button) => button)}
+    </Box>
   </>
 );
 

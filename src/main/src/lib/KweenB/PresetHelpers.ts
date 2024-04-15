@@ -93,13 +93,15 @@ export const initPresetsFolder = () => {
     // check if the presets folder exists
     const folderExists = fs.existsSync(PRESETS_FOLDER_PATH);
 
+    // get the default presets path
+    const defaultPresetsPath = path.join(resourcesPath, "presets");
+
     // if the folder doesn't exist, create it
     if (!folderExists) {
       // create the presets folder
       fs.mkdirSync(PRESETS_FOLDER_PATH);
 
       // copy the default presets in resourcesPath to the presets folder
-      const defaultPresetsPath = path.join(resourcesPath, "presets");
       const defaultPresets = fs.readdirSync(defaultPresetsPath);
       defaultPresets.forEach((preset) => {
         const presetPath = path.join(defaultPresetsPath, preset);
@@ -109,6 +111,23 @@ export const initPresetsFolder = () => {
           path.join(PRESETS_FOLDER_PATH, presetFileName),
           presetContent
         );
+      });
+    } else {
+      // if folder exists, loop over the files in resourcesPath and copy them to the presets folder if they don't exist
+      const defaultPresets = fs.readdirSync(defaultPresetsPath);
+      defaultPresets.forEach((preset) => {
+        const presetPath = path.join(defaultPresetsPath, preset);
+        const presetFileName = path.basename(preset);
+        const presetExists = fs.existsSync(
+          path.join(PRESETS_FOLDER_PATH, presetFileName)
+        );
+        if (!presetExists) {
+          const presetContent = fs.readFileSync(presetPath, "utf8");
+          fs.writeFileSync(
+            path.join(PRESETS_FOLDER_PATH, presetFileName),
+            presetContent
+          );
+        }
       });
     }
   } catch (error) {
@@ -132,7 +151,7 @@ export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
     });
 
     // get the presets from YAML
-    return yamlFiles.map((fileName) => {
+    const audioPresets = yamlFiles.map((fileName) => {
       // parse the filepath
       const filePath = fs.readFileSync(
         path.join(PRESETS_FOLDER_PATH, fileName),
@@ -140,12 +159,54 @@ export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
       );
 
       // parse the yaml file
-      const audioPreset = YAML.parse(filePath);
+      const audioPreset = YAML.parse(filePath) as IAudioPreset;
       audioPreset.fileName = fileName;
+
+      // calculate the latency
+      const latencyBee = Utils.calculateLatency(
+        audioPreset.bee.jack.sampleRate,
+        audioPreset.bee.jack.bufferSize,
+        audioPreset.bee.jack.periods
+      );
+      const latencyKweenb = Utils.calculateLatency(
+        audioPreset.kweenb.jack.sampleRate,
+        audioPreset.kweenb.jack.bufferSize,
+        audioPreset.kweenb.jack.periods
+      );
+      audioPreset.latency = Utils.roundToDecimals(
+        latencyBee + latencyKweenb,
+        2
+      );
 
       // return the preset
       return audioPreset as IAudioPreset;
     });
+
+    // sort the presets by name
+    audioPresets.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+
+      const startsWithNumberA = !isNaN(Number(nameA[0]));
+      const startsWithNumberB = !isNaN(Number(nameB[0]));
+
+      if (startsWithNumberA && !startsWithNumberB) {
+        return 1;
+      } else if (!startsWithNumberA && startsWithNumberB) {
+        return -1;
+      } else if (startsWithNumberA && startsWithNumberB) {
+        const numberA = Number(nameA.match(/^\d+/)?.[0]);
+        const numberB = Number(nameB.match(/^\d+/)?.[0]);
+        if (numberA !== numberB) {
+          return numberA - numberB;
+        }
+      }
+
+      return nameA.localeCompare(nameB);
+    });
+
+    // return the presets
+    return audioPresets;
   } catch (error) {
     throw new Error("Error getting audio presets.");
   }

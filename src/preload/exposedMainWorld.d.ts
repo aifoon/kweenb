@@ -48,6 +48,7 @@ declare global {
          * KweenB
          */
 
+        calculateCurrentLatency(): Promise<number>;
         disconnectP2PAudioConnectionsKweenB(): Promise<void>;
         getKweenBVersion(): Promise<string>;
         killJackAndJacktripOnKweenB(): Promise<void>;
@@ -62,7 +63,7 @@ declare global {
 
         // CRUD
         fetchSettings(): Promise<ISettings>;
-        updateSetting(setting: ISetting);
+        updateSetting(setting: ISetting): Promise<void>;
 
         /**
          * Presets

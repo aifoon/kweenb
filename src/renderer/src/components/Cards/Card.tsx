@@ -2,9 +2,11 @@ import { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ButtonGroup } from "../Buttons";
 import { ButtonProps } from "../Buttons/Button";
+import { Typography } from "@mui/material";
 
 interface CardProps {
   title?: string;
+  headerSubtitle?: string;
   footerButtons?: ReactElement<ButtonProps>[];
   hideFooterButtons?: boolean;
   children?: React.ReactNode;
@@ -25,10 +27,13 @@ const CardInnerWrapper = styled.div`
 `;
 
 const CardHeaderWrapper = styled(CardInnerWrapper)`
+  display: flex;
+  justify-content: space-between;
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-100);
   border-radius: var(--radiusLarge) var(--radiusLarge) 0 0;
   font-size: var(--h5);
+  align-items: center;
   padding: var(--cardHeaderPaddingTop) var(--cardHeaderPaddingRight)
     var(--cardHeaderPaddingBottom) var(--cardHeaderPaddingLeft);
 `;
@@ -50,6 +55,7 @@ const CardIntroduction = styled.div`
 
 export const Card = ({
   title,
+  headerSubtitle = "",
   footerButtons,
   children,
   className = "",
@@ -65,7 +71,14 @@ export const Card = ({
 
   return (
     <CardWrapper className={`card ${className}`}>
-      {title && <CardHeaderWrapper>{title}</CardHeaderWrapper>}
+      {title && (
+        <CardHeaderWrapper>
+          <div>{title}</div>
+          {headerSubtitle && (
+            <Typography variant="small">{headerSubtitle}</Typography>
+          )}
+        </CardHeaderWrapper>
+      )}
       <CardInnerWrapper>
         {introduction && <CardIntroduction>{introduction}</CardIntroduction>}
         {children}

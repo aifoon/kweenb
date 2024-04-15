@@ -6,6 +6,8 @@ import { IBee } from "@shared/interfaces";
  */
 const jackJacktripKweenB = {
   // JACK/JACKTRIP
+  calculateCurrentLatency: () =>
+    ipcRenderer.invoke("kweenb:calculateCurrentLatency"),
   disconnectP2PAudioConnectionsKweenB: () =>
     ipcRenderer.invoke("kweenb:disconnectP2PAudioConnections"),
   getKweenBVersion: () => ipcRenderer.invoke("kweenb:getKweenBVersion"),

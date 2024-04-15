@@ -4,7 +4,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, ButtonSize, ButtonUse } from "@components/Buttons";
 import { Tooltip, Typography } from "@mui/material";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppContext, useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
 
@@ -13,6 +13,9 @@ export default function ConnectBeesMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const { appContext } = useAppContext();
+  const updateCurrentLatency = useAppStore(
+    (state) => state.updateCurrentLatency
+  );
 
   // handle click event
   const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -29,6 +32,9 @@ export default function ConnectBeesMenu() {
   const activatePresetAndStart = useCallback(async (fileName: string) => {
     // activate the preset
     await window.kweenb.methods.activatePreset(fileName);
+
+    // because we changed the preset, we need to update the latency
+    updateCurrentLatency();
 
     // hide the menu
     setAnchorEl(null);
@@ -82,7 +88,10 @@ export default function ConnectBeesMenu() {
         </MenuItem>
         <Divider />
         {currentPresets.map((preset) => (
-          <Tooltip title={preset.description} placement="left-start">
+          <Tooltip
+            title={`${preset.description}. Latency: ${preset.latency}ms.`}
+            placement="left-start"
+          >
             <MenuItem
               key={preset.name}
               onClick={() => activatePresetAndStart(preset.fileName)}

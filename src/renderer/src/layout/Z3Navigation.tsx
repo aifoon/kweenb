@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ButtonSize,
@@ -6,15 +6,29 @@ import {
   ButtonType,
 } from "@components/Buttons/Button";
 import { Navigation, NavigationButtons } from "@components/Navigation";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppContext, useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import ConnectBeesMenu from "@renderer/src/pages/Menu/ConnectBeesMenu";
+import { Box, Divider, Typography } from "@mui/material";
 
 export const Z3Navigation = () => {
   const { appContext } = useAppContext();
+  const currentLatency = useAppStore((state) => state.currentLatency);
+  const updateCurrentLatency = useAppStore(
+    (state) => state.updateCurrentLatency
+  );
 
+  /**
+   * Whenever we load the navigation, calculate the current latency
+   */
+  useEffect(() => {
+    updateCurrentLatency();
+  });
+
+  /**
+   * Init the buttons array (for Hub or P2P)
+   */
   let buttons = [];
-
   if (appContext.appMode === AppMode.Hub) {
     buttons = [
       <Button
@@ -53,7 +67,27 @@ export const Z3Navigation = () => {
 
   return (
     <Navigation fixedToTop height="var(--navigationHeight)">
-      <NavigationButtons buttons={buttons} />
+      <Box display="flex" alignItems="center" gap={1}>
+        {currentLatency !== 0 && (
+          <>
+            <Box
+              style={{
+                backgroundColor: "var(--primary-500)",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+                borderRadius: "var(--radiusMedium)",
+                marginRight: "10px",
+              }}
+            >
+              <Typography variant="small">
+                Current latency is {currentLatency}ms
+              </Typography>
+            </Box>
+            <Divider orientation="vertical" flexItem />
+          </>
+        )}
+        <NavigationButtons buttons={buttons} />
+      </Box>
     </Navigation>
   );
 };

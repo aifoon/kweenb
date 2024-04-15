@@ -154,7 +154,7 @@ export const ManageBees = () => {
                       key="beesClear"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() => moveBees([])}
                     >
                       Clear
@@ -163,7 +163,7 @@ export const ManageBees = () => {
                       key="bees14"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() => moveBees([1, 2, 3, 4])}
                     >
                       1-4
@@ -172,7 +172,7 @@ export const ManageBees = () => {
                       key="bees18"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() => moveBees([1, 2, 3, 4, 5, 6, 7, 8])}
                     >
                       1-8
@@ -181,7 +181,7 @@ export const ManageBees = () => {
                       key="bees112"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() =>
                         moveBees([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
                       }
@@ -192,7 +192,7 @@ export const ManageBees = () => {
                       key="bees116"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() =>
                         moveBees([
                           1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -205,7 +205,7 @@ export const ManageBees = () => {
                       key="beesAll"
                       size="small"
                       variant="contained"
-                      color="primary"
+                      color="secondary"
                       onClick={() =>
                         moveBees([
                           ...activeBees.map((bee) => bee.id),

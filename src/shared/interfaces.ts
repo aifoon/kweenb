@@ -158,6 +158,7 @@ export interface IAudioPreset {
   fileName: string;
   name: string;
   description: string;
+  latency: number;
   bee: {
     jack: IAudioSettingsJack;
     jacktrip: IAudioSettingsJackTrip;

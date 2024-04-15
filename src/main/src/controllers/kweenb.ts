@@ -8,6 +8,33 @@ import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "../kweenb";
+import SettingHelpers from "../lib/KweenB/SettingHelpers";
+import { Utils } from "@shared/utils";
+
+/**
+ * Calculate the current latency
+ */
+export const calculateCurrentLatency = async () => {
+  try {
+    const settings = await SettingHelpers.getAllSettings();
+    const latencyBee = Utils.calculateLatency(
+      settings.beeAudioSettings.jack.sampleRate,
+      settings.beeAudioSettings.jack.bufferSize,
+      settings.beeAudioSettings.jack.periods
+    );
+    const latencyKweenb = Utils.calculateLatency(
+      settings.kweenBAudioSettings.jack.sampleRate,
+      settings.kweenBAudioSettings.jack.bufferSize,
+      settings.kweenBAudioSettings.jack.periods
+    );
+    return Utils.roundToDecimals(latencyBee + latencyKweenb, 2);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "calculateCurrentLatency()", message: e.message },
+      true
+    );
+  }
+};
 
 /**
  * Disconnect all the P2P audio connections on kweenb

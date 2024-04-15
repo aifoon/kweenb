@@ -1,7 +1,7 @@
 import { linear } from "tween-functions";
 
 export class Easing {
-  private _currentInterval: NodeJS.Timer;
+  private _currentInterval: NodeJS.Timeout;
 
   private _intervalTime: number = 20;
 

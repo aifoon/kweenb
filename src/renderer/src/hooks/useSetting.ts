@@ -9,9 +9,12 @@ export function useSetting() {
   /**
    * Updating a setting
    */
-  const updateSetting = useCallback((setting: ISetting) => {
-    window.kweenb.methods.updateSetting(setting);
-  }, []);
+  const updateSetting = useCallback(
+    async (setting: ISetting): Promise<void> => {
+      await window.kweenb.methods.updateSetting(setting);
+    },
+    []
+  );
 
   /**
    * Sets the Jack folder path

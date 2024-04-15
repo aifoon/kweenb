@@ -86,6 +86,7 @@ export default createTheme({
           props: {
             variant: "contained",
             size: "small",
+            color: "primary",
           },
           style: {
             fontSize: "var(--smallText)",
@@ -96,7 +97,30 @@ export default createTheme({
             },
           },
         },
+        {
+          props: {
+            variant: "contained",
+            size: "small",
+            color: "secondary",
+          },
+          style: {
+            fontSize: "var(--smallText)",
+            padding: "var(--smallButtonPadding)",
+            lineHeight: "normal",
+            backgroundColor: "var(--primary-200)",
+            "&:hover": {
+              backgroundColor: "var(--primary-300)",
+            },
+          },
+        },
       ],
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "var(--primary-100)",
+        },
+      },
     },
     MuiDataGrid: {
       styleOverrides: {
@@ -231,11 +255,6 @@ export default createTheme({
             border: "1px solid var(--primary-100)",
           },
         },
-        // root: {
-        //   "&.Mui-focused.MuiOutlinedInput-notchedOutline": {
-        //     boroderColor: "var(--primary-100)",
-        //   },
-        // },
         icon: {
           color: "var(--primary-100)",
         },
