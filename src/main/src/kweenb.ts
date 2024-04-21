@@ -13,6 +13,7 @@ import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { BeeSshConnections } from "./lib/Dictionaries";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
+import { resourcesPath } from "@shared/resources";
 
 /**
  * A KweenB class
@@ -92,10 +93,8 @@ class KweenB {
    */
   private async initJackFolderPath() {
     const settings = await SettingHelpers.getAllSettings();
-    if (settings.kweenBSettings.jackFolderPath) {
-      Zwerm3Jack.default.jackFolderPath =
-        settings.kweenBSettings.jackFolderPath;
-    }
+    Zwerm3Jack.default.jackFolderPath =
+      settings.kweenBSettings.jackFolderPath || `${resourcesPath}/jack`;
   }
 
   /**

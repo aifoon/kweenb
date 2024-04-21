@@ -11,6 +11,7 @@ import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH } from "../consts";
+import { resourcesPath } from "@shared/resources";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -181,6 +182,13 @@ export default class MenuBuilder {
           click: () => {
             // Opens file dialog looking for the bees data
             shell.openPath(PRESETS_FOLDER_PATH);
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Open QjackCtl",
+          click: () => {
+            shell.openPath(`${resourcesPath}/jack/QjackCtl.app`);
           },
         },
       ],

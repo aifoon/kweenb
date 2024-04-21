@@ -10,6 +10,7 @@ import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
+import { resourcesPath } from "@shared/resources";
 
 /**
  * Calculate the current latency
@@ -118,7 +119,7 @@ export const setJackFolderPath = (
   jackFolderPath: string
 ) => {
   try {
-    if (jackFolderPath) kweenBHelpers.setJackFolderPath(jackFolderPath);
+    kweenBHelpers.setJackFolderPath(jackFolderPath || `${resourcesPath}/jack`);
   } catch (e: any) {
     KweenBGlobal.kweenb.throwError({
       where: "setJackFolderPath()",
