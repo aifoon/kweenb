@@ -46,3 +46,6 @@ installed
 
 # Do not add keys
 *.key
+
+# Do not add JackTrip
+resources/jacktrip/*

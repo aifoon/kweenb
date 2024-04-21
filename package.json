@@ -9,6 +9,7 @@
     "build:preload": "cd ./src/preload && vite build",
     "build:renderer": "cd ./src/renderer && vite build",
     "watch": "node scripts/watch.js",
+    "download-jacktrip": "node scripts/download_jacktrip.js",
     "prepare-publish": "node scripts/prepare_publish.js",
     "publish": "npm run prepare-publish && npm run compile && node scripts/publish.js",
     "publish:linux": "npm run prepare-publish  && npm run compile:linux && node scripts/publish.js",
