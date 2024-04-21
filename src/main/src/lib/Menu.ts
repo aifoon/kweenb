@@ -191,6 +191,12 @@ export default class MenuBuilder {
             shell.openPath(`${resourcesPath}/jack/QjackCtl.app`);
           },
         },
+        {
+          label: "Open JackTrip",
+          click: () => {
+            shell.openPath(`${resourcesPath}/jacktrip/JackTrip.app`);
+          },
+        },
       ],
     };
 

@@ -119,7 +119,7 @@ export const setJackFolderPath = (
   jackFolderPath: string
 ) => {
   try {
-    kweenBHelpers.setJackFolderPath(jackFolderPath || `${resourcesPath}/jack`);
+    if (jackFolderPath) kweenBHelpers.setJackFolderPath(jackFolderPath);
   } catch (e: any) {
     KweenBGlobal.kweenb.throwError({
       where: "setJackFolderPath()",
@@ -136,7 +136,10 @@ export const setJacktripBinPath = (
   jacktripBinPath: string
 ) => {
   try {
-    if (jacktripBinPath) kweenBHelpers.setJacktripBinPath(jacktripBinPath);
+    kweenBHelpers.setJacktripBinPath(
+      jacktripBinPath ||
+        `${resourcesPath}/jacktrip/JackTrip.app/Contents/MacOs/jacktrip`
+    );
   } catch (e: any) {
     KweenBGlobal.kweenb.throwError({
       where: "setJacktripBinPath()",
