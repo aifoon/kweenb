@@ -15,7 +15,7 @@ import {
 import { AppMode, BeeActiveState } from "@shared/enums";
 import { IBee } from "@shared/interfaces";
 import fs from "fs";
-import { DEBUG_JACK_JACKTRIP, DEBUG_KWEENB } from "../../consts";
+import { DEBUG_JACK_JACKTRIP, DEBUG_KWEENB, USER_DATA } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
@@ -24,6 +24,7 @@ import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { resourcesPath } from "@shared/resources";
 import { join } from "path";
+import { app } from "electron";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -68,8 +69,8 @@ const killJackAndJacktrip = async () => {
  */
 const isJackAndJacktripInstalled = () => {
   // define the path to the jack and jacktrip folder
-  const jacktripFolder = `${resourcesPath}/jacktrip`;
-  const jackFolder = `${resourcesPath}/jack`;
+  const jacktripFolder = `${USER_DATA}/jacktrip`;
+  const jackFolder = `${USER_DATA}/jack`;
 
   // jack
   const jackFolderExists = fs.existsSync(jackFolder);

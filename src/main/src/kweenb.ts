@@ -6,7 +6,7 @@
 
 import { AppMode } from "@shared/enums";
 import { IError } from "@shared/interfaces";
-import { BrowserWindow } from "electron";
+import { BrowserWindow, app } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { BeeSshConnections } from "./lib/Dictionaries";
@@ -14,10 +14,15 @@ import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
 import { resourcesPath } from "@shared/resources";
 import fs from "fs";
-import { JACKTRIP_DOWNLOAD_VERSION, JACK_DOWNLOAD_VERSION } from "./consts";
+import {
+  JACKTRIP_DOWNLOAD_VERSION,
+  JACK_DOWNLOAD_VERSION,
+  USER_DATA,
+} from "./consts";
 import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
 import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
+import { join } from "path";
 
 /**
  * A KweenB class
@@ -131,10 +136,8 @@ class KweenB {
    */
   private async initJackFolderPath() {
     const settings = await SettingHelpers.getAllSettings();
-    if (settings.kweenBSettings.jackFolderPath) {
-      Zwerm3Jack.default.jackFolderPath =
-        settings.kweenBSettings.jackFolderPath;
-    }
+    Zwerm3Jack.default.jacktripBinPath =
+      settings.kweenBSettings.jackFolderPath || `${USER_DATA}/jack/jackd`;
   }
 
   /**
@@ -142,9 +145,9 @@ class KweenB {
    */
   private async initJackAndJacktrip() {
     // check if we need to setup Jack or Jacktrip
-    const jacktripPath = `${resourcesPath}/jacktrip`;
+    const jacktripPath = `${USER_DATA}/jacktrip`;
     const jacktripAppPath = `${jacktripPath}/JackTrip.app`;
-    const jackPath = `${resourcesPath}/jack`;
+    const jackPath = `${USER_DATA}/jack`;
     const jackdPath = `${jackPath}/jackd`;
     const qjackCtlAppPath = `${jackPath}/QjackCtl.app`;
 
@@ -188,7 +191,7 @@ class KweenB {
     const settings = await SettingHelpers.getAllSettings();
     Zwerm3Jack.default.jacktripBinPath =
       settings.kweenBSettings.jacktripBinPath ||
-      `${resourcesPath}/jacktrip/JackTrip.app/Contents/MacOs/jacktrip`;
+      `${USER_DATA}/jacktrip/JackTrip.app/Contents/MacOs/jacktrip`;
   }
 
   /**

@@ -10,7 +10,7 @@ import {
 import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
-import { PRESETS_FOLDER_PATH } from "../consts";
+import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
 import { resourcesPath } from "@shared/resources";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -188,13 +188,13 @@ export default class MenuBuilder {
         {
           label: "Open QjackCtl",
           click: () => {
-            shell.openPath(`${resourcesPath}/jack/QjackCtl.app`);
+            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
           },
         },
         {
           label: "Open JackTrip",
           click: () => {
-            shell.openPath(`${resourcesPath}/jacktrip/JackTrip.app`);
+            shell.openPath(`${USER_DATA}/jacktrip/JackTrip.app`);
           },
         },
       ],

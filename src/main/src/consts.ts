@@ -44,11 +44,14 @@ export const DEFAULT_BEE_CONFIG = {
   device: "",
 };
 
-// the path to the presets folder
-export const PRESETS_FOLDER_PATH =
+// the user data path
+export const USER_DATA =
   process.env.NODE_ENV === "development"
-    ? `${resourcesPath}/presets`
-    : path.join(app.getPath("userData"), "presets");
+    ? `${resourcesPath}`
+    : path.join(app.getPath("userData"));
+
+// the path to the presets folder
+export const PRESETS_FOLDER_PATH = path.join(USER_DATA, "presets");
 
 // the default status of a bee
 export const DEFAULT_BEE_STATUS = {
