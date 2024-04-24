@@ -150,6 +150,9 @@ export abstract class Installer {
 
       // run the after install
       await this.afterInstall();
+
+      // write the version number in a file in the target path
+      fs.writeFileSync(this._targetPath + "/version.txt", this._version);
     }
   }
 
