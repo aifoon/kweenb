@@ -3,8 +3,13 @@ const fs = require("fs");
 const logger = require("./logger");
 const { spawnSync } = require("child_process");
 
-const owner = "jacktrip"; // Replace with the repository owner
-const repo = "jacktrip"; // Replace with the repository name
+/**
+ * Some constants
+ */
+
+const owner = "jacktrip";
+const repo = "jacktrip";
+const release = "2.2.5";
 
 /**
  * Download the release
@@ -13,7 +18,7 @@ const repo = "jacktrip"; // Replace with the repository name
  * @param {*} progress The callback to report the progress
  * @returns
  */
-const downloadRelase = (url, wStream, progress = () => {}) => {
+const downloadRelease = (url, wStream, progress = () => {}) => {
   return new Promise((resolve, reject) => {
     let protocol = /^https:/.exec(url) ? https : http;
 
@@ -51,7 +56,7 @@ const downloadRelase = (url, wStream, progress = () => {}) => {
 const getAsset = async (assets, desiredFileNameRegex) => {
   const options = {
     hostname: "api.github.com",
-    path: `/repos/${owner}/${repo}/releases/latest`,
+    path: `/repos/${owner}/${repo}/releases/tags/v${release}`,
     headers: {
       "User-Agent": "GitHub Copilot",
     },
@@ -116,7 +121,7 @@ const downloadLatestRelease = async () => {
     const file = fs.createWriteStream(targetFilePath);
 
     // download the asset
-    await downloadRelase(asset.browser_download_url, file);
+    await downloadRelease(asset.browser_download_url, file);
 
     // log
     logger.info(`Unpacking the packed file...`);

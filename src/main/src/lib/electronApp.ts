@@ -82,7 +82,7 @@ export default class ElectronApp {
     });
 
     // sets the mainWindow in a global state
-    KweenBGlobal.kweenb = new KweenB(browserWindow);
+    KweenBGlobal.kweenb.mainWindow = browserWindow;
 
     // when we are ready to go
     browserWindow.on("ready-to-show", () => {

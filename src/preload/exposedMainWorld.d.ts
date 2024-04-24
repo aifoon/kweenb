@@ -51,6 +51,7 @@ declare global {
         calculateCurrentLatency(): Promise<number>;
         disconnectP2PAudioConnectionsKweenB(): Promise<void>;
         getKweenBVersion(): Promise<string>;
+        isJackAndJacktripInstalled(): Promise<boolean>;
         killJackAndJacktripOnKweenB(): Promise<void>;
         startJackWithJacktripHubClientKweenB(): Promise<void>;
         startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
@@ -135,6 +136,13 @@ declare global {
         ): () => void;
         onInfo(
           callback: (event: IpcMessageEvent, message: string) => void
+        ): () => void;
+        onLoading(
+          callback: (
+            event: IpcMessageEvent,
+            loading: boolean,
+            text: string
+          ) => void
         ): () => void;
         onPozyxData(
           callback: (

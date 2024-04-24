@@ -19,7 +19,7 @@ const config = {
     {
       from: "resources",
       to: ".",
-      filter: "**/*",
+      filter: ["**/*", "!jack/**/*", "!jacktrip/**/*"],
     },
   ],
   mac: {

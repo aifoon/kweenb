@@ -6,7 +6,6 @@ import { ipcMain } from "electron";
 import { hello } from "./controllers/hello";
 import {
   fetchAllBees,
-  beesPoller,
   fetchBee,
   updateBee,
   createBee,
@@ -14,7 +13,6 @@ import {
   setBeeActive,
   fetchInActiveBees,
   fetchActiveBees,
-  beePoller,
   startJack,
   killJackAndJacktrip,
   killJack,
@@ -42,12 +40,9 @@ import {
   setJackFolderPath,
   setJacktripBinPath,
   calculateCurrentLatency,
+  isJackAndJacktripInstalled,
 } from "./controllers/kweenb";
-import { KweenBGlobal } from "./kweenb";
-import BeesPoller from "./lib/Interval/BeesPoller";
-import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import { fetchSettings, updateSetting } from "./controllers/setting";
-import BeePoller from "./lib/Interval/BeePoller";
 import {
   fetchTheKween,
   isZwerm3ApiRunningOnTheKween,
@@ -69,8 +64,6 @@ import { activatePreset, getAudioPresets } from "./controllers/presets";
 
 export const registerActions = () => {
   ipcMain.on("hello", hello);
-  ipcMain.on("bee:beesPoller", beesPoller);
-  ipcMain.on("bee:beePoller", beePoller);
   ipcMain.on("bee:setBeeActive", setBeeActive);
   ipcMain.on("bee:setBeePozyxTagId", setBeePozyxTagId);
   ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
@@ -140,6 +133,10 @@ export const registerMethods = () => {
 
   // JACK/JACKTRIP
   ipcMain.handle("kweenb:calculateCurrentLatency", calculateCurrentLatency);
+  ipcMain.handle(
+    "kweenb:isJackAndJacktripInstalled",
+    isJackAndJacktripInstalled
+  );
   ipcMain.handle("kweenb:killJackAndJacktrip", killJackAndJacktripOnKweenB);
   ipcMain.handle(
     "kweenb:startJackWithJacktripHubClient",
@@ -199,11 +196,4 @@ export const registerMethods = () => {
     "positioning:getTargetsAndOptionsForAlgorithm",
     getTargetsAndOptionsForAlgorithm
   );
-};
-
-export const registerIntervalWorkers = () => {
-  const intervalWorkerList = new IntervalWorkerList();
-  intervalWorkerList.addProcess("bee:beesPoller", new BeesPoller());
-  intervalWorkerList.addProcess("bee:beePoller", new BeePoller());
-  KweenBGlobal.intervalWorkerList = intervalWorkerList;
 };

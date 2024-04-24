@@ -1,6 +1,10 @@
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
+
+interface ILoaderProps {
+  text: string;
+}
 
 const LoaderWrapper = styled.div`
   display: flex;
@@ -15,8 +19,17 @@ const LoaderWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
-export const Loader = () => (
+export const Loader = ({ text = "" }: ILoaderProps) => (
   <LoaderWrapper>
-    <CircularProgress />
+    <Box
+      display={"flex"}
+      justifyItems={"center"}
+      flexDirection={"column"}
+      alignItems={"center"}
+      gap={4}
+    >
+      <CircularProgress />
+      {text && <Typography>{text}</Typography>}
+    </Box>
   </LoaderWrapper>
 );

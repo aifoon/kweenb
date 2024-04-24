@@ -11,6 +11,8 @@ const jackJacktripKweenB = {
   disconnectP2PAudioConnectionsKweenB: () =>
     ipcRenderer.invoke("kweenb:disconnectP2PAudioConnections"),
   getKweenBVersion: () => ipcRenderer.invoke("kweenb:getKweenBVersion"),
+  isJackAndJacktripInstalled: () =>
+    ipcRenderer.invoke("kweenb:isJackAndJacktripInstalled"),
   killJackAndJacktripOnKweenB: () =>
     ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
   startJackWithJacktripHubClientKweenB: () =>

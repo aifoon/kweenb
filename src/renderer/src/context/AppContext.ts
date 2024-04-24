@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import { AppMode } from "@shared/enums";
 import { ToastMessage } from "../interfaces";
+import { LoadingState } from "@shared/interfaces";
 
 /**
  * NOTE: not everything is converted to Zustand, this is a work in progress
@@ -8,7 +9,7 @@ import { ToastMessage } from "../interfaces";
  */
 
 export interface AppContextValue {
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoading: React.Dispatch<React.SetStateAction<LoadingState>>;
   setOpenBuildSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenCleanSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenConnectBeesModal: React.Dispatch<React.SetStateAction<boolean>>;

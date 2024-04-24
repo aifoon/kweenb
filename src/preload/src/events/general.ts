@@ -26,6 +26,9 @@ export default {
   onInfo: (callback: any) => {
     ipcRenderer.on("info", callback);
   },
+  onLoading: (callback: any) => {
+    ipcRenderer.on("loading", callback);
+  },
   onPozyxData: (callback: any) => {
     const channel = "pozyx-data";
     ipcRenderer.on(channel, callback);

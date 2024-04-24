@@ -67,6 +67,20 @@ export const getKweenBVersion = () => {
 };
 
 /**
+ * Is Jack and Jacktrip installed on the system
+ */
+export const isJackAndJacktripInstalled = (): boolean => {
+  try {
+    return kweenBHelpers.isJackAndJacktripInstalled();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "isJackAndJacktripInstalled()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Kill all jack and jacktrip processes
  */
 export const killJackAndJacktrip = async () => {

@@ -22,6 +22,8 @@ import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
+import { resourcesPath } from "@shared/resources";
+import { join } from "path";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -59,6 +61,35 @@ const closeApplication = async (appMode: AppMode) => {
  */
 const killJackAndJacktrip = async () => {
   await killAllProcesses();
+};
+
+/**
+ * Check if Jack and Jacktrip is installed on the system
+ */
+const isJackAndJacktripInstalled = () => {
+  // define the path to the jack and jacktrip folder
+  const jacktripFolder = `${resourcesPath}/jacktrip`;
+  const jackFolder = `${resourcesPath}/jack`;
+
+  // jack
+  const jackFolderExists = fs.existsSync(jackFolder);
+  const jackBinExists = fs.existsSync(join(jackFolder, "jackd"));
+  const QjackCtlExists = fs.existsSync(join(jackFolder, "QjackCtl.app"));
+
+  // jacktrip
+  const jacktripFolderExists = fs.existsSync(jacktripFolder);
+  const jacktripBinExists = fs.existsSync(
+    join(jacktripFolder, "JackTrip.app", "Contents", "MacOs", "jacktrip")
+  );
+
+  // do the validation
+  return (
+    jackFolderExists &&
+    jackBinExists &&
+    QjackCtlExists &&
+    jacktripFolderExists &&
+    jacktripBinExists
+  );
 };
 
 /**
@@ -260,6 +291,7 @@ const setJacktripBinPath = (jacktripBinPath: string) => {
 export default {
   closeApplication,
   disconnectAllP2PAudioConnections,
+  isJackAndJacktripInstalled,
   killJackAndJacktrip,
   makeP2PAudioConnection,
   makeP2PAudioConnections,

@@ -8,17 +8,17 @@
  */
 
 import path from "path";
-import { app, session } from "electron";
+import { app } from "electron";
 import { ElectronApp } from "./lib";
 import { registerActions, registerMethods } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
-import { KweenBGlobal } from "./kweenb";
+import { KweenB, KweenBGlobal } from "./kweenb";
 
 /**
  * Get the resources path
  */
-const resourcePath = app.isPackaged
+const buildResourcePath = app.isPackaged
   ? path.join(__dirname, "..", "..", "..")
   : path.join(__dirname, "..", "..", "..", "buildResources");
 
@@ -33,6 +33,12 @@ app.on("window-all-closed", async () => {
   }
 });
 
+const sendLoadingToRenderer = (
+  mainWindow: any,
+  loading: boolean,
+  text: string
+) => {};
+
 /**
  * A function that will initialise our application
  */
@@ -44,32 +50,48 @@ const initApp = async () => {
     // check if the first start script ran before going further
     await firstBoot();
 
+    // create new KweenB instance
+    KweenBGlobal.kweenb = new KweenB();
+
+    // init before window
+    await KweenBGlobal.kweenb.initBeforeWindow();
+
     // create a new electron app
     const electronApp = new ElectronApp({
       browserWidth: 1024, // sets the browser width
       browserHeight: 728, // sets the browser height
-      iconPath: path.join(resourcePath, "icon.icns"), // sets the app icon
+      iconPath: path.join(buildResourcePath, "icon.icns"), // sets the app icon
       installExtensions: false, // shall we install react dev tools?
     });
 
     // create hte window
     const mainWindow = await electronApp.createWindow();
 
-    // register actions to execute
-    // (one way direction, from renderer to main)
-    registerActions();
+    // when we have a main window and its web contents
+    if (mainWindow && mainWindow.webContents) {
+      // when the dom is ready
+      mainWindow.webContents.on("dom-ready", async () => {
+        // send a loading message to the renderer
+        KweenBGlobal.kweenb.setLoader(true);
 
-    // register the methods to handle
-    // (two way direction, from renderer to main and back)
-    registerMethods();
+        // register actions to execute
+        // (one way direction, from renderer to main)
+        registerActions();
 
-    // create interval workers
-    // these will do the dirty work, polling, etc.
-    // registerIntervalWorkers();
+        // register the methods to handle
+        // (two way direction, from renderer to main and back)
+        registerMethods();
 
-    // init the kweenb internal logic
-    // this will pass settings to external libs, initialize dictionaries and workers etc.
-    await KweenBGlobal.kweenb.init();
+        // init the kweenb internal logic
+        // this will pass settings to external libs, initialize dictionaries and workers etc.
+        await KweenBGlobal.kweenb.init((message) => {
+          KweenBGlobal.kweenb.setLoader(true, message);
+        });
+
+        // stop loading
+        KweenBGlobal.kweenb.setLoader(false);
+      });
+    }
 
     // on activation
     app.on("activate", () => {

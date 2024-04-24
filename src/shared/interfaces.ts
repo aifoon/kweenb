@@ -7,6 +7,11 @@ export interface IError {
   where: string;
 }
 
+export interface LoadingState {
+  loading: boolean;
+  text: string;
+}
+
 /**
  * For The Kween
  */

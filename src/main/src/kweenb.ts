@@ -8,12 +8,16 @@ import { AppMode } from "@shared/enums";
 import { IError } from "@shared/interfaces";
 import { BrowserWindow } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
-import IntervalWorkerList from "./lib/Interval/IntervalWorkerList";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import { BeeSshConnections } from "./lib/Dictionaries";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
 import { resourcesPath } from "@shared/resources";
+import fs from "fs";
+import { JACKTRIP_DOWNLOAD_VERSION, JACK_DOWNLOAD_VERSION } from "./consts";
+import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
+import { exec } from "child_process";
+import { JackInstaller } from "./lib/Installers/JackInstaller";
 
 /**
  * A KweenB class
@@ -27,8 +31,7 @@ class KweenB {
 
   private _beeSshConnections: BeeSshConnections;
 
-  constructor(mainWindow: BrowserWindow) {
-    this._mainWindow = mainWindow;
+  constructor() {
     this._appMode = AppMode.P2P;
   }
 
@@ -60,17 +63,40 @@ class KweenB {
     return this._beeSshConnections;
   }
 
+  public set mainWindow(mainWindow: BrowserWindow) {
+    this._mainWindow = mainWindow;
+  }
+
+  /**
+   * Check if we have internet
+   * @returns boolean if we have internet
+   */
+  private async hasInternet(): Promise<boolean> {
+    return new Promise((resolve) => {
+      try {
+        exec(
+          `${resourcesPath}/scripts/is_online_web.sh`,
+          (error, onlineStatus, stderr) => {
+            resolve(onlineStatus.toString().trim() == "true");
+          }
+        );
+      } catch (e) {
+        resolve(false);
+      }
+    });
+  }
+
   /**
    * Init KweenB functions
    */
 
   /**
-   * This is an initializer, to init settinges, etc. on boot
+   * This is an initializer, to init settinges, etc. on boot, before window is created
    * initJackFolderPath: inits the jackfolder whenever we find one in the database
    * initJacktripBinPath: inits the jacktrip binary whenever we find one in the database
    * initBeeStatesWorker: inits the bee states worker
    */
-  public async init() {
+  public async initBeforeWindow() {
     // init the jack folder path
     await this.initJackFolderPath();
 
@@ -80,12 +106,24 @@ class KweenB {
     // init the presets folder path (copy resources to presets folder)
     initPresetsFolder();
 
+    // init the bee ssh connections
+    this._beeSshConnections = new BeeSshConnections();
+  }
+
+  /**
+   * This is an initializer that wil happen after the window is created
+   * @param callback A callback function to send messages to the renderer
+   */
+  public async init(callback: (message: string) => void) {
     // init the bee states worker
     this._beeStatesWorker = new BeeStatesWorker();
     await this._beeStatesWorker.init();
 
-    // init the bee ssh connections
-    this._beeSshConnections = new BeeSshConnections();
+    // send a message to the renderer
+    callback("Downloading and installing Jack and JackTrip...");
+
+    // init the jacktrip
+    await this.initJackAndJacktrip();
   }
 
   /**
@@ -96,6 +134,50 @@ class KweenB {
     if (settings.kweenBSettings.jackFolderPath) {
       Zwerm3Jack.default.jackFolderPath =
         settings.kweenBSettings.jackFolderPath;
+    }
+  }
+
+  /**
+   * Setup Jack and Jacktrip
+   */
+  private async initJackAndJacktrip() {
+    // check if we need to setup Jack or Jacktrip
+    const jacktripPath = `${resourcesPath}/jacktrip`;
+    const jacktripAppPath = `${jacktripPath}/JackTrip.app`;
+    const jackPath = `${resourcesPath}/jack`;
+    const jackdPath = `${jackPath}/jackd`;
+    const qjackCtlAppPath = `${jackPath}/QjackCtl.app`;
+
+    if (
+      !fs.existsSync(jacktripPath) ||
+      !fs.existsSync(jacktripAppPath) ||
+      !fs.existsSync(jackPath) ||
+      !fs.existsSync(jackdPath) ||
+      !fs.existsSync(qjackCtlAppPath)
+    ) {
+      // check if we have internet
+      if (!(await this.hasInternet())) {
+        this.showInfo(
+          "No internet connection, please connect to the internet and restart kweenb to install Jack and JackTrip."
+        );
+      } else {
+        // download JackTrip if not already present
+        if (!fs.existsSync(jacktripAppPath)) {
+          await new JacktripInstaller(
+            JACKTRIP_DOWNLOAD_VERSION,
+            jacktripPath
+          ).install();
+        }
+
+        // download Jack if not already present
+        if (
+          !fs.existsSync(jackPath) ||
+          !fs.existsSync(jackdPath) ||
+          !fs.existsSync(qjackCtlAppPath)
+        ) {
+          await new JackInstaller(JACK_DOWNLOAD_VERSION, jackPath).install();
+        }
+      }
     }
   }
 
@@ -124,12 +206,14 @@ class KweenB {
   public showSuccess(message: string) {
     this._mainWindow.webContents.send("success", message);
   }
+
+  public setLoader(loading: boolean, text: string = "") {
+    this._mainWindow.webContents.send("loading", loading, text);
+  }
 }
 
 class KweenBGlobal {
   public static kweenb: KweenB;
-
-  public static intervalWorkerList: IntervalWorkerList;
 }
 
 export { KweenB, KweenBGlobal };

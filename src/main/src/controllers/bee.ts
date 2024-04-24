@@ -13,56 +13,6 @@ import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
 
 /**
- * Managing the beepoller, start and stopping the interval
- * @param event The invoke event
- * @param action start or stop the poller
- */
-export const beesPoller = (
-  event: Electron.IpcMainInvokeEvent,
-  action: "start" | "stop" | "pause"
-): void => {
-  switch (action) {
-    case "start":
-      KweenBGlobal.intervalWorkerList.startProcess("bee:beesPoller");
-      break;
-    case "stop":
-      KweenBGlobal.intervalWorkerList.stopProcess("bee:beesPoller");
-      break;
-    case "pause":
-      KweenBGlobal.intervalWorkerList.pauseProcess("bee:beesPoller");
-      break;
-    default:
-      break;
-  }
-};
-
-/**
- * Managing the beepoller, start and stopping the interval
- * @param event The invoke event
- * @param action The action we need to do, starting, stopping or pausing
- * @param params The params given (in this case [1], first item of tuple is the bee id)
- */
-export const beePoller = (
-  event: Electron.IpcMainInvokeEvent,
-  action: "start" | "stop" | "pause",
-  params: any[] = []
-) => {
-  switch (action) {
-    case "start":
-      KweenBGlobal.intervalWorkerList.startProcess("bee:beePoller", params);
-      break;
-    case "stop":
-      KweenBGlobal.intervalWorkerList.stopProcess("bee:beePoller");
-      break;
-    case "pause":
-      KweenBGlobal.intervalWorkerList.pauseProcess("bee:beePoller");
-      break;
-    default:
-      break;
-  }
-};
-
-/**
  * Create a new bee
  * @param event The invoke event
  * @param bee

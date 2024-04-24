@@ -16,13 +16,17 @@ import {
   DisconnectBeesModal,
 } from "../pages/Modals";
 import { AboutKweenBModal } from "../pages/Modals/AboutKweenBModal";
+import { LoadingState } from "@shared/interfaces";
 
 interface AppContextProviderProps {
   children: React.ReactNode;
 }
 
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<LoadingState>({
+    loading: false,
+    text: "",
+  });
   const [openBuildSwarmModal, setOpenBuildSwarmModal] =
     useState<boolean>(false);
   const [openCleanSwarmModal, setOpenCleanSwarmModal] =
@@ -68,7 +72,6 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
 
     // Handle an error
     window.kweenb.events.onError((event, error) => {
-      console.log(error.message);
       showToast({
         message: error.message,
         severity: "error",
@@ -92,7 +95,14 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     });
 
     // Handle the closing request
-    window.kweenb.events.onClosing(() => setLoading(true));
+    window.kweenb.events.onClosing(() =>
+      setLoading({ loading: true, text: "Closing application..." })
+    );
+
+    // Handle the loading event
+    window.kweenb.events.onLoading((event, loading, text) => {
+      setLoading({ loading, text });
+    });
 
     // Handle a change in the app mode
     window.kweenb.events.onAppMode((event, _appMode) => {
@@ -117,7 +127,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   return (
     <AppContext.Provider value={appContextValue}>
       {/* The General Loader for the whole app */}
-      {loading && <Loader />}
+      {loading.loading && <Loader text={loading.text} />}
 
       {/* The About KweenB Modal */}
       <AboutKweenBModal

@@ -89,6 +89,7 @@ export default function ConnectBeesMenu() {
         <Divider />
         {currentPresets.map((preset) => (
           <Tooltip
+            key={`tooltip_${preset.name}`}
             title={`${preset.description}. Latency: ${preset.latency}ms.`}
             placement="left-start"
           >

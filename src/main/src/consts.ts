@@ -63,6 +63,12 @@ export const PING_CONFIG: PingConfig = {
 // the starting port of jacktrip
 export const START_PORT_JACKTRIP = 4464;
 
+// the jacktrip download version
+export const JACKTRIP_DOWNLOAD_VERSION = "2.2.5";
+
+// the jack download version
+export const JACK_DOWNLOAD_VERSION = "1.9.22";
+
 /**
  * Positioning
  */
