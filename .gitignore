@@ -49,3 +49,6 @@ installed
 
 # Do not add JackTrip
 resources/jacktrip/*
+
+# Do not add Jack
+resources/jack/*
