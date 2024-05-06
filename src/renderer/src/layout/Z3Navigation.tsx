@@ -80,14 +80,7 @@ export const Z3Navigation = () => {
                 marginRight: "10px",
               }}
             >
-              <Typography
-                variant="small"
-                color={
-                  Utils.hasDecimals(currentLatency)
-                    ? "var(--red-status)"
-                    : "var(--text-color"
-                }
-              >
+              <Typography variant="small" color="var(--grey-500)">
                 Current latency is {currentLatency}ms
               </Typography>
             </Box>

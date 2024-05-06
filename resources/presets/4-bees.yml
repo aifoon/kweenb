@@ -6,7 +6,7 @@ bee:
     device: hw:sndrpihifiberry
     inputChannels: -1
     outputChannels: -1
-    sampleRate: 48000
+    sampleRate: 44100
     bufferSize: 256
     periods: 24
   jacktrip:
@@ -23,7 +23,7 @@ kweenb:
     device:
     inputChannels: -1
     outputChannels: -1
-    sampleRate: 48000
+    sampleRate: 44100
     bufferSize: 128
     periods: 24
   jacktrip:
@@ -31,4 +31,4 @@ kweenb:
     channels: 1
     bitRate: 16
     queueBufferLength: 32
-    redundancy: 5
+    redundancy: 4
