@@ -9,7 +9,7 @@ export interface IError {
 
 export interface LoadingState {
   loading: boolean;
-  text: string;
+  text?: string;
 }
 
 /**

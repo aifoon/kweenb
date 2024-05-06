@@ -8,7 +8,7 @@ export const StartHubServerOnTheKween = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       await window.kweenb.methods.theKween.startHubServerOnTheKween();
       setOutput("Started Hub server on The Kween");
@@ -17,7 +17,7 @@ export const StartHubServerOnTheKween = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

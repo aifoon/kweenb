@@ -8,7 +8,7 @@ export const KillAllTheKweenProcesses = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
       setOutput("Killed Jack & Jacktrip processes on The Kween");
@@ -17,7 +17,7 @@ export const KillAllTheKweenProcesses = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

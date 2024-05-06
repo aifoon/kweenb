@@ -8,9 +8,9 @@ export const ActiveBeesOnline = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     const activeBees = await window.kweenb.methods.fetchActiveBees();
-    appContext.setLoading(false);
+    appContext.setLoading({ loading: false });
 
     // if no active bees
     if (!activeBees || activeBees.length === 0) {

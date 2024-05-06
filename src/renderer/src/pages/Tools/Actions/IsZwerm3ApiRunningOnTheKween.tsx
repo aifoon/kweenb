@@ -8,7 +8,7 @@ export const IsZwerm3ApiRunningOnTheKween = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       const isZwerm3ApiRunningOnTheKween =
         await window.kweenb.methods.theKween.isZwerm3ApiRunningOnTheKween();
@@ -26,7 +26,7 @@ export const IsZwerm3ApiRunningOnTheKween = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

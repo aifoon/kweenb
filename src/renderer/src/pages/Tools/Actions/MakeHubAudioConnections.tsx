@@ -8,7 +8,7 @@ export const MakeHubAudioConnections = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       await window.kweenb.methods.theKween.makeHubAudioConnections();
       setOutput(`Audio connections were created`);
@@ -17,7 +17,7 @@ export const MakeHubAudioConnections = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

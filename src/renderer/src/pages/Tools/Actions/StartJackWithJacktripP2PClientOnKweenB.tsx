@@ -8,7 +8,7 @@ export const StartJackWithJacktripP2PClientOnKweenB = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       const getActiveBees = await window.kweenb.methods.fetchActiveBees();
       const startJackWithJacktripP2PClientPromises = getActiveBees.map((bee) =>
@@ -21,7 +21,7 @@ export const StartJackWithJacktripP2PClientOnKweenB = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

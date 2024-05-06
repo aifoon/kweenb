@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 interface ILoaderProps {
-  text: string;
+  text?: string;
 }
 
 const LoaderWrapper = styled.div`

@@ -8,7 +8,7 @@ export const IsZwerm3ApiRunningOnBees = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       const activeBees = await window.kweenb.methods.fetchActiveBees();
 
@@ -51,7 +51,7 @@ export const IsZwerm3ApiRunningOnBees = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

@@ -8,7 +8,7 @@ export const DisconnectP2PAudioConnectionsOnKweenB = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       await window.kweenb.methods.disconnectP2PAudioConnectionsKweenB();
       setOutput(`Audio connections were disconnected`);
@@ -17,7 +17,7 @@ export const DisconnectP2PAudioConnectionsOnKweenB = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

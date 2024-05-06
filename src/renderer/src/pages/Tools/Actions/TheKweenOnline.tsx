@@ -8,7 +8,7 @@ export const TheKweenOnline = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       const theKween = await window.kweenb.methods.theKween.fetchTheKween();
       setOutput(
@@ -23,7 +23,7 @@ export const TheKweenOnline = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 

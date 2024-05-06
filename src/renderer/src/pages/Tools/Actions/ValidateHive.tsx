@@ -8,7 +8,7 @@ export const ValidateHive = () => {
   const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading(true);
+    appContext.setLoading({ loading: true });
     try {
       const isValid = await window.kweenb.methods.theKween.validateHive();
       setOutput(`The hive is ${isValid ? "valid" : "invalid"}`);
@@ -17,7 +17,7 @@ export const ValidateHive = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading(false);
+      appContext.setLoading({ loading: false });
     }
   }, []);
 
