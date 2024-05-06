@@ -12,8 +12,9 @@ type BeeStoreState = {
 type BeeStoreAction = {
   createBee(bee: IBee): void;
   deleteBee(id: number): void;
-  setActive(id: number): void;
-  setInActive(id: number): void;
+  initializeBees(): Promise<void>;
+  setActive(id: number): Promise<void>;
+  setInActive(id: number): Promise<void>;
   startPolling: () => void;
   stopPolling: () => void;
 };
@@ -22,20 +23,6 @@ export const useBeeStore = create<BeeStoreState & BeeStoreAction>((set) => {
   let beesPoller: number;
   return {
     activeBees: [],
-    deleteBee: async (id) => {
-      // delete bee
-      await window.kweenb.methods.deleteBee(id);
-
-      // update the store
-      set((state) => {
-        return {
-          ...state,
-          bees: state.bees.filter((bee) => bee.id !== id),
-          activeBees: state.activeBees.filter((bee) => bee.id !== id),
-          inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
-        };
-      });
-    },
     bees: [],
     createBee: async (bee) => {
       // create bee
@@ -52,7 +39,38 @@ export const useBeeStore = create<BeeStoreState & BeeStoreAction>((set) => {
         };
       });
     },
+    deleteBee: async (id) => {
+      // delete bee
+      await window.kweenb.methods.deleteBee(id);
+
+      // update the store
+      set((state) => {
+        return {
+          ...state,
+          bees: state.bees.filter((bee) => bee.id !== id),
+          activeBees: state.activeBees.filter((bee) => bee.id !== id),
+          inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
+        };
+      });
+    },
     inActiveBees: [],
+    initializeBees: async () => {
+      // initialize the bees
+      set({ initializing: true });
+
+      // a function that fetches all bees and updates the store
+      const updateBeesState = async () => {
+        const allBees = await window.kweenb.methods.fetchAllBees();
+        set({
+          bees: allBees,
+          activeBees: allBees.filter((bee) => bee.isActive),
+          inActiveBees: allBees.filter((bee) => !bee.isActive),
+        });
+      };
+
+      // init the first fetch immediately
+      updateBeesState().then(() => set({ initializing: false }));
+    },
     initializing: true,
     setActive: async (id) => {
       // set bee active
@@ -111,11 +129,14 @@ export const useBeeStore = create<BeeStoreState & BeeStoreAction>((set) => {
         });
       };
 
-      // init the first fetch immediately
-      updateBeesState().then(() => set({ initializing: false }));
-
-      // start the polling
-      beesPoller = window.setInterval(updateBeesState, pollingInterval);
+      // initialize the bees
+      useBeeStore
+        .getState()
+        .initializeBees()
+        .then(() => {
+          // start the polling
+          beesPoller = window.setInterval(updateBeesState, pollingInterval);
+        });
     },
     stopPolling: () => {
       clearInterval(beesPoller);

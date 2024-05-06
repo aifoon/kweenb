@@ -3,7 +3,6 @@ import { useAppContext } from "./useAppContext";
 import { useAppStore } from "./useAppStore";
 import { useBee } from "./useBee";
 import { useBeeConfig } from "./useBeeConfig";
-import { useBees } from "./useBees";
 import { useBeeStore } from "./useBeeStore";
 import { useSetting } from "./useSetting";
 import { useSettings } from "./useSettings";
@@ -20,7 +19,6 @@ export {
   useAppStore,
   useBee,
   useBeeConfig,
-  useBees,
   useBeeStore,
   useConfirmation,
   useInterval,

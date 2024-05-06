@@ -1,4 +1,4 @@
-import { useBees, usePositioningTargetSelector } from "@renderer/src/hooks";
+import { useBeeStore, usePositioningTargetSelector } from "@renderer/src/hooks";
 import React, { useState, useEffect, useMemo } from "react";
 import { PositioningTargetTypeSelector } from "@components/Positioning/PositioningTargetSelector";
 import {
@@ -15,7 +15,8 @@ import {
 } from "@components/Buttons/ToggleButtonMatrix";
 
 export const VolumeControl = () => {
-  const { activeBees, loading } = useBees();
+  const activeBees = useBeeStore((state) => state.activeBees);
+  const initializing = useBeeStore((state) => state.initializing);
   const [tags, setTags] = useState<string[]>([]);
   const {
     handleOnPositioningTargetTypeChange,
@@ -59,7 +60,7 @@ export const VolumeControl = () => {
     });
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (initializing) return <div>Loading...</div>;
 
   if (activeBees.length === 0)
     return <div>There are no active bees available.</div>;

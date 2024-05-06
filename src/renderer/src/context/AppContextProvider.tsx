@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppMode } from "@shared/enums";
 import { AppContext } from "./AppContext";
 import { ToastMessage } from "../interfaces";
-import { useShowState, useBeeStore, useBee, useBees } from "../hooks";
+import { useShowState } from "../hooks";
 import {
   BuildHiveModal,
   CleanHiveModal,

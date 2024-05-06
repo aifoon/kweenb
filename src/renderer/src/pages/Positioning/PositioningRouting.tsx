@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useBees } from "@renderer/src/hooks";
+import { useBeeStore } from "@renderer/src/hooks";
 import Yup from "@renderer/src/yup-ext";
 import { IBee } from "@shared/interfaces";
 import { Form, Formik } from "formik";
@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 
 export const PositioningRouting = () => {
   const [tags, setTags] = useState<string[]>([]);
-  const { activeBees } = useBees();
+  const activeBees = useBeeStore((state) => state.activeBees);
 
   useEffect(() => {
     window.kweenb.methods.positioning.getAllTagIds().then((allTags) => {
