@@ -1,5 +1,4 @@
 import { IError, IPositioningSettings, IPozyxData } from "@shared/interfaces";
-import Setting from "../../models/Setting";
 import { POSITIONING_INTERVAL_MS } from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import { MQTT } from "../Mqtt";

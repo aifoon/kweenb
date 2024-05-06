@@ -8,7 +8,6 @@ import { AppMode } from "@shared/enums";
 import { useAppContext } from "./useAppContext";
 import { useIntervalAsync } from "./useIntervalAsync";
 import { pollingInterval } from "../consts";
-import { LoadingState } from "@shared/interfaces";
 
 export function useBee(id: number) {
   const [loading, setLoading] = useState<boolean>(true);

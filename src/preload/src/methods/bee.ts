@@ -19,8 +19,7 @@ const crudBee = {
     ipcRenderer.invoke("bee:fetchActiveBees"),
   fetchActiveBeesData: (): Promise<IBee[]> =>
     ipcRenderer.invoke("bee:fetchActiveBeesData"),
-  fetchAllBees: (pollForOnline: boolean = true): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchAllBees", pollForOnline),
+  fetchAllBees: (): Promise<IBee[]> => ipcRenderer.invoke("bee:fetchAllBees"),
   fetchAllBeesData: (): Promise<IBee[]> =>
     ipcRenderer.invoke("bee:fetchAllBeesData"),
   fetchInActiveBees: (): Promise<IBee[]> =>

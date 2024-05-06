@@ -11,10 +11,14 @@ import {
 import ViewListIcon from "@mui/icons-material/ViewList";
 import DnsIcon from "@mui/icons-material/Dns";
 import { useNavigate } from "react-router-dom";
-import { useBees, useShowState, useConfirmation } from "@renderer/src/hooks";
+import {
+  useShowState,
+  useConfirmation,
+  useBeeStore,
+} from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
-import { ChannelType, IBeeInput } from "@shared/interfaces";
+import { ChannelType, IBee, IBeeInput } from "@shared/interfaces";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
   InActiveBee,
@@ -28,6 +32,9 @@ import { BeeCardWithPolling } from "./BeeCardWithPolling";
 import { useAppStore } from "@renderer/src/hooks/useAppStore";
 
 export const ManageBees = () => {
+  const navigate = useNavigate();
+
+  // Control the confirmation modal
   const { open, handleOpen, handleClose } = useShowState(false);
   const {
     open: openConfirmModal,
@@ -35,28 +42,31 @@ export const ManageBees = () => {
     handleOpen: handleOpenConfirmModal,
     handleClose: handleCloseConfirmModal,
   } = useConfirmation<{ id: number }>(false, { id: 0 });
-  const {
-    loading,
-    activeBees,
-    inActiveBees,
-    deleteBee,
-    createBee,
-    setBeeActive,
-  } = useBees();
-  const navigate = useNavigate();
+
+  // The bees store is used to get the bees and manage them
+  const initializing = useBeeStore((state) => state.initializing);
+  const activeBees = useBeeStore((state) => state.activeBees);
+  const createBee = useBeeStore((state) => state.createBee);
+  const deleteBee = useBeeStore((state) => state.deleteBee);
+  const inActiveBees = useBeeStore((state) => state.inActiveBees);
+  const setActive = useBeeStore((state) => state.setActive);
+  const setInActive = useBeeStore((state) => state.setInActive);
+
+  // Control the appearance of the manage bees section
   const manageBeesCollapsed = useAppStore((state) => state.manageBeesCollapsed);
   const setManageBeesCollapsed = useAppStore(
     (state) => state.setManageBeesCollapsed
   );
 
-  if (loading) return <Loader />;
+  // When the bees are initializing, show a loader
+  if (initializing) return <Loader />;
 
   /**
    * When a bee is submitted, create the bee and close the modal
    * @param beeInput
    */
   const onBeeSubmitted = async (beeInput: IBeeInput) => {
-    await createBee(beeInput);
+    await createBee(beeInput as IBee);
     handleClose();
   };
 
@@ -65,7 +75,7 @@ export const ManageBees = () => {
    * @param number
    */
   const onInActiveBeeDropped = async (number: number) => {
-    await setBeeActive(number, true);
+    await setActive(number);
   };
 
   /**
@@ -73,7 +83,7 @@ export const ManageBees = () => {
    * @param number
    */
   const onBeeCardDropped = async (number: number) => {
-    await setBeeActive(number, false);
+    await setInActive(number);
   };
 
   /**
@@ -89,11 +99,11 @@ export const ManageBees = () => {
     });
     const deactivatePromises = activeBees
       .filter((bee) => !active.includes(bee.id))
-      .map((bee) => setBeeActive(bee.id, false));
+      .map((bee) => setInActive(bee.id));
 
     const activatePromises = filteredActive
       .filter((id) => !activeBees.map((bee) => bee.id).includes(id))
-      .map((id) => setBeeActive(id, true));
+      .map((id) => setActive(id));
 
     await Promise.all([...deactivatePromises, ...activatePromises]);
   };

@@ -25,7 +25,7 @@ declare global {
         fetchBee(id: number): Promise<IBee>;
         fetchActiveBees(): Promise<IBee[]>;
         fetchActiveBeesData(): Promise<IBee[]>;
-        fetchAllBees(pollForOnline: boolean = true): Promise<IBee[]>;
+        fetchAllBees(): Promise<IBee[]>;
         fetchAllBeesData(): Promise<IBee[]>;
         fetchInActiveBees(): Promise<IBee[]>;
         fetchInActiveBeesData(): Promise<IBee[]>;
