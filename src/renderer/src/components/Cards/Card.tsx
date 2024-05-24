@@ -2,7 +2,9 @@ import { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ButtonGroup } from "../Buttons";
 import { ButtonProps } from "../Buttons/Button";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { StatusBullet } from "..";
+import { StatusBulletProps, StatusBulletType } from "@components/StatusBullet";
 
 interface CardProps {
   title?: string;
@@ -12,15 +14,21 @@ interface CardProps {
   children?: React.ReactNode;
   className?: string;
   introduction?: string;
+  variant?: "normal" | "small";
+  statusBullet?: ReactElement<StatusBulletProps>;
 }
+
+type CardVariantProps = {
+  variant: "normal" | "small";
+};
 
 const CardWrapper = styled.div`
   background-color: var(--primary-200);
   border-radius: var(--radiusLarge);
 `;
 
-const CardInnerWrapper = styled.div`
-  padding: var(--cardContentPadding);
+const CardInnerWrapper = styled.div<CardVariantProps>`
+  padding: ${(props) => (props.variant === "normal" ? "20px" : "15px 25px")};
   div:not(.MuiGrid-root):last-child {
     margin: 0;
   }
@@ -32,10 +40,7 @@ const CardHeaderWrapper = styled(CardInnerWrapper)`
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-100);
   border-radius: var(--radiusLarge) var(--radiusLarge) 0 0;
-  font-size: var(--h5);
   align-items: center;
-  padding: var(--cardHeaderPaddingTop) var(--cardHeaderPaddingRight)
-    var(--cardHeaderPaddingBottom) var(--cardHeaderPaddingLeft);
 `;
 
 const CardFooterWrapper = styled(CardInnerWrapper)`
@@ -61,6 +66,8 @@ export const Card = ({
   className = "",
   hideFooterButtons = false,
   introduction = "",
+  variant = "normal",
+  statusBullet,
 }: CardProps) => {
   const [currentHideFooterButtons, setCurrentHideFooterButtons] =
     useState(hideFooterButtons);
@@ -72,19 +79,24 @@ export const Card = ({
   return (
     <CardWrapper className={`card ${className}`}>
       {title && (
-        <CardHeaderWrapper>
-          <div>{title}</div>
+        <CardHeaderWrapper variant={variant}>
+          <Box display={"flex"} alignItems={"center"} gap={1}>
+            {statusBullet && statusBullet}
+            <Typography variant={variant === "normal" ? "normal" : "small"}>
+              {title}
+            </Typography>
+          </Box>
           {headerSubtitle && (
             <Typography variant="small">{headerSubtitle}</Typography>
           )}
         </CardHeaderWrapper>
       )}
-      <CardInnerWrapper>
+      <CardInnerWrapper variant={variant}>
         {introduction && <CardIntroduction>{introduction}</CardIntroduction>}
         {children}
       </CardInnerWrapper>
       {footerButtons && !currentHideFooterButtons && (
-        <CardFooterWrapper>
+        <CardFooterWrapper variant={variant}>
           <ButtonGroup>{footerButtons.map((button) => button)}</ButtonGroup>
         </CardFooterWrapper>
       )}

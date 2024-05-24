@@ -63,7 +63,7 @@ export default function ConnectBeesMenu() {
         buttonUse={ButtonUse.Grey}
         onClick={openMenu}
       >
-        connect bees
+        streaming & triggering
       </Button>
       <Menu
         id="basic-menu"

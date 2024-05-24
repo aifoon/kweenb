@@ -4,7 +4,7 @@
 
 import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
-import { BeeActiveState } from "@shared/enums";
+import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import BeeSsh from "../lib/KweenB/BeeSsh";
@@ -324,6 +324,54 @@ export const makeP2PAudioConnection = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "makeP2PAudioConnection()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Set the audio param on the bee
+ * @param event The invoke event
+ * @param bees The bee or bees
+ * @param pdAudioParam The audio param
+ * @param value The value to set
+ */
+export const setAudioParam = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[] | IBee,
+  pdAudioParam: PDAudioParam,
+  value: number | boolean
+) => {
+  try {
+    await BeeHelpers.setAudioParam(bees, pdAudioParam, value);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "setAudioParams()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Set the audio param for all bees
+ * @param event The invoke event
+ * @param pdAudioParam The audio param
+ * @param value The value to set
+ */
+export const setAudioParamForAllBees = async (
+  event: Electron.IpcMainInvokeEvent,
+  pdAudioParam: PDAudioParam,
+  value: number | boolean
+) => {
+  try {
+    const bees = await fetchAllBees();
+    bees.forEach(async (bee) => {
+      if (bee.isOnline)
+        await BeeHelpers.setAudioParam(bee, pdAudioParam, value);
+    });
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "setAudioParamForAllBees()", message: e.message },
       true
     );
   }

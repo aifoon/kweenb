@@ -36,6 +36,9 @@ export const NETWORK_PERFORMANCE_POLLING_SECONDS = 5;
 // the port on which the ZWERM3 API is running
 export const ZWERM3API_PORT = 3000;
 
+// the pure data port
+export const PD_PORT_BEE = 9001;
+
 // the default configuration of a bee
 export const DEFAULT_BEE_CONFIG = {
   useMqtt: false,

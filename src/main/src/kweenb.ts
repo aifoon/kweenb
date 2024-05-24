@@ -22,7 +22,7 @@ import {
 import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
 import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
-import { join } from "path";
+import { PDBeeOsc } from "./lib/OSC";
 
 /**
  * A KweenB class

@@ -5,9 +5,6 @@ import {
   PositioningControllerAlgorithm,
   PositioningTargetType,
 } from "@shared/interfaces";
-import { REAPER_OSC_PORT } from "../../consts";
-import { ReaperOsc } from "./OSC";
-import { OscBase } from "./OSC/OscBase";
 import { VolumeControlXY } from "./Algorithms/VolumeControlXY";
 import { PositioningAlgorithmBase } from "./Algorithms/PositioningAlgorithmBase";
 import { PositioningTarget } from "./PositioningTarget";

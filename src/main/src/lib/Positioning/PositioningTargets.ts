@@ -1,6 +1,6 @@
 import { PositioningTargetType } from "@shared/interfaces";
 import { OSCMONITOR_PORT, REAPER_OSC_PORT } from "../../consts";
-import { OscMonitor, ReaperOsc } from "./OSC";
+import { OscMonitor, ReaperOsc } from "../OSC";
 import { PositioningTarget } from "./PositioningTarget";
 
 /**

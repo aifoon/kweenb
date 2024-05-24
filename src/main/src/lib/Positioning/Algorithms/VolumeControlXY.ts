@@ -7,7 +7,7 @@ import {
 
 import { LogarithmicVolumeCalculator } from "@shared/lib/LogarithmicVolumeCalculator";
 import { POSITIONING_INTERVAL_MS } from "../../../consts";
-import { OscMonitor, ReaperOsc } from "../OSC";
+import { OscMonitor, ReaperOsc } from "../../OSC";
 import { PositioningAlgorithmBase } from "./PositioningAlgorithmBase";
 import { PositioningTarget } from "../PositioningTarget";
 import { Easing } from "../Easing";

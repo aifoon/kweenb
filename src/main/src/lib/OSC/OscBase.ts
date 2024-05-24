@@ -2,12 +2,14 @@ import { Client, Message } from "node-osc";
 
 export class OscBase {
   private _oscClient;
+  private _ipAddress: string;
 
   public get oscClient() {
     return this._oscClient;
   }
 
   constructor(ipAddress: string, port: number) {
+    this._ipAddress = ipAddress;
     this._oscClient = new Client(ipAddress, port);
   }
 

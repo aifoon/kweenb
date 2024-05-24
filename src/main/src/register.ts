@@ -28,6 +28,8 @@ import {
   setBeePozyxTagId,
   getBeeConfig,
   getCurrentBeeStates,
+  setAudioParam,
+  setAudioParamForAllBees,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -123,6 +125,10 @@ export const registerMethods = () => {
   // CONFIG
   ipcMain.handle("bee:getBeeConfig", getBeeConfig);
   ipcMain.handle("bee:saveConfig", saveConfig);
+
+  // AUDIO
+  ipcMain.handle("bee:setAudioParam", setAudioParam);
+  ipcMain.handle("bee:setAudioParamForAllBees", setAudioParamForAllBees);
 
   /**
    * KweenB

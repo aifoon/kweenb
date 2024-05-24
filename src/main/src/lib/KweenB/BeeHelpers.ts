@@ -2,7 +2,7 @@
  * A module with helpers used for getting bees and their config
  */
 
-import { BeeActiveState } from "@shared/enums";
+import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
 import fs from "fs";
 import Bee from "../../models/Bee";
@@ -15,30 +15,16 @@ import {
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
-import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
+import {
+  DEFAULT_BEE_CONFIG,
+  DEFAULT_BEE_STATUS,
+  PD_PORT_BEE,
+} from "../../consts";
 import { KweenBGlobal } from "../../kweenb";
 import { spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
-
-/**
- * Get the bee configuration
- * @param id
- * @returns
- */
-const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
-  // get the bee behind the id
-  const bee = await Bee.findOne({ where: { id } });
-
-  // validate
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // get the bee config
-  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
-
-  // return the configuration
-  return beeConfig;
-};
+import { PDBeeOsc } from "../OSC";
 
 /**
  * Creates a new bee
@@ -62,6 +48,62 @@ const createBee = async (bee: IBeeInput): Promise<IBee> => {
     channel2: 0,
     pozyxTagId: "",
   };
+};
+
+/**
+ * Export the bees to a json file
+ */
+const exportBees = async (filePath: string) => {
+  // if no file is given, do not write
+  if (!filePath) return;
+
+  // get all the bees
+  const bees = await getAllBees(BeeActiveState.ALL);
+
+  // map bees to raw data
+  const beeData = bees.map(
+    ({
+      name,
+      ipAddress,
+      isActive,
+      id,
+      channelType,
+      channel1,
+      channel2,
+      pozyxTagId,
+    }) => ({
+      id,
+      name,
+      ipAddress,
+      isActive,
+      channelType,
+      channel1,
+      channel2,
+      pozyxTagId,
+    })
+  );
+
+  // write the file
+  fs.writeFileSync(filePath, JSON.stringify(beeData), "utf8");
+};
+
+/**
+ * Get the bee configuration
+ * @param id
+ * @returns
+ */
+const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
+  // get the bee behind the id
+  const bee = await Bee.findOne({ where: { id } });
+
+  // validate
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // get the bee config
+  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
+
+  // return the configuration
+  return beeConfig;
 };
 
 /**
@@ -320,88 +362,6 @@ const hookOnCurrentHive = async (id: number) => {
 };
 
 /**
- * Make audio connection on bee
- * @param event
- * @param bee
- */
-const makeP2PAudioConnection = async (bee: IBee) => {
-  // validate if we found a Bee
-  if (!bee) throw new Error(BEE_IS_UNDEFINED());
-
-  // loop over active bees and make connections
-  const playbackChannel1 = `system:playback_1`;
-  const playbackChannel2 = `system:playback_2`;
-  const receiveChannel = `${bee.name}:receive_1`;
-  await Zwerm3ApiHelpers.connectChannel(
-    bee.ipAddress,
-    receiveChannel,
-    playbackChannel1
-  );
-  await Zwerm3ApiHelpers.connectChannel(
-    bee.ipAddress,
-    receiveChannel,
-    playbackChannel2
-  );
-};
-
-/**
- * Sets the bee active or inactive
- * @param id The ID of the bee
- * @param active The active/inactive state
- */
-const setBeeActive = async (id: number, active: boolean) => {
-  // get the bee
-  const bee = await Bee.findOne({ where: { id } });
-
-  // validate if we found a Bee
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // validate
-  if (bee.isActive === active)
-    throw new Error(`Bee is already ${active ? "active" : "inactive"}.`);
-
-  // set the state and save
-  await Bee.update({ isActive: active }, { where: { id } });
-};
-
-/**
- * Export the bees to a json file
- */
-const exportBees = async (filePath: string) => {
-  // if no file is given, do not write
-  if (!filePath) return;
-
-  // get all the bees
-  const bees = await getAllBees(BeeActiveState.ALL);
-
-  // map bees to raw data
-  const beeData = bees.map(
-    ({
-      name,
-      ipAddress,
-      isActive,
-      id,
-      channelType,
-      channel1,
-      channel2,
-      pozyxTagId,
-    }) => ({
-      id,
-      name,
-      ipAddress,
-      isActive,
-      channelType,
-      channel1,
-      channel2,
-      pozyxTagId,
-    })
-  );
-
-  // write the file
-  fs.writeFileSync(filePath, JSON.stringify(beeData), "utf8");
-};
-
-/**
  * Import the bees in the database
  * @param filePath
  */
@@ -454,6 +414,51 @@ const importBees = async (filePath: string) => {
 };
 
 /**
+ * Make audio connection on bee
+ * @param event
+ * @param bee
+ */
+const makeP2PAudioConnection = async (bee: IBee) => {
+  // validate if we found a Bee
+  if (!bee) throw new Error(BEE_IS_UNDEFINED());
+
+  // loop over active bees and make connections
+  const playbackChannel1 = `system:playback_1`;
+  const playbackChannel2 = `system:playback_2`;
+  const receiveChannel = `${bee.name}:receive_1`;
+  await Zwerm3ApiHelpers.connectChannel(
+    bee.ipAddress,
+    receiveChannel,
+    playbackChannel1
+  );
+  await Zwerm3ApiHelpers.connectChannel(
+    bee.ipAddress,
+    receiveChannel,
+    playbackChannel2
+  );
+};
+
+/**
+ * Sets the bee active or inactive
+ * @param id The ID of the bee
+ * @param active The active/inactive state
+ */
+const setBeeActive = async (id: number, active: boolean) => {
+  // get the bee
+  const bee = await Bee.findOne({ where: { id } });
+
+  // validate if we found a Bee
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // validate
+  if (bee.isActive === active)
+    throw new Error(`Bee is already ${active ? "active" : "inactive"}.`);
+
+  // set the state and save
+  await Bee.update({ isActive: active }, { where: { id } });
+};
+
+/**
  * Sets the pozyx tag id for a bee
  * @param bee The bee
  * @param pozyxTagId The pozyx tag id
@@ -473,6 +478,52 @@ const setBeePozyxTagId = async (bee: IBee, pozyxTagId: string) => {
   await requestedBee.save();
 };
 
+/**
+ * Set an audio param on a bee
+ * @param bees
+ * @param volume
+ */
+const setAudioParam = async (
+  bees: IBee[] | IBee,
+  pdAudioParam: PDAudioParam,
+  value: number | boolean
+) => {
+  try {
+    // check if bees is an array or a single bee
+    const beeArray = Array.isArray(bees) ? bees : [bees];
+
+    // iterate over the beeArray
+    for (const bee of beeArray) {
+      if (!bee.isOnline) continue;
+      const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
+      switch (pdAudioParam) {
+        case PDAudioParam.VOLUME:
+          pdBeeOsc.setVolume(Number(value));
+          break;
+        case PDAudioParam.LOW:
+          pdBeeOsc.setBass(Number(value));
+          break;
+        case PDAudioParam.MID:
+          pdBeeOsc.setMid(Number(value));
+          break;
+        case PDAudioParam.HIGH:
+          pdBeeOsc.setHigh(Number(value));
+          break;
+        case PDAudioParam.FILE_LOOP:
+          pdBeeOsc.setFileLoop(Boolean(value));
+          break;
+        case PDAudioParam.USE_EQ:
+          pdBeeOsc.setUseEq(Boolean(value));
+          break;
+        default:
+          throw new Error("Invalid PDAudioParam");
+      }
+    }
+  } catch (e: any) {
+    throw new Error("Sending volume to bee failed: " + e.message);
+  }
+};
+
 export default {
   createBee,
   exportBees,
@@ -484,6 +535,7 @@ export default {
   getCurrentBeeStates,
   hookOnCurrentHive,
   makeP2PAudioConnection,
+  setAudioParam,
   setBeeActive,
   setBeePozyxTagId,
 };

@@ -8,6 +8,7 @@ import {
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SettingsIcon from "@mui/icons-material/Settings";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import SpeakerIcon from "@mui/icons-material/Speaker";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
@@ -24,6 +25,12 @@ const sidebarButtons = [
     title: "Swarm",
     pathNames: ["/", "/swarm/*"],
     icon: <EmojiNatureIcon />,
+  },
+  {
+    key: "audio",
+    title: "Audio",
+    pathNames: ["/audio"],
+    icon: <SpeakerIcon />,
   },
   {
     key: "positioning",

@@ -1,5 +1,21 @@
 import { ipcRenderer } from "electron";
 import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
+import { PDAudioParam } from "@shared/enums";
+
+/**
+ * All the audio settings for the bee (eg. triggering)
+ */
+const audio = {
+  setAudioParam: (
+    bees: IBee[] | IBee,
+    pdAudioParam: PDAudioParam,
+    value: number | boolean
+  ) => ipcRenderer.invoke("bee:setAudioParam", bees, pdAudioParam, value),
+  setAudioParamForAllBees: (
+    pdAudioParam: PDAudioParam,
+    value: number | boolean
+  ) => ipcRenderer.invoke("bee:setAudioParamForAllBees", pdAudioParam, value),
+};
 
 /**
  * All CRUD methods for the Bee
@@ -61,6 +77,7 @@ const configBee = {
  * Export the methods
  */
 export default {
+  ...audio,
   ...crudBee,
   ...jackJacktripBee,
   ...configBee,

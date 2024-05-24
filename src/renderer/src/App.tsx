@@ -16,6 +16,7 @@ import { Tools } from "./pages/Tools/Tools";
 import theme from "./theme";
 import { Positioning } from "./pages/Positioning/Positioning";
 import { PositioningModules } from "./pages/Positioning/PositioningModules/PositioningModules";
+import { Audio } from "./pages/Audio/Audio";
 
 const startDesignSystem = false;
 
@@ -39,6 +40,7 @@ export const App = () => {
                     <Route path="/" element={<ManageBees />} />
                     <Route path="/manage-bees" element={<ManageBees />} />
                     <Route path="/swarm/:id" element={<BeeConfig />} />
+                    <Route path="/audio" element={<Audio />} />
                     <Route path="/positioning" element={<Positioning />}>
                       <Route
                         path="volumes/:tab"

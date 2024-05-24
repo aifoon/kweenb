@@ -12,3 +12,12 @@ export enum AppMode {
   Hub,
   P2P,
 }
+
+export enum PDAudioParam {
+  VOLUME = "volume",
+  LOW = "low",
+  MID = "mid",
+  HIGH = "high",
+  USE_EQ = "use_eq",
+  FILE_LOOP = "file_loop",
+}

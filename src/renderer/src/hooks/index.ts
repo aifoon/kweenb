@@ -1,6 +1,7 @@
 import { useInterval } from "./useInterval";
 import { useAppContext } from "./useAppContext";
 import { useAppStore } from "./useAppStore";
+import { useAudioMixerStore } from "./useAudioMixerStore";
 import { useBee } from "./useBee";
 import { useBeeConfig } from "./useBeeConfig";
 import { useBeeStore } from "./useBeeStore";
@@ -17,6 +18,7 @@ import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 export {
   useAppContext,
   useAppStore,
+  useAudioMixerStore,
   useBee,
   useBeeConfig,
   useBeeStore,

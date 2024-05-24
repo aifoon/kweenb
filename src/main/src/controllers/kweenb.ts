@@ -7,10 +7,11 @@ import { IBee } from "@shared/interfaces";
 import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
-import { KweenBGlobal } from "../kweenb";
+import { KweenB, KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
+import { PDBeeOsc } from "../lib/OSC";
 
 /**
  * Calculate the current latency

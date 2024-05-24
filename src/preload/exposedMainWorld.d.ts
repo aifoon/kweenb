@@ -17,6 +17,17 @@ declare global {
   interface Window {
     readonly kweenb: {
       readonly methods: {
+        // AUDIO
+        setAudioParam(
+          bees: IBee[] | IBee,
+          pdAudioParam: PDAudioParam,
+          value: number | boolean
+        ): Promise<void>;
+        setAudioParamForAllBees(
+          pdAudioParam: PDAudioParam,
+          value: number | boolean
+        ): Promise<void>;
+
         // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);

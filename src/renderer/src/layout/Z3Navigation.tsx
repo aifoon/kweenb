@@ -60,7 +60,7 @@ export const Z3Navigation = () => {
         buttonUse={ButtonUse.Normal}
         onClick={() => appContext.setOpenDisconnectBeesModal(true)}
       >
-        disconnect bees
+        disconnect
       </Button>,
       <ConnectBeesMenu key="connectBees" />,
     ];
