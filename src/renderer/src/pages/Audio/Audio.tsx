@@ -1,12 +1,13 @@
 import { Loader } from "@components/Loader";
 import { Tab } from "@mui/material";
-import { useSettings, useAppContext } from "@renderer/src/hooks";
+import { useSettings, useAppContext, useBeeStore } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { AppMode } from "@shared/enums";
 import { PageHeader } from "../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import { AudioMixer } from "./AudioMixer";
+import { Button } from "@components/Buttons";
 
 export const Audio = () => {
   const { appContext } = useAppContext();
@@ -19,6 +20,8 @@ export const Audio = () => {
     setValue(newValue);
   };
 
+  const bees = useBeeStore((state) => state.bees);
+
   return (
     <Z3Page pageHeader={<PageHeader title="Audio" />}>
       <Tabs value={value} onChange={handleChange}>
@@ -27,7 +30,16 @@ export const Audio = () => {
         <Tab label="Mixer" />
       </Tabs>
       <TabPanel value={value} index={0}>
-        Trigger
+        <Button
+          onClick={() =>
+            window.kweenb.methods.startAudio(bees[0], "sample.wav")
+          }
+        >
+          Start
+        </Button>
+        <Button onClick={() => window.kweenb.methods.stopAudio(bees[0])}>
+          Stop
+        </Button>
       </TabPanel>
       <TabPanel value={value} index={1}>
         Files

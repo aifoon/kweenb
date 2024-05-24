@@ -15,6 +15,9 @@ const audio = {
     pdAudioParam: PDAudioParam,
     value: number | boolean
   ) => ipcRenderer.invoke("bee:setAudioParamForAllBees", pdAudioParam, value),
+  startAudio: (bees: IBee[] | IBee, value: string) =>
+    ipcRenderer.invoke("bee:startAudio", bees, value),
+  stopAudio: (bees: IBee[] | IBee) => ipcRenderer.invoke("bee:stopAudio", bees),
 };
 
 /**

@@ -30,6 +30,8 @@ import {
   getCurrentBeeStates,
   setAudioParam,
   setAudioParamForAllBees,
+  startAudio,
+  stopAudio,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -129,6 +131,8 @@ export const registerMethods = () => {
   // AUDIO
   ipcMain.handle("bee:setAudioParam", setAudioParam);
   ipcMain.handle("bee:setAudioParamForAllBees", setAudioParamForAllBees);
+  ipcMain.handle("bee:startAudio", startAudio);
+  ipcMain.handle("bee:stopAudio", stopAudio);
 
   /**
    * KweenB

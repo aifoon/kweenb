@@ -347,7 +347,7 @@ export const setAudioParam = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "setAudioParams()", message: e.message },
-      true
+      false
     );
   }
 };
@@ -417,6 +417,48 @@ export const setBeePozyxTagId = async (
     throw new KweenBException(
       { where: "setBeePozyxTagId()", message: e.message },
       true
+    );
+  }
+};
+
+/**
+ * Start audio on the bee
+ * @param event The invoke event
+ * @param bees The bee or bees
+ * @param value The value to set
+ */
+export const startAudio = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[] | IBee,
+  value: string
+) => {
+  try {
+    await BeeHelpers.startAudio(bees, value);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startAudio()", message: e.message },
+      false
+    );
+  }
+};
+
+/**
+ * Stop audio on the bee
+ * @param event The invoke event
+ * @param bees The bee or bees
+ * @param value The value to set
+ */
+export const stopAudio = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[] | IBee,
+  value: string
+) => {
+  try {
+    await BeeHelpers.stopAudio(bees);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startAudio()", message: e.message },
+      false
     );
   }
 };

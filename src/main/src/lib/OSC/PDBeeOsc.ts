@@ -24,4 +24,12 @@ export class PDBeeOsc extends OscBase {
   async setUseEq(value: boolean): Promise<void> {
     await this.send(`/useEq`, value);
   }
+
+  async startAudio(value: string): Promise<void> {
+    await this.send(`/start`, value);
+  }
+
+  async stopAudio(): Promise<void> {
+    await this.send(`/stop`, 1);
+  }
 }

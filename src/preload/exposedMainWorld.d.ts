@@ -27,6 +27,8 @@ declare global {
           pdAudioParam: PDAudioParam,
           value: number | boolean
         ): Promise<void>;
+        startAudio(bees: IBee[] | IBee, value: string): Promise<void>;
+        stopAudio(bees: IBee[] | IBee): Promise<void>;
 
         // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;

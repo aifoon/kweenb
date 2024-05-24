@@ -524,6 +524,48 @@ const setAudioParam = async (
   }
 };
 
+/**
+ * Start audio on a bee
+ * @param bees The bee(s)
+ * @param value The value to start audio with
+ */
+const startAudio = async (bees: IBee[] | IBee, value: string) => {
+  try {
+    // check if bees is an array or a single bee
+    const beeArray = Array.isArray(bees) ? bees : [bees];
+
+    // iterate over the beeArray
+    for (const bee of beeArray) {
+      if (!bee.isOnline) continue;
+      const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
+      await pdBeeOsc.startAudio(value);
+    }
+  } catch (e: any) {
+    throw new Error("Starting audio failed: " + e.message);
+  }
+};
+
+/**
+ * Stop audio on a bee
+ * @param bees The bee(s)
+ * @param value The value to start audio with
+ */
+const stopAudio = async (bees: IBee[] | IBee) => {
+  try {
+    // check if bees is an array or a single bee
+    const beeArray = Array.isArray(bees) ? bees : [bees];
+
+    // iterate over the beeArray
+    for (const bee of beeArray) {
+      if (!bee.isOnline) continue;
+      const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
+      await pdBeeOsc.stopAudio();
+    }
+  } catch (e: any) {
+    throw new Error("Stopping audio failed: " + e.message);
+  }
+};
+
 export default {
   createBee,
   exportBees,
@@ -538,4 +580,6 @@ export default {
   setAudioParam,
   setBeeActive,
   setBeePozyxTagId,
+  startAudio,
+  stopAudio,
 };
