@@ -31,7 +31,7 @@ type AudioMixerAction = {
 export const useAudioMixerStore = create<AudioMixerState & AudioMixerAction>(
   (set) => {
     return {
-      masterVolume: 100,
+      masterVolume: 50,
       masterMid: 1,
       masterHigh: 1,
       masterLow: 1,
