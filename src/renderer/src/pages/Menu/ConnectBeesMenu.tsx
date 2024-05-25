@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, ButtonSize, ButtonUse } from "@components/Buttons";
-import { Tooltip, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import { useAppContext, useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
@@ -49,6 +49,12 @@ export default function ConnectBeesMenu() {
     appContext.setOpenConnectBeesModal(true);
   }, []);
 
+  // handle trigger only
+  const startTriggerOnly = useCallback(() => {
+    setAnchorEl(null);
+    appContext.setOpenTriggerOnlyModal(true);
+  }, []);
+
   // handle close when clicking outside
   const handleClose = () => {
     setAnchorEl(null);
@@ -63,7 +69,7 @@ export default function ConnectBeesMenu() {
         buttonUse={ButtonUse.Grey}
         onClick={openMenu}
       >
-        streaming & triggering
+        Connect
       </Button>
       <Menu
         id="basic-menu"
@@ -83,10 +89,31 @@ export default function ConnectBeesMenu() {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem key="default" onClick={startWithoutPreset}>
-          <Typography variant="small">Current settings</Typography>
+        <Box padding={"0 16px"}>
+          <Typography
+            variant="extraSmall"
+            style={{ textTransform: "uppercase" }}
+            color={{ color: "var(--grey-400)" }}
+          >
+            Triggering
+          </Typography>
+        </Box>
+        <MenuItem key="trigger_only" onClick={startTriggerOnly}>
+          <Typography variant="small">Trigger only</Typography>
         </MenuItem>
         <Divider />
+        <Box padding={"0 16px"}>
+          <Typography
+            variant="extraSmall"
+            style={{ textTransform: "uppercase" }}
+            color={{ color: "var(--grey-400)" }}
+          >
+            Streaming
+          </Typography>
+        </Box>
+        <MenuItem key="current_settings" onClick={startWithoutPreset}>
+          <Typography variant="small">Current settings</Typography>
+        </MenuItem>
         {currentPresets.map((preset) => (
           <Tooltip
             key={`tooltip_${preset.name}`}

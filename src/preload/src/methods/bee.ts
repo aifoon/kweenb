@@ -6,6 +6,7 @@ import { PDAudioParam } from "@shared/enums";
  * All the audio settings for the bee (eg. triggering)
  */
 const audio = {
+  killPureData: (bee: IBee) => ipcRenderer.invoke("bee:killPureData", bee),
   setAudioParam: (
     bees: IBee[] | IBee,
     pdAudioParam: PDAudioParam,
@@ -17,6 +18,8 @@ const audio = {
   ) => ipcRenderer.invoke("bee:setAudioParamForAllBees", pdAudioParam, value),
   startAudio: (bees: IBee[] | IBee, value: string) =>
     ipcRenderer.invoke("bee:startAudio", bees, value),
+  startPureData: (bees: IBee[] | IBee) =>
+    ipcRenderer.invoke("bee:startPureData", bees),
   stopAudio: (bees: IBee[] | IBee) => ipcRenderer.invoke("bee:stopAudio", bees),
 };
 

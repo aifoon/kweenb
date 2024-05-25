@@ -17,6 +17,7 @@ import {
 } from "../pages/Modals";
 import { AboutKweenBModal } from "../pages/Modals/AboutKweenBModal";
 import { LoadingState } from "@shared/interfaces";
+import { TriggerOnlyModal } from "../pages/Modals/TriggerOnlyModal";
 
 interface AppContextProviderProps {
   children: React.ReactNode;
@@ -34,6 +35,8 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [openConnectBeesModal, setOpenConnectBeesModal] =
     useState<boolean>(false);
   const [openDisconnectBeesModal, setOpenDisconnectBeesModal] =
+    useState<boolean>(false);
+  const [openTriggerOnlyModal, setOpenTriggerOnlyModal] =
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<AppMode>(AppMode.P2P);
   const [openAboutKweenBModal, setOpenAboutKweenBModal] = useState(false);
@@ -118,6 +121,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
       setOpenCleanSwarmModal,
       setOpenConnectBeesModal,
       setOpenDisconnectBeesModal,
+      setOpenTriggerOnlyModal,
       setAppMode,
       appMode,
     }),
@@ -189,6 +193,11 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
           />
         </>
       )}
+
+      <TriggerOnlyModal
+        open={openTriggerOnlyModal}
+        onClose={() => setOpenTriggerOnlyModal(false)}
+      ></TriggerOnlyModal>
 
       {/* The application itself */}
       {children}

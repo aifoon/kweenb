@@ -311,6 +311,25 @@ export const killJacktrip = async (
 };
 
 /**
+ * Kill Pure Data processes on the client
+ * @param event
+ * @param bee
+ */
+export const killPureData = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await BeeSsh.killPureData(bee.ipAddress);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "killPureData()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Make an audio connection on the bee
  * @param event
  * @param bee
@@ -443,27 +462,6 @@ export const startAudio = async (
 };
 
 /**
- * Stop audio on the bee
- * @param event The invoke event
- * @param bees The bee or bees
- * @param value The value to set
- */
-export const stopAudio = async (
-  event: Electron.IpcMainInvokeEvent,
-  bees: IBee[] | IBee,
-  value: string
-) => {
-  try {
-    await BeeHelpers.stopAudio(bees);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startAudio()", message: e.message },
-      false
-    );
-  }
-};
-
-/**
  * Start Jack on a specific bee
  * @param event The Invoke event
  * @param bee
@@ -477,6 +475,28 @@ export const startJack = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJack()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Start Pure Data on a specific bee
+ * @param event The Invoke event
+ * @param bee
+ */
+export const startPureData = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee | IBee[]
+) => {
+  try {
+    if (!Array.isArray(bees)) bees = [bees];
+    for (const bee of bees) {
+      await BeeSsh.startPureData(bee.ipAddress);
+    }
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startPureData()", message: e.message },
       true
     );
   }
@@ -543,6 +563,27 @@ export const saveConfig = async (
     throw new KweenBException(
       { where: "saveConfig()", message: e.message },
       true
+    );
+  }
+};
+
+/**
+ * Stop audio on the bee
+ * @param event The invoke event
+ * @param bees The bee or bees
+ * @param value The value to set
+ */
+export const stopAudio = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[] | IBee,
+  value: string
+) => {
+  try {
+    await BeeHelpers.stopAudio(bees);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startAudio()", message: e.message },
+      false
     );
   }
 };

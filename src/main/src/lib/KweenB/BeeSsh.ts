@@ -1,5 +1,7 @@
 import { SSH_ERROR } from "../Exceptions/ExceptionMessages";
 import { KweenBGlobal } from "../../kweenb";
+import settings from "@main/src/.firstboot/settings";
+import SettingHelpers from "./SettingHelpers";
 
 /**
  * Check if isJackRunning on the client
@@ -143,6 +145,57 @@ const killJacktrip = async (ipAddress: string) => {
   }
 };
 
+/**
+ * Kill Pure Data on the client
+ * @param ipAddress
+ */
+const killPureData = async (ipAddress: string) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute ssh command
+    await ssh.execCommand("killall pd");
+  } catch (e) {
+    throw new Error(SSH_ERROR("killPureData"));
+  }
+};
+
+/**
+ * Start PureData on the client
+ * @param ipAddress The IP address of the client
+ */
+const startPureData = async (ipAddress: string) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // check if pd is running
+    const response = await ssh.execCommand(
+      "pgrep -x pd > /dev/null && echo true || echo false"
+    );
+
+    // kill pd if it is running
+    if (response.stdout === "true") {
+      await ssh.execCommand("killall pd");
+    }
+
+    // get the settings
+    const settings = await SettingHelpers.getAllSettings();
+
+    // execute ssh command
+    ssh.execCommand(
+      `pd -r ${settings.beeAudioSettings.jack.sampleRate} -jack -nogui -audiobuf 100 -blocksize ${settings.beeAudioSettings.jack.bufferSize} /home/pi/pd-bee/bee.pd &`
+    );
+  } catch (e) {
+    throw new Error(SSH_ERROR("startPureData"));
+  }
+};
+
 export default {
   isJackRunning,
   isJacktripRunning,
@@ -150,4 +203,6 @@ export default {
   killJack,
   killJackAndJacktrip,
   killJacktrip,
+  killPureData,
+  startPureData,
 };

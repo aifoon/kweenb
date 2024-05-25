@@ -13,6 +13,7 @@ export interface AppContextValue {
   setOpenBuildSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenCleanSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenConnectBeesModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenTriggerOnlyModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenDisconnectBeesModal: React.Dispatch<React.SetStateAction<boolean>>;
   setAppMode: React.Dispatch<React.SetStateAction<AppMode>>;
   showToast: (toast: ToastMessage) => void;
@@ -25,6 +26,7 @@ export const AppContext = createContext<AppContextValue>({
   setOpenCleanSwarmModal: () => {},
   setOpenConnectBeesModal: () => {},
   setOpenDisconnectBeesModal: () => {},
+  setOpenTriggerOnlyModal: () => {},
   setAppMode: () => {},
   showToast: () => {},
   appMode: AppMode.P2P,

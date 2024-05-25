@@ -18,6 +18,7 @@ declare global {
     readonly kweenb: {
       readonly methods: {
         // AUDIO
+        killPureData(bee: IBee): Promise<void>;
         setAudioParam(
           bees: IBee[] | IBee,
           pdAudioParam: PDAudioParam,
@@ -28,6 +29,7 @@ declare global {
           value: number | boolean
         ): Promise<void>;
         startAudio(bees: IBee[] | IBee, value: string): Promise<void>;
+        startPureData(bees: IBee[] | IBee): Promise<void>;
         stopAudio(bees: IBee[] | IBee): Promise<void>;
 
         // CRUD BEE

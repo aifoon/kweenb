@@ -8,9 +8,9 @@ import { PageHeader } from "../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import { AudioMixer } from "./AudioMixer";
 import { Button } from "@components/Buttons";
+import { AudioTest } from "./AudioTest";
 
 export const Audio = () => {
-  const { appContext } = useAppContext();
   const [value, setValue] = useState(0);
 
   const handleChange = async (
@@ -28,17 +28,23 @@ export const Audio = () => {
         <Tab label="Trigger" />
         <Tab label="Files" />
         <Tab label="Mixer" />
+        <Tab label="Tests" />
       </Tabs>
       <TabPanel value={value} index={0}>
+        <Button
+          onClick={() =>
+            //window.kweenb.methods.startAudio(bees[0], "sample.wav")
+            window.kweenb.methods.startPureData(bees[0])
+          }
+        >
+          Start
+        </Button>
         <Button
           onClick={() =>
             window.kweenb.methods.startAudio(bees[0], "sample.wav")
           }
         >
-          Start
-        </Button>
-        <Button onClick={() => window.kweenb.methods.stopAudio(bees[0])}>
-          Stop
+          Start2
         </Button>
       </TabPanel>
       <TabPanel value={value} index={1}>
@@ -46,6 +52,9 @@ export const Audio = () => {
       </TabPanel>
       <TabPanel value={value} index={2}>
         <AudioMixer />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <AudioTest />
       </TabPanel>
     </Z3Page>
   );

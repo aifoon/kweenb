@@ -10,6 +10,7 @@ interface CardProps {
   title?: string;
   headerSubtitle?: string;
   footerButtons?: ReactElement<ButtonProps>[];
+  headerButtons?: ReactElement<ButtonProps>[];
   hideFooterButtons?: boolean;
   children?: React.ReactNode;
   className?: string;
@@ -62,6 +63,7 @@ export const Card = ({
   title,
   headerSubtitle = "",
   footerButtons,
+  headerButtons,
   children,
   className = "",
   hideFooterButtons = false,
@@ -88,6 +90,9 @@ export const Card = ({
           </Box>
           {headerSubtitle && (
             <Typography variant="small">{headerSubtitle}</Typography>
+          )}
+          {headerButtons && (
+            <ButtonGroup>{headerButtons.map((button) => button)}</ButtonGroup>
           )}
         </CardHeaderWrapper>
       )}
