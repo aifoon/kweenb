@@ -53,6 +53,7 @@ const config = {
         "mathjs",
         "tween-functions",
         "node-ssh",
+        "ssh2-sftp-client",
         ...builtinModules,
       ],
       output: {

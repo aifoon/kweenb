@@ -115,6 +115,16 @@ export default createTheme({
         },
       ],
     },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: "var(--primary-100)",
+          "&.Mui-checked": {
+            color: "var(--primary-100)",
+          },
+        },
+      },
+    },
     MuiDivider: {
       styleOverrides: {
         root: {

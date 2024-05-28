@@ -15,6 +15,9 @@ export interface AppContextValue {
   setOpenConnectBeesModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenTriggerOnlyModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenDisconnectBeesModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenUploadAudioFilesSettings: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
   setAppMode: React.Dispatch<React.SetStateAction<AppMode>>;
   showToast: (toast: ToastMessage) => void;
   appMode: AppMode;
@@ -27,6 +30,7 @@ export const AppContext = createContext<AppContextValue>({
   setOpenConnectBeesModal: () => {},
   setOpenDisconnectBeesModal: () => {},
   setOpenTriggerOnlyModal: () => {},
+  setOpenUploadAudioFilesSettings: () => {},
   setAppMode: () => {},
   showToast: () => {},
   appMode: AppMode.P2P,

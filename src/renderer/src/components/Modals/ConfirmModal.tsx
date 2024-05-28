@@ -14,6 +14,8 @@ export const ConfirmModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--grey-300);
 `;
 
 export const ConfirmModal = ({

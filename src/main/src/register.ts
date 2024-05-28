@@ -34,6 +34,9 @@ import {
   stopAudio,
   startPureData,
   killPureData,
+  getAudioFiles,
+  deleteAudio,
+  uploadAudioFiles,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -47,6 +50,7 @@ import {
   setJacktripBinPath,
   calculateCurrentLatency,
   isJackAndJacktripInstalled,
+  openDialog,
 } from "./controllers/kweenb";
 import { fetchSettings, updateSetting } from "./controllers/setting";
 import {
@@ -131,19 +135,23 @@ export const registerMethods = () => {
   ipcMain.handle("bee:saveConfig", saveConfig);
 
   // AUDIO
+  ipcMain.handle("bee:deleteAudio", deleteAudio);
+  ipcMain.handle("bee:getAudioFiles", getAudioFiles);
+  ipcMain.handle("bee:killPureData", killPureData);
   ipcMain.handle("bee:setAudioParam", setAudioParam);
   ipcMain.handle("bee:setAudioParamForAllBees", setAudioParamForAllBees);
   ipcMain.handle("bee:startAudio", startAudio);
   ipcMain.handle("bee:stopAudio", stopAudio);
   ipcMain.handle("bee:startPureData", startPureData);
-  ipcMain.handle("bee:killPureData", killPureData);
+  ipcMain.handle("bee:uploadAudioFiles", uploadAudioFiles);
 
   /**
    * KweenB
    */
 
-  // VERSION
+  // APP
   ipcMain.handle("kweenb:getKweenBVersion", getKweenBVersion);
+  ipcMain.handle("kweenb:openDialog", openDialog);
 
   // JACK/JACKTRIP
   ipcMain.handle("kweenb:calculateCurrentLatency", calculateCurrentLatency);

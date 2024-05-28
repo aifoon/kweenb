@@ -2,7 +2,7 @@
  * All the KweenB controller endpoints
  */
 
-import { app } from "electron";
+import { app, dialog } from "electron";
 import { IBee } from "@shared/interfaces";
 import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
@@ -11,7 +11,6 @@ import { KweenB, KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
-import { PDBeeOsc } from "../lib/OSC";
 
 /**
  * Calculate the current latency
@@ -121,6 +120,32 @@ export const makeP2PAudioConnection = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "makeP2PAudioConnection()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Open a dialog
+ * @param event Electron.IpcMainInvokeEvent
+ * @param method Method to call
+ * @param params Params to pass
+ */
+export const openDialog = async (
+  event: Electron.IpcMainInvokeEvent,
+  method: keyof Electron.Dialog,
+  params: Electron.OpenDialogOptions
+): Promise<string[]> => {
+  try {
+    if (typeof dialog[method] === "function") {
+      return (await (dialog[method] as Function).call(
+        dialog,
+        params
+      )) as string[];
+    } else return [];
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "openDialog()", message: e.message },
       true
     );
   }

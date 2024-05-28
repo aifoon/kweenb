@@ -42,8 +42,8 @@ export default {
     ipcRenderer.on(channel, callback);
     return () => ipcRenderer.removeAllListeners(channel);
   },
-  onUpdateBee: (callback: any) => {
-    const channel = "update-bee";
+  onUploadAudioProgress: (callback: any) => {
+    const channel = "upload-audio-progress";
     ipcRenderer.on(channel, callback);
     return () => ipcRenderer.removeAllListeners(channel);
   },

@@ -2,7 +2,14 @@
  * A module with all the kweenb data stuff
  */
 
-import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
+import fs from "fs";
+import {
+  AudioFile,
+  IBee,
+  IBeeConfig,
+  IBeeInput,
+  IBeeState,
+} from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
@@ -11,6 +18,8 @@ import BeeSsh from "../lib/KweenB/BeeSsh";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
+import { SSH_PRIVATE_KEY_PATH, audioFilesRootDirectory } from "../consts";
+import Ssh2SftpClient from "ssh2-sftp-client";
 
 /**
  * Create a new bee
@@ -78,6 +87,29 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
     );
   } catch (e: any) {
     throw new KweenBException({ where: "deleteBee()", message: e.message });
+  }
+};
+
+/**
+ * Delete a file on the client
+ * @param event The invoke event
+ * @param path The path of the file
+ */
+export const deleteAudio = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee,
+  path: string
+) => {
+  try {
+    // set the guard to prevent deleting files outside the audio files root directory
+    if (path.startsWith(audioFilesRootDirectory)) {
+      await BeeSsh.deletePath(bee.ipAddress, path);
+    }
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "deleteFile()", message: e.message },
+      true
+    );
   }
 };
 
@@ -185,6 +217,25 @@ export const fetchBee = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Get the audio files on the client
+ * @param event
+ * @param bee
+ */
+export const getAudioFiles = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+): Promise<AudioFile[]> => {
+  try {
+    return await BeeSsh.getAudioFiles(bee.ipAddress);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "getAudioFiles()", message: e.message },
       true
     );
   }
@@ -603,6 +654,87 @@ export const updateBee = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "updateBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Upload audio files to the bees
+ */
+export const uploadAudioFiles = async (
+  event: Electron.IpcMainInvokeEvent,
+  name: string,
+  path: string
+) => {
+  try {
+    // create legal name for directory
+    const legalName = Utils.convertToLegalDirectoryName(name);
+
+    // get all current bees
+    const bees = await fetchAllBees();
+
+    // get all the wav files
+    const files = await fs.readdirSync(path);
+    const wavFiles = files.filter((file) => /^\d+\.wav$/.test(file));
+
+    // filter out the wavfiles
+    const filteredWavFiles = wavFiles.filter((wavFile) =>
+      bees.find((bee) => bee.isOnline && wavFile.startsWith(`${bee.id}.`))
+    );
+
+    // loop over filteredWavFiles and create the directory with legel name on the bee
+    for (const wavFile of filteredWavFiles) {
+      const beeId = parseInt(wavFile.split(".")[0]);
+      const bee = bees.find((bee) => bee.id === beeId);
+
+      // check if the bee is online
+      if (bee && bee.isOnline) {
+        // create the full path
+        const fullPath = `${path}/${wavFile}`;
+
+        // the remote directory and path
+        const remoteDirectory = `${audioFilesRootDirectory}/${legalName}`;
+
+        // the remote path of the audio file
+        const remotePath = `${audioFilesRootDirectory}/${legalName}/audio.wav`;
+
+        // upload the file to the bee
+        const sftp = new Ssh2SftpClient();
+        try {
+          await sftp.connect({
+            host: bee.ipAddress,
+            username: "pi",
+            privateKey: fs.readFileSync(SSH_PRIVATE_KEY_PATH),
+          });
+          await sftp.mkdir(remoteDirectory);
+          await sftp.fastPut(fullPath, remotePath, {
+            step: function (total_transferred, chunk, total) {
+              // calculate the percentage
+              const percentage = (total_transferred / total) * 100;
+
+              // let the renderer know that we have upload data
+              KweenBGlobal.kweenb.mainWindow.webContents.send(
+                "upload-audio-progress",
+                bee,
+                percentage
+              );
+            },
+          });
+          await BeeSsh.writeDataToFile(
+            bee.ipAddress,
+            `${remoteDirectory}/data.txt`,
+            JSON.stringify({ name })
+          );
+          sftp.end();
+        } catch (e: any) {
+          throw new Error(e.message);
+        }
+      }
+    }
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "uploadAudioFiles()", message: e.message },
       true
     );
   }

@@ -90,6 +90,12 @@ export interface ISystemClientsResponse {
   systemClients: ISystemClients;
 }
 
+export interface AudioFile {
+  name: string;
+  fullPath: string;
+  files: { name: string; fullPath: string }[];
+}
+
 /**
  * For Positioning
  */

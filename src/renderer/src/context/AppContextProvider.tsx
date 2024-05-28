@@ -18,6 +18,7 @@ import {
 import { AboutKweenBModal } from "../pages/Modals/AboutKweenBModal";
 import { LoadingState } from "@shared/interfaces";
 import { TriggerOnlyModal } from "../pages/Modals/TriggerOnlyModal";
+import { UploadAudioFilesSettings } from "../pages/Modals/UploadAudioFilesSettings";
 
 interface AppContextProviderProps {
   children: React.ReactNode;
@@ -37,6 +38,8 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [openDisconnectBeesModal, setOpenDisconnectBeesModal] =
     useState<boolean>(false);
   const [openTriggerOnlyModal, setOpenTriggerOnlyModal] =
+    useState<boolean>(false);
+  const [openUploadAudioFilesSettings, setOpenUploadAudioFilesSettings] =
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<AppMode>(AppMode.P2P);
   const [openAboutKweenBModal, setOpenAboutKweenBModal] = useState(false);
@@ -122,6 +125,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
       setOpenConnectBeesModal,
       setOpenDisconnectBeesModal,
       setOpenTriggerOnlyModal,
+      setOpenUploadAudioFilesSettings,
       setAppMode,
       appMode,
     }),
@@ -198,6 +202,11 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
         open={openTriggerOnlyModal}
         onClose={() => setOpenTriggerOnlyModal(false)}
       ></TriggerOnlyModal>
+
+      <UploadAudioFilesSettings
+        open={openUploadAudioFilesSettings}
+        onClose={() => setOpenUploadAudioFilesSettings(false)}
+      ></UploadAudioFilesSettings>
 
       {/* The application itself */}
       {children}

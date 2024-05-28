@@ -24,12 +24,15 @@ export const AudioMixer = ({}: AudioMixerProps) => {
   /**
    * State management bees
    */
-  const bees = useBeeStore((state) => state.bees);
+  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isOnline);
 
   /**
    * Initialize the bee audio params when bees are loaded
    */
-  if (beeAudioParams.length === 0 && bees.length > 0) {
+  if (
+    (beeAudioParams.length === 0 || beeAudioParams.length !== bees.length) &&
+    bees.length > 0
+  ) {
     const beeAudioParams = bees.map((bee) => {
       return {
         bee,

@@ -25,6 +25,17 @@ const jackJacktripKweenB = {
     ipcRenderer.invoke("kweenb:makeP2PAudioConnection", bee),
 };
 
+/**
+ * General methods for kweenb
+ */
+const generalKweenB = {
+  openDialog: (
+    method: keyof Electron.Dialog,
+    params: Electron.OpenDialogOptions
+  ) => ipcRenderer.invoke("kweenb:openDialog", method, params),
+};
+
 export default {
+  ...generalKweenB,
   ...jackJacktripKweenB,
 };

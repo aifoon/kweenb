@@ -1,11 +1,21 @@
 import { ipcRenderer } from "electron";
-import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
+import {
+  AudioFile,
+  IBee,
+  IBeeConfig,
+  IBeeInput,
+  IBeeState,
+} from "@shared/interfaces";
 import { PDAudioParam } from "@shared/enums";
 
 /**
  * All the audio settings for the bee (eg. triggering)
  */
 const audio = {
+  deleteAudio: (bee: IBee, path: string): Promise<void> =>
+    ipcRenderer.invoke("bee:deleteAudio", bee, path),
+  getAudioFiles: (bee: IBee): Promise<AudioFile[]> =>
+    ipcRenderer.invoke("bee:getAudioFiles", bee),
   killPureData: (bee: IBee) => ipcRenderer.invoke("bee:killPureData", bee),
   setAudioParam: (
     bees: IBee[] | IBee,
@@ -21,6 +31,8 @@ const audio = {
   startPureData: (bees: IBee[] | IBee) =>
     ipcRenderer.invoke("bee:startPureData", bees),
   stopAudio: (bees: IBee[] | IBee) => ipcRenderer.invoke("bee:stopAudio", bees),
+  uploadAudioFiles: (name: string, path: string) =>
+    ipcRenderer.invoke("bee:uploadAudioFiles", name, path),
 };
 
 /**

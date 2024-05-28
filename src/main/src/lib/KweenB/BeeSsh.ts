@@ -1,7 +1,114 @@
 import { SSH_ERROR } from "../Exceptions/ExceptionMessages";
 import { KweenBGlobal } from "../../kweenb";
-import settings from "@main/src/.firstboot/settings";
 import SettingHelpers from "./SettingHelpers";
+import { AudioFile } from "@shared/interfaces";
+import { audioFilesRootDirectory } from "../../consts";
+
+/**
+ * Create a directory on the client
+ * @param ipAddress The IP address of the client
+ * @param path The path of the directory to create
+ */
+const writeDataToFile = async (
+  ipAddress: string,
+  path: string,
+  data: string
+) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute ssh command
+    await ssh.execCommand(`echo '${data}' > ${path}`);
+  } catch (e) {
+    throw new Error(SSH_ERROR("createDirectory"));
+  }
+};
+
+/**
+ * Delete audio on the client
+ * @param ipAddress
+ * @param filePath
+ */
+const deletePath = async (ipAddress: string, path: string) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute ssh command
+    await ssh.execCommand(`rm -rf ${path}`);
+  } catch (e) {
+    throw new Error(SSH_ERROR("deleteFile"));
+  }
+};
+
+/**
+ * Get the audio files on the client
+ * @param ipAddress The IP address of the client
+ */
+const getAudioFiles = async (ipAddress: string): Promise<AudioFile[]> => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute the command
+    const response = await ssh.execCommand(`ls -R ${audioFilesRootDirectory}`);
+    const fileLines = response.stdout.split("\n");
+    const audioFiles: AudioFile[] = [];
+    let currentDirectory: string | undefined;
+    const rootDirectory = audioFilesRootDirectory;
+
+    // loop over files
+    for (const line of fileLines) {
+      if (line.endsWith(":")) {
+        // This line indicates a new directory
+        currentDirectory = line.slice(0, -1);
+        if (currentDirectory && currentDirectory !== rootDirectory) {
+          audioFiles.push({
+            name: currentDirectory.substring(
+              currentDirectory.lastIndexOf("/") + 1
+            ),
+            fullPath: `${currentDirectory}`,
+            files: [],
+          });
+        }
+      } else if (line !== "") {
+        // This line indicates a file inside the current directory
+        if (currentDirectory && currentDirectory !== rootDirectory) {
+          const file: { name: string; fullPath: string } = {
+            name: line.substring(line.lastIndexOf("/") + 1),
+            fullPath: `${currentDirectory}/${line}`,
+          };
+          if (!audioFiles.find((af) => af.fullPath === currentDirectory)) {
+            audioFiles.push({
+              name: currentDirectory.substring(
+                currentDirectory.lastIndexOf("/") + 1
+              ),
+              fullPath: `${currentDirectory}`,
+              files: [file],
+            });
+          } else {
+            const audioFile = audioFiles.find(
+              (af) => af.fullPath === currentDirectory
+            );
+            if (audioFile) {
+              audioFile.files.push(file);
+            }
+          }
+        }
+      }
+    }
+    return audioFiles;
+  } catch (e) {
+    throw new Error(SSH_ERROR("getAudioFiles"));
+  }
+};
 
 /**
  * Check if isJackRunning on the client
@@ -197,6 +304,8 @@ const startPureData = async (ipAddress: string) => {
 };
 
 export default {
+  deletePath,
+  getAudioFiles,
   isJackRunning,
   isJacktripRunning,
   isZwerm3ApiRunning,
@@ -205,4 +314,5 @@ export default {
   killJacktrip,
   killPureData,
   startPureData,
+  writeDataToFile,
 };

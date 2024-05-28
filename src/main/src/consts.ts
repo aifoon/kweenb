@@ -39,6 +39,9 @@ export const ZWERM3API_PORT = 3000;
 // the pure data port
 export const PD_PORT_BEE = 9001;
 
+// the audio file path root directory on the pi
+export const audioFilesRootDirectory = "/home/pi/pd-bee/files";
+
 // the default configuration of a bee
 export const DEFAULT_BEE_CONFIG = {
   useMqtt: false,

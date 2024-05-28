@@ -9,6 +9,7 @@ import { Z3Page } from "../../layout";
 import { AudioMixer } from "./AudioMixer";
 import { Button } from "@components/Buttons";
 import { AudioTest } from "./AudioTest";
+import { AudioFiles } from "./AudioFiles";
 
 export const Audio = () => {
   const [value, setValue] = useState(0);
@@ -48,7 +49,7 @@ export const Audio = () => {
         </Button>
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Files
+        <AudioFiles />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <AudioMixer />

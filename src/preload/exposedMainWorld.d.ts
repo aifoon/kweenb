@@ -10,6 +10,7 @@ import {
   PositioningTargetType,
   PositioningControllerAlgorithm,
   ITargetAndOptionsForPositioningAlgorithm,
+  AudioFile,
 } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 
@@ -18,6 +19,8 @@ declare global {
     readonly kweenb: {
       readonly methods: {
         // AUDIO
+        deleteAudio(bee: IBee, path: string): Promise<void>;
+        getAudioFiles(bee: IBee): Promise<AudioFile[]>;
         killPureData(bee: IBee): Promise<void>;
         setAudioParam(
           bees: IBee[] | IBee,
@@ -31,6 +34,7 @@ declare global {
         startAudio(bees: IBee[] | IBee, value: string): Promise<void>;
         startPureData(bees: IBee[] | IBee): Promise<void>;
         stopAudio(bees: IBee[] | IBee): Promise<void>;
+        uploadAudioFiles(name: string, path: string): Promise<void>;
 
         // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;
@@ -72,6 +76,10 @@ declare global {
         startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
         makeP2PAudioConnectionsKweenB(): Promise<void>;
         makeP2PAudioConnectionKweenB(bee: IBee): Promise<void>;
+        openDialog(
+          method: keyof Electron.Dialog,
+          params: Electron.OpenDialogOptions
+        ): Promise<string[]>;
 
         /**
          * Settings
@@ -173,6 +181,13 @@ declare global {
         ): () => void;
         onUpdateBee(
           callback: (event: IpcMessageEvent, bee: IBee) => void
+        ): () => void;
+        onUploadAudioProgress(
+          callback: (
+            event: IpcMessageEvent,
+            bee: IBee,
+            percentage: number
+          ) => void
         ): () => void;
       };
     };

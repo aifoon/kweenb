@@ -40,6 +40,7 @@ export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
         disabled={disabled}
         placeholder={placeholder}
         type={type}
+        multiple
       />
       {meta.touched && meta.error ? (
         <ErrorMessage size={size}>{meta.error}</ErrorMessage>

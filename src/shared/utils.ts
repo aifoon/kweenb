@@ -60,6 +60,30 @@ export const Utils = {
   },
 
   /**
+   * A function that converts a string to a legal name for a directory
+   * @param name The string to convert
+   * @returns The converted legal name for a directory
+   */
+  convertToLegalDirectoryName: (name: string): string => {
+    // Remove any special characters and replace them with underscores
+    const legalName = name.replace(/[^\w\s]/gi, "_");
+
+    // Remove leading and trailing spaces
+    const trimmedName = legalName.trim();
+
+    // Replace consecutive spaces with a single space
+    const normalizedName = trimmedName.replace(/\s+/g, " ");
+
+    // Convert spaces to underscores
+    const directoryName = normalizedName.replace(/\s/g, "_");
+
+    // Convert to lowercase
+    const lowercaseName = directoryName.toLowerCase();
+
+    return lowercaseName;
+  },
+
+  /**
    * Get the time difference between two dates in seconds
    * @param date1 The first date
    * @param date2 The second date

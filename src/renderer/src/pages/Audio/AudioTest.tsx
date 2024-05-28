@@ -14,16 +14,16 @@ type AudioTestsProps = {};
 const testAudio = [
   {
     name: "speaker ready",
-    file: "speakerready.wav",
+    file: "tests/speakerready.wav",
   },
   {
     name: "sample",
-    file: "sample.wav",
+    file: "tests/sample.wav",
   },
 ];
 
 export const AudioTest = (props: AudioTestsProps) => {
-  const bees = useBeeStore((state) => state.bees);
+  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isOnline);
 
   return (
     <Grid container spacing={2}>
@@ -51,8 +51,7 @@ export const AudioTest = (props: AudioTestsProps) => {
               <Button
                 key={`${audio.file}.all_bees`}
                 buttonSize={ButtonSize.Small}
-                buttonType={ButtonType.Primary}
-                buttonUse={ButtonUse.Dark}
+                buttonUse={ButtonUse.Grey}
                 onClick={() => {
                   bees.forEach((bee) =>
                     window.kweenb.methods.startAudio(bee, audio.file)
@@ -100,8 +99,7 @@ export const AudioTest = (props: AudioTestsProps) => {
                     <Button
                       key={`${audio.file}.${bee.id}`}
                       buttonSize={ButtonSize.Small}
-                      buttonType={ButtonType.Primary}
-                      buttonUse={ButtonUse.Dark}
+                      buttonUse={ButtonUse.Grey}
                       onClick={() =>
                         window.kweenb.methods.startAudio(bee, audio.file)
                       }
