@@ -10,6 +10,7 @@ import { AudioMixer } from "./AudioMixer";
 import { Button } from "@components/Buttons";
 import { AudioTest } from "./AudioTest";
 import { AudioFiles } from "./AudioFiles";
+import { AudioTrigger } from "./AudioTrigger";
 
 export const Audio = () => {
   const [value, setValue] = useState(0);
@@ -21,8 +22,6 @@ export const Audio = () => {
     setValue(newValue);
   };
 
-  const bees = useBeeStore((state) => state.bees);
-
   return (
     <Z3Page pageHeader={<PageHeader title="Audio" />}>
       <Tabs value={value} onChange={handleChange}>
@@ -32,21 +31,7 @@ export const Audio = () => {
         <Tab label="Tests" />
       </Tabs>
       <TabPanel value={value} index={0}>
-        <Button
-          onClick={() =>
-            //window.kweenb.methods.startAudio(bees[0], "sample.wav")
-            window.kweenb.methods.startPureData(bees[0])
-          }
-        >
-          Start
-        </Button>
-        <Button
-          onClick={() =>
-            window.kweenb.methods.startAudio(bees[0], "sample.wav")
-          }
-        >
-          Start2
-        </Button>
+        <AudioTrigger />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <AudioFiles />

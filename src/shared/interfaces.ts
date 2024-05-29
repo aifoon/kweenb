@@ -96,6 +96,12 @@ export interface AudioFile {
   files: { name: string; fullPath: string }[];
 }
 
+export interface AudioScene {
+  name: string;
+  foundOnBees: IBee[];
+  oscAddress: string;
+}
+
 /**
  * For Positioning
  */

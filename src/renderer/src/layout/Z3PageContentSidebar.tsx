@@ -8,22 +8,15 @@ export interface Z3PageSidebarProps {
   pageSidebar: ReactElement<PageSidebarProps>;
 }
 
-const Z3PageContentSidebarWrapper = styled.div`
-  display: grid;
-  width: 100%;
-  grid-template-columns: 175px 1fr;
-  grid-gap: var(--contentPaddingLeft);
-`;
-
 export const Z3PageContentSidebar = ({
   pageSidebar,
   children,
 }: Z3PageSidebarProps) => (
   <Grid container spacing={1}>
-    <Grid item xs={12} md={3} lg={2} xl={1}>
+    <Grid item xs={12} md={4} lg={3} xl={2}>
       {pageSidebar}
     </Grid>
-    <Grid item xs={12} md={9} lg={10} xl={11}>
+    <Grid item xs={12} md={8} lg={9} xl={10}>
       {children}
     </Grid>
   </Grid>

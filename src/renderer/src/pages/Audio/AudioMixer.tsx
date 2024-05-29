@@ -3,7 +3,7 @@ import { BeeAudioMixer } from "@components/Mixer/BeeAudioMixer";
 import { NumberSlider } from "@components/Slider";
 import { Box, Grid } from "@mui/material";
 import { useAudioMixerStore, useBeeStore } from "@renderer/src/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface AudioMixerProps {}
 
@@ -24,7 +24,7 @@ export const AudioMixer = ({}: AudioMixerProps) => {
   /**
    * State management bees
    */
-  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isOnline);
+  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isActive);
 
   /**
    * Initialize the bee audio params when bees are loaded
@@ -44,6 +44,15 @@ export const AudioMixer = ({}: AudioMixerProps) => {
     });
     useAudioMixerStore.setState({ beeAudioParams });
   }
+
+  /**
+   * Cleanup
+   */
+  useEffect(() => {
+    return () => {
+      useAudioMixerStore.setState({ beeAudioParams: [] });
+    };
+  }, []);
 
   return (
     <Box gap={3} display={"flex"} flexDirection={"column"}>

@@ -1,7 +1,7 @@
-import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
+import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { Card } from "@components/Cards";
 import { StatusBullet, StatusBulletType } from "@components/StatusBullet";
-import { Box, Grid } from "@mui/material";
+import { Button, Box, Grid } from "@mui/material";
 import StopIcon from "@mui/icons-material/Stop";
 import { useBeeStore } from "@renderer/src/hooks";
 import React from "react";
@@ -23,7 +23,7 @@ const testAudio = [
 ];
 
 export const AudioTest = (props: AudioTestsProps) => {
-  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isOnline);
+  const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isActive);
 
   return (
     <Grid container spacing={2}>
@@ -32,13 +32,16 @@ export const AudioTest = (props: AudioTestsProps) => {
           headerButtons={[
             <Button
               key={`test-stop-all_bees`}
-              buttonSize={ButtonSize.Small}
-              buttonType={ButtonType.Tertiary}
-              buttonUse={ButtonUse.Dark}
+              variant="text"
+              size="small"
+              color="secondary"
               onClick={() => {
                 bees.forEach((bee) => window.kweenb.methods.stopAudio(bee));
               }}
-              style={{ padding: 0 }}
+              sx={{
+                padding: 0,
+                minWidth: 0,
+              }}
             >
               <StopIcon />
             </Button>,
@@ -50,8 +53,9 @@ export const AudioTest = (props: AudioTestsProps) => {
             {testAudio.map((audio) => (
               <Button
                 key={`${audio.file}.all_bees`}
-                buttonSize={ButtonSize.Small}
-                buttonUse={ButtonUse.Grey}
+                variant="contained"
+                size="small"
+                color="secondary"
                 onClick={() => {
                   bees.forEach((bee) =>
                     window.kweenb.methods.startAudio(bee, audio.file)
@@ -82,9 +86,9 @@ export const AudioTest = (props: AudioTestsProps) => {
                 headerButtons={[
                   <Button
                     key={`test-stop-${bee.id}`}
-                    buttonSize={ButtonSize.Small}
-                    buttonType={ButtonType.Tertiary}
-                    buttonUse={ButtonUse.Dark}
+                    variant="text"
+                    size="small"
+                    color="secondary"
                     onClick={() => window.kweenb.methods.stopAudio(bee)}
                     style={{ padding: 0 }}
                   >
@@ -98,8 +102,9 @@ export const AudioTest = (props: AudioTestsProps) => {
                   {testAudio.map((audio) => (
                     <Button
                       key={`${audio.file}.${bee.id}`}
-                      buttonSize={ButtonSize.Small}
-                      buttonUse={ButtonUse.Grey}
+                      variant="contained"
+                      size="small"
+                      color="secondary"
                       onClick={() =>
                         window.kweenb.methods.startAudio(bee, audio.file)
                       }

@@ -14,7 +14,6 @@ export const PageSidebar = ({ buttons, divider = false }: PageSidebarProps) => (
     flexDirection={"column"}
     gap={1}
     borderRight={divider ? "1px solid var(--grey-300)" : "none"}
-    marginRight={2}
   >
     {buttons && <>{buttons.map((button) => button)}</>}
   </Box>

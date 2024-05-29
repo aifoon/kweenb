@@ -11,6 +11,7 @@ import {
   PositioningControllerAlgorithm,
   ITargetAndOptionsForPositioningAlgorithm,
   AudioFile,
+  AudioScene,
 } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
 
@@ -21,6 +22,7 @@ declare global {
         // AUDIO
         deleteAudio(bee: IBee, path: string): Promise<void>;
         getAudioFiles(bee: IBee): Promise<AudioFile[]>;
+        getAudioScenes(): Promise<AudioScene[]>;
         killPureData(bee: IBee): Promise<void>;
         setAudioParam(
           bees: IBee[] | IBee,
@@ -58,6 +60,7 @@ declare global {
         startJack(bee: IBee): void;
         startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
         startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;
+        startJacktripP2PServerBee(bee: IBee): Promise<void>;
 
         // CONFIG
         getBeeConfig(bee: IBee | number): Promise<IBeeConfig>;

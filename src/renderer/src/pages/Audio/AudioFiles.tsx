@@ -108,7 +108,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
               appContext.setOpenUploadAudioFilesSettings(true);
             }}
           >
-            Upload
+            Upload Scene
           </Button>
         </ButtonGroup>
       </Box>

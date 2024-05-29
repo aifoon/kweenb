@@ -3,7 +3,13 @@
  */
 
 import { BeeActiveState, PDAudioParam } from "@shared/enums";
-import { IBee, IBeeConfig, IBeeInput, IBeeState } from "@shared/interfaces";
+import {
+  AudioScene,
+  IBee,
+  IBeeConfig,
+  IBeeInput,
+  IBeeState,
+} from "@shared/interfaces";
 import fs from "fs";
 import Bee from "../../models/Bee";
 import {
@@ -232,6 +238,27 @@ const getAllBeesData = async (
 };
 
 /**
+ * Get the audio scenes
+ * @returns AudioScene[]
+ */
+const getAudioScenes = async (): Promise<AudioScene[]> => {
+  const bees = await getAllBees();
+  const data: AudioScene[] = [
+    {
+      name: "Mijn eerste scene",
+      foundOnBees: bees,
+      oscAddress: "/scene/1",
+    },
+    {
+      name: "Mijn tweede scene",
+      foundOnBees: bees.slice(0, 2),
+      oscAddress: "/scene/1",
+    },
+  ];
+  return data;
+};
+
+/**
  * Get a bee based on his id
  * @param id
  * @returns
@@ -423,18 +450,12 @@ const makeP2PAudioConnection = async (bee: IBee) => {
   if (!bee) throw new Error(BEE_IS_UNDEFINED());
 
   // loop over active bees and make connections
-  const playbackChannel1 = `system:playback_1`;
-  const playbackChannel2 = `system:playback_2`;
   const receiveChannel = `${bee.name}:receive_1`;
+  const inputChannel = "pure_data:input_1";
   await Zwerm3ApiHelpers.connectChannel(
     bee.ipAddress,
     receiveChannel,
-    playbackChannel1
-  );
-  await Zwerm3ApiHelpers.connectChannel(
-    bee.ipAddress,
-    receiveChannel,
-    playbackChannel2
+    inputChannel
   );
 };
 
@@ -572,6 +593,7 @@ export default {
   importBees,
   getAllBees,
   getAllBeesData,
+  getAudioScenes,
   getBee,
   getBeeConfig,
   getCurrentBeeStates,

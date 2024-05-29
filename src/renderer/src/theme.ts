@@ -100,6 +100,18 @@ export default createTheme({
         {
           props: {
             variant: "contained",
+            size: "medium",
+            color: "primary",
+          },
+          style: {
+            "&:hover": {
+              backgroundColor: "var(--secondary-500)",
+            },
+          },
+        },
+        {
+          props: {
+            variant: "contained",
             size: "small",
             color: "secondary",
           },
@@ -108,6 +120,38 @@ export default createTheme({
             padding: "var(--smallButtonPadding)",
             lineHeight: "normal",
             backgroundColor: "var(--primary-200)",
+            "&:hover": {
+              backgroundColor: "var(--primary-300)",
+            },
+          },
+        },
+        {
+          props: {
+            variant: "text",
+            size: "small",
+            color: "primary",
+          },
+          style: {
+            fontSize: "var(--smallText)",
+            padding: "var(--smallButtonPadding)",
+            lineHeight: "normal",
+            backgroundColor: "transparent",
+            "&:hover": {
+              backgroundColor: "var(--primary-300)",
+            },
+          },
+        },
+        {
+          props: {
+            variant: "text",
+            size: "small",
+            color: "secondary",
+          },
+          style: {
+            fontSize: "var(--smallText)",
+            padding: "var(--smallButtonPadding)",
+            lineHeight: "normal",
+            backgroundColor: "transparent",
             "&:hover": {
               backgroundColor: "var(--primary-300)",
             },

@@ -79,7 +79,7 @@ export const DisconnectBeesModal = ({
     await Promise.all(killPureDataPromises);
 
     /* Kill Jack & Jacktrip processes on kweenb */
-    setActiveIndex(4);
+    setActiveIndex(3);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
     /* Close the modal */

@@ -439,6 +439,56 @@ const startJackWithJacktripHubClient = async (
 };
 
 /**
+ * Start Jacktrip P2P Server
+ * @param ipAddress The ip address where the zwerm3api is running
+ * @param clientName The name of the client
+ */
+const startJacktripP2PServer = async (
+  ipAddress: string,
+  clientName: string
+): Promise<void> => {
+  // validate if Zwerm3API is running
+  if (!(await isZwerm3ApiRunning(ipAddress)))
+    throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
+
+  // get the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // create the post body
+  const body = {
+    channels: settings.beeAudioSettings.jacktrip.channels,
+    debug: false,
+    killAllJacktripBeforeStart: false,
+    localPort: settings.beeAudioSettings.jacktrip.localPort,
+    queueBuffer: settings.beeAudioSettings.jacktrip.queueBufferLength,
+    realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
+    bitRate: settings.beeAudioSettings.jacktrip.bitRate,
+    clientName,
+    connectDefaultAudioPorts: false,
+    receiveChannels: settings.beeAudioSettings.jacktrip.receiveChannels,
+    sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
+    redundancy: settings.beeAudioSettings.jacktrip.redundancy,
+  };
+
+  console.log(body);
+
+  // create the endpoint
+  const endpoint = createFullEndpoint(ipAddress, "startJacktripP2PServer");
+
+  // fetch the response
+  const response = await fetch(endpoint, {
+    method: "post",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // if we have an internal error
+  if (response.status === 500) {
+    throw new Error(POST_ERROR("startJacktripP2PServer"));
+  }
+};
+
+/**
  * Start Jack With Jacktrip P2P Server
  * @param ipAddress The ip address where the zwerm3api is running
  */
@@ -556,4 +606,5 @@ export default {
   startJackWithJacktripHubClient,
   startJackWithJacktripHubServer,
   startJackWithJacktripP2PServer,
+  startJacktripP2PServer,
 };

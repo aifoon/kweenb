@@ -5,6 +5,7 @@
 import fs from "fs";
 import {
   AudioFile,
+  AudioScene,
   IBee,
   IBeeConfig,
   IBeeInput,
@@ -236,6 +237,20 @@ export const getAudioFiles = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioFiles()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Get the audio scenes
+ */
+export const getAudioScenes = async () => {
+  try {
+    return await BeeHelpers.getAudioScenes();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "getAudioScenes()", message: e.message },
       true
     );
   }
@@ -598,6 +613,25 @@ export const startJackWithJacktripP2PServer = async (
 };
 
 /**
+ * Start the Jacktrip P2P server on a bee
+ * @param event
+ * @param bee
+ */
+export const startJacktripP2PServer = async (
+  event: Electron.IpcMainInvokeEvent,
+  bee: IBee
+) => {
+  try {
+    await zwerm3ApiHelpers.startJacktripP2PServer(bee.ipAddress, bee.name);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startJacktripP2PServer()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
  * Saves in the internal configuration
  * @param event
  * @param bee
@@ -724,7 +758,7 @@ export const uploadAudioFiles = async (
           await BeeSsh.writeDataToFile(
             bee.ipAddress,
             `${remoteDirectory}/data.txt`,
-            JSON.stringify({ name })
+            JSON.stringify({ name, oscAddress: `${legalName}/audio.wav` })
           );
           sftp.end();
         } catch (e: any) {

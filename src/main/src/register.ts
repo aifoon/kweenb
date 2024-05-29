@@ -37,6 +37,8 @@ import {
   getAudioFiles,
   deleteAudio,
   uploadAudioFiles,
+  startJacktripP2PServer as startJacktripP2PServerBee,
+  getAudioScenes,
 } from "./controllers/bee";
 import {
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
@@ -129,6 +131,7 @@ export const registerMethods = () => {
     "bee:startJackWithJacktripP2PServer",
     startJackWithJacktripP2PServerBee
   );
+  ipcMain.handle("bee:startJacktripP2PServer", startJacktripP2PServerBee);
 
   // CONFIG
   ipcMain.handle("bee:getBeeConfig", getBeeConfig);
@@ -137,6 +140,7 @@ export const registerMethods = () => {
   // AUDIO
   ipcMain.handle("bee:deleteAudio", deleteAudio);
   ipcMain.handle("bee:getAudioFiles", getAudioFiles);
+  ipcMain.handle("bee:getAudioScenes", getAudioScenes);
   ipcMain.handle("bee:killPureData", killPureData);
   ipcMain.handle("bee:setAudioParam", setAudioParam);
   ipcMain.handle("bee:setAudioParamForAllBees", setAudioParamForAllBees);

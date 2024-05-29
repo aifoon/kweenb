@@ -96,29 +96,36 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
     setActiveIndex(5);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
-    /* Start Jack & Jacktrip P2P server on active bees */
+    /* Start Jack and Jacktrip on active bees */
     setActiveIndex(6);
     const startJackWithJacktripP2PServerPromises = activeBees.map((bee) => {
       return window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
     });
     await Promise.all(startJackWithJacktripP2PServerPromises);
 
-    /* Start Jack & Jacktrip P2P clients on KweenB */
+    /* Start Pure Data on active bees */
     setActiveIndex(7);
+    const startPureDataPromises = activeBees.map((bee) => {
+      return window.kweenb.methods.startPureData(bee);
+    });
+    await Promise.all(startPureDataPromises);
+
+    /* Start Jack & Jacktrip P2P clients on KweenB */
+    setActiveIndex(8);
     const startJackWithJacktripP2PClientPromises = activeBees.map((bee) => {
       return window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
     });
     await Promise.all(startJackWithJacktripP2PClientPromises);
 
     /* Make P2P audio connection on active bees */
-    setActiveIndex(8);
+    setActiveIndex(9);
     const makeP2PAudioConnectionBeePromises = activeBees.map((bee) =>
       window.kweenb.methods.makeP2PAudioConnectionBee(bee)
     );
     await Promise.all(makeP2PAudioConnectionBeePromises);
 
     /* Make all P2P audio connections on KweenB */
-    setActiveIndex(9);
+    setActiveIndex(10);
     await window.kweenb.methods.makeP2PAudioConnectionsKweenB();
 
     /* Close the modal */
@@ -148,6 +155,7 @@ export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on KweenB",
           "Start Jack & Jacktrip P2P server on active bees",
+          "Start Pure Data on active bees",
           "Start Jack & Jacktrip P2P clients on KweenB",
           "Make P2P audio connection on active bees",
           "Make all P2P audio connections on KweenB",

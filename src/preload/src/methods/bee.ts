@@ -1,6 +1,7 @@
 import { ipcRenderer } from "electron";
 import {
   AudioFile,
+  AudioScene,
   IBee,
   IBeeConfig,
   IBeeInput,
@@ -16,6 +17,8 @@ const audio = {
     ipcRenderer.invoke("bee:deleteAudio", bee, path),
   getAudioFiles: (bee: IBee): Promise<AudioFile[]> =>
     ipcRenderer.invoke("bee:getAudioFiles", bee),
+  getAudioScenes: (): Promise<AudioScene[]> =>
+    ipcRenderer.invoke("bee:getAudioScenes"),
   killPureData: (bee: IBee) => ipcRenderer.invoke("bee:killPureData", bee),
   setAudioParam: (
     bees: IBee[] | IBee,
@@ -79,6 +82,8 @@ const jackJacktripBee = {
     ipcRenderer.invoke("bee:startJackWithJacktripHubClient", bee),
   startJackWithJacktripP2PServerBee: (bee: IBee) =>
     ipcRenderer.invoke("bee:startJackWithJacktripP2PServer", bee),
+  startJacktripP2PServerBee: (bee: IBee) =>
+    ipcRenderer.invoke("bee:startJacktripP2PServer", bee),
 };
 
 /**
