@@ -757,7 +757,7 @@ export const uploadAudioFiles = async (
           });
           await BeeSsh.writeDataToFile(
             bee.ipAddress,
-            `${remoteDirectory}/data.txt`,
+            `${remoteDirectory}/data.json`,
             JSON.stringify({ name, oscAddress: `${legalName}/audio.wav` })
           );
           sftp.end();

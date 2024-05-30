@@ -1,7 +1,7 @@
 import { SSH_ERROR } from "../Exceptions/ExceptionMessages";
 import { KweenBGlobal } from "../../kweenb";
 import SettingHelpers from "./SettingHelpers";
-import { AudioFile } from "@shared/interfaces";
+import { AudioFile, AudioScene } from "@shared/interfaces";
 import { audioFilesRootDirectory } from "../../consts";
 
 /**
@@ -107,6 +107,51 @@ const getAudioFiles = async (ipAddress: string): Promise<AudioFile[]> => {
     return audioFiles;
   } catch (e) {
     throw new Error(SSH_ERROR("getAudioFiles"));
+  }
+};
+
+/**
+ * Get Audio Scenes
+ * @param ipAddress
+ */
+const getAudioScenes = async (ipAddress: string): Promise<AudioScene[]> => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute the command
+    const response = await ssh.execCommand(`ls -R ${audioFilesRootDirectory}`);
+    const fileLines = response.stdout.split("\n");
+    const audioScenes: AudioScene[] = [];
+    let currentDirectory: string | undefined;
+    const rootDirectory = audioFilesRootDirectory;
+    // loop over files
+    for (const line of fileLines) {
+      if (line.endsWith(":")) {
+        // This line indicates a new directory
+        currentDirectory = line.slice(0, -1);
+        if (
+          currentDirectory &&
+          currentDirectory !== rootDirectory &&
+          currentDirectory !== "tests"
+        ) {
+          const dataFilePath = `${currentDirectory}/data.json`;
+          const dataFileResponse = await ssh.execCommand(`cat ${dataFilePath}`);
+          const dataFileContent = JSON.parse(dataFileResponse.stdout);
+          const audioScene: AudioScene = {
+            name: dataFileContent.name,
+            foundOnBees: [],
+            oscAddress: dataFileContent.oscAddress,
+          };
+          audioScenes.push(audioScene);
+        }
+      }
+    }
+    return audioScenes;
+  } catch (e) {
+    throw new Error(SSH_ERROR("getAudioScenes"));
   }
 };
 
@@ -306,6 +351,7 @@ const startPureData = async (ipAddress: string) => {
 export default {
   deletePath,
   getAudioFiles,
+  getAudioScenes,
   isJackRunning,
   isJacktripRunning,
   isZwerm3ApiRunning,

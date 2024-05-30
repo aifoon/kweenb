@@ -1,6 +1,6 @@
 import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { PageSidebar } from "@components/Sidebar";
-import { ButtonGroup, Grid, Button, Box } from "@mui/material";
+import { ButtonGroup, Grid, Button, Box, Typography } from "@mui/material";
 import { Z3PageContentSidebar } from "@renderer/src/layout";
 import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
@@ -24,6 +24,15 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
       if (scenes && scenes.length > 0) setCurrentAudioScene(scenes[0]);
     });
   }, []);
+
+  if (!currentAudioScene)
+    return (
+      <Box>
+        <Typography>
+          No scenes can be found. Check if bees are active and online.
+        </Typography>
+      </Box>
+    );
 
   return (
     <Z3PageContentSidebar

@@ -94,25 +94,6 @@ const exportBees = async (filePath: string) => {
 };
 
 /**
- * Get the bee configuration
- * @param id
- * @returns
- */
-const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
-  // get the bee behind the id
-  const bee = await Bee.findOne({ where: { id } });
-
-  // validate
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // get the bee config
-  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
-
-  // return the configuration
-  return beeConfig;
-};
-
-/**
  * Get all bees
  * @param pollForOnline boolean if we need to poll for onlineness
  * @returns
@@ -242,20 +223,44 @@ const getAllBeesData = async (
  * @returns AudioScene[]
  */
 const getAudioScenes = async (): Promise<AudioScene[]> => {
-  const bees = await getAllBees();
-  const data: AudioScene[] = [
-    {
-      name: "Mijn eerste scene",
-      foundOnBees: bees,
-      oscAddress: "/scene/1",
-    },
-    {
-      name: "Mijn tweede scene",
-      foundOnBees: bees.slice(0, 2),
-      oscAddress: "/scene/1",
-    },
-  ];
-  return data;
+  // get all bees
+  const bees = await getAllBees(BeeActiveState.ACTIVE);
+
+  // init the audio scenes
+  const audioScenes: AudioScene[] = [];
+
+  // loop over the bees
+  for (const bee of bees) {
+    // check if the bee is online
+    if (!bee.isOnline) continue;
+
+    // get the audio scenes
+    const beeAudioScenes = await BeeSsh.getAudioScenes(bee.ipAddress);
+
+    // loop over the audio scenes
+    for (const dataFileContent of beeAudioScenes) {
+      // check if the scene already exists in audioScenes
+      const foundScene = audioScenes.find(
+        (scene) => scene.name === dataFileContent.name
+      );
+
+      // if the scene is not found, add it
+      if (!foundScene) {
+        const audioScene: AudioScene = {
+          name: dataFileContent.name,
+          foundOnBees: [bee],
+          oscAddress: dataFileContent.oscAddress,
+        };
+        audioScenes.push(audioScene);
+      } else {
+        // if the scene is found, add the bee to the scene
+        foundScene.foundOnBees.push(bee);
+      }
+    }
+  }
+
+  // return the audio scenes
+  return audioScenes;
 };
 
 /**
@@ -292,6 +297,25 @@ const getBee = async (id: number): Promise<IBee> => {
 
   // return the bee data
   return beeData;
+};
+
+/**
+ * Get the bee configuration
+ * @param id
+ * @returns
+ */
+const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
+  // get the bee behind the id
+  const bee = await Bee.findOne({ where: { id } });
+
+  // validate
+  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
+
+  // get the bee config
+  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
+
+  // return the configuration
+  return beeConfig;
 };
 
 /**
