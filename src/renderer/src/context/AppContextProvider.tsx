@@ -118,6 +118,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
 
   const appContextValue = useMemo(
     () => ({
+      loading,
       setLoading,
       showToast,
       setOpenBuildSwarmModal,

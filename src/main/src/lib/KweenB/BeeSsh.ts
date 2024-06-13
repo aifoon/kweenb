@@ -120,13 +120,13 @@ const getAudioScenes = async (ipAddress: string): Promise<AudioScene[]> => {
     const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
       ipAddress
     );
-
     // execute the command
     const response = await ssh.execCommand(`ls -R ${audioFilesRootDirectory}`);
     const fileLines = response.stdout.split("\n");
     const audioScenes: AudioScene[] = [];
     let currentDirectory: string | undefined;
     const rootDirectory = audioFilesRootDirectory;
+
     // loop over files
     for (const line of fileLines) {
       if (line.endsWith(":")) {
@@ -135,7 +135,7 @@ const getAudioScenes = async (ipAddress: string): Promise<AudioScene[]> => {
         if (
           currentDirectory &&
           currentDirectory !== rootDirectory &&
-          currentDirectory !== "tests"
+          !currentDirectory.includes("tests")
         ) {
           const dataFilePath = `${currentDirectory}/data.json`;
           const dataFileResponse = await ssh.execCommand(`cat ${dataFilePath}`);

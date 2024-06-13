@@ -9,6 +9,7 @@ import { LoadingState } from "@shared/interfaces";
  */
 
 export interface AppContextValue {
+  loading: LoadingState;
   setLoading: React.Dispatch<React.SetStateAction<LoadingState>>;
   setOpenBuildSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenCleanSwarmModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,6 +25,7 @@ export interface AppContextValue {
 }
 
 export const AppContext = createContext<AppContextValue>({
+  loading: { loading: false, text: "" },
   setLoading: () => {},
   setOpenBuildSwarmModal: () => {},
   setOpenCleanSwarmModal: () => {},

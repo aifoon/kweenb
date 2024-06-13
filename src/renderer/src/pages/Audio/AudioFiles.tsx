@@ -6,7 +6,6 @@ import { PageSidebar } from "@components/Sidebar";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import {
-  Button,
   ButtonGroup,
   ButtonSize,
   ButtonType,
@@ -14,7 +13,7 @@ import {
 } from "@components/Buttons";
 import { Card } from "@components/Cards";
 import { useAppContext, useBeeStore } from "@renderer/src/hooks";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
 
 type AudioFilesProps = {};
@@ -84,27 +83,30 @@ export const AudioFiles = (props: AudioFilesProps) => {
       <Box display={"flex"} justifyContent={"flex-end"}>
         <ButtonGroup>
           <Button
-            buttonType={ButtonType.Primary}
-            buttonSize={ButtonSize.Small}
-            buttonUse={ButtonUse.Dark}
-            onClick={() => loadAudioFiles(selectedBee)}
-          >
-            <RefreshIcon style={{ fontSize: ".8rem" }} />
-          </Button>
-          <Button
-            buttonType={ButtonType.Primary}
-            buttonSize={ButtonSize.Small}
-            buttonUse={ButtonUse.Dark}
+            variant={"contained"}
+            size="small"
+            color="secondary"
+            key="delete_forever"
             disabled={selectedItems.length === 0}
             onClick={deleteAudio}
           >
             <DeleteForeverIcon style={{ fontSize: ".8rem" }} />
           </Button>
           <Button
-            buttonType={ButtonType.Primary}
-            buttonSize={ButtonSize.Small}
-            buttonUse={ButtonUse.Normal}
-            onClick={() => {
+            variant={"contained"}
+            size="small"
+            color="secondary"
+            key="refresh_list"
+            onClick={() => loadAudioFiles(selectedBee)}
+          >
+            <RefreshIcon style={{ fontSize: ".8rem" }} />
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            key="upload_scene"
+            onClick={async () => {
               appContext.setOpenUploadAudioFilesSettings(true);
             }}
           >
@@ -117,19 +119,15 @@ export const AudioFiles = (props: AudioFilesProps) => {
           <PageSidebar
             buttons={bees.map((bee) => (
               <Button
-                key={bee.name}
-                style={{ textAlign: "left" }}
+                variant={selectedBee?.id === bee.id ? "contained" : "text"}
+                style={{ justifyContent: "left" }}
+                size="small"
+                color="secondary"
+                key={bee.id}
                 onClick={async () => {
                   await loadAudioFiles(bee);
                   setSelectedItems([]);
                 }}
-                buttonType={
-                  selectedBee?.id === bee.id
-                    ? ButtonType.Primary
-                    : ButtonType.TertiaryWhite
-                }
-                buttonSize={ButtonSize.Small}
-                buttonUse={ButtonUse.Dark}
               >
                 {bee.name}
               </Button>

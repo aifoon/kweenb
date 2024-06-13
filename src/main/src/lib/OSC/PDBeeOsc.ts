@@ -1,7 +1,7 @@
 import { OscBase } from "./OscBase";
 
 export class PDBeeOsc extends OscBase {
-  debug = true;
+  debug = false;
 
   async setVolume(value: number): Promise<void> {
     if (this.debug) console.log("/volume", value);
