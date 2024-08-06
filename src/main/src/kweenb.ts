@@ -23,6 +23,7 @@ import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
 import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
 import { PDBeeOsc } from "./lib/OSC";
+import { initExpress } from "./express";
 
 /**
  * A KweenB class
@@ -110,6 +111,9 @@ class KweenB {
 
     // init the presets folder path (copy resources to presets folder)
     initPresetsFolder();
+
+    // init the express server
+    initExpress();
 
     // init the bee ssh connections
     this._beeSshConnections = new BeeSshConnections();

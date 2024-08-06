@@ -1,6 +1,4 @@
-import { red } from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
-import { style } from "glamor";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 
 declare module "@mui/material/styles" {

@@ -1,15 +1,12 @@
-import { join, resolve } from "path";
 import { builtinModules } from "module";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { join, resolve } from "path";
 import { chrome } from "../../.electron-vendors.cache.json";
 
 const PACKAGE_ROOT = __dirname;
 
-/**
- * @type {import('vite').UserConfig}
- * @see https://vitejs.dev/config/
- */
-const config = {
+export default defineConfig({
   plugins: [react()],
   mode: process.env.MODE,
   base: "",
@@ -30,16 +27,11 @@ const config = {
       },
     ],
   },
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
   build: {
     sourcemap: true,
-    target: `chrome${chrome}`,
-    outDir: "dist",
+    outDir: "../main/public/webserver",
     assetsDir: ".",
+    target: `chrome${chrome}`,
     rollupOptions: {
       input: join(PACKAGE_ROOT, "index.html"),
       external: [...builtinModules],
@@ -54,10 +46,12 @@ const config = {
         warn(warning);
       },
     },
-    chunkSizeWarningLimit: 5000,
     emptyOutDir: true,
-    brotliSize: false,
   },
-};
-
-export default config;
+  server: {
+    port: 3001,
+    fs: {
+      strict: true,
+    },
+  },
+});

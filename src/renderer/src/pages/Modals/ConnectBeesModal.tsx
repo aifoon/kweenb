@@ -2,15 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { TaskList } from "@components/TaskList";
 import { TaskListItemState } from "@components/TaskList/TaskListItem";
-import { Flex } from "@components/Flex";
-import {
-  Button,
-  ButtonGroup,
-  ButtonType,
-  ButtonUse,
-  ButtonSize,
-} from "@components/Buttons";
-import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 
 interface ConnectBeesModalProps
   extends Pick<BaseModalProps, "open" | "onClose"> {}

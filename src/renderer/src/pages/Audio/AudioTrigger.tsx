@@ -2,9 +2,9 @@ import { PageSidebar } from "@components/Sidebar";
 import { ButtonGroup, Grid, Button, Box, Typography } from "@mui/material";
 import { Z3PageContentSidebar } from "@renderer/src/layout";
 import { AudioScene } from "@shared/interfaces";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import StopIcon from "@mui/icons-material/Stop";
-import { useAppContext, useAppStore, useBeeStore } from "@renderer/src/hooks";
+import { useAppContext, useAppStore } from "@renderer/src/hooks";
 
 type AudioTriggerProps = {};
 

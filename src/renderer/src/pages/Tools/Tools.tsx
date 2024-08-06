@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { PageHeader } from "../../components/PageHeader";
+import { PageHeader } from "../../../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import {
   IsZwerm3ApiRunningOnTheKween,

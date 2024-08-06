@@ -1,11 +1,13 @@
 {
+  "files": [],
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": ["es6"],
+    "lib": ["es6", "dom"],
     "moduleResolution": "node",
     "module": "ES6",
     "forceConsistentCasingInFileNames": true,
@@ -20,14 +22,18 @@
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "../../src",
     "paths": {
-      "@components/*": ["src/renderer/src/components/*"],
-      "@renderer/*": ["src/renderer/*"],
-      "@shared/*": ["src/shared/*"],
+      "@components/*": ["components/*"],
+      "@renderer/*": ["renderer/*"],
+      "@shared/*": ["shared/*"],
     },
   },
-  "lib": ["dom"],
+  "include": [
+    "src/**/*.tsx",
+    "types.d.ts",
+    "../preload/exposedMainWorld.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "scripts/*.js"

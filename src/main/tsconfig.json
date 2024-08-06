@@ -13,7 +13,8 @@
       "@main/*": ["main/*"],
       "@shared/*": ["shared/*"]
     },
+    "types": ["node", "vite/client"]
   },
   "include": [ "src/**/*.ts" ],
-  "exclude": ["dist/**/*.*"]
+  "exclude": ["dist/**/*.*"],
 }

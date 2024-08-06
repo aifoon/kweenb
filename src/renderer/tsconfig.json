@@ -12,7 +12,7 @@
     "sourceMap": true,
     "baseUrl": "../../src",
     "paths": {
-      "@components/*": ["renderer/src/components/*"],
+      "@components/*": ["components/*"],
       "@renderer/*": ["renderer/*"],
       "@shared/*": ["shared/*"]
     },

@@ -22,14 +22,16 @@ import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
-import { resourcesPath } from "@shared/resources";
 import { join } from "path";
-import { app } from "electron";
+import { killExpress } from "../../express";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
  */
 const closeApplication = async (appMode: AppMode) => {
+  // Kill the express server
+  killExpress();
+
   // kill the workers
   KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
 

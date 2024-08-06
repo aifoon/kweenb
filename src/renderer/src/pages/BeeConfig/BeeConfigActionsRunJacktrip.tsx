@@ -1,5 +1,5 @@
 import { ToggleButton } from "@components/Buttons/ToggleButton";
-import { ButtonSize } from "@renderer/src/components/Buttons";
+import { ButtonSize } from "@components/Buttons";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import {

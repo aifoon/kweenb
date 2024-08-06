@@ -25,13 +25,13 @@ import RouteIcon from "@mui/icons-material/Route";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { SelectField, TextField } from "@renderer/src/components/Forms";
+import { SelectField, TextField } from "@components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,
 } from "@components/Forms/InputField";
-import { Console } from "@renderer/src/components/Console";
-import { SwitchField } from "@renderer/src/components/Forms/SwitchField";
+import { Console } from "@components/Console";
+import { SwitchField } from "@components/Forms/SwitchField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
 import { ChannelType } from "@shared/interfaces";

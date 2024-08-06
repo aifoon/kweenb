@@ -1,7 +1,7 @@
 import { Card } from "@components/Cards";
 import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
-import { TextField, SwitchField } from "@renderer/src/components/Forms";
+import { TextField, SwitchField } from "@components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,

@@ -54,6 +54,8 @@ const config = {
         "tween-functions",
         "node-ssh",
         "ssh2-sftp-client",
+        "express",
+        "cors",
         ...builtinModules,
       ],
       output: {

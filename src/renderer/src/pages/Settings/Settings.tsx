@@ -4,7 +4,7 @@ import { useSettings, useAppContext } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { AppMode } from "@shared/enums";
-import { PageHeader } from "../../components/PageHeader";
+import { PageHeader } from "../../../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import { SettingsBees } from "./SettingsBees";
 import { SettingsKweenB } from "./SettingsKweenB";

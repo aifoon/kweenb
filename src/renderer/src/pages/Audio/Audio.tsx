@@ -1,13 +1,9 @@
-import { Loader } from "@components/Loader";
 import { Tab } from "@mui/material";
-import { useSettings, useAppContext, useBeeStore } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
-import { AppMode } from "@shared/enums";
-import { PageHeader } from "../../components/PageHeader";
+import { PageHeader } from "../../../../components/PageHeader";
 import { Z3Page } from "../../layout";
 import { AudioMixer } from "./AudioMixer";
-import { Button } from "@components/Buttons";
 import { AudioTest } from "./AudioTest";
 import { AudioFiles } from "./AudioFiles";
 import { AudioTrigger } from "./AudioTrigger";

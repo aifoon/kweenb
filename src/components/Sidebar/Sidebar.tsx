@@ -1,9 +1,9 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import sidebarLogo from "../../images/sidebar-logo.png";
+import sidebarLogo from "../images/sidebar-logo.png";
 import { SidebarButtonProps } from "./SidebarButton";
 import { SidebarBadgeProps } from "./SidebarStatusBadge";
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 
 interface SidebarProps {
   badges?: ReactElement<SidebarBadgeProps>[];
@@ -32,14 +32,14 @@ const SidebarWrapper = styled.div<SidebarProps>`
   }}
   ${({ width }) => `width: ${width}` || ""};
   ${({ height }) => `height: ${height}` || ""};
-`
+`;
 
 const SidebarCollapseButtonContainer = styled.div<SidebarProps>`
   justify-content: flex-end;
   align-items: center;
   width: 100%;
   ${({ collapseble }) => (collapseble ? `display: flex;` : `display: none;`)}
-`
+`;
 
 const SidebarCollapseButton = styled.button`
   background-color: var(--primary-200);
@@ -50,13 +50,16 @@ const SidebarCollapseButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const SidebarContainer = styled.aside<SidebarProps>`
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
-  ${({ collapseble }) => (collapseble ? `grid-template-rows: 50px 1fr 100px;` : `grid-template-rows: 1fr 100px;`)}
+  ${({ collapseble }) =>
+    collapseble
+      ? `grid-template-rows: 50px 1fr 100px;`
+      : `grid-template-rows: 1fr 100px;`}
   height: 100%;
 `;
 
@@ -100,7 +103,7 @@ export const Sidebar = ({
     <SidebarContainer collapseble={collapseble}>
       <SidebarCollapseButtonContainer collapseble={collapseble}>
         <SidebarCollapseButton>
-          <MenuOpenIcon style={{fontSize: ".9rem"}} />
+          <MenuOpenIcon style={{ fontSize: ".9rem" }} />
         </SidebarCollapseButton>
       </SidebarCollapseButtonContainer>
       <div>
