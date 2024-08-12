@@ -14,11 +14,11 @@ import {
   CleanHiveModal,
   ConnectBeesModal,
   DisconnectBeesModal,
-} from "../pages/Modals";
-import { AboutKweenBModal } from "../pages/Modals/AboutKweenBModal";
+} from "../components/Modals";
+import { AboutKweenBModal } from "../components/Modals/AboutKweenBModal";
 import { LoadingState } from "@shared/interfaces";
-import { TriggerOnlyModal } from "../pages/Modals/TriggerOnlyModal";
-import { UploadAudioFilesSettings } from "../pages/Modals/UploadAudioFilesSettings";
+import { TriggerOnlyModal } from "../components/Modals/TriggerOnlyModal";
+import { UploadAudioFilesSettings } from "../components/Modals/UploadAudioFilesSettings";
 
 interface AppContextProviderProps {
   children: React.ReactNode;

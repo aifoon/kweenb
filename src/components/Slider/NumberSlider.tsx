@@ -1,4 +1,4 @@
-import { LabelHorizontalProps } from "@components/Layout/LabelHorizontal";
+import { LabelHorizontalProps } from "../Layout/LabelHorizontal";
 import { Box, Slider, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 
@@ -17,7 +17,7 @@ interface NumberSliderProps extends LabelHorizontalProps {
 export const NumberSlider = ({
   min,
   max,
-  label = "test",
+  label = "",
   labelWidth = "100px",
   step = 5,
   value = 0,
@@ -100,6 +100,7 @@ export const NumberSlider = ({
           min={min}
           max={max}
           step={step}
+          aria-label="always visible"
           orientation={orientation}
           onChange={changeValue}
           onChangeCommitted={(e, v) => {

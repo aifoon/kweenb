@@ -10,13 +10,13 @@ import {
   ManageBees,
   BeeConfig,
   BeePoller,
-} from "./pages";
-import { Z3Navigation, Z3Sidebar } from "./layout";
-import { Tools } from "./pages/Tools/Tools";
-import theme from "./theme";
-import { Positioning } from "./pages/Positioning/Positioning";
-import { PositioningModules } from "./pages/Positioning/PositioningModules/PositioningModules";
-import { Audio } from "./pages/Audio/Audio";
+} from "./components";
+import { Z3Navigation, Z3Sidebar } from "./components/Layout";
+import { Tools } from "./components/Tools/Tools";
+import theme from "@components/theme";
+import { Positioning } from "./components/Positioning/Positioning";
+import { PositioningModules } from "./components/Positioning/PositioningModules/PositioningModules";
+import { Audio } from "./components/Audio/Audio";
 
 const startDesignSystem = false;
 

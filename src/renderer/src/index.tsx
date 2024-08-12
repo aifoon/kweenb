@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
 import { App } from "./App";
-import "./styles/styles.css";
+import "@components/styles/styles.css";
 
 ReactDOM.render(<App />, document.getElementById("root"));

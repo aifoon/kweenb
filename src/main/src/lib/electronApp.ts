@@ -4,10 +4,10 @@
 
 import path from "path";
 import { URL } from "url";
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 
 import MenuBuilder from "./Menu";
-import { KweenB, KweenBGlobal } from "../kweenb";
+import { KweenBGlobal } from "../kweenb";
 
 interface ElectronAppOptions {
   browserWidth?: number;
@@ -73,9 +73,9 @@ export default class ElectronApp {
       show: false,
       width: this.options.browserWidth,
       height: this.options.browserHeight,
+      title: `kweenb v${app.getVersion()}`,
       icon: this.options?.iconPath ? this.options.iconPath : "",
       webPreferences: {
-        // nativeWindowOpen: true,
         webviewTag: false,
         preload: path.join(__dirname, "../../preload/dist/index.cjs"),
       },

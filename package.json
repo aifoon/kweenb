@@ -90,6 +90,7 @@
     "express": "^4.19.2",
     "formik": "^2.2.9",
     "glamor": "^2.17.9",
+    "idb-keyval": "^6.2.1",
     "interface": "./src/interface",
     "mathjs": "^11.8.0",
     "mqtt": "^4.3.7",

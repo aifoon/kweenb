@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import { ButtonProps } from "@components/Buttons/Button";
+import { ButtonProps } from "../Buttons/Button";
 import { Box } from "@mui/material";
 
 export interface PageSidebarProps {

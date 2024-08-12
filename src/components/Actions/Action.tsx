@@ -1,4 +1,4 @@
-import { Button, ButtonUse, ButtonType, ButtonSize } from "@components/Buttons";
+import { Button, ButtonUse, ButtonType, ButtonSize } from "../Buttons";
 import { useEffect, useState } from "react";
 import { TableCell, TableRow } from "@mui/material";
 

@@ -2,6 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import logo from "../images/logo.png";
 
+interface NavigationLogoProps {
+  title: string;
+}
+
 const LogoWrapper = styled.div`
   display: flex;
   line-height: 21px;
@@ -13,9 +17,9 @@ const LogoWrapper = styled.div`
   }
 `;
 
-export const NavigationLogo = () => (
+export const NavigationLogo = ({ title = "" }: NavigationLogoProps) => (
   <LogoWrapper>
-    <img src={logo} alt="The Zwerm3 Logo" />
-    <span>zwerm3</span>
+    <img src={logo} alt={`The ${title} logo`} />
+    <span>{title}</span>
   </LogoWrapper>
 );

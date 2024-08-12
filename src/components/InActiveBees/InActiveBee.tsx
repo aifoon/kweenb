@@ -1,4 +1,4 @@
-import { Utils } from "@shared/utils";
+import { Utils } from "../../shared/utils";
 import React from "react";
 import styled from "styled-components";
 import { useDrag } from "react-dnd";

@@ -1,9 +1,9 @@
-import { Card } from "@components/Cards";
-import { PositioningTargetType } from "@shared/interfaces";
-import React, { useEffect, useMemo } from "react";
+import { Card } from "../Cards";
+import { PositioningTargetType } from "../../shared/interfaces";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { ToggleButton } from "@components/Buttons/ToggleButton";
-import { ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
+import { ToggleButton } from "../Buttons/ToggleButton";
+import { ButtonSize, ButtonType, ButtonUse } from "../Buttons";
 
 type PositioningTargetTypeSelectorProps = {
   onPositioningTargetTypeChange?: (

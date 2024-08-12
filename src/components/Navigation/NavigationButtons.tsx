@@ -1,7 +1,6 @@
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import { ButtonProps } from "@renderer/src/components/Buttons/Button";
-import { ButtonGroup } from "../Buttons/ButtonGroup";
+import { ButtonProps } from "../Buttons/Button";
 import { Box } from "@mui/material";
 
 /**
