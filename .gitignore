@@ -52,3 +52,6 @@ resources/jacktrip/*
 
 # Do not add Jack
 resources/jack/*
+
+# Do not add compiled webserver folder
+*/webserver/*
