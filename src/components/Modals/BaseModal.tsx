@@ -113,7 +113,7 @@ export const BaseModal = ({
       onClose={handleClose}
       disableEscapeKeyDown
     >
-      <Box style={{ position: "relative" }}>
+      <Box style={{ position: "relative", outline: "none" }}>
         {showCloseButton && (
           <Box
             style={{

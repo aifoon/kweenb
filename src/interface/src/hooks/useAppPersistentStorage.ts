@@ -26,6 +26,8 @@ interface useAppPersistentStorageState {
   removeOrderedAudioScene: (orderedAudioScene: OrderedAudioScene) => void;
   setCachedAudioScenes: (audioScenes: AudioScene[]) => void;
   setAllBeesToAudioScene: (audioScene: AudioScene) => void;
+  socketUrl: string;
+  setSocketUrl: (socketUrl: string) => void;
   swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => void;
   updateBeeAudioScene: (
     bee: IBee,
@@ -97,7 +99,6 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
         }
       },
       orderedAudioScenes: [],
-
       removeOrderedAudioScene: (audioScene) => {
         set({
           orderedAudioScenes: get()
@@ -134,6 +135,10 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
       },
       setCachedAudioScenes: (audioScenes: AudioScene[]) => {
         set({ cachedAudioScenes: audioScenes });
+      },
+      socketUrl: "http://kweenb.local:4444",
+      setSocketUrl: (socketUrl: string) => {
+        set({ socketUrl });
       },
       swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => {
         set({ beeAudioScenes });
@@ -175,6 +180,7 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
       partialize: (state) => ({
         beeAudioScenes: state.beeAudioScenes,
         orderedAudioScenes: state.orderedAudioScenes,
+        socketUrl: state.socketUrl,
       }),
       onRehydrateStorage: (state) => {
         useAppStore.setState({ rehydrated: false });

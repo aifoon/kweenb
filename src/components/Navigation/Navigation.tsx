@@ -9,6 +9,7 @@ interface NavigationProps {
   children?: ReactElement<NavigationButtonsProps>;
   fixedToTop?: boolean;
   height?: string;
+  onLogoClick?: () => void;
 }
 
 const NavigationContainer = styled.nav<
@@ -49,9 +50,10 @@ export const Navigation = ({
   children,
   height = "75px",
   fixedToTop = false,
+  onLogoClick = () => {},
 }: NavigationProps) => (
   <NavigationContainer height={height} fixedToTop={fixedToTop}>
-    <NavigationLogo title={title} />
+    <NavigationLogo onClick={onLogoClick} title={title} />
     <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
       {children}
     </Box>

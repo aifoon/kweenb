@@ -7,12 +7,34 @@ import { Button } from "@mui/material";
 import { useAppPersistentStorage } from "../../hooks/useAppPersistentStorage";
 import { useSocket } from "../../hooks/useSocket";
 import { Loader } from "@components/Loader";
+import styled from "styled-components";
 
 interface SelectSceneModalProps {
   open: boolean;
   bee?: IBee | undefined;
   onClose: () => void;
 }
+
+/**
+ * Variables
+ */
+
+const modalHeight = "80vh";
+const modalWidth = "80vw";
+const headerHeight = "40px";
+const textFieldHeight = 40;
+const textFieldMargin = "10px";
+
+const FilterTextfieldContainer = styled(Box)<{ $hasBee: boolean }>`
+  grid-template-columns: ${({ $hasBee }) => ($hasBee ? "1fr" : "1fr 150px")};
+  height: ${textFieldHeight}px;
+  margin-bottom: ${textFieldMargin};
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    height: ${({ $hasBee }) =>
+      $hasBee ? `${textFieldHeight}px` : `${textFieldHeight * 2}px`};
+  }
+`;
 
 export const SelectSceneModal = ({
   open,
@@ -29,11 +51,6 @@ export const SelectSceneModal = ({
    * Variables
    */
 
-  const modalHeight = "80vh";
-  const modalWidth = "80vw";
-  const headerHeight = "40px";
-  const textFieldHeight = "40px";
-  const textFieldMargin = "10px";
   const filteredScenes = audioScenes.filter((scene) =>
     scene.name.toLowerCase().includes(filterValue.toLowerCase())
   );
@@ -132,12 +149,7 @@ export const SelectSceneModal = ({
       {loading && <Loader text="Fetching scenes" />}
       {!loading && (
         <>
-          <Box
-            style={{ height: textFieldHeight, marginBottom: textFieldMargin }}
-            display={"grid"}
-            gridTemplateColumns={bee ? "1fr" : "1fr 150px"}
-            gap={1}
-          >
+          <FilterTextfieldContainer display={"grid"} $hasBee={!!bee} gap={1}>
             <TextField
               autoFocus
               size="small"
@@ -156,7 +168,7 @@ export const SelectSceneModal = ({
                 Reload Cache
               </Button>
             )}
-          </Box>
+          </FilterTextfieldContainer>
           <Box
             height={`calc(${modalHeight} - ${headerHeight} - ${textFieldHeight} - ${textFieldMargin} - (2 * var(--modalPadding) ) )`}
             overflow={"scroll"}

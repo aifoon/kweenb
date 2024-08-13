@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
+import { SetSocketUrl } from "../Modals/SetSocketUrl";
 
 export const Z3Navigation = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [openSetSocketUrl, setOpenSetSocketUrl] = useState(false);
 
   const buttons = [
     <Button
@@ -30,8 +32,19 @@ export const Z3Navigation = () => {
   ];
 
   return (
-    <Navigation title="kweenb " fixedToTop height="var(--navigationHeight)">
-      <NavigationButtons buttons={buttons} />
-    </Navigation>
+    <>
+      <SetSocketUrl
+        open={openSetSocketUrl}
+        onClose={() => setOpenSetSocketUrl(false)}
+      />
+      <Navigation
+        onLogoClick={() => setOpenSetSocketUrl(true)}
+        title="kweenb"
+        fixedToTop
+        height="var(--navigationHeight)"
+      >
+        <NavigationButtons buttons={buttons} />
+      </Navigation>
+    </>
   );
 };
