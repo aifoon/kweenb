@@ -29,9 +29,9 @@ export const SingleBeeCard = ({
 }: SingleBeeCardProps) => {
   const [currentVolume, setCurrentVolume] = useState(volume);
   const [openSelectSceneModal, setOpenSelectSceneModal] = useState(false);
-  const [selectedBeeAudioScene, setSelectedBeeAudioScene] = useState<
-    BeeAudioScene | undefined
-  >(undefined);
+  const [, setSelectedBeeAudioScene] = useState<BeeAudioScene | undefined>(
+    undefined
+  );
   const [selectedAudioScene, setSelectedAudioScene] = useState<
     AudioScene | undefined
   >(undefined);
@@ -89,6 +89,14 @@ export const SingleBeeCard = ({
               showNumber={false}
               value={currentVolume}
               marginBottom="0"
+              onChangeCommitted={(value) => {
+                setCurrentVolume(value);
+                sendToServerWithoutResponse("setParamOfBees", {
+                  value,
+                  type: "volume",
+                  bees: [bee],
+                });
+              }}
             />
           </Box>
           <Box display="grid" gap={1} gridTemplateColumns="1fr 1fr 1fr">
@@ -99,7 +107,12 @@ export const SingleBeeCard = ({
               size="small"
               disabled={selectedAudioScene === undefined}
               onClick={() => {
-                sendToServerWithoutResponse("play", { scene: 1 });
+                if (selectedAudioScene) {
+                  sendToServerWithoutResponse("startAudio", {
+                    scene: selectedAudioScene,
+                    bees: [bee],
+                  });
+                }
               }}
             >
               <PlayArrowIcon />
@@ -110,6 +123,11 @@ export const SingleBeeCard = ({
               variant="contained"
               size="small"
               disabled={selectedAudioScene === undefined}
+              onClick={() => {
+                sendToServerWithoutResponse("stopAudio", {
+                  bees: [bee],
+                });
+              }}
             >
               <StopIcon />
             </Button>
@@ -120,11 +138,18 @@ export const SingleBeeCard = ({
               size="small"
               disabled={selectedAudioScene === undefined}
               onClick={() => {
-                updateBeeAudioScene(
-                  bee,
-                  selectedAudioScene,
-                  !beeAudioScene?.isLooping
-                );
+                // get the new value
+                const value = !beeAudioScene?.isLooping;
+
+                // let the server know what to do
+                sendToServerWithoutResponse("setParamOfBees", {
+                  value,
+                  type: "fileLoop",
+                  bees: [bee],
+                });
+
+                // state management
+                updateBeeAudioScene(bee, selectedAudioScene, value);
               }}
             >
               <LoopIcon />
@@ -151,7 +176,12 @@ export const SingleBeeCard = ({
               size="small"
               fullWidth={true}
               disabled={selectedAudioScene === undefined}
-              onClick={() => removeBeeAudioScene(bee)}
+              onClick={() => {
+                sendToServerWithoutResponse("stopAudio", {
+                  bees: [bee],
+                });
+                removeBeeAudioScene(bee);
+              }}
             >
               <ClearIcon />
             </Button>

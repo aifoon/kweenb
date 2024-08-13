@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { socket } from "../socket";
 import { useSocket } from "../hooks/useSocket";
 
 export function SocketConnectionManager() {

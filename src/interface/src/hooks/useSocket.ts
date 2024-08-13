@@ -1,7 +1,8 @@
-import { socket } from "../socket";
 import { SocketMessage } from "@shared/interfaces";
 import { useAppPersistentStorage } from "./useAppPersistentStorage";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+
+export let socket: Socket;
 
 export const useSocket = () => {
   const socketUrl = useAppPersistentStorage((state) => state.socketUrl);
@@ -10,7 +11,7 @@ export const useSocket = () => {
    * Connect to the socket server
    */
   const connect = () => {
-    const socket = io(socketUrl, {
+    socket = io(socketUrl, {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
     });

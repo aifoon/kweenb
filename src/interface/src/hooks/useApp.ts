@@ -5,6 +5,7 @@ import {
 } from "./useAppPersistentStorage";
 import { useSocket } from "./useSocket";
 import { IBee } from "@shared/interfaces";
+import { useAppStore } from "./useAppStore";
 
 export const useApp = () => {
   // set state for loading purpose
@@ -23,6 +24,9 @@ export const useApp = () => {
     (state) => state.swapAllBeeAudioScenes
   );
 
+  // set function to set current swarm
+  const setCurrentSwarm = useAppStore((state) => state.setCurrentSwarm);
+
   // get the current swarm
   useEffect(() => {
     // if there are no bee audio scenes, return
@@ -34,6 +38,9 @@ export const useApp = () => {
     sendToServerAndExpectResponseAsync("fetchActiveBees", {}).then((data) => {
       // cast data to an array of bees
       const currentSwarm = data as IBee[];
+
+      // set internal state
+      setCurrentSwarm(currentSwarm);
 
       // initialize the updated bee audio scenes
       const updatedBeeAudioScenes: BeeAudioScene[] = [];

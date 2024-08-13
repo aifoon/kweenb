@@ -11,6 +11,7 @@ import {
 } from "../../hooks/useAppPersistentStorage";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useSocket } from "../../hooks/useSocket";
 
 type TriggerSceneCardProps = {
   orderedAudioScene: OrderedAudioScene;
@@ -58,6 +59,12 @@ export const TriggerSceneCard = ({
     (state) => state.moveDownOrderedAudioScene
   );
 
+  /**
+   * Use Sockets
+   */
+
+  const { sendToServerWithoutResponse } = useSocket();
+
   return (
     <Card
       variant="extraSmall"
@@ -97,19 +104,22 @@ export const TriggerSceneCard = ({
         </Button>,
       ]}
     >
-      <Box display="grid" gap={1} gridTemplateColumns="1fr 1fr">
+      <Box display="grid" gap={1} gridTemplateColumns="1fr">
         <Button
           color="primary"
           variant="contained"
           size="small"
           onClick={() => {
-            setAllBeesToAudioScene(orderedAudioScene.audioScene);
+            if (orderedAudioScene.audioScene.foundOnBees.length > 0) {
+              sendToServerWithoutResponse("startAudio", {
+                bees: orderedAudioScene.audioScene.foundOnBees,
+                scene: orderedAudioScene.audioScene,
+              });
+              setAllBeesToAudioScene(orderedAudioScene.audioScene);
+            }
           }}
         >
           <PlayArrowIcon />
-        </Button>
-        <Button color="primary" variant="contained" size="small">
-          <StopIcon />
         </Button>
       </Box>
     </Card>

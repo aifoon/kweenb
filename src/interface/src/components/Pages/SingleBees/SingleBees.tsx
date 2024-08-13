@@ -38,7 +38,6 @@ export const SingleBees = () => {
 
   return (
     <SingleBeeCardContainer>
-      {loading && <Loader text="Initializing application" />}
       {!loading && currentBees.length === 0 && (
         <Box>
           <Typography>

@@ -5,11 +5,11 @@ export const demoScenes: AudioScene[] = [
     name: "Scene 1",
     foundOnBees: [
       {
-        id: 1,
-        ipAddress: "192",
+        id: 28,
+        ipAddress: "192.168.0.221",
         isOnline: true,
         isApiOn: true,
-        name: "Bee 1",
+        name: "beeTim",
         status: {
           isJackRunning: true,
           isJacktripRunning: true,

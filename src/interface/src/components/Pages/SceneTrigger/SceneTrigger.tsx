@@ -66,7 +66,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
                   <Grid
                     key={orderedAudioScene.audioScene.name}
                     item
-                    xs={12}
+                    xs={6}
                     sm={4}
                     md={3}
                     lg={2}

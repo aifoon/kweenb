@@ -7,7 +7,11 @@ import { SocketSingleton } from "./SocketSingleton";
 import BeeHelpers from "../KweenB/BeeHelpers";
 import { BeeActiveState } from "@shared/enums";
 import { demoScenes } from "@seeds/demoScenes";
-import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
+import {
+  HAS_CONNECTION_WITH_PHYSICAL_SWARM,
+  PD_PORT_BEE,
+} from "@shared/consts";
+import { PDBeeOsc } from "../OSC";
 
 interface SocketHandlerParams {
   json: any;
@@ -54,20 +58,6 @@ export class SocketMessageHandler {
     }
   }
 
-  /**
-   * Handle the message show connected clients
-   */
-  public static async handleMessageShowConnectedClients() {
-    SocketSingleton.getInstance()
-      .socketServer.of("/")
-      .fetchSockets()
-      .then((sockets) => {
-        console.log("Amount of connected clients:", sockets.length);
-        sockets.forEach((socket, index) => {
-          console.log(`Client ${index + 1}:`, socket.id);
-        });
-      });
-  }
   /**
    * Fetch the active bees
    */
@@ -151,5 +141,92 @@ export class SocketMessageHandler {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  /**
+   * Set volume of bees
+   * @param param0
+   */
+  public static async handleMessageSetParamOfBees({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // get the volume and the bees
+      const { value, bees, type } = json;
+
+      // loop over bees and set the volume
+      bees.forEach(async (bee: IBee) => {
+        const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
+        switch (type) {
+          case "volume":
+            pdBeeOsc.setVolume(value);
+            break;
+          case "low":
+            pdBeeOsc.setBass(value);
+            break;
+          case "high":
+            pdBeeOsc.setHigh(value);
+            break;
+          case "fileLoop":
+            pdBeeOsc.setFileLoop(value as boolean);
+            break;
+          default:
+            pdBeeOsc.setVolume(value);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Start audio on bees
+   * @param param0
+   */
+  public static async handleMessageStartAudio({ json }: SocketHandlerParams) {
+    try {
+      // get the volume and the bees
+      const { scene, bees } = json;
+
+      // loop over bees and set the volume
+      bees.forEach(async (bee: IBee) => {
+        await BeeHelpers.startAudio(bee, scene.oscAddress);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Stop audio on bees
+   * @param param0
+   */
+  public static async handleMessageStopAudio({ json }: SocketHandlerParams) {
+    try {
+      // get the volume and the bees
+      const { bees } = json;
+
+      // loop over bees and set the volume
+      bees.forEach(async (bee: IBee) => {
+        await BeeHelpers.stopAudio(bee);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Handle the message show connected clients
+   */
+  public static async handleMessageShowConnectedClients() {
+    SocketSingleton.getInstance()
+      .socketServer.of("/")
+      .fetchSockets()
+      .then((sockets) => {
+        console.log("Amount of connected clients:", sockets.length);
+        sockets.forEach((socket, index) => {
+          console.log(`Client ${index + 1}:`, socket.id);
+        });
+      });
   }
 }

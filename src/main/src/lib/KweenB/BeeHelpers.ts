@@ -21,11 +21,8 @@ import {
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
-import {
-  DEFAULT_BEE_CONFIG,
-  DEFAULT_BEE_STATUS,
-  PD_PORT_BEE,
-} from "../../consts";
+import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
+import { PD_PORT_BEE } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
 import { spawn } from "child_process";
 import BeeSsh from "./BeeSsh";

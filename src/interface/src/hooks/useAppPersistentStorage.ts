@@ -114,7 +114,6 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
         const audioSceneIndex = beeAudioScenes?.findIndex(
           (beeAudio) => beeAudio.bee.id === bee.id
         );
-        console.log(audioSceneIndex);
         if (audioSceneIndex !== -1) {
           const audioScene = beeAudioScenes[audioSceneIndex];
           audioScene.audioScene = undefined;

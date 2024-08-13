@@ -22,7 +22,6 @@ import {
 import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
 import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
-import { PDBeeOsc } from "./lib/OSC";
 import { initExpress } from "./express";
 import { initSocketIo } from "./socket";
 

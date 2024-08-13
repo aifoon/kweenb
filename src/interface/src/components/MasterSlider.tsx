@@ -7,6 +7,7 @@ import StopIcon from "@mui/icons-material/Stop";
 import styled from "styled-components";
 import LoopIcon from "@mui/icons-material/Loop";
 import { useAppPersistentStorage } from "../hooks/useAppPersistentStorage";
+import { useSocket } from "../hooks/useSocket";
 
 type MasterSliderProps = {};
 
@@ -55,6 +56,8 @@ export const MasterSlider = (props: MasterSliderProps) => {
   const setMasterVolume = useAppStore((state) => state.setMasterVolume);
   const setMasterLow = useAppStore((state) => state.setMasterLow);
   const setMasterHigh = useAppStore((state) => state.setMasterHigh);
+  const currentSwarm = useAppStore((state) => state.currentSwarm);
+  const { sendToServerWithoutResponse } = useSocket();
 
   // get the saved bee audio scenes
   const beeAudioScenes = useAppPersistentStorage(
@@ -102,16 +105,40 @@ export const MasterSlider = (props: MasterSliderProps) => {
             onChangeCommitted={(value) => {
               switch (selectedProperty) {
                 case "volume":
+                  setSliderValue(value);
                   setMasterVolume(value);
+                  sendToServerWithoutResponse("setParamOfBees", {
+                    type: "volume",
+                    value,
+                    bees: currentSwarm,
+                  });
                   break;
                 case "low":
+                  setSliderValue(value);
                   setMasterLow(value);
+                  sendToServerWithoutResponse("setParamOfBees", {
+                    type: "low",
+                    value,
+                    bees: currentSwarm,
+                  });
                   break;
                 case "high":
+                  setSliderValue(value);
                   setMasterHigh(value);
+                  sendToServerWithoutResponse("setParamOfBees", {
+                    type: "high",
+                    value,
+                    bees: currentSwarm,
+                  });
                   break;
                 default:
+                  setSliderValue(value);
                   setMasterVolume(value);
+                  sendToServerWithoutResponse("setParamOfBees", {
+                    type: "volume",
+                    value,
+                    bees: currentSwarm,
+                  });
                   break;
               }
             }}
@@ -158,6 +185,11 @@ export const MasterSlider = (props: MasterSliderProps) => {
                 security="small"
                 variant="contained"
                 color="primary"
+                onClick={() => {
+                  sendToServerWithoutResponse("stopAudio", {
+                    bees: currentSwarm,
+                  });
+                }}
               >
                 <StopIcon />
               </Button>
@@ -168,6 +200,11 @@ export const MasterSlider = (props: MasterSliderProps) => {
                 variant={oneOrMoreBeesAreLooping ? "contained" : "outlined"}
                 color={oneOrMoreBeesAreLooping ? "primary" : "secondary"}
                 onClick={() => {
+                  sendToServerWithoutResponse("setParamOfBees", {
+                    type: "fileLoop",
+                    value: !oneOrMoreBeesAreLooping,
+                    bees: currentSwarm,
+                  });
                   setAllBeesToLoopingState(!oneOrMoreBeesAreLooping);
                   setOneOrMoreBeesAreLooping(!oneOrMoreBeesAreLooping);
                 }}
