@@ -162,16 +162,20 @@ export default createTheme({
             padding: "var(--smallButtonPadding)",
             lineHeight: "normal",
             backgroundColor: "transparent",
-            border: "1px solid var(--primary-100)",
+            outline: "1px solid var(--primary-100)",
             "&:focus": {
-              border: "1px solid var(--primary-100)",
+              outline: "1px solid var(--primary-100)",
             },
             "&:visited": {
-              border: "1px solid var(--primary-100)",
+              outline: "1px solid var(--primary-100)",
             },
             "&:hover": {
-              border: "1px solid var(--primary-100)",
+              outline: "1px solid var(--primary-100)",
               backgroundColor: "var(--primary-300)",
+            },
+            ":disabled": {
+              border: "none",
+              outline: "1px solid rgba(0, 0, 0, 0.12)",
             },
           },
         },

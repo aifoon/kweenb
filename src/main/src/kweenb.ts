@@ -24,6 +24,7 @@ import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
 import { PDBeeOsc } from "./lib/OSC";
 import { initExpress } from "./express";
+import { initSocketIo } from "./socket";
 
 /**
  * A KweenB class
@@ -114,6 +115,9 @@ class KweenB {
 
     // init the express server
     initExpress();
+
+    // init Socket IO
+    initSocketIo();
 
     // init the bee ssh connections
     this._beeSshConnections = new BeeSshConnections();

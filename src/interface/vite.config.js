@@ -18,12 +18,12 @@ export default defineConfig({
         replacement: resolve(PACKAGE_ROOT, "../components"),
       },
       {
-        find: "@renderer",
-        replacement: resolve(PACKAGE_ROOT),
-      },
-      {
         find: "@shared",
         replacement: resolve(PACKAGE_ROOT, "../shared"),
+      },
+      {
+        find: "@seeds",
+        replacement: resolve(PACKAGE_ROOT, "../seeds"),
       },
     ],
   },

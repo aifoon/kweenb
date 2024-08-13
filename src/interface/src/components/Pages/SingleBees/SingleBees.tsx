@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { SingleBeeCard } from "../../Cards";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { useAppStore } from "../../../hooks/useAppStore";
 import { useApp } from "../../../hooks/useApp";
 import { useAppPersistentStorage } from "../../../hooks/useAppPersistentStorage";
 import { IBee } from "@shared/interfaces";
 import styled from "styled-components";
+import { Loader } from "@components/Loader";
 
 const SingleBeeCardContainer = styled(Box)`
   padding-bottom: 75px;
@@ -33,17 +34,28 @@ export const SingleBees = () => {
   }, [beeAudioScenes]);
 
   // this hook inits the application page
-  useApp();
+  const { loading } = useApp();
 
   return (
     <SingleBeeCardContainer>
-      <Grid container spacing={2}>
-        {currentBees.map((bee: IBee) => (
-          <Grid key={bee.name} item xs={12} sm={6} md={4} lg={3} xl={2}>
-            <SingleBeeCard bee={bee} volume={masterVolume} title={bee.name} />
-          </Grid>
-        ))}
-      </Grid>
+      {loading && <Loader text="Initializing application" />}
+      {!loading && currentBees.length === 0 && (
+        <Box>
+          <Typography>
+            The swarm does not contain bees. Please selected one or more in the
+            main kweenb application.
+          </Typography>
+        </Box>
+      )}
+      {!loading && currentBees.length > 0 && (
+        <Grid container spacing={2}>
+          {currentBees.map((bee: IBee) => (
+            <Grid key={bee.name} item xs={12} sm={6} md={4} lg={3} xl={2}>
+              <SingleBeeCard bee={bee} volume={masterVolume} title={bee.name} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </SingleBeeCardContainer>
   );
 };

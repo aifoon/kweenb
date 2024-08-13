@@ -7,15 +7,8 @@ import { Z3Navigation } from "./components/Layout/Z3Navigation";
 import { SingleBees } from "./components/Pages/SingleBees";
 import { SceneTrigger } from "./components/Pages/SceneTrigger";
 import { MasterSlider } from "./components/MasterSlider";
-import {
-  BeeAudioScene,
-  useAppPersistentStorage,
-} from "./hooks/useAppPersistentStorage";
-import { demoSwarm } from "./seeds/demoSwarm";
-import { Loader } from "@components/Loader";
-import { update } from "idb-keyval";
-import { useAppStore } from "./hooks/useAppStore";
 import { HydrationHelper } from "./components/HydrationHelper";
+import { SocketConnectionManager } from "./components/SocketConnectionManager";
 
 function App() {
   return (
@@ -24,13 +17,16 @@ function App() {
         <Z3Navigation />
         <Box margin="var(--navigationHeight) 0 0 0">
           <HydrationHelper>
-            <Z3Page sidebar={false}>
-              <Routes>
-                <Route path="/" element={<SingleBees />} />
-                <Route path="/scene-trigger" element={<SceneTrigger />} />
-              </Routes>
-              <MasterSlider />
-            </Z3Page>
+            <>
+              <SocketConnectionManager />
+              <Z3Page sidebar={false}>
+                <Routes>
+                  <Route path="/" element={<SingleBees />} />
+                  <Route path="/scene-trigger" element={<SceneTrigger />} />
+                </Routes>
+                <MasterSlider />
+              </Z3Page>
+            </>
           </HydrationHelper>
         </Box>
       </ThemeProvider>

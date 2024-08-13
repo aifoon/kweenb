@@ -1,4 +1,4 @@
-import { AudioScene, ChannelType } from "@shared/interfaces";
+import { AudioScene, ChannelType } from "../shared/interfaces";
 
 export const demoScenes: AudioScene[] = [
   {

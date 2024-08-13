@@ -10,8 +10,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@main/*": ["main/*"],
-      "@shared/*": ["shared/*"]
+      "@shared/*": ["shared/*"],
+      "@seeds/*": ["seeds/*"]
     },
     "types": ["node", "vite/client"]
   },

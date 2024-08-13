@@ -219,6 +219,48 @@ const getAllBeesData = async (
 };
 
 /**
+ * Get Audio Scenes for a bee
+ * @param bee The bee
+ * @returns AudioScene[]
+ */
+const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
+  // init the audio scenes
+  const audioScenes: AudioScene[] = [];
+
+  // get the latest status of the bee
+  const currentBee = await getBee(bee.id);
+
+  // check if the bee is online
+  if (!currentBee.isOnline) return audioScenes;
+
+  // get the audio scenes
+  const beeAudioScenes = await BeeSsh.getAudioScenes(bee.ipAddress);
+
+  // loop over the audio scenes
+  for (const dataFileContent of beeAudioScenes) {
+    // check if the scene already exists in audioScenes
+    const foundScene = audioScenes.find(
+      (scene) => scene.name === dataFileContent.name
+    );
+
+    // if the scene is not found, add it
+    if (!foundScene) {
+      const audioScene: AudioScene = {
+        name: dataFileContent.name,
+        foundOnBees: [bee],
+        oscAddress: dataFileContent.oscAddress,
+      };
+      audioScenes.push(audioScene);
+    } else {
+      // if the scene is found, add the bee to the scene
+      foundScene.foundOnBees.push(bee);
+    }
+  }
+
+  return audioScenes;
+};
+
+/**
  * Get the audio scenes
  * @returns AudioScene[]
  */
@@ -618,6 +660,7 @@ export default {
   getAllBees,
   getAllBeesData,
   getAudioScenes,
+  getAudioScenesForBee,
   getBee,
   getBeeConfig,
   getCurrentBeeStates,

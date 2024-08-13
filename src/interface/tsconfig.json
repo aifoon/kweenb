@@ -2,40 +2,20 @@
   "files": [],
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["es6", "dom"],
-    "moduleResolution": "node",
-    "module": "ES6",
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strict": true,
-    "noUnusedLocals": false,
-    "pretty": true,
-    "skipLibCheck": true,
-    "target": "ES6",
-    "resolveJsonModule": true,
-    "declaration": true,
-    "sourceMap": true,
+    "jsx": "react-jsx",
+    "lib": ["dom"],
     "baseUrl": "../../src",
     "paths": {
       "@components/*": ["components/*"],
-      "@renderer/*": ["renderer/*"],
       "@shared/*": ["shared/*"],
+      "@seeds/*": ["seeds/*"],
     },
   },
   "include": [
-    "src/**/*.tsx",
-    "types.d.ts",
-    "../preload/exposedMainWorld.d.ts"
+    "src/**/*",
+    "types.d.ts", "../seeds/demoScenes.ts", "../seeds/demoSwarm.ts",
   ],
   "exclude": [
-    "node_modules",
-    "scripts/*.js"
+    "node_modules"
   ]
 }

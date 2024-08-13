@@ -1,0 +1,1 @@
+export const HAS_CONNECTION_WITH_PHYSICAL_SWARM = false;

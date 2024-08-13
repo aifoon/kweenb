@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BeeAudioScene,
   useAppPersistentStorage,
 } from "./useAppPersistentStorage";
-import { demoSwarm } from "../seeds/demoSwarm";
+import { useSocket } from "./useSocket";
+import { IBee } from "@shared/interfaces";
 
 export const useApp = () => {
+  // set state for loading purpose
+  const [loading, setLoading] = useState(true);
+
+  // let socket io help us
+  const { sendToServerAndExpectResponseAsync } = useSocket();
+
   // get the saved bee audio scenes
   const beeAudioScenes = useAppPersistentStorage(
     (state) => state.beeAudioScenes
@@ -23,30 +30,43 @@ export const useApp = () => {
       return;
     }
 
-    // get the current swarm
-    const currentSwarm = demoSwarm;
+    // fetch active bees
+    sendToServerAndExpectResponseAsync("fetchActiveBees", {}).then((data) => {
+      // cast data to an array of bees
+      const currentSwarm = data as IBee[];
 
-    // initialize the updated bee audio scenes
-    const updatedBeeAudioScenes: BeeAudioScene[] = [];
+      // initialize the updated bee audio scenes
+      const updatedBeeAudioScenes: BeeAudioScene[] = [];
 
-    // loop over the current swarm
-    currentSwarm.forEach((bee) => {
-      // check if the bee already has an audio scene
-      const beeAudioScene = beeAudioScenes.find(
-        (audioScene) => audioScene.bee.id === bee.id
-      );
+      // loop over the current swarm
+      currentSwarm.forEach((bee) => {
+        // check if the bee already has an audio scene
+        const beeAudioScene = beeAudioScenes.find(
+          (audioScene) => audioScene.bee.id === bee.id
+        );
 
-      // if the bee has no audio scene, add it to the list
-      if (!beeAudioScene) {
-        updatedBeeAudioScenes.push({ bee, audioScene: undefined });
-      }
+        // if the bee has no audio scene, add it to the list
+        if (!beeAudioScene) {
+          updatedBeeAudioScenes.push({
+            bee,
+            audioScene: undefined,
+            isLooping: false,
+          });
+        }
 
-      //if the bee has an audio scene, add it to the list
-      else {
-        updatedBeeAudioScenes.push(beeAudioScene);
-      }
+        //if the bee has an audio scene, add it to the list
+        else {
+          updatedBeeAudioScenes.push(beeAudioScene);
+        }
+      });
+
+      // swap all bee audio scenes
+      swapAllBeeAudioScenes(updatedBeeAudioScenes);
+
+      // done loading
+      setLoading(false);
     });
-    // swap all bee audio scenes
-    swapAllBeeAudioScenes(updatedBeeAudioScenes);
   }, []);
+
+  return { loading };
 };

@@ -5,7 +5,6 @@
 import fs from "fs";
 import {
   AudioFile,
-  AudioScene,
   IBee,
   IBeeConfig,
   IBeeInput,

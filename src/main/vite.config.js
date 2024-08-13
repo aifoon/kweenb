@@ -15,7 +15,11 @@ const config = {
     alias: [
       {
         find: "@shared",
-        replacement: resolve(__dirname, "../../src/shared"),
+        replacement: resolve(__dirname, "../shared"),
+      },
+      {
+        find: "@seeds",
+        replacement: resolve(__dirname, "../seeds"),
       },
     ],
   },
@@ -55,7 +59,7 @@ const config = {
         "node-ssh",
         "ssh2-sftp-client",
         "express",
-        "cors",
+        "socket.io",
         ...builtinModules,
       ],
       output: {

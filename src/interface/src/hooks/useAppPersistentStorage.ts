@@ -17,12 +17,14 @@ export interface OrderedAudioScene {
 
 interface useAppPersistentStorageState {
   addOrderedAudioScene: (audioScene: OrderedAudioScene) => void;
+  beeAudioScenes: BeeAudioScene[];
+  cachedAudioScenes: AudioScene[];
   moveUpOrderedAudioScene: (audioScene: OrderedAudioScene) => void;
   moveDownOrderedAudioScene: (audioScene: OrderedAudioScene) => void;
   orderedAudioScenes: OrderedAudioScene[];
-  beeAudioScenes: BeeAudioScene[];
   removeBeeAudioScene: (bee: IBee) => void;
   removeOrderedAudioScene: (orderedAudioScene: OrderedAudioScene) => void;
+  setCachedAudioScenes: (audioScenes: AudioScene[]) => void;
   setAllBeesToAudioScene: (audioScene: AudioScene) => void;
   swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => void;
   updateBeeAudioScene: (
@@ -60,6 +62,8 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
           });
         }
       },
+      beeAudioScenes: [],
+      cachedAudioScenes: [],
       moveDownOrderedAudioScene: (orderedAudioScene) => {
         const audioScenes = get().orderedAudioScenes;
         const temp = audioScenes.find(
@@ -93,7 +97,7 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
         }
       },
       orderedAudioScenes: [],
-      beeAudioScenes: [],
+
       removeOrderedAudioScene: (audioScene) => {
         set({
           orderedAudioScenes: get()
@@ -127,6 +131,9 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
           if (isInAudioScene) beeAudio.audioScene = audioScene;
         });
         set({ beeAudioScenes });
+      },
+      setCachedAudioScenes: (audioScenes: AudioScene[]) => {
+        set({ cachedAudioScenes: audioScenes });
       },
       swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => {
         set({ beeAudioScenes });

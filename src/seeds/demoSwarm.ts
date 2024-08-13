@@ -1,5 +1,5 @@
-import { IBee } from "@shared/interfaces";
-import { ChannelType } from "@shared/interfaces";
+import { IBee } from "../shared/interfaces";
+import { ChannelType } from "../shared/interfaces";
 
 export const demoSwarm: IBee[] = [
   {

@@ -252,3 +252,11 @@ export interface ITheKween {
 export interface ITheKweenSettings {
   ipAddress: string;
 }
+
+// Socket
+
+export interface SocketMessage {
+  clientId?: string;
+  message: string;
+  payload?: any;
+}

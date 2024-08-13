@@ -12,6 +12,7 @@ import {
 import { AudioScene, IBee } from "@shared/interfaces";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoopIcon from "@mui/icons-material/Loop";
+import { useSocket } from "../../hooks/useSocket";
 
 type SingleBeeCardProps = {
   bee: IBee;
@@ -34,6 +35,8 @@ export const SingleBeeCard = ({
   const [selectedAudioScene, setSelectedAudioScene] = useState<
     AudioScene | undefined
   >(undefined);
+
+  const { sendToServerWithoutResponse } = useSocket();
 
   /**
    * Get states and functions from the useAppPersistentStorage hook
@@ -95,6 +98,9 @@ export const SingleBeeCard = ({
               variant="contained"
               size="small"
               disabled={selectedAudioScene === undefined}
+              onClick={() => {
+                sendToServerWithoutResponse("play", { scene: 1 });
+              }}
             >
               <PlayArrowIcon />
             </Button>
