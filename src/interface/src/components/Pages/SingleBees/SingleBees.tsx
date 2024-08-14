@@ -16,24 +16,35 @@ const SingleBeeCardContainer = styled(Box)`
 `;
 
 export const SingleBees = () => {
-  // get the master volume of the app store
-  const masterVolume = useAppStore((state) => state.masterVolume);
+  /**
+   * Get the bee audio scenesfrom the useAppPersistentStorage hook
+   */
 
-  // get the saved bee audio scenes
   const beeAudioScenes = useAppPersistentStorage(
     (state) => state.beeAudioScenes
   );
 
-  // get the bees
+  /**
+   * Inner states
+   */
+
+  const masterVolume = useAppStore((state) => state.masterVolume);
   const [currentBees, setCurrentBees] = useState(
     beeAudioScenes?.map((beeAudio) => beeAudio.bee) || []
   );
+
+  /**
+   * When the bee audio scenes change, update the current bees
+   */
 
   useEffect(() => {
     setCurrentBees(beeAudioScenes?.map((beeAudio) => beeAudio.bee) || []);
   }, [beeAudioScenes]);
 
-  // this hook inits the application page
+  /**
+   * App initialization
+   */
+
   const { loading } = useApp();
 
   return (

@@ -1,3 +1,4 @@
 import { SelectSceneModal } from "./SelectScene";
+import { SetSocketUrl } from "./SetSocketUrl";
 
-export { SelectSceneModal };
+export { SelectSceneModal, SetSocketUrl };

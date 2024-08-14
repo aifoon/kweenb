@@ -10,6 +10,10 @@ type SetSocketUrlProps = {
 };
 
 export const SetSocketUrl = ({ open, onClose }: SetSocketUrlProps) => {
+  /**
+   * Inner states
+   */
+
   const [isOpen, setIsOpen] = useState(open);
 
   /**
@@ -18,6 +22,10 @@ export const SetSocketUrl = ({ open, onClose }: SetSocketUrlProps) => {
 
   const socketUrl = useAppPersistentStorage((state) => state.socketUrl);
   const setSocketUrl = useAppPersistentStorage((state) => state.setSocketUrl);
+
+  /**
+   * When the open prop changes, update the inner state
+   */
 
   useEffect(() => {
     setIsOpen(open);

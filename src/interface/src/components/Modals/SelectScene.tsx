@@ -41,11 +41,20 @@ export const SelectSceneModal = ({
   onClose,
   bee,
 }: SelectSceneModalProps) => {
+  /**
+   * Inner states
+   */
+
   const [isOpen, setIsOpen] = useState(open);
   const [audioScenes, setAudioScenes] = useState<AudioScene[]>([]);
   const [filterValue, setFilterValue] = useState("");
-  const { sendToServerAndExpectResponseAsync } = useSocket();
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Web socket
+   */
+
+  const { sendToServerAndExpectResponseAsync } = useSocket();
 
   /**
    * Variables

@@ -11,6 +11,10 @@ import { useAppStore } from "../../../hooks/useAppStore";
 type SceneTriggerProps = {};
 
 export const SceneTrigger = (props: SceneTriggerProps) => {
+  /**
+   * Inner states
+   */
+
   const [openSelectSceneModal, setOpenSelectSceneModal] = useState(false);
   const [selectedAudioScenes, setSelectedAudioScenes] = useState<
     OrderedAudioScene[]

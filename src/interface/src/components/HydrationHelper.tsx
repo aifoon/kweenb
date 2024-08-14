@@ -7,7 +7,11 @@ type HydrationHelperProps = {
 };
 
 export const HydrationHelper = (props: HydrationHelperProps) => {
+  /**
+   * Get the indexedDB loaded state from the useAppStore hook
+   */
   const indexedDBLoaded = useAppStore((state) => state.rehydrated);
+
   return (
     <>
       {!indexedDBLoaded && <Loader text="Loading internal data" />}

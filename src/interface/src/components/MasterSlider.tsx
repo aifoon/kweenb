@@ -49,7 +49,10 @@ const MasterSliderGrid = styled(Box)`
 `;
 
 export const MasterSlider = (props: MasterSliderProps) => {
-  // the store states and actions
+  /**
+   * Get the states and functions from the useAppStore hook
+   */
+
   const masterVolume = useAppStore((state) => state.masterVolume);
   const masterLow = useAppStore((state) => state.masterLow);
   const masterHigh = useAppStore((state) => state.masterHigh);
@@ -57,9 +60,17 @@ export const MasterSlider = (props: MasterSliderProps) => {
   const setMasterLow = useAppStore((state) => state.setMasterLow);
   const setMasterHigh = useAppStore((state) => state.setMasterHigh);
   const currentSwarm = useAppStore((state) => state.currentSwarm);
+
+  /**
+   * Web socket
+   */
+
   const { sendToServerWithoutResponse } = useSocket();
 
-  // get the saved bee audio scenes
+  /**
+   * Get states and functions from the useAppPersistentStorage hook
+   */
+
   const beeAudioScenes = useAppPersistentStorage(
     (state) => state.beeAudioScenes
   );
@@ -73,11 +84,16 @@ export const MasterSlider = (props: MasterSliderProps) => {
     beeAudioScenes.some((beeAudioScene) => beeAudioScene.isLooping)
   );
 
-  // the internal states
+  /**
+   * Inner states
+   */
+
   const [selectedProperty, setSelectedProperty] = useState("volume");
   const [sliderValue, setSliderValue] = useState(masterVolume);
 
-  // set all the bee audio scenes to non looping
+  /**
+   * Reusable function to set all bees to looping state
+   */
   const setAllBeesToLoopingState = (isLooping: boolean) => {
     const updatedBeeAudioScenes = beeAudioScenes.map((beeAudioScene) => {
       return {
@@ -87,6 +103,10 @@ export const MasterSlider = (props: MasterSliderProps) => {
     });
     swapAllBeeAudioScenes(updatedBeeAudioScenes);
   };
+
+  /**
+   * When the bee audio scenes change, update the looping state
+   */
 
   useEffect(() => {
     setOneOrMoreBeesAreLooping(

@@ -6,8 +6,17 @@ import { Button } from "@mui/material";
 import { SetSocketUrl } from "../Modals/SetSocketUrl";
 
 export const Z3Navigation = () => {
+  /**
+   * Router hooks
+   */
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  /**
+   * Inner states
+   */
+
   const [openSetSocketUrl, setOpenSetSocketUrl] = useState(false);
 
   const buttons = [
