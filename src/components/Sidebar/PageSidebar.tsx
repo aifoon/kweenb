@@ -13,20 +13,36 @@ export const PageSidebar = ({
   divider = false,
   filterButtons = false,
 }: PageSidebarProps) => {
+  /**
+   * Inner State
+   */
   const [filteredButtons, setFilteredButtons] = useState<
     ReactElement<ButtonProps>[] | undefined
   >(buttons);
   const [currentFilter, setCurrentFilter] = useState<string>("");
+  const [currentButtons, setCurrentButtons] = useState<
+    ReactElement<ButtonProps>[] | undefined
+  >(buttons);
+
+  /**
+   * When buttons change, set current buttons or change filter
+   */
+
+  useEffect(() => {
+    setCurrentButtons(buttons);
+  }, [buttons]);
 
   useEffect(() => {
     if (filterButtons) {
       setFilteredButtons(
-        buttons?.filter((button) =>
+        currentButtons?.filter((button) =>
           button.key?.toLowerCase().includes(currentFilter.toLowerCase())
         )
       );
+    } else {
+      setFilteredButtons(currentButtons);
     }
-  }, [currentFilter]);
+  }, [currentFilter, currentButtons]);
 
   return (
     <Box

@@ -18,8 +18,8 @@ type AppAction = {
 
 export const useAppStore = create<AppState & AppAction>((set) => ({
   masterVolume: 50,
-  masterLow: 50,
-  masterHigh: 50,
+  masterLow: 1,
+  masterHigh: 1,
   rehydrated: false,
   currentSwarm: [],
   setMasterVolume: (masterVolume) => set({ masterVolume }),

@@ -1,6 +1,6 @@
 import { LabelHorizontalProps } from "../Layout/LabelHorizontal";
 import { Box, Slider, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface NumberSliderProps extends LabelHorizontalProps {
   min?: number;
@@ -15,8 +15,8 @@ interface NumberSliderProps extends LabelHorizontalProps {
 }
 
 export const NumberSlider = ({
-  min,
-  max,
+  min = 0,
+  max = 100,
   label = "",
   labelWidth = "100px",
   step = 5,
@@ -28,15 +28,38 @@ export const NumberSlider = ({
   sliderHeight = "200px",
   marginBottom = "15px",
 }: NumberSliderProps) => {
-  const [currentValue, setCurrentValue] = React.useState<number>(value);
+  /**
+   * Inner State
+   */
+
+  const [currentValue, setCurrentValue] = useState<number>(value);
+  const [currentStep, setCurrentStep] = useState<number>(step);
+  const [currentMin, setCurrentMin] = useState<number>(min);
+  const [currentMax, setCurrentMax] = useState<number>(max);
 
   const changeValue = (e: Event, v: number | number[]) => {
     setCurrentValue(Array.isArray(v) ? v[0] : v);
   };
 
+  /**
+   * When things are changing
+   */
+
   useEffect(() => {
     setCurrentValue(value);
   }, [value]);
+
+  useEffect(() => {
+    setCurrentStep(step);
+  }, [step]);
+
+  useEffect(() => {
+    setCurrentMin(min);
+  }, [min]);
+
+  useEffect(() => {
+    setCurrentMax(max);
+  }, [max]);
 
   const calculateGridTemplateRowsColumns = (): {
     templateRows: string;
@@ -97,9 +120,9 @@ export const NumberSlider = ({
           valueLabelDisplay="auto"
           defaultValue={0}
           value={currentValue}
-          min={min}
-          max={max}
-          step={step}
+          min={currentMin}
+          max={currentMax}
+          step={currentStep}
           aria-label="always visible"
           orientation={orientation}
           onChange={changeValue}

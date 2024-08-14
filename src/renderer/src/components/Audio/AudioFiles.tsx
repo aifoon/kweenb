@@ -112,6 +112,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
       <Z3PageContentSidebar
         pageSidebar={
           <PageSidebar
+            filterButtons
             buttons={bees.map((bee) => (
               <Button
                 variant={selectedBee?.id === bee.id ? "contained" : "text"}

@@ -71,6 +71,10 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log(currentAudioScene);
+  }, [currentAudioScene]);
+
   return (
     <>
       {audioScenesCache && audioScenesCache.length === 0 && (
@@ -93,6 +97,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                   style={{ justifyContent: "left" }}
                   key={scene.name}
                   onClick={async () => {
+                    console.log(scene);
                     setCurrentAudioScene(scene);
                   }}
                 >
@@ -102,7 +107,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
             />
           }
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <ButtonGroup fullWidth>
                 <Button

@@ -120,6 +120,9 @@ export const MasterSlider = (props: MasterSliderProps) => {
         <MasterSliderGrid alignItems="center">
           <Box sx={{ padding: "0px 10px" }}>
             <NumberSlider
+              step={selectedProperty === "volume" ? 1 : 0.1}
+              min={0}
+              max={selectedProperty === "volume" ? 100 : 2}
               showNumber={false}
               value={sliderValue}
               marginBottom="0"

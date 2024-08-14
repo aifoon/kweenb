@@ -6,11 +6,7 @@ import { IBee, SocketMessage } from "@shared/interfaces";
 import { SocketSingleton } from "./SocketSingleton";
 import BeeHelpers from "../KweenB/BeeHelpers";
 import { BeeActiveState } from "@shared/enums";
-import { demoScenes } from "@seeds/demoScenes";
-import {
-  HAS_CONNECTION_WITH_PHYSICAL_SWARM,
-  PD_PORT_BEE,
-} from "@shared/consts";
+import { PD_PORT_BEE } from "@shared/consts";
 import { PDBeeOsc } from "../OSC";
 
 interface SocketHandlerParams {

@@ -31,6 +31,10 @@ export const TriggerSceneCard = ({
   const [isFirstState, setIsFirstState] = React.useState(isFirst);
   const [isLastState, setIsLastState] = React.useState(isLast);
 
+  /**
+   * When the props change, update the inner states
+   */
+
   useEffect(() => {
     setIsFirstState(isFirst);
   }, [isFirst]);
@@ -40,7 +44,7 @@ export const TriggerSceneCard = ({
   }, [isLast]);
 
   /**
-   * Get the removeOrderedAudioScene and setAllBeesToAudioScene functions from the useAppPersistentStorage hook
+   * Get states and functions from the useAppPersistentStorage hook
    */
 
   const removeOrderedAudioScene = useAppPersistentStorage(
