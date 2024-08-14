@@ -12,6 +12,7 @@ import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
 import { resourcesPath } from "@shared/resources";
+import { removeMethodHandlers } from "../register";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -252,6 +253,7 @@ export default class MenuBuilder {
           label: "Reload",
           accelerator: "Command+R",
           click: () => {
+            removeMethodHandlers();
             this.mainWindow.webContents.reload();
           },
         },

@@ -10,7 +10,7 @@ type BeeCardDropzoneProps = {
 };
 
 const BeeCardDropzoneContainer = styled(BeeCardContainer)<{
-  collapsed: boolean;
+  $collapsed: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@ const BeeCardDropzoneContainer = styled(BeeCardContainer)<{
   border: 1px dashed var(--grey-400);
   color: var(--grey-400);
   text-align: center;
-  min-height: ${(props) => (props.collapsed ? "74px" : "176px")};
+  min-height: ${(props) => (props.$collapsed ? "74px" : "176px")};
 `;
 
 export const BeeCardDropzone = ({
@@ -39,7 +39,7 @@ export const BeeCardDropzone = ({
   return (
     <BeeCardDropzoneContainer
       style={{ background: canDrop && isOver ? "var(--primary-300)" : "none" }}
-      collapsed={collapsed}
+      $collapsed={collapsed}
       ref={drop}
     >
       <Typography variant="extraSmall">drop inactive bee</Typography>

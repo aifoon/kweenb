@@ -87,15 +87,8 @@ export class SocketMessageHandler {
     clientId,
   }: SocketHandlerParams) {
     try {
-      // init the output
-      let audioScenes = [];
-
       // get the audio scenes for the bee
-      if (HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-        audioScenes = await BeeHelpers.getAudioScenes();
-      } else {
-        audioScenes = demoScenes;
-      }
+      const audioScenes = await BeeHelpers.getAudioScenes();
 
       // send to client that made the request
       SocketSingleton.getInstance().sendToClient(
@@ -120,17 +113,8 @@ export class SocketMessageHandler {
       // get the requested bee
       const bee = json as IBee;
 
-      // init the output
-      let audioScenes = [];
-
       // get the audio scenes for the bee
-      if (HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-        audioScenes = await BeeHelpers.getAudioScenesForBee(bee);
-      } else {
-        audioScenes = demoScenes.filter((scene) =>
-          scene.foundOnBees.some((currentBee) => currentBee.id === bee.id)
-        );
-      }
+      const audioScenes = await BeeHelpers.getAudioScenesForBee(bee);
 
       // send to client that made the request
       SocketSingleton.getInstance().sendToClient(

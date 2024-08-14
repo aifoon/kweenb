@@ -262,6 +262,7 @@ export const ManageBees = () => {
                         jackIsRunning={status?.isJackRunning}
                         jackTripIsRunning={status?.isJacktripRunning}
                         collapsed={manageBeesCollapsed}
+                        onDoubleClick={() => setInActive(id)}
                       />
                     </Grid>
                   )
@@ -287,7 +288,12 @@ export const ManageBees = () => {
                 <InActiveBeeDropzone onBeeCardDropped={onBeeCardDropped} />
                 {inActiveBees.length > 0 &&
                   inActiveBees.map(({ id, name }) => (
-                    <InActiveBee key={id} number={id} name={name} />
+                    <InActiveBee
+                      onDoubleClick={() => setActive(id)}
+                      key={id}
+                      number={id}
+                      name={name}
+                    />
                   ))}
               </InActiveBees>
             </Grid>

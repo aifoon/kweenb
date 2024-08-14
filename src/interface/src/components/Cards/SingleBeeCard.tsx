@@ -84,7 +84,7 @@ export const SingleBeeCard = ({
           gridTemplateColumns="1fr 150px"
           alignItems="center"
         >
-          <Box width={"85%"}>
+          <Box sx={{ padding: "0px 10px" }}>
             <NumberSlider
               showNumber={false}
               value={currentVolume}

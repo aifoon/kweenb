@@ -98,128 +98,170 @@ export const registerActions = () => {
   );
 };
 
-export const registerMethods = () => {
+/**
+ * Register different method handlers
+ */
+
+const methodHandlers = [
   /**
    * Bee
    */
 
-  // CRUD BEE
-  ipcMain.handle("bee:createBee", createBee);
-  ipcMain.handle("bee:deleteBee", deleteBee);
-  ipcMain.handle("bee:updateBee", updateBee);
-  ipcMain.handle("bee:getCurrentBeeStates", getCurrentBeeStates);
-  ipcMain.handle("bee:fetchBee", fetchBee);
-  ipcMain.handle("bee:fetchActiveBees", fetchActiveBees);
-  ipcMain.handle("bee:fetchActiveBeesData", fetchActiveBeesData);
-  ipcMain.handle("bee:fetchAllBees", fetchAllBees);
-  ipcMain.handle("bee:fetchAllBeesData", fetchAllBeesData);
-  ipcMain.handle("bee:fetchInActiveBees", fetchInActiveBees);
-  ipcMain.handle("bee:fetchInActiveBeesData", fetchInActiveBeesData);
+  // CRUD BEES
+
+  { name: "bee:createBee", handler: createBee },
+  { name: "bee:deleteBee", handler: deleteBee },
+  { name: "bee:updateBee", handler: updateBee },
+  { name: "bee:getCurrentBeeStates", handler: getCurrentBeeStates },
+  { name: "bee:fetchBee", handler: fetchBee },
+  { name: "bee:fetchActiveBees", handler: fetchActiveBees },
+  { name: "bee:fetchActiveBeesData", handler: fetchActiveBeesData },
+  { name: "bee:fetchAllBees", handler: fetchAllBees },
+  { name: "bee:fetchAllBeesData", handler: fetchAllBeesData },
+  { name: "bee:fetchInActiveBees", handler: fetchInActiveBees },
+  { name: "bee:fetchInActiveBeesData", handler: fetchInActiveBeesData },
 
   // JACK/JACKTRIP
-  ipcMain.handle("bee:killJackAndJacktrip", killJackAndJacktrip);
-  ipcMain.handle("bee:killJack", killJack);
-  ipcMain.handle("bee:killJacktrip", killJacktrip);
-  ipcMain.handle("bee:hookOnCurrentHive", hookOnCurrentHive);
-  ipcMain.handle("bee:makeP2PAudioConnection", makeP2PAudioConnectionBee);
-  ipcMain.handle("bee:startJack", startJack);
-  ipcMain.handle(
-    "bee:startJackWithJacktripHubClient",
-    startJackWithJacktripHubClientBee
-  );
-  ipcMain.handle(
-    "bee:startJackWithJacktripP2PServer",
-    startJackWithJacktripP2PServerBee
-  );
-  ipcMain.handle("bee:startJacktripP2PServer", startJacktripP2PServerBee);
+
+  { name: "bee:killJackAndJacktrip", handler: killJackAndJacktrip },
+  { name: "bee:killJack", handler: killJack },
+  { name: "bee:killJacktrip", handler: killJacktrip },
+  { name: "bee:hookOnCurrentHive", handler: hookOnCurrentHive },
+  { name: "bee:makeP2PAudioConnection", handler: makeP2PAudioConnectionBee },
+  { name: "bee:startJack", handler: startJack },
+  {
+    name: "bee:startJackWithJacktripHubClient",
+    handler: startJackWithJacktripHubClientBee,
+  },
+  {
+    name: "bee:startJackWithJacktripP2PServer",
+    handler: startJackWithJacktripP2PServerBee,
+  },
+  { name: "bee:startJacktripP2PServer", handler: startJacktripP2PServerBee },
 
   // CONFIG
-  ipcMain.handle("bee:getBeeConfig", getBeeConfig);
-  ipcMain.handle("bee:saveConfig", saveConfig);
+
+  { name: "bee:getBeeConfig", handler: getBeeConfig },
+  { name: "bee:saveConfig", handler: saveConfig },
 
   // AUDIO
-  ipcMain.handle("bee:deleteAudio", deleteAudio);
-  ipcMain.handle("bee:getAudioFiles", getAudioFiles);
-  ipcMain.handle("bee:getAudioScenes", getAudioScenes);
-  ipcMain.handle("bee:killPureData", killPureData);
-  ipcMain.handle("bee:setAudioParam", setAudioParam);
-  ipcMain.handle("bee:setAudioParamForAllBees", setAudioParamForAllBees);
-  ipcMain.handle("bee:startAudio", startAudio);
-  ipcMain.handle("bee:stopAudio", stopAudio);
-  ipcMain.handle("bee:startPureData", startPureData);
-  ipcMain.handle("bee:uploadAudioFiles", uploadAudioFiles);
+
+  { name: "bee:deleteAudio", handler: deleteAudio },
+  { name: "bee:getAudioFiles", handler: getAudioFiles },
+  { name: "bee:getAudioScenes", handler: getAudioScenes },
+  { name: "bee:killPureData", handler: killPureData },
+  { name: "bee:setAudioParam", handler: setAudioParam },
+  { name: "bee:setAudioParamForAllBees", handler: setAudioParamForAllBees },
+  { name: "bee:startAudio", handler: startAudio },
+  { name: "bee:stopAudio", handler: stopAudio },
+  { name: "bee:startPureData", handler: startPureData },
+  { name: "bee:uploadAudioFiles", handler: uploadAudioFiles },
 
   /**
    * KweenB
    */
 
   // APP
-  ipcMain.handle("kweenb:getKweenBVersion", getKweenBVersion);
-  ipcMain.handle("kweenb:openDialog", openDialog);
+
+  { name: "kweenb:getKweenBVersion", handler: getKweenBVersion },
+  { name: "kweenb:openDialog", handler: openDialog },
 
   // JACK/JACKTRIP
-  ipcMain.handle("kweenb:calculateCurrentLatency", calculateCurrentLatency);
-  ipcMain.handle(
-    "kweenb:isJackAndJacktripInstalled",
-    isJackAndJacktripInstalled
-  );
-  ipcMain.handle("kweenb:killJackAndJacktrip", killJackAndJacktripOnKweenB);
-  ipcMain.handle(
-    "kweenb:startJackWithJacktripHubClient",
-    startJackWithJacktripHubClientKweenB
-  );
-  ipcMain.handle(
-    "kweenb:startJackWithJacktripP2PClient",
-    startJackWithJacktripP2PClientKweenB
-  );
-  ipcMain.handle(
-    "kweenb:makeP2PAudioConnections",
-    makeP2PAudioConnectionsKweenB
-  );
-  ipcMain.handle(
-    "kweenb:disconnectP2PAudioConnections",
-    disconnectAllP2PAudioConnections
-  );
-  ipcMain.handle("kweenb:makeP2PAudioConnection", makeP2PAudioConnectionKweenB);
+
+  { name: "kweenb:calculateCurrentLatency", handler: calculateCurrentLatency },
+  {
+    name: "kweenb:isJackAndJacktripInstalled",
+    handler: isJackAndJacktripInstalled,
+  },
+  { name: "kweenb:killJackAndJacktrip", handler: killJackAndJacktripOnKweenB },
+  {
+    name: "kweenb:startJackWithJacktripHubClient",
+    handler: startJackWithJacktripHubClientKweenB,
+  },
+  {
+    name: "kweenb:startJackWithJacktripP2PClient",
+    handler: startJackWithJacktripP2PClientKweenB,
+  },
+  {
+    name: "kweenb:makeP2PAudioConnections",
+    handler: makeP2PAudioConnectionsKweenB,
+  },
+  {
+    name: "kweenb:disconnectP2PAudioConnections",
+    handler: disconnectAllP2PAudioConnections,
+  },
+  {
+    name: "kweenb:makeP2PAudioConnection",
+    handler: makeP2PAudioConnectionKweenB,
+  },
 
   /**
    * Settings
    */
 
   // CRUD
-  ipcMain.handle("setting:fetchSettings", fetchSettings);
-  ipcMain.handle("setting:updateSetting", updateSetting);
+
+  { name: "setting:fetchSettings", handler: fetchSettings },
+  { name: "setting:updateSetting", handler: updateSetting },
 
   /**
    * Presets
    */
 
-  ipcMain.handle("presets:getAudioPresets", getAudioPresets);
-  ipcMain.handle("presets:activatePreset", activatePreset);
+  { name: "presets:getAudioPresets", handler: getAudioPresets },
+  { name: "presets:activatePreset", handler: activatePreset },
 
   /**
    * The Kween
    */
 
   // JACK/JACKTRIP
-  ipcMain.handle("thekween:killJackAndJacktrip", killJackAndJacktripOnTheKween);
-  ipcMain.handle("thekween:startHubServer", startHubServer);
-  ipcMain.handle("thekween:makeHubAudioConnections", makeHubAudioConnections);
-  ipcMain.handle("thekween:validateHive", validateHive);
 
-  ipcMain.handle("thekween:fetchTheKween", fetchTheKween);
-  ipcMain.handle(
-    "thekween:isZwerm3ApiRunningOnTheKween",
-    isZwerm3ApiRunningOnTheKween
-  );
+  {
+    name: "thekween:killJackAndJacktrip",
+    handler: killJackAndJacktripOnTheKween,
+  },
+  { name: "thekween:startHubServer", handler: startHubServer },
+  {
+    name: "thekween:makeHubAudioConnections",
+    handler: makeHubAudioConnections,
+  },
+  { name: "thekween:validateHive", handler: validateHive },
+  { name: "thekween:fetchTheKween", handler: fetchTheKween },
+  {
+    name: "thekween:isZwerm3ApiRunningOnTheKween",
+    handler: isZwerm3ApiRunningOnTheKween,
+  },
 
   /**
    * Positioning
    */
-  ipcMain.handle("positioning:connectPozyxMqttBroker", connectPozyxMqttBroker);
-  ipcMain.handle("positioning:getAllTagIds", getAllTagIds);
-  ipcMain.handle(
-    "positioning:getTargetsAndOptionsForAlgorithm",
-    getTargetsAndOptionsForAlgorithm
-  );
+
+  {
+    name: "positioning:connectPozyxMqttBroker",
+    handler: connectPozyxMqttBroker,
+  },
+  { name: "positioning:getAllTagIds", handler: getAllTagIds },
+  {
+    name: "positioning:getTargetsAndOptionsForAlgorithm",
+    handler: getTargetsAndOptionsForAlgorithm,
+  },
+];
+
+/**
+ * Register the method handlers
+ */
+export const registerMethodHandlers = () => {
+  methodHandlers.forEach(({ name, handler }) => {
+    ipcMain.handle(name, handler);
+  });
+};
+
+/**
+ * Remove the method handlers
+ */
+export const removeMethodHandlers = () => {
+  methodHandlers.forEach(({ name }) => {
+    ipcMain.removeHandler(name);
+  });
 };

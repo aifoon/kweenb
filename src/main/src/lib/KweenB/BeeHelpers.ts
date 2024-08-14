@@ -22,12 +22,16 @@ import {
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import TheKweenHelpers from "./TheKweenHelpers";
 import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
-import { PD_PORT_BEE } from "@shared/consts";
+import {
+  HAS_CONNECTION_WITH_PHYSICAL_SWARM,
+  PD_PORT_BEE,
+} from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
 import { spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
+import { demoScenes } from "@seeds/demoScenes";
 
 /**
  * Creates a new bee
@@ -221,6 +225,15 @@ const getAllBeesData = async (
  * @returns AudioScene[]
  */
 const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
+  // @note: this condition is only used for development purpose
+  // whenever we are not connected to the physical swarm, we still
+  // get scenes, but we get them from a demo file
+  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+    demoScenes.filter((scene) =>
+      scene.foundOnBees.some((currentBee) => currentBee.id === bee.id)
+    );
+  }
+
   // init the audio scenes
   const audioScenes: AudioScene[] = [];
 
@@ -262,6 +275,13 @@ const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
  * @returns AudioScene[]
  */
 const getAudioScenes = async (): Promise<AudioScene[]> => {
+  // @note: this condition is only used for development purpose
+  // whenever we are not connected to the physical swarm, we still
+  // get scenes, but we get them from a demo file
+  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+    return demoScenes;
+  }
+
   // get all bees
   const bees = await getAllBees(BeeActiveState.ACTIVE);
 

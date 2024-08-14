@@ -4,10 +4,11 @@
 
 import path from "path";
 import { URL } from "url";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain } from "electron";
 
 import MenuBuilder from "./Menu";
 import { KweenBGlobal } from "../kweenb";
+import { removeMethodHandlers } from "../register";
 
 interface ElectronAppOptions {
   browserWidth?: number;

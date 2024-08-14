@@ -1,9 +1,11 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
 
 interface ILoaderProps {
   text?: string;
+  cancelButton?: boolean;
+  onCancel?: () => void;
 }
 
 const LoaderWrapper = styled.div`
@@ -19,7 +21,11 @@ const LoaderWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
-export const Loader = ({ text = "" }: ILoaderProps) => (
+export const Loader = ({
+  text = "",
+  cancelButton = false,
+  onCancel = () => {},
+}: ILoaderProps) => (
   <LoaderWrapper>
     <Box
       display={"flex"}
@@ -30,6 +36,15 @@ export const Loader = ({ text = "" }: ILoaderProps) => (
     >
       <CircularProgress />
       {text && <Typography>{text}</Typography>}
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={onCancel}
+        disabled={!cancelButton}
+      >
+        Cancel
+      </Button>
     </Box>
   </LoaderWrapper>
 );

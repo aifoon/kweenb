@@ -25,6 +25,10 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
       appContext.setLoading({
         loading: true,
         text: "Fetching scenes from bees for the first time, this can take a while",
+        cancelButton: true,
+        onCancel: () => {
+          console.log("cancelling");
+        },
       });
     }
 
@@ -76,6 +80,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
         <Z3PageContentSidebar
           pageSidebar={
             <PageSidebar
+              filterButtons
               buttons={audioScenesCache.map((scene) => (
                 <Button
                   variant={

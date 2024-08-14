@@ -98,51 +98,53 @@ export const MasterSlider = (props: MasterSliderProps) => {
     <MasterSliderContainer paddingTop={3}>
       <MasterSliderInnerContainer>
         <MasterSliderGrid alignItems="center">
-          <NumberSlider
-            showNumber={false}
-            value={sliderValue}
-            marginBottom="0"
-            onChangeCommitted={(value) => {
-              switch (selectedProperty) {
-                case "volume":
-                  setSliderValue(value);
-                  setMasterVolume(value);
-                  sendToServerWithoutResponse("setParamOfBees", {
-                    type: "volume",
-                    value,
-                    bees: currentSwarm,
-                  });
-                  break;
-                case "low":
-                  setSliderValue(value);
-                  setMasterLow(value);
-                  sendToServerWithoutResponse("setParamOfBees", {
-                    type: "low",
-                    value,
-                    bees: currentSwarm,
-                  });
-                  break;
-                case "high":
-                  setSliderValue(value);
-                  setMasterHigh(value);
-                  sendToServerWithoutResponse("setParamOfBees", {
-                    type: "high",
-                    value,
-                    bees: currentSwarm,
-                  });
-                  break;
-                default:
-                  setSliderValue(value);
-                  setMasterVolume(value);
-                  sendToServerWithoutResponse("setParamOfBees", {
-                    type: "volume",
-                    value,
-                    bees: currentSwarm,
-                  });
-                  break;
-              }
-            }}
-          />
+          <Box sx={{ padding: "0px 10px" }}>
+            <NumberSlider
+              showNumber={false}
+              value={sliderValue}
+              marginBottom="0"
+              onChangeCommitted={(value) => {
+                switch (selectedProperty) {
+                  case "volume":
+                    setSliderValue(value);
+                    setMasterVolume(value);
+                    sendToServerWithoutResponse("setParamOfBees", {
+                      type: "volume",
+                      value,
+                      bees: currentSwarm,
+                    });
+                    break;
+                  case "low":
+                    setSliderValue(value);
+                    setMasterLow(value);
+                    sendToServerWithoutResponse("setParamOfBees", {
+                      type: "low",
+                      value,
+                      bees: currentSwarm,
+                    });
+                    break;
+                  case "high":
+                    setSliderValue(value);
+                    setMasterHigh(value);
+                    sendToServerWithoutResponse("setParamOfBees", {
+                      type: "high",
+                      value,
+                      bees: currentSwarm,
+                    });
+                    break;
+                  default:
+                    setSliderValue(value);
+                    setMasterVolume(value);
+                    sendToServerWithoutResponse("setParamOfBees", {
+                      type: "volume",
+                      value,
+                      bees: currentSwarm,
+                    });
+                    break;
+                }
+              }}
+            />
+          </Box>
           <Box display={"grid"} gap={1} gridTemplateColumns="1fr 1fr">
             <ToggleButtonGroup
               fullWidth={true}

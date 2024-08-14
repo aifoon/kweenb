@@ -5,8 +5,8 @@ import {
   OrderedAudioScene,
   useAppPersistentStorage,
 } from "../../../hooks/useAppPersistentStorage";
-import { AudioScene } from "@shared/interfaces";
 import { TriggerSceneCard } from "../../Cards/TriggerSceneCard";
+import { useAppStore } from "../../../hooks/useAppStore";
 
 type SceneTriggerProps = {};
 
@@ -23,6 +23,8 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
   const orderedAudioScenes = useAppPersistentStorage(
     (state) => state.orderedAudioScenes
   );
+
+  const currentSwarm = useAppStore((state) => state.currentSwarm);
 
   /**
    * When the ordered audio scenes change, sort them by order and set the selected audio scenes
@@ -46,6 +48,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
           size="small"
           variant="outlined"
           color="secondary"
+          disabled={currentSwarm.length === 0}
         >
           Select Scenes
         </Button>
@@ -53,9 +56,14 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
       <Box style={{ paddingBottom: "75px" }}>
         {selectedAudioScenes.length === 0 && (
           <Typography>
-            No scenes selected. Click{" "}
-            <Link onClick={() => setOpenSelectSceneModal(true)}>here</Link> the
-            button above to select scenes.
+            No scenes selected.
+            {currentSwarm.length > 0 && (
+              <>
+                Click{" "}
+                <Link onClick={() => setOpenSelectSceneModal(true)}>here</Link>{" "}
+                the button above to select scenes.
+              </>
+            )}
           </Typography>
         )}
         {selectedAudioScenes.length > 0 && (

@@ -28,6 +28,8 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [loading, setLoading] = useState<LoadingState>({
     loading: false,
     text: "",
+    cancelButton: false,
+    onCancel: () => {},
   });
   const [openBuildSwarmModal, setOpenBuildSwarmModal] =
     useState<boolean>(false);
@@ -136,7 +138,21 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   return (
     <AppContext.Provider value={appContextValue}>
       {/* The General Loader for the whole app */}
-      {loading.loading && <Loader text={loading.text} />}
+      {loading.loading && (
+        <Loader
+          text={loading.text}
+          cancelButton={loading.cancelButton}
+          onCancel={() => {
+            setLoading({
+              text: "",
+              loading: false,
+              onCancel: () => {},
+              cancelButton: false,
+            });
+            if (loading.onCancel) loading.onCancel();
+          }}
+        />
+      )}
 
       {/* The About KweenB Modal */}
       <AboutKweenBModal

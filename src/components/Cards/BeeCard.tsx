@@ -35,9 +35,10 @@ export interface BeeCardProps {
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onChannelTypeChange?: (channelType: ChannelType) => void;
+  onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export const BeeCardContainer = styled.div`
+export const BeeCardContainer = styled(Box)`
   position: relative;
   border-radius: var(--radiusLarge);
   padding: 0.85rem;
@@ -111,6 +112,7 @@ export const BeeCard = ({
   jackTripIsRunning = false,
   apiOn = false,
   loading = false,
+  onChannelTypeChange,
   channelType = ChannelType.MONO,
   channel1 = 0,
   channel2 = 0,
@@ -119,7 +121,7 @@ export const BeeCard = ({
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
   onBeeDeleteClick,
-  onChannelTypeChange,
+  onDoubleClick,
   draggable = false,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
@@ -167,6 +169,9 @@ export const BeeCard = ({
       style={{ opacity: isDragging ? 0.4 : 1 }}
       ref={drag}
       draggable={draggable}
+      onDoubleClick={(e) => {
+        if (onDoubleClick) onDoubleClick(e);
+      }}
     >
       {isLoading && (
         <BeeCardLoader>
@@ -275,38 +280,6 @@ export const BeeCard = ({
                 <Typography variant="small">{ipAddress}</Typography>
               </Box>
             </BeeCardSection>
-
-            {/* Uncomment this when working on the mono/stereo shizzle again */}
-
-            {/* <BeeCardSection>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <ToggleButton
-                state1={{
-                  text: "Mono",
-                  buttonUse: ButtonUse.Normal,
-                  buttonType: ButtonType.SecondaryWhite,
-                  onClick: () => {
-                    if (onChannelTypeChange)
-                      onChannelTypeChange(ChannelType.MONO);
-                  },
-                }}
-                state2={{
-                  text: "Stereo",
-                  buttonUse: ButtonUse.Normal,
-                  buttonType: ButtonType.SecondaryWhite,
-                  onClick: () => {
-                    if (onChannelTypeChange)
-                      onChannelTypeChange(ChannelType.STEREO);
-                  },
-                }}
-                buttonSize={ButtonSize.Small}
-                toggleStateOnClick
-                state={channelType === ChannelType.MONO ? 1 : 2}
-              />
-            </Grid>
-          </Grid>
-        </BeeCardSection> */}
 
             <BeeCardSection>
               <Grid container spacing={1}>

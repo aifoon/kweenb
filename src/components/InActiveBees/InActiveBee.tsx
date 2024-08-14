@@ -2,13 +2,15 @@ import { Utils } from "../../shared/utils";
 import React from "react";
 import styled from "styled-components";
 import { useDrag } from "react-dnd";
+import { Box } from "@mui/material";
 
 type InActiveBeeProps = {
   number: number;
   name: string;
+  onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 };
 
-const InActiveBeeContainer = styled.div`
+const InActiveBeeContainer = styled(Box)`
   width: 100%;
   background-color: var(--primary-300);
   padding: 0.6rem;
@@ -27,7 +29,11 @@ export const InActiveBeeNumber = styled.div`
   background: var(--primary-100);
 `;
 
-export const InActiveBee = ({ number, name }: InActiveBeeProps) => {
+export const InActiveBee = ({
+  number,
+  name,
+  onDoubleClick,
+}: InActiveBeeProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "InActiveBee",
     item: { number },
@@ -36,7 +42,11 @@ export const InActiveBee = ({ number, name }: InActiveBeeProps) => {
     }),
   }));
   return (
-    <InActiveBeeContainer style={{ opacity: isDragging ? 0.4 : 1 }} ref={drag}>
+    <InActiveBeeContainer
+      onDoubleClick={onDoubleClick}
+      style={{ opacity: isDragging ? 0.4 : 1 }}
+      ref={drag}
+    >
       <InActiveBeeNumber>{Utils.addLeadingZero(number)}</InActiveBeeNumber>
       {name}
     </InActiveBeeContainer>

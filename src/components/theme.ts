@@ -68,6 +68,10 @@ export default createTheme({
         root: {
           color: "var(--textColor)",
           borderBottom: "1px solid var(--textColor)",
+          textDecoration: "none",
+          "&:hover": {
+            cursor: "pointer",
+          },
         },
       },
     },
@@ -175,7 +179,7 @@ export default createTheme({
             },
             ":disabled": {
               border: "none",
-              outline: "1px solid rgba(0, 0, 0, 0.12)",
+              color: "var(--textColor)",
             },
           },
         },
@@ -381,7 +385,6 @@ export default createTheme({
           "&:active": {
             boxShadow: "0 0 0 10px rgba(34, 34, 58, .5) !important",
           },
-          transform: "translate(0, -50%)",
         },
       },
     },

@@ -90,7 +90,10 @@ export const AudioTest = (props: AudioTestsProps) => {
                     size="small"
                     color="secondary"
                     onClick={() => window.kweenb.methods.stopAudio(bee)}
-                    style={{ padding: 0 }}
+                    sx={{
+                      padding: 0,
+                      minWidth: 0,
+                    }}
                   >
                     <StopIcon />
                   </Button>,

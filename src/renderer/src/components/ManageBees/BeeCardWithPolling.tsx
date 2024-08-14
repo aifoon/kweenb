@@ -14,6 +14,7 @@ export const BeeCardWithPolling = ({
   jackIsRunning,
   jackTripIsRunning,
   collapsed,
+  onDoubleClick,
 }: BeeCardProps) => {
   const { bee, loading } = useBee(number);
   return (
@@ -35,6 +36,7 @@ export const BeeCardWithPolling = ({
       jackTripIsRunning={
         loading ? jackTripIsRunning : bee.status.isJacktripRunning
       }
+      onDoubleClick={onDoubleClick}
       onChannelTypeChange={(channelType: ChannelType) =>
         console.log("ok", channelType)
       }

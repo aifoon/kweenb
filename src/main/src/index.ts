@@ -10,7 +10,7 @@
 import path from "path";
 import { app } from "electron";
 import { ElectronApp } from "./lib";
-import { registerActions, registerMethods } from "./register";
+import { registerActions, registerMethodHandlers } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 import { KweenB, KweenBGlobal } from "./kweenb";
@@ -80,7 +80,7 @@ const initApp = async () => {
 
         // register the methods to handle
         // (two way direction, from renderer to main and back)
-        registerMethods();
+        registerMethodHandlers();
 
         // init the kweenb internal logic
         // this will pass settings to external libs, initialize dictionaries and workers etc.
