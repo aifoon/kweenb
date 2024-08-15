@@ -10,7 +10,6 @@ export function SocketConnectionManager() {
 
     // cleanup
     return () => {
-      // socket.off('change-page');
       disconnect();
     };
   }, []);

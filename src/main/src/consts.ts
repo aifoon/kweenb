@@ -18,6 +18,10 @@ export const MAIN_PATH = `${
 // the path to the private key we use for SSH connections
 export const SSH_PRIVATE_KEY_PATH = `${resourcesPath}/kweenb.key`;
 
+// the path to the SSL keys
+export const SSL_KEY = `${resourcesPath}/ssl/key.pem`;
+export const SSL_CERT = `${resourcesPath}/ssl/cert.pem`;
+
 // the username we use for SSH connections
 export const SSH_USERNAME_BEE = "pi";
 

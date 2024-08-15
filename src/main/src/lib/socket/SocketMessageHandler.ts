@@ -131,29 +131,11 @@ export class SocketMessageHandler {
     json,
   }: SocketHandlerParams) {
     try {
-      // get the volume and the bees
+      // get the params and the bees
       const { value, bees, type } = json;
 
       // loop over bees and set the volume
-      bees.forEach(async (bee: IBee) => {
-        const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
-        switch (type) {
-          case "volume":
-            pdBeeOsc.setVolume(value);
-            break;
-          case "low":
-            pdBeeOsc.setBass(value);
-            break;
-          case "high":
-            pdBeeOsc.setHigh(value);
-            break;
-          case "fileLoop":
-            pdBeeOsc.setFileLoop(value as boolean);
-            break;
-          default:
-            pdBeeOsc.setVolume(value);
-        }
-      });
+      BeeHelpers.setAudioParam(bees, type, value);
     } catch (error) {
       console.error(error);
     }
@@ -169,9 +151,7 @@ export class SocketMessageHandler {
       const { scene, bees } = json;
 
       // loop over bees and set the volume
-      bees.forEach(async (bee: IBee) => {
-        await BeeHelpers.startAudio(bee, scene.oscAddress);
-      });
+      await BeeHelpers.startAudio(bees, scene.oscAddress);
     } catch (error) {
       console.error(error);
     }
@@ -186,10 +166,8 @@ export class SocketMessageHandler {
       // get the volume and the bees
       const { bees } = json;
 
-      // loop over bees and set the volume
-      bees.forEach(async (bee: IBee) => {
-        await BeeHelpers.stopAudio(bee);
-      });
+      // loop over bees and stop the audio
+      await BeeHelpers.stopAudio(bees);
     } catch (error) {
       console.error(error);
     }

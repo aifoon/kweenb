@@ -598,7 +598,7 @@ const setAudioParam = async (
 
     // iterate over the beeArray
     for (const bee of beeArray) {
-      if (!bee.isOnline) continue;
+      if (!KweenBGlobal.kweenb.beeStates.isOnline(bee.id)) continue;
       const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
       switch (pdAudioParam) {
         case PDAudioParam.VOLUME:
@@ -640,7 +640,8 @@ const startAudio = async (bees: IBee[] | IBee, value: string) => {
 
     // iterate over the beeArray
     for (const bee of beeArray) {
-      if (!bee.isOnline) continue;
+      // check the current online state (the one in the object could be outdated)
+      if (!KweenBGlobal.kweenb.beeStates.isOnline(bee.id)) continue;
       const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
       await pdBeeOsc.startAudio(value);
     }
@@ -661,7 +662,7 @@ const stopAudio = async (bees: IBee[] | IBee) => {
 
     // iterate over the beeArray
     for (const bee of beeArray) {
-      if (!bee.isOnline) continue;
+      if (!KweenBGlobal.kweenb.beeStates.isOnline(bee.id)) continue;
       const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
       await pdBeeOsc.stopAudio();
     }

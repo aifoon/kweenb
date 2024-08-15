@@ -13,6 +13,7 @@ import { AudioScene, IBee } from "@shared/interfaces";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoopIcon from "@mui/icons-material/Loop";
 import { useSocket } from "../../hooks/useSocket";
+import { PDAudioParam } from "@shared/enums";
 
 type SingleBeeCardProps = {
   bee: IBee;
@@ -93,7 +94,7 @@ export const SingleBeeCard = ({
                 setCurrentVolume(value);
                 sendToServerWithoutResponse("setParamOfBees", {
                   value,
-                  type: "volume",
+                  type: PDAudioParam.VOLUME,
                   bees: [bee],
                 });
               }}
@@ -144,7 +145,7 @@ export const SingleBeeCard = ({
                 // let the server know what to do
                 sendToServerWithoutResponse("setParamOfBees", {
                   value,
-                  type: "fileLoop",
+                  type: PDAudioParam.FILE_LOOP,
                   bees: [bee],
                 });
 

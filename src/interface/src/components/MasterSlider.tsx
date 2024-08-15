@@ -8,6 +8,7 @@ import styled from "styled-components";
 import LoopIcon from "@mui/icons-material/Loop";
 import { useAppPersistentStorage } from "../hooks/useAppPersistentStorage";
 import { useSocket } from "../hooks/useSocket";
+import { PDAudioParam } from "@shared/enums";
 
 type MasterSliderProps = {};
 
@@ -88,7 +89,8 @@ export const MasterSlider = (props: MasterSliderProps) => {
    * Inner states
    */
 
-  const [selectedProperty, setSelectedProperty] = useState("volume");
+  const [selectedPDAudioParam, setSelectedPDAudioParam] =
+    useState<PDAudioParam>(PDAudioParam.VOLUME);
   const [sliderValue, setSliderValue] = useState(masterVolume);
 
   /**
@@ -120,49 +122,31 @@ export const MasterSlider = (props: MasterSliderProps) => {
         <MasterSliderGrid alignItems="center">
           <Box sx={{ padding: "0px 10px" }}>
             <NumberSlider
-              step={selectedProperty === "volume" ? 1 : 0.1}
+              step={selectedPDAudioParam === "volume" ? 1 : 0.1}
               min={0}
-              max={selectedProperty === "volume" ? 100 : 2}
+              max={selectedPDAudioParam === "volume" ? 100 : 2}
               showNumber={false}
               value={sliderValue}
               marginBottom="0"
               onChangeCommitted={(value) => {
-                switch (selectedProperty) {
-                  case "volume":
-                    setSliderValue(value);
+                setSliderValue(value);
+                sendToServerWithoutResponse("setParamOfBees", {
+                  type: selectedPDAudioParam,
+                  value,
+                  bees: currentSwarm,
+                });
+                switch (selectedPDAudioParam) {
+                  case PDAudioParam.VOLUME:
                     setMasterVolume(value);
-                    sendToServerWithoutResponse("setParamOfBees", {
-                      type: "volume",
-                      value,
-                      bees: currentSwarm,
-                    });
                     break;
-                  case "low":
-                    setSliderValue(value);
+                  case PDAudioParam.LOW:
                     setMasterLow(value);
-                    sendToServerWithoutResponse("setParamOfBees", {
-                      type: "low",
-                      value,
-                      bees: currentSwarm,
-                    });
                     break;
-                  case "high":
-                    setSliderValue(value);
+                  case PDAudioParam.HIGH:
                     setMasterHigh(value);
-                    sendToServerWithoutResponse("setParamOfBees", {
-                      type: "high",
-                      value,
-                      bees: currentSwarm,
-                    });
                     break;
                   default:
-                    setSliderValue(value);
                     setMasterVolume(value);
-                    sendToServerWithoutResponse("setParamOfBees", {
-                      type: "volume",
-                      value,
-                      bees: currentSwarm,
-                    });
                     break;
                 }
               }}
@@ -173,18 +157,18 @@ export const MasterSlider = (props: MasterSliderProps) => {
               fullWidth={true}
               size="small"
               aria-label="Small sizes"
-              value={selectedProperty}
+              value={selectedPDAudioParam}
               exclusive={true}
               onChange={(event, newValue) => {
-                setSelectedProperty(newValue);
+                setSelectedPDAudioParam(newValue);
                 switch (newValue) {
-                  case "volume":
+                  case PDAudioParam.VOLUME:
                     setSliderValue(masterVolume);
                     break;
-                  case "low":
+                  case PDAudioParam.LOW:
                     setSliderValue(masterLow);
                     break;
-                  case "high":
+                  case PDAudioParam.HIGH:
                     setSliderValue(masterHigh);
                     break;
                   default:
@@ -193,13 +177,16 @@ export const MasterSlider = (props: MasterSliderProps) => {
                 }
               }}
             >
-              <ToggleButton value="volume" aria-label="left aligned">
+              <ToggleButton
+                value={PDAudioParam.VOLUME}
+                aria-label="left aligned"
+              >
                 <VolumeUpIcon fontSize="small" />
               </ToggleButton>
-              <ToggleButton value="low" aria-label="left aligned">
+              <ToggleButton value={PDAudioParam.LOW} aria-label="left aligned">
                 LOW
               </ToggleButton>
-              <ToggleButton value="high" aria-label="left aligned">
+              <ToggleButton value={PDAudioParam.HIGH} aria-label="left aligned">
                 HIGH
               </ToggleButton>
             </ToggleButtonGroup>
@@ -226,7 +213,7 @@ export const MasterSlider = (props: MasterSliderProps) => {
                 color={oneOrMoreBeesAreLooping ? "primary" : "secondary"}
                 onClick={() => {
                   sendToServerWithoutResponse("setParamOfBees", {
-                    type: "fileLoop",
+                    type: PDAudioParam.FILE_LOOP,
                     value: !oneOrMoreBeesAreLooping,
                     bees: currentSwarm,
                   });
