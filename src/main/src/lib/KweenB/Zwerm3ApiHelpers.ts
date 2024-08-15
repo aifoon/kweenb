@@ -289,7 +289,7 @@ const killJacktrip = async (ipAddress: string) => {
  * @param ipAddress
  * @returns
  */
-const startJack = async (ipAddress: string) => {
+const startJack = async (ipAddress: string, triggerOnly: boolean = false) => {
   // validate if Zwerm3API is running
   if (!(await isZwerm3ApiRunning(ipAddress)))
     throw new Error(ZWERM3_API_NOTRUNNING(ipAddress));
@@ -302,9 +302,9 @@ const startJack = async (ipAddress: string) => {
     device: settings.beeAudioSettings.jack.device,
     inputChannels: settings.beeAudioSettings.jack.inputChannels,
     outputChannels: settings.beeAudioSettings.jack.outputChannels,
-    bufferSize: settings.beeAudioSettings.jack.bufferSize,
+    bufferSize: triggerOnly ? 128 : settings.beeAudioSettings.jack.bufferSize,
     sampleRate: settings.beeAudioSettings.jack.sampleRate,
-    periods: settings.beeAudioSettings.jack.periods,
+    periods: triggerOnly ? 24 : settings.beeAudioSettings.jack.periods,
   };
 
   // create the endpoint

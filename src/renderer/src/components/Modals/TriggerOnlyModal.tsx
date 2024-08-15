@@ -77,7 +77,7 @@ export const TriggerOnlyModal = ({ open, onClose }: TriggerOnlyModalProps) => {
     /* Start Jack on active bees */
     setActiveIndex(4);
     const startJackPromises = activeBees.map((bee) => {
-      return window.kweenb.methods.startJack(bee);
+      return window.kweenb.methods.startJack(bee, true);
     });
     await Promise.all(startJackPromises);
 

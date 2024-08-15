@@ -77,7 +77,8 @@ const jackJacktripBee = {
     ipcRenderer.invoke("bee:hookOnCurrentHive", bee),
   makeP2PAudioConnectionBee: (bee: IBee) =>
     ipcRenderer.invoke("bee:makeP2PAudioConnection", bee),
-  startJack: (bee: IBee) => ipcRenderer.invoke("bee:startJack", bee),
+  startJack: (bee: IBee, triggerOnly: boolean = false) =>
+    ipcRenderer.invoke("bee:startJack", bee, triggerOnly),
   startJackWithJacktripHubClientBee: (bee: IBee) =>
     ipcRenderer.invoke("bee:startJackWithJacktripHubClient", bee),
   startJackWithJacktripP2PServerBee: (bee: IBee) =>

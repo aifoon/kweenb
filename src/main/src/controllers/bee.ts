@@ -236,7 +236,7 @@ export const getAudioFiles = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioFiles()", message: e.message },
-      true
+      false
     );
   }
 };
@@ -533,10 +533,11 @@ export const startAudio = async (
  */
 export const startJack = async (
   event: Electron.IpcMainInvokeEvent,
-  bee: IBee
+  bee: IBee,
+  triggerOnly: boolean = false
 ) => {
   try {
-    await zwerm3ApiHelpers.startJack(bee.ipAddress);
+    await zwerm3ApiHelpers.startJack(bee.ipAddress, triggerOnly);
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJack()", message: e.message },
