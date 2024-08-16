@@ -59,7 +59,8 @@ export default function ConnectBeesMenu() {
    */
   const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
     // get the presets
-    window.kweenb.methods.getAudioPresets().then((presets) => {
+    window.kweenb.methods.getAudioPresets(appMode).then((presets) => {
+      console.log(presets);
       setCurrentPresets(presets);
     });
 

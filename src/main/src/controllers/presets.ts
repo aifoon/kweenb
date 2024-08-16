@@ -1,6 +1,8 @@
 import { IAudioPreset } from "@shared/interfaces";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import presetsHelper from "../lib/KweenB/PresetHelpers";
+import { AppMode } from "@shared/enums";
+import { DEFAULT_APP_MODE } from "@shared/consts";
 
 /**
  * Activate a preset
@@ -23,9 +25,12 @@ export const activatePreset = async (
 /**
  * Get all the audio presets
  */
-export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
+export const getAudioPresets = async (
+  event: Electron.IpcMainInvokeEvent,
+  appMode: AppMode = DEFAULT_APP_MODE
+): Promise<IAudioPreset[]> => {
   try {
-    return await presetsHelper.getAudioPresets();
+    return await presetsHelper.getAudioPresets(appMode);
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioPresets()", message: e.message },

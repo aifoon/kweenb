@@ -83,6 +83,42 @@ export const ConnectBeesModalHub = ({
     setActiveIndex(5);
     await window.kweenb.methods.killJackAndJacktripOnKweenB();
 
+    /* Start Jacktrip HUB server on kweenb */
+    setActiveIndex(6);
+    await window.kweenb.methods.startJacktripHubServer();
+
+    /* Start HUB clients on active bees */
+    setActiveIndex(7);
+    const startJackWithJacktripHubClientBeePromises = activeBees.map((bee) =>
+      window.kweenb.methods.startJackWithJacktripHubClientBee(bee)
+    );
+    await Promise.all(startJackWithJacktripHubClientBeePromises);
+
+    /* Start Pure Data on active bees */
+    setActiveIndex(8);
+    const startPureDataPromises = activeBees.map((bee) => {
+      return window.kweenb.methods.startPureData(bee);
+    });
+    await Promise.all(startPureDataPromises);
+
+    /* Start Jacktrip HUB client on kweenb */
+    setActiveIndex(9);
+    await window.kweenb.methods.startJackWithJacktripHubClientKweenB();
+
+    /* Make audio connection on active bees */
+    setActiveIndex(10);
+    const makeAudioConnectionBeePromises = activeBees.map((bee) =>
+      window.kweenb.methods.makeAudioConnectionBee(bee)
+    );
+    await Promise.all(makeAudioConnectionBeePromises);
+
+    /* Make hub audio connection on kweenb and hub */
+    setActiveIndex(11);
+    const makeHubAudioConnectionsPromises = activeBees.map((bee) =>
+      window.kweenb.methods.makeHubAudioConnectionsKweenB()
+    );
+    await Promise.all(makeHubAudioConnectionsPromises);
+
     /* Close the modal */
     setActiveIndex(-1);
 
@@ -100,12 +136,18 @@ export const ConnectBeesModalHub = ({
     <BaseModal open={isOpen} onClose={closeModal}>
       <TaskList
         tasks={[
-          "Check if Jack & Jacktrip is installed on KweenB",
+          "Check if Jack & Jacktrip is installed on kweenb",
           "Fetch active bees",
           "Realtime check to see if every active bee is alive",
           "Check if zwerm3 API is running on active bees",
           "Kill Jack & Jacktrip processes on active bees",
-          "Kill Jack & Jacktrip processes on KweenB",
+          "Kill Jack & Jacktrip processes on kweenb",
+          "Start Jacktrip HUB server on kweenb",
+          "Start Jack & Jacktrip clients on bees",
+          "Start Pure Data on active bees",
+          "Start Jack & Jacktrip client on kweenb",
+          "Make audio connection on active bees",
+          "Make all audio connections on kweenb & kweenb hub",
         ]}
         activeIndex={activeIndex}
         activeIndexState={activeIndexState}

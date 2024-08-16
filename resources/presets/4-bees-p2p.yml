@@ -1,13 +1,15 @@
 ---
-name: 16+ Bees
-description: Audio preset for 16 bees
+name: 4 Bees
+description: Audio preset for 4 bees
+appMode: p2p
+maxAllowedBees: -1
 bee:
   jack:
     device: hw:sndrpihifiberry
     inputChannels: -1
     outputChannels: -1
     sampleRate: 44100
-    bufferSize: 2048
+    bufferSize: 256
     periods: 24
   jacktrip:
     realtimePriority: true
@@ -24,11 +26,11 @@ kweenb:
     inputChannels: -1
     outputChannels: -1
     sampleRate: 44100
-    bufferSize: 512
+    bufferSize: 128
     periods: 24
   jacktrip:
     realtimePriority: true
     channels: 1
     bitRate: 16
     queueBufferLength: 32
-    redundancy: 1
+    redundancy: 4

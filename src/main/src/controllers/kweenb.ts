@@ -7,7 +7,7 @@ import { IBee } from "@shared/interfaces";
 import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
-import { KweenB, KweenBGlobal } from "../kweenb";
+import { KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
@@ -89,6 +89,20 @@ export const killJackAndJacktrip = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Make all the hub audio connection on kweenb and hub
+ */
+export const makeHubAudioConnections = async () => {
+  try {
+    await kweenBHelpers.makeHubAudioConnections();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "makeP2PAudioConnections()", message: e.message },
       true
     );
   }
@@ -185,6 +199,22 @@ export const setJacktripBinPath = (
       where: "setJacktripBinPath()",
       message: e.message,
     });
+  }
+};
+
+/**
+ * Start the jacktrip hub server
+ * @param event
+ * @param bee
+ */
+export const startJacktripHubServer = async () => {
+  try {
+    await kweenBHelpers.startJacktripHubServer();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "startJacktripHubServer()", message: e.message },
+      true
+    );
   }
 };
 

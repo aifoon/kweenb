@@ -12,9 +12,6 @@ import SpeakerIcon from "@mui/icons-material/Speaker";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
-import { AppMode } from "@shared/enums";
-import { useTheKween } from "../../hooks/useTheKween";
-import { useAppStore } from "../../hooks";
 
 /**
  * List of Sidebar Buttons

@@ -15,10 +15,14 @@ const jackJacktripKweenB = {
     ipcRenderer.invoke("kweenb:isJackAndJacktripInstalled"),
   killJackAndJacktripOnKweenB: () =>
     ipcRenderer.invoke("kweenb:killJackAndJacktrip"),
+  startJacktripHubServer: () =>
+    ipcRenderer.invoke("kweenb:startJacktripHubServer"),
   startJackWithJacktripHubClientKweenB: () =>
     ipcRenderer.invoke("kweenb:startJackWithJacktripHubClient"),
   startJackWithJacktripP2PClientKweenB: (bee: IBee) =>
     ipcRenderer.invoke("kweenb:startJackWithJacktripP2PClient", bee),
+  makeHubAudioConnectionsKweenB: () =>
+    ipcRenderer.invoke("kweenb:makeHubAudioConnections"),
   makeP2PAudioConnectionsKweenB: () =>
     ipcRenderer.invoke("kweenb:makeP2PAudioConnections"),
   makeP2PAudioConnectionKweenB: (bee: IBee) =>

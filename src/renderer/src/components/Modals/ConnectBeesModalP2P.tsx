@@ -102,12 +102,12 @@ export const ConnectBeesModalP2P = ({
     });
     await Promise.all(startJackWithJacktripP2PClientPromises);
 
-    /* Make P2P audio connection on active bees */
+    /* Make audio connection on active bees */
     setActiveIndex(9);
-    const makeP2PAudioConnectionBeePromises = activeBees.map((bee) =>
-      window.kweenb.methods.makeP2PAudioConnectionBee(bee)
+    const makeAudioConnectionBeePromises = activeBees.map((bee) =>
+      window.kweenb.methods.makeAudioConnectionBee(bee)
     );
-    await Promise.all(makeP2PAudioConnectionBeePromises);
+    await Promise.all(makeAudioConnectionBeePromises);
 
     /* Make all P2P audio connections on KweenB */
     setActiveIndex(10);
@@ -135,17 +135,17 @@ export const ConnectBeesModalP2P = ({
     >
       <TaskList
         tasks={[
-          "Check if Jack & Jacktrip is installed on KweenB",
+          "Check if Jack & Jacktrip is installed on kweenb",
           "Fetch active bees",
           "Realtime check to see if every active bee is alive",
           "Check if zwerm3 API is running on active bees",
           "Kill Jack & Jacktrip processes on active bees",
-          "Kill Jack & Jacktrip processes on KweenB",
+          "Kill Jack & Jacktrip processes on kweenb",
           "Start Jack & Jacktrip P2P server on active bees",
           "Start Pure Data on active bees",
-          "Start Jack & Jacktrip P2P clients on KweenB",
-          "Make P2P audio connection on active bees",
-          "Make all P2P audio connections on KweenB",
+          "Start Jack & Jacktrip P2P clients on kweenb",
+          "Make audio connection on active bees",
+          "Make all audio connections on kweenb",
         ]}
         activeIndex={activeIndex}
         activeIndexState={activeIndexState}

@@ -300,25 +300,6 @@ export const getCurrentBeeStates = async (
 };
 
 /**
- * Hook this bee on the hive (if hive exists)
- * @param event
- * @param bee
- */
-export const hookOnCurrentHive = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee
-) => {
-  try {
-    await BeeHelpers.hookOnCurrentHive(bee.id);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "hookOnCurrentHive()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
  * Kill Jack And Jacktrip processes on the client
  * @param event
  * @param bee
@@ -399,15 +380,15 @@ export const killPureData = async (
  * @param event
  * @param bee
  */
-export const makeP2PAudioConnection = async (
+export const makeAudioConnection = async (
   event: Electron.IpcMainInvokeEvent,
   bee: IBee
 ) => {
   try {
-    await BeeHelpers.makeP2PAudioConnection(bee);
+    await BeeHelpers.makeAudioConnection(bee);
   } catch (e: any) {
     throw new KweenBException(
-      { where: "makeP2PAudioConnection()", message: e.message },
+      { where: "makeAudioConnection()", message: e.message },
       true
     );
   }

@@ -20,7 +20,6 @@ import {
   ZWERM3_API_NOTRUNNING,
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
-import TheKweenHelpers from "./TheKweenHelpers";
 import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
 import {
   HAS_CONNECTION_WITH_PHYSICAL_SWARM,
@@ -425,53 +424,6 @@ const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
 };
 
 /**
- * Hook this bee on the hive (if hive exists)
- * @param id
- */
-const hookOnCurrentHive = async (id: number) => {
-  // sets the receive channel to check
-  const kweenbReceiveChannel = `kweenb:receive_${id}`;
-
-  // check if the hive has a kweenb receive channel for this bee
-  const hasKweenBReceiveChannel = await TheKweenHelpers.hasReceiveChannel(
-    kweenbReceiveChannel
-  );
-
-  // throw error if there's no kweenb receive channel available
-  if (!hasKweenBReceiveChannel)
-    throw new Error(
-      HIVE_DOES_NOT_CONTAIN_RECEIVE_CHANNEL(kweenbReceiveChannel)
-    );
-
-  // get the bee data
-  const bee = await getBee(id);
-
-  // validate if we found a Bee
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // validate if the bee is online
-  if (!bee.isOnline) throw new Error(BEE_NOT_ONLINE(id));
-
-  // validate if zwerm3api is running
-  if (!bee.isApiOn) throw new Error(ZWERM3_API_NOTRUNNING(bee.ipAddress));
-
-  // kill all jack processes on bee
-  await Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
-
-  // connect to hive
-  await Zwerm3ApiHelpers.startJackWithJacktripHubClient(
-    bee.ipAddress,
-    bee.name
-  );
-
-  // make audio connections
-  await TheKweenHelpers.makeAudioConnection(
-    kweenbReceiveChannel,
-    `${bee.name}:send_1`
-  );
-};
-
-/**
  * Import the bees in the database
  * @param filePath
  */
@@ -682,8 +634,7 @@ export default {
   getBee,
   getBeeConfig,
   getCurrentBeeStates,
-  hookOnCurrentHive,
-  makeP2PAudioConnection,
+  makeAudioConnection: makeP2PAudioConnection,
   setAudioParam,
   setBeeActive,
   setBeePozyxTagId,

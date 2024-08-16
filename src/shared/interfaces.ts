@@ -2,6 +2,8 @@
  * Shared interfaces
  */
 
+import { AppMode } from "./enums";
+
 export interface IError {
   message: string;
   where: string;
@@ -177,6 +179,8 @@ export interface IAudioPreset {
   fileName: string;
   name: string;
   description: string;
+  appMode: AppMode;
+  maxAllowedBees: number;
   latency: number;
   bee: {
     jack: IAudioSettingsJack;
@@ -196,7 +200,6 @@ export interface ISettings {
   beeAudioSettings: IBeeAudioSettings;
   kweenBAudioSettings: IKweenBAudioSettings;
   kweenBSettings: IKweenBSettings;
-  theKweenSettings: ITheKweenSettings;
   positioningSettings: IPositioningSettings;
 }
 
@@ -241,18 +244,6 @@ export interface IKweenBAudioSettings {
 export interface IKweenBSettings {
   jackFolderPath: string;
   jacktripBinPath: string;
-}
-
-// The Kween
-
-export interface ITheKween {
-  settings: ITheKweenSettings;
-  isOnline: boolean;
-  isApiOn: boolean;
-}
-
-export interface ITheKweenSettings {
-  ipAddress: string;
 }
 
 // Socket

@@ -14,6 +14,7 @@ import {
   AudioScene,
 } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
+import { DEFAULT_APP_MODE } from "@shared/consts";
 
 declare global {
   interface Window {
@@ -56,7 +57,7 @@ declare global {
         killJack(bee: IBee);
         killJacktrip(bee: IBee): void;
         hookBeeOnCurrentHive(bee: IBee): void;
-        makeP2PAudioConnectionBee(bee: IBee): Promise<void>;
+        makeAudioConnectionBee(bee: IBee): Promise<void>;
         startJack(bee: IBee, triggerOnly: boolean = false): void;
         startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
         startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;
@@ -75,8 +76,10 @@ declare global {
         getKweenBVersion(): Promise<string>;
         isJackAndJacktripInstalled(): Promise<boolean>;
         killJackAndJacktripOnKweenB(): Promise<void>;
+        startJacktripHubServer(): Promise<void>;
         startJackWithJacktripHubClientKweenB(): Promise<void>;
         startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
+        makeHubAudioConnectionsKweenB(): Promise<void>;
         makeP2PAudioConnectionsKweenB(): Promise<void>;
         makeP2PAudioConnectionKweenB(bee: IBee): Promise<void>;
         openDialog(
@@ -96,17 +99,10 @@ declare global {
          * Presets
          */
 
-        getAudioPresets(): Promise<IAudioPreset[]>;
+        getAudioPresets(
+          appMode: AppMode = DEFAULT_APP_MODE
+        ): Promise<IAudioPreset[]>;
         activatePreset(fileName: string): Promise<void>;
-
-        theKween: {
-          fetchTheKween(): Promise<ITheKween>;
-          isZwerm3ApiRunningOnTheKween(): Promise<boolean>;
-          killJackAndJacktripOnTheKween(): Promise<void>;
-          startHubServerOnTheKween(): Promise<void>;
-          validateHive(): Promise<boolean>;
-          makeHubAudioConnections(): Promise<void>;
-        };
 
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;

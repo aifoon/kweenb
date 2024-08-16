@@ -13,7 +13,7 @@ export const MakeP2PAudioConnectionOnActiveBees = () => {
     try {
       const getActiveBees = await window.kweenb.methods.fetchActiveBees();
       const makeP2PAudioConnectionBeePromises = getActiveBees.map((bee) =>
-        window.kweenb.methods.makeP2PAudioConnectionBee(bee)
+        window.kweenb.methods.makeAudioConnectionBee(bee)
       );
       await Promise.all(makeP2PAudioConnectionBeePromises);
       setOutput("Audio connections were created");

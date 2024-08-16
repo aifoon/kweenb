@@ -116,10 +116,6 @@ export default [
     value: "true",
   },
   {
-    key: "thekweenIpAddress",
-    value: "192.168.0.2",
-  },
-  {
     key: "kweenbJackFolderPath",
     value: "",
   },

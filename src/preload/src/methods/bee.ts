@@ -73,10 +73,8 @@ const jackJacktripBee = {
     ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
   killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
   killJacktrip: (bee: IBee) => ipcRenderer.invoke("bee:killJacktrip", bee),
-  hookBeeOnCurrentHive: (bee: IBee) =>
-    ipcRenderer.invoke("bee:hookOnCurrentHive", bee),
-  makeP2PAudioConnectionBee: (bee: IBee) =>
-    ipcRenderer.invoke("bee:makeP2PAudioConnection", bee),
+  makeAudioConnectionBee: (bee: IBee) =>
+    ipcRenderer.invoke("bee:makeAudioConnection", bee),
   startJack: (bee: IBee, triggerOnly: boolean = false) =>
     ipcRenderer.invoke("bee:startJack", bee, triggerOnly),
   startJackWithJacktripHubClientBee: (bee: IBee) =>

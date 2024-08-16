@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppStore } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const KillAllTheKweenProcesses = () => {
+export const StartJacktripHubServer = () => {
   const setLoading = useAppStore((state) => state.setLoading);
 
   const [output, setOutput] = useState("");
@@ -11,8 +11,8 @@ export const KillAllTheKweenProcesses = () => {
   const onRunClick = useCallback(async () => {
     setLoading({ loading: true });
     try {
-      await window.kweenb.methods.theKween.killJackAndJacktripOnTheKween();
-      setOutput("Killed Jack & Jacktrip processes on The Kween");
+      await window.kweenb.methods.startJacktripHubServer();
+      setOutput("Started Jacktrip hub server on kweenb.");
       setOutputColor("var(--green-status)");
     } catch (e: any) {
       setOutput(e.message);
@@ -24,7 +24,7 @@ export const KillAllTheKweenProcesses = () => {
 
   return (
     <Action
-      description="Kill all Jack & Jacktrip processes on The Kween"
+      description="Start Jacktrip hub server on kweenb"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

@@ -4,11 +4,13 @@ import fs from "fs";
 // import { parse, stringify } from "yaml";
 import { readdir } from "fs/promises";
 import { PRESETS_FOLDER_PATH } from "../../consts";
-import path, { parse } from "path";
+import path from "path";
 import YAML from "yaml";
 import SettingHelpers from "./SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
+import { AppMode } from "@shared/enums";
+import { DEFAULT_APP_MODE } from "@shared/consts";
 
 /**
  * Active a preset
@@ -139,7 +141,9 @@ export const initPresetsFolder = () => {
  * Get audio presets
  * @returns
  */
-export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
+export const getAudioPresets = async (
+  appMode: AppMode = DEFAULT_APP_MODE
+): Promise<IAudioPreset[]> => {
   try {
     // read the files in the presets folder
     const files = await readdir(PRESETS_FOLDER_PATH);
@@ -182,8 +186,13 @@ export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
       return audioPreset as IAudioPreset;
     });
 
+    // filter the app mode
+    let filteredAudioPresets = audioPresets.filter(
+      (preset) => preset.appMode === appMode.toString()
+    );
+
     // sort the presets by name
-    audioPresets.sort((a, b) => {
+    filteredAudioPresets.sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
 
@@ -206,7 +215,7 @@ export const getAudioPresets = async (): Promise<IAudioPreset[]> => {
     });
 
     // return the presets
-    return audioPresets;
+    return filteredAudioPresets;
   } catch (error) {
     throw new Error("Error getting audio presets.");
   }

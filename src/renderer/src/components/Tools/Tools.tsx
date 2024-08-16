@@ -12,23 +12,20 @@ import {
 import { PageHeader } from "@components/PageHeader";
 import { Z3Page } from "@components/Layout";
 import {
-  IsZwerm3ApiRunningOnTheKween,
-  TheKweenOnline,
   ActiveBeesOnline,
   IsZwerm3ApiRunningOnBees,
-  KillAllTheKweenProcesses,
   KillAllBeeProcesses,
-  StartHubServerOnTheKween,
   KillAllKweenBProcesses,
-  ValidateHive,
   MakeHubAudioConnections,
   StartJackWithJacktripHubClientOnActiveBees,
   StartJackWithJacktripHubClientOnKweenB,
   StartJackWithJacktripP2PServerOnActiveBees,
-  StartJackWithJacktripP2PClientOnKweenB,
+  StartJackWithJacktripP2PClientsOnKweenB,
   MakeP2PAudioConnectionsOnKweenB,
   MakeP2PAudioConnectionOnActiveBees,
   DisconnectP2PAudioConnectionsOnKweenB,
+  StartJacktripHubServer,
+  StartPureDataOnActiveBees,
 } from "./Actions";
 
 export const Tools = () => {
@@ -45,32 +42,25 @@ export const Tools = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            <ActiveBeesOnline />
+            <IsZwerm3ApiRunningOnBees />
+            <KillAllBeeProcesses />
+            <KillAllKweenBProcesses />
             {appMode === AppMode.Hub && (
               <>
-                <TheKweenOnline />
-                <IsZwerm3ApiRunningOnTheKween />
-                <ActiveBeesOnline />
-                <IsZwerm3ApiRunningOnBees />
-                <KillAllTheKweenProcesses />
-                <KillAllBeeProcesses />
-                <StartHubServerOnTheKween />
+                <StartJacktripHubServer />
                 <StartJackWithJacktripHubClientOnActiveBees />
-                <KillAllKweenBProcesses />
+                <StartPureDataOnActiveBees />
                 <StartJackWithJacktripHubClientOnKweenB />
-                <ValidateHive />
                 <MakeHubAudioConnections />
               </>
             )}
             {appMode === AppMode.P2P && (
               <>
-                <ActiveBeesOnline />
-                <IsZwerm3ApiRunningOnBees />
-                <KillAllBeeProcesses />
-                <KillAllKweenBProcesses />
                 <StartJackWithJacktripP2PServerOnActiveBees />
-                <StartJackWithJacktripP2PClientOnKweenB />
+                <StartPureDataOnActiveBees />
+                <StartJackWithJacktripP2PClientsOnKweenB />
                 <MakeP2PAudioConnectionOnActiveBees />
-                <DisconnectP2PAudioConnectionsOnKweenB />
                 <MakeP2PAudioConnectionsOnKweenB />
               </>
             )}

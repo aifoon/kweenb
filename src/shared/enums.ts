@@ -9,8 +9,8 @@ export enum BeeActiveState {
 }
 
 export enum AppMode {
-  Hub,
-  P2P,
+  Hub = "hub",
+  P2P = "p2p",
 }
 
 export enum PDAudioParam {

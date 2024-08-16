@@ -13,6 +13,7 @@ import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
 import { resourcesPath } from "@shared/resources";
 import { removeMethodHandlers } from "../register";
+import { DEFAULT_APP_MODE } from "@shared/consts";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -228,6 +229,7 @@ export default class MenuBuilder {
         {
           label: "Hub",
           type: "radio",
+          checked: (DEFAULT_APP_MODE as string) == AppMode.Hub,
           click: () => {
             this.mainWindow.webContents.send("app-mode", AppMode.Hub);
             KweenBGlobal.kweenb.appMode = AppMode.Hub;
@@ -236,7 +238,7 @@ export default class MenuBuilder {
         {
           label: "P2P",
           type: "radio",
-          checked: true,
+          checked: (DEFAULT_APP_MODE as string) == AppMode.P2P,
           click: () => {
             this.mainWindow.webContents.send("app-mode", AppMode.P2P);
             KweenBGlobal.kweenb.appMode = AppMode.P2P;

@@ -11,7 +11,17 @@ export const MakeHubAudioConnections = () => {
   const onRunClick = useCallback(async () => {
     setLoading({ loading: true });
     try {
-      await window.kweenb.methods.theKween.makeHubAudioConnections();
+      const activeBees = await window.kweenb.methods.fetchActiveBees();
+      const makeAudioConnectionBeePromises = activeBees.map((bee) =>
+        window.kweenb.methods.makeAudioConnectionBee(bee)
+      );
+      await Promise.all(makeAudioConnectionBeePromises);
+
+      const makeHubAudioConnectionsPromises = activeBees.map((bee) =>
+        window.kweenb.methods.makeHubAudioConnectionsKweenB()
+      );
+      await Promise.all(makeHubAudioConnectionsPromises);
+
       setOutput(`Audio connections were created`);
       setOutputColor(`var(--green-status)`);
     } catch (e: any) {

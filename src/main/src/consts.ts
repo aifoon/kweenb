@@ -7,7 +7,7 @@ import { PingConfig } from "ping";
 import { resourcesPath } from "@shared/resources";
 import { app } from "electron";
 
-export const DEBUG_JACK_JACKTRIP = false;
+export const DEBUG_JACK_JACKTRIP = true;
 export const DEBUG_KWEENB = false;
 export const MAIN_PATH = `${
   process.env.NODE_ENV === "development"
@@ -72,6 +72,9 @@ export const PING_CONFIG: PingConfig = {
 
 // the starting port of jacktrip
 export const START_PORT_JACKTRIP = 4464;
+
+// the port of the jacktrip HUB server
+export const JACKTRIP_HUB_PORT = 4495;
 
 // the jacktrip download version
 export const JACKTRIP_DOWNLOAD_VERSION = "2.2.5";

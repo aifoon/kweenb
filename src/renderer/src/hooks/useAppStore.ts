@@ -2,6 +2,7 @@ import { AppMode } from "@shared/enums";
 import { AudioScene, LoadingState } from "@shared/interfaces";
 import { create } from "zustand";
 import { ToastMessage } from "../interfaces";
+import { DEFAULT_APP_MODE } from "@shared/consts";
 
 type AppState = {
   appMode: AppMode;
@@ -36,7 +37,7 @@ type AppAction = {
 };
 
 export const useAppStore = create<AppState & AppAction>((set) => ({
-  appMode: AppMode.P2P,
+  appMode: DEFAULT_APP_MODE,
   audioScenesCache: [],
   closeToast: () => {
     set({ openToastState: false });

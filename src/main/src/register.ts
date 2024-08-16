@@ -23,8 +23,7 @@ import {
   saveConfig,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
-  hookOnCurrentHive,
-  makeP2PAudioConnection as makeP2PAudioConnectionBee,
+  makeAudioConnection,
   setBeePozyxTagId,
   getBeeConfig,
   getCurrentBeeStates,
@@ -41,6 +40,7 @@ import {
   getAudioScenes,
 } from "./controllers/bee";
 import {
+  startJacktripHubServer,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
   killJackAndJacktrip as killJackAndJacktripOnKweenB,
   startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
@@ -48,6 +48,7 @@ import {
   makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
   disconnectAllP2PAudioConnections,
   getKweenBVersion,
+  makeHubAudioConnections as makeHubAudioConnectionsKweenB,
   setJackFolderPath,
   setJacktripBinPath,
   calculateCurrentLatency,
@@ -55,14 +56,6 @@ import {
   openDialog,
 } from "./controllers/kweenb";
 import { fetchSettings, updateSetting } from "./controllers/setting";
-import {
-  fetchTheKween,
-  isZwerm3ApiRunningOnTheKween,
-  killJackAndJacktrip as killJackAndJacktripOnTheKween,
-  makeHubAudioConnections,
-  startHubServer,
-  validateHive,
-} from "./controllers/thekween";
 import {
   connectPozyxMqttBroker,
   disconnectPozyxMqttBroker,
@@ -126,8 +119,7 @@ const methodHandlers = [
   { name: "bee:killJackAndJacktrip", handler: killJackAndJacktrip },
   { name: "bee:killJack", handler: killJack },
   { name: "bee:killJacktrip", handler: killJacktrip },
-  { name: "bee:hookOnCurrentHive", handler: hookOnCurrentHive },
-  { name: "bee:makeP2PAudioConnection", handler: makeP2PAudioConnectionBee },
+  { name: "bee:makeAudioConnection", handler: makeAudioConnection },
   { name: "bee:startJack", handler: startJack },
   {
     name: "bee:startJackWithJacktripHubClient",
@@ -175,12 +167,20 @@ const methodHandlers = [
   },
   { name: "kweenb:killJackAndJacktrip", handler: killJackAndJacktripOnKweenB },
   {
+    name: "kweenb:startJacktripHubServer",
+    handler: startJacktripHubServer,
+  },
+  {
     name: "kweenb:startJackWithJacktripHubClient",
     handler: startJackWithJacktripHubClientKweenB,
   },
   {
     name: "kweenb:startJackWithJacktripP2PClient",
     handler: startJackWithJacktripP2PClientKweenB,
+  },
+  {
+    name: "kweenb:makeHubAudioConnections",
+    handler: makeHubAudioConnectionsKweenB,
   },
   {
     name: "kweenb:makeP2PAudioConnections",
@@ -191,7 +191,7 @@ const methodHandlers = [
     handler: disconnectAllP2PAudioConnections,
   },
   {
-    name: "kweenb:makeP2PAudioConnection",
+    name: "kweenb:makeAudioConnection",
     handler: makeP2PAudioConnectionKweenB,
   },
 
@@ -210,28 +210,6 @@ const methodHandlers = [
 
   { name: "presets:getAudioPresets", handler: getAudioPresets },
   { name: "presets:activatePreset", handler: activatePreset },
-
-  /**
-   * The Kween
-   */
-
-  // JACK/JACKTRIP
-
-  {
-    name: "thekween:killJackAndJacktrip",
-    handler: killJackAndJacktripOnTheKween,
-  },
-  { name: "thekween:startHubServer", handler: startHubServer },
-  {
-    name: "thekween:makeHubAudioConnections",
-    handler: makeHubAudioConnections,
-  },
-  { name: "thekween:validateHive", handler: validateHive },
-  { name: "thekween:fetchTheKween", handler: fetchTheKween },
-  {
-    name: "thekween:isZwerm3ApiRunningOnTheKween",
-    handler: isZwerm3ApiRunningOnTheKween,
-  },
 
   /**
    * Positioning

@@ -11,12 +11,12 @@ export const StartJackWithJacktripHubClientOnActiveBees = () => {
   const onRunClick = useCallback(async () => {
     setLoading({ loading: true });
     try {
-      const getActiveBees = await window.kweenb.methods.fetchActiveBees();
-      const startJackWithJacktripHubClientPromises = getActiveBees.map((bee) =>
+      const activeBees = await window.kweenb.methods.fetchActiveBees();
+      const startJackWithJacktripHubClientBeePromises = activeBees.map((bee) =>
         window.kweenb.methods.startJackWithJacktripHubClientBee(bee)
       );
-      await Promise.all(startJackWithJacktripHubClientPromises);
-      setOutput("Started Jack and Jacktrip client on all bees");
+      await Promise.all(startJackWithJacktripHubClientBeePromises);
+      setOutput("Started Jack with Jacktrip hub client on bee.");
       setOutputColor("var(--green-status)");
     } catch (e: any) {
       setOutput(e.message);
@@ -28,7 +28,7 @@ export const StartJackWithJacktripHubClientOnActiveBees = () => {
 
   return (
     <Action
-      description="Start Jack and Jacktrip Client on all bees"
+      description="Start Jacktrip hub client on active bees and connect with hub server on kweenb"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

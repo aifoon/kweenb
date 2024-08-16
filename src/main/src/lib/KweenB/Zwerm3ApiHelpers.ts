@@ -11,7 +11,11 @@ import {
   ISystemClientsResponse,
 } from "@shared/interfaces";
 import fetch from "node-fetch";
-import { DEFAULT_BEE_CONFIG, ZWERM3API_PORT } from "../../consts";
+import {
+  DEFAULT_BEE_CONFIG,
+  JACKTRIP_HUB_PORT,
+  ZWERM3API_PORT,
+} from "../../consts";
 import {
   FETCH_ERROR,
   POST_ERROR,
@@ -19,6 +23,7 @@ import {
 } from "../Exceptions/ExceptionMessages";
 import SettingHelpers from "./SettingHelpers";
 import BeeSsh from "./BeeSsh";
+import ip from "ip";
 
 interface ApiResponse {
   message: string;
@@ -411,11 +416,12 @@ const startJackWithJacktripHubClient = async (
       realtimePriority: settings.beeAudioSettings.jacktrip.realtimePriority,
       bitRate: settings.beeAudioSettings.jacktrip.bitRate,
       clientName,
-      host: settings.theKweenSettings.ipAddress,
+      host: ip.address(),
       receiveChannels: settings.beeAudioSettings.jacktrip.receiveChannels,
       redundancy: settings.beeAudioSettings.jacktrip.redundancy,
-      remotePort: 4464,
+      remotePort: JACKTRIP_HUB_PORT,
       sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
+      connectDefaultAudioPorts: false,
     },
   };
 
@@ -469,8 +475,6 @@ const startJacktripP2PServer = async (
     sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
     redundancy: settings.beeAudioSettings.jacktrip.redundancy,
   };
-
-  console.log(body);
 
   // create the endpoint
   const endpoint = createFullEndpoint(ipAddress, "startJacktripP2PServer");
