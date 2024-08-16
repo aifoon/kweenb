@@ -86,7 +86,7 @@ export const Card = ({
     <CardWrapper className={`card ${className}`}>
       {title && (
         <CardHeaderWrapper variant={variant} gap={1}>
-          <Box>
+          <Box display={"flex"} justifyContent={"space-between"}>
             <Box display={"flex"} alignItems={"center"} gap={1}>
               {statusBullet && statusBullet}
               <Typography variant={variant === "normal" ? "normal" : "small"}>
