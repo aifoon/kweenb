@@ -10,14 +10,20 @@ import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import ConnectBeesMenu from "@renderer/src/components/Menu/ConnectBeesMenu";
 import { Box, Divider, Typography } from "@mui/material";
+import styled from "styled-components";
+
+const Pill = styled(Typography)`
+  background-color: var(--primary-500);
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: var(--radiusMedium);
+  color: var(--grey-500);
+`;
 
 export const Z3Navigation = () => {
   // App Store
   const setOpenDisconnectBeesModal = useAppStore(
     (state) => state.setOpenDisconnectBeesModal
-  );
-  const setOpenConnectBeesHubModal = useAppStore(
-    (state) => state.setOpenConnectBeesHubModal
   );
   const currentLatency = useAppStore((state) => state.currentLatency);
   const appMode = useAppStore((state) => state.appMode);
@@ -45,40 +51,19 @@ export const Z3Navigation = () => {
     >
       disconnect
     </Button>,
+    <ConnectBeesMenu key="connectBees" />,
   ];
-  if (appMode === AppMode.Hub) {
-    buttons.push(
-      <Button
-        key="buildHive"
-        buttonSize={ButtonSize.Small}
-        buttonUse={ButtonUse.Grey}
-        onClick={() => setOpenConnectBeesHubModal(true)}
-      >
-        build hive
-      </Button>,
-      <ConnectBeesMenu key="connectBees" />
-    );
-  } else {
-    buttons.push(<ConnectBeesMenu key="connectBees" />);
-  }
 
   return (
     <Navigation title="kweenb" fixedToTop height="var(--navigationHeight)">
       <Box display="flex" alignItems="center" gap={1}>
         {currentLatency !== 0 && (
           <>
-            <Box
-              style={{
-                backgroundColor: "var(--primary-500)",
-                paddingLeft: "10px",
-                paddingRight: "10px",
-                borderRadius: "var(--radiusMedium)",
-                marginRight: "10px",
-              }}
-            >
-              <Typography variant="small" color="var(--grey-500)">
-                Current latency is {currentLatency}ms
-              </Typography>
+            <Box display={"flex"} gap={1}>
+              <Pill variant="small">
+                {appMode === AppMode.Hub ? "HUB" : "P2P"}
+              </Pill>
+              <Pill variant="small">Current latency is {currentLatency}ms</Pill>
             </Box>
             <Divider orientation="vertical" flexItem />
           </>

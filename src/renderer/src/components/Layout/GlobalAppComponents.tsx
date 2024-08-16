@@ -3,8 +3,8 @@ import React from "react";
 import { AboutKweenBModal } from "../Modals/AboutKweenBModal";
 import { Alert, Snackbar } from "@mui/material";
 import {
-  BuildHiveModal,
-  ConnectBeesModal,
+  ConnectBeesModalHub,
+  ConnectBeesModalP2P,
   DisconnectBeesModal,
 } from "../Modals";
 import { TriggerOnlyModal } from "../Modals/TriggerOnlyModal";
@@ -22,10 +22,10 @@ export const GlobalAppComponents = () => {
   const openAboutKweenBModal = useAppStore(
     (state) => state.openAboutKweenBModal
   );
-  const openBuildSwarmModal = useAppStore(
+  const openConnectBeesHubModal = useAppStore(
     (state) => state.openConnectBeesHubModal
   );
-  const openConnectBeesModal = useAppStore(
+  const openConnectBeesP2PModal = useAppStore(
     (state) => state.openConnectBeesP2PModal
   );
   const openDisconnectBeesModal = useAppStore(
@@ -39,10 +39,10 @@ export const GlobalAppComponents = () => {
     (state) => state.openUploadAudioFilesSettings
   );
   const setLoading = useAppStore((state) => state.setLoading);
-  const setOpenBuildSwarmModal = useAppStore(
+  const setOpenConnectBeesHubModal = useAppStore(
     (state) => state.setOpenConnectBeesHubModal
   );
-  const setOpenConnectBeesModal = useAppStore(
+  const setOpenConnectBeesP2PModal = useAppStore(
     (state) => state.setOpenConnectBeesP2PModal
   );
   const setOpenDisconnectBeesModal = useAppStore(
@@ -106,20 +106,18 @@ export const GlobalAppComponents = () => {
 
       {appMode === AppMode.Hub && (
         <>
-          {/* The Build hive modal */}
-          <BuildHiveModal
-            open={openBuildSwarmModal}
-            onClose={() => setOpenBuildSwarmModal(false)}
+          <ConnectBeesModalHub
+            open={openConnectBeesHubModal}
+            onClose={() => setOpenConnectBeesHubModal(false)}
           />
         </>
       )}
 
       {appMode === AppMode.P2P && (
         <>
-          {/* The Connect bees modal */}
-          <ConnectBeesModal
-            open={openConnectBeesModal}
-            onClose={() => setOpenConnectBeesModal(false)}
+          <ConnectBeesModalP2P
+            open={openConnectBeesP2PModal}
+            onClose={() => setOpenConnectBeesP2PModal(false)}
           />
         </>
       )}

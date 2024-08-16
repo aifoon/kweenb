@@ -71,30 +71,12 @@ const isActive = (navigatedPath: string, pathNames: string[]): boolean =>
 export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { thekween } = useTheKween();
-  const appMode = useAppStore((state) => state.appMode);
-
-  const badges =
-    appMode === AppMode.Hub
-      ? [
-          <SidebarStatusBadge
-            key="theKween"
-            text="The Kween"
-            status={
-              thekween?.isOnline && thekween?.isApiOn
-                ? StatusBulletType.Active
-                : StatusBulletType.NotActive
-            }
-          />,
-        ]
-      : [];
 
   return (
     <Sidebar
       fixedToSide
       width="var(--sidebarWidth)"
       height="var(--contentHeight)"
-      badges={badges}
       buttons={sidebarButtons.map(({ icon, title, pathNames, key }) => (
         <SidebarButton
           icon={icon}

@@ -11,17 +11,17 @@ export const ConnectBeesModalHub = ({
   onClose,
 }: ConnectBeesModalHubProps) => {
   const [isOpen, setIsOpen] = useState(open);
-  const [, setIsConnecting] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [activeIndexState, setActiveIndexState] = useState(
     TaskListItemState.Active
   );
 
-  useEffect(() => setIsOpen(open), [open]);
+  useEffect(() => {
+    setIsOpen(open), [open];
+  });
 
   const closeModal = useCallback(() => {
     setActiveIndex(-1);
-    setIsConnecting(false);
     onClose();
   }, []);
 
@@ -29,15 +29,11 @@ export const ConnectBeesModalHub = ({
     // Set the default active state to active
     setActiveIndexState(TaskListItemState.Active);
 
-    // Set connecting state to true
-    setIsConnecting(true);
-
     /* Check if Jack & Jacktrip is installed on KweenB */
     setActiveIndex(0);
     const isJackAndJacktripInstalled =
       await window.kweenb.methods.isJackAndJacktripInstalled();
     if (!isJackAndJacktripInstalled) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -46,7 +42,6 @@ export const ConnectBeesModalHub = ({
     setActiveIndex(1);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
     if (!activeBees || activeBees.length === 0) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -62,7 +57,6 @@ export const ConnectBeesModalHub = ({
       (state) => state.lastPingResponse
     );
     if (!hasLastPingResponse) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -74,7 +68,6 @@ export const ConnectBeesModalHub = ({
     const hasBeesWithoutZwerm3ApiRunning =
       activeBees.filter((bee) => !bee.isApiOn).length > 0;
     if (hasBeesWithoutZwerm3ApiRunning) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -92,9 +85,6 @@ export const ConnectBeesModalHub = ({
 
     /* Close the modal */
     setActiveIndex(-1);
-
-    // Set connecting state to false
-    setIsConnecting(false);
 
     // Close the modal
     closeModal();

@@ -11,7 +11,6 @@ export const ConnectBeesModalP2P = ({
   onClose,
 }: ConnectBeesModalP2PProps) => {
   const [isOpen, setIsOpen] = useState(open);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [activeIndexState, setActiveIndexState] = useState(
     TaskListItemState.Active
@@ -21,7 +20,6 @@ export const ConnectBeesModalP2P = ({
 
   const closeModal = useCallback(() => {
     setActiveIndex(-1);
-    setIsConnecting(false);
     onClose();
   }, []);
 
@@ -29,15 +27,11 @@ export const ConnectBeesModalP2P = ({
     // Set the default active state to active
     setActiveIndexState(TaskListItemState.Active);
 
-    // Set connecting state to true
-    setIsConnecting(true);
-
     /* Check if Jack & Jacktrip is installed on KweenB */
     setActiveIndex(0);
     const isJackAndJacktripInstalled =
       await window.kweenb.methods.isJackAndJacktripInstalled();
     if (!isJackAndJacktripInstalled) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -46,7 +40,6 @@ export const ConnectBeesModalP2P = ({
     setActiveIndex(1);
     const activeBees = await window.kweenb.methods.fetchActiveBees();
     if (!activeBees || activeBees.length === 0) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -62,7 +55,6 @@ export const ConnectBeesModalP2P = ({
       (state) => state.lastPingResponse
     );
     if (!hasLastPingResponse) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -74,7 +66,6 @@ export const ConnectBeesModalP2P = ({
     const hasBeesWithoutZwerm3ApiRunning =
       activeBees.filter((bee) => !bee.isApiOn).length > 0;
     if (hasBeesWithoutZwerm3ApiRunning) {
-      setIsConnecting(false);
       setActiveIndexState(TaskListItemState.Error);
       return;
     }
@@ -124,9 +115,6 @@ export const ConnectBeesModalP2P = ({
 
     /* Close the modal */
     setActiveIndex(-1);
-
-    // Set building state to false
-    setIsConnecting(false);
 
     // Close the modal
     closeModal();

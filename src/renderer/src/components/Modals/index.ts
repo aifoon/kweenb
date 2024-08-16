@@ -4,8 +4,8 @@ import { ConnectBeesModalP2P } from "./ConnectBeesModalP2P";
 import { DisconnectBeesModal } from "./DisconnectBeesModal";
 
 export {
-  ConnectBeesModalHub as BuildHiveModal,
+  ConnectBeesModalHub,
   CleanHiveModal,
-  ConnectBeesModalP2P as ConnectBeesModal,
+  ConnectBeesModalP2P,
   DisconnectBeesModal,
 };

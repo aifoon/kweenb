@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState, MouseEvent, useCallback } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, ButtonSize, ButtonUse } from "@components/Buttons";
@@ -7,35 +6,33 @@ import { Box, Tooltip, Typography } from "@mui/material";
 import { useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
+import { AppMode } from "@shared/enums";
 
 export default function ConnectBeesMenu() {
+  // App Store
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
   const setOpenConnectBeesP2PModal = useAppStore(
     (state) => state.setOpenConnectBeesP2PModal
   );
+  const setOpenConnectBeesHubModal = useAppStore(
+    (state) => state.setOpenConnectBeesHubModal
+  );
   const setOpenTriggerOnlyModal = useAppStore(
     (state) => state.setOpenTriggerOnlyModal
   );
+  const appMode = useAppStore((state) => state.appMode);
 
+  // Internal state
   const [currentPresets, setCurrentPresets] = useState<IAudioPreset[]>([]);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  // handle click event
-  const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    // get the presets
-    window.kweenb.methods.getAudioPresets().then((presets) => {
-      setCurrentPresets(presets);
-    });
-
-    // set the anchor element
-    setAnchorEl(event.currentTarget);
-  };
-
-  // handle close event
-  const activatePresetAndStart = useCallback(async (fileName: string) => {
+  /**
+   * Activate a preset (by setting settings) and start the connection
+   */
+  const activatePresetAndStart = async (fileName: string) => {
     // activate the preset
     await window.kweenb.methods.activatePreset(fileName);
 
@@ -46,27 +43,57 @@ export default function ConnectBeesMenu() {
     setAnchorEl(null);
 
     // open the connections
-    setOpenConnectBeesP2PModal(true);
-  }, []);
+    startProcess();
+  };
 
-  // handle start without preset
-  const startWithoutPreset = useCallback(() => {
+  /**
+   * Close the menu
+   */
+  const handleClose = () => {
     setAnchorEl(null);
-    setOpenConnectBeesP2PModal(true);
-  }, []);
+  };
 
-  // handle trigger only
+  /**
+   * Get current audio presets and show them in the menu
+   * @param event
+   */
+  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
+    // get the presets
+    window.kweenb.methods.getAudioPresets().then((presets) => {
+      setCurrentPresets(presets);
+    });
+
+    // set the anchor element
+    setAnchorEl(event.currentTarget);
+  };
+
+  /**
+   * Start the process
+   */
+  const startProcess = () => {
+    if (appMode === AppMode.P2P) {
+      setOpenConnectBeesP2PModal(true);
+    } else {
+      setOpenConnectBeesHubModal(true);
+    }
+  };
+
+  /**
+   * Start without a preset
+   */
+  const startWithoutPreset = () => {
+    setAnchorEl(null);
+    startProcess();
+  };
+
+  /**
+   * Trigger only
+   */
   const startTriggerOnly = useCallback(() => {
     setAnchorEl(null);
     setOpenTriggerOnlyModal(true);
   }, []);
 
-  // handle close when clicking outside
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  // return the components-
   return (
     <div>
       <Button
