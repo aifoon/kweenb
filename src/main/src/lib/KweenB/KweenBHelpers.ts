@@ -18,7 +18,6 @@ import { IBee } from "@shared/interfaces";
 import fs from "fs";
 import {
   DEBUG_JACK_JACKTRIP,
-  DEBUG_KWEENB,
   JACKTRIP_HUB_PORT,
   USER_DATA,
 } from "../../consts";
