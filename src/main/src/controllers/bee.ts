@@ -18,7 +18,7 @@ import BeeSsh from "../lib/KweenB/BeeSsh";
 import Bee from "../models/Bee";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
-import { SSH_PRIVATE_KEY_PATH, audioFilesRootDirectory } from "../consts";
+import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
 import Ssh2SftpClient from "ssh2-sftp-client";
 
 /**
@@ -102,7 +102,7 @@ export const deleteAudio = async (
 ) => {
   try {
     // set the guard to prevent deleting files outside the audio files root directory
-    if (path.startsWith(audioFilesRootDirectory)) {
+    if (path.startsWith(AUDIO_FILES_ROOT_DIRECTORY)) {
       await BeeSsh.deletePath(bee.ipAddress, path);
     }
   } catch (e: any) {
@@ -709,10 +709,10 @@ export const uploadAudioFiles = async (
         const fullPath = `${path}/${wavFile}`;
 
         // the remote directory and path
-        const remoteDirectory = `${audioFilesRootDirectory}/${legalName}`;
+        const remoteDirectory = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}`;
 
         // the remote path of the audio file
-        const remotePath = `${audioFilesRootDirectory}/${legalName}/audio.wav`;
+        const remotePath = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}/audio.wav`;
 
         // upload the file to the bee
         const sftp = new Ssh2SftpClient();

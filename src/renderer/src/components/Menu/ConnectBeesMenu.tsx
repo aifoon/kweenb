@@ -7,6 +7,7 @@ import { useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
 import { AppMode } from "@shared/enums";
+import { ToastMessage } from "../../interfaces";
 
 export default function ConnectBeesMenu() {
   // App Store
@@ -23,6 +24,7 @@ export default function ConnectBeesMenu() {
     (state) => state.setOpenTriggerOnlyModal
   );
   const appMode = useAppStore((state) => state.appMode);
+  const showToast = useAppStore((state) => state.showToast);
 
   // Internal state
   const [currentPresets, setCurrentPresets] = useState<IAudioPreset[]>([]);
@@ -34,7 +36,15 @@ export default function ConnectBeesMenu() {
    */
   const activatePresetAndStart = async (fileName: string) => {
     // activate the preset
-    await window.kweenb.methods.activatePreset(fileName);
+    const activatePresetError = await window.kweenb.methods.activatePreset(
+      fileName
+    );
+
+    // check if there was an error
+    if (activatePresetError.message !== "") {
+      showToast({ message: activatePresetError.message, severity: "error" });
+      return;
+    }
 
     // because we changed the preset, we need to update the latency
     updateCurrentLatency();

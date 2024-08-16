@@ -41,7 +41,7 @@ export const NETWORK_PERFORMANCE_POLLING_SECONDS = 5;
 export const ZWERM3API_PORT = 3000;
 
 // the audio file path root directory on the pi
-export const audioFilesRootDirectory = "/home/pi/pd-bee/files";
+export const AUDIO_FILES_ROOT_DIRECTORY = "/home/pi/pd-bee/files";
 
 // the default configuration of a bee
 export const DEFAULT_BEE_CONFIG = {

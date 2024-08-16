@@ -1,4 +1,4 @@
-import { IAudioPreset } from "@shared/interfaces";
+import { IAudioPreset, IError } from "@shared/interfaces";
 import fs from "fs";
 
 // import { parse, stringify } from "yaml";
@@ -9,14 +9,15 @@ import YAML from "yaml";
 import SettingHelpers from "./SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
-import { AppMode } from "@shared/enums";
+import { AppMode, BeeActiveState } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
+import BeeHelpers from "./BeeHelpers";
 
 /**
  * Active a preset
  * @param preset
  */
-export const activatePreset = async (fileName: string): Promise<void> => {
+export const activatePreset = async (fileName: string): Promise<IError> => {
   // read the file
   const filePath = path.join(PRESETS_FOLDER_PATH, fileName);
   const preset = fs.readFileSync(filePath, "utf8");
@@ -27,6 +28,17 @@ export const activatePreset = async (fileName: string): Promise<void> => {
 
   // convert to audio preset
   const audioPreset = parsedPreset as IAudioPreset;
+
+  // check if the preset can be activated
+  if (audioPreset.maxAllowedBees > 0) {
+    const activeBees = await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
+    if (activeBees.length > audioPreset.maxAllowedBees) {
+      return {
+        message: `The preset can only be activated with ${audioPreset.maxAllowedBees} bees.`,
+        where: "activatePreset()",
+      };
+    }
+  }
 
   /**
    * Update bee settings
@@ -85,6 +97,11 @@ export const activatePreset = async (fileName: string): Promise<void> => {
       });
     })
   );
+
+  return {
+    message: "",
+    where: "activatePreset()",
+  };
 };
 
 /**

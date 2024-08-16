@@ -2,7 +2,7 @@ import { SSH_ERROR } from "../Exceptions/ExceptionMessages";
 import { KweenBGlobal } from "../../kweenb";
 import SettingHelpers from "./SettingHelpers";
 import { AudioFile, AudioScene } from "@shared/interfaces";
-import { audioFilesRootDirectory } from "../../consts";
+import { AUDIO_FILES_ROOT_DIRECTORY } from "../../consts";
 
 /**
  * Create a directory on the client
@@ -58,11 +58,13 @@ const getAudioFiles = async (ipAddress: string): Promise<AudioFile[]> => {
     );
 
     // execute the command
-    const response = await ssh.execCommand(`ls -R ${audioFilesRootDirectory}`);
+    const response = await ssh.execCommand(
+      `ls -R ${AUDIO_FILES_ROOT_DIRECTORY}`
+    );
     const fileLines = response.stdout.split("\n");
     const audioFiles: AudioFile[] = [];
     let currentDirectory: string | undefined;
-    const rootDirectory = audioFilesRootDirectory;
+    const rootDirectory = AUDIO_FILES_ROOT_DIRECTORY;
 
     // loop over files
     for (const line of fileLines) {
@@ -121,11 +123,13 @@ const getAudioScenes = async (ipAddress: string): Promise<AudioScene[]> => {
       ipAddress
     );
     // execute the command
-    const response = await ssh.execCommand(`ls -R ${audioFilesRootDirectory}`);
+    const response = await ssh.execCommand(
+      `ls -R ${AUDIO_FILES_ROOT_DIRECTORY}`
+    );
     const fileLines = response.stdout.split("\n");
     const audioScenes: AudioScene[] = [];
     let currentDirectory: string | undefined;
-    const rootDirectory = audioFilesRootDirectory;
+    const rootDirectory = AUDIO_FILES_ROOT_DIRECTORY;
 
     // loop over files
     for (const line of fileLines) {

@@ -102,7 +102,7 @@ declare global {
         getAudioPresets(
           appMode: AppMode = DEFAULT_APP_MODE
         ): Promise<IAudioPreset[]>;
-        activatePreset(fileName: string): Promise<void>;
+        activatePreset(fileName: string): Promise<IError>;
 
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;

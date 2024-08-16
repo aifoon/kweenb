@@ -154,11 +154,12 @@ const startJackWithJacktripHubClient = async () => {
     receiveChannels: settings.kweenBAudioSettings.jacktrip.receiveChannels,
     // if in the settings the sendChannels is higher than the active bees, use the active bees
     // it's not necessary to have more send channels than active bees
-    sendChannels:
-      settings.kweenBAudioSettings.jacktrip.sendChannels >
-      currentActiveBees.length
-        ? currentActiveBees.length
-        : settings.kweenBAudioSettings.jacktrip.sendChannels,
+    // sendChannels:
+    //   settings.kweenBAudioSettings.jacktrip.sendChannels >
+    //   currentActiveBees.length
+    //     ? currentActiveBees.length
+    //     : settings.kweenBAudioSettings.jacktrip.sendChannels,
+    sendChannels: settings.kweenBAudioSettings.jacktrip.sendChannels,
     redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
     remotePort: JACKTRIP_HUB_PORT,
     connectDefaultAudioPorts: false,

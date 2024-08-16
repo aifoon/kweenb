@@ -1,8 +1,8 @@
 ---
-name: 4 Bees
-description: Audio preset for max. 4 bees
+name: 8 Bees
+description: Audio preset for max. 8 bees
 appMode: hub
-maxAllowedBees: 4
+maxAllowedBees: 8
 bee:
   jack:
     device: hw:sndrpihifiberry
@@ -31,7 +31,7 @@ kweenb:
   jacktrip:
     realtimePriority: true
     channels: 1
-    sendChannels: 4
+    sendChannels: 8
     bitRate: 16
     queueBufferLength: 32
     redundancy: 1
