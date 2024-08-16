@@ -15,11 +15,12 @@ type AppState = {
   openTriggerOnlyModal: boolean;
   openUploadAudioFilesSettings: boolean;
   toast: ToastMessage;
-  openToast: boolean;
+  openToastState: boolean;
   manageBeesCollapsed: boolean;
 };
 
 type AppAction = {
+  closeToast: () => void;
   setAppMode: (appMode: AppMode) => void;
   setAudioScenesCache: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
@@ -37,6 +38,9 @@ type AppAction = {
 export const useAppStore = create<AppState & AppAction>((set) => ({
   appMode: AppMode.P2P,
   audioScenesCache: [],
+  closeToast: () => {
+    set({ openToastState: false });
+  },
   currentLatency: 0,
   loading: {
     loading: false,
@@ -50,7 +54,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openConnectBeesP2PModal: false,
   openDisconnectBeesModal: false,
   openTriggerOnlyModal: false,
-  openToast: false,
+  openToastState: false,
   openUploadAudioFilesSettings: false,
   setAppMode: (appMode: AppMode) => set({ appMode }),
   setAudioScenesCache: (audioScenes: AudioScene[]) =>
@@ -67,7 +71,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
     set({ openUploadAudioFilesSettings: open }),
   showToast: (toast) => {
     set({ toast });
-    set({ openToast: true });
+    set({ openToastState: true });
   },
   toast: { message: "", severity: "info" },
   updateCurrentLatency: async () => {

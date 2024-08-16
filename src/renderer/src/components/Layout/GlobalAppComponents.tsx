@@ -14,6 +14,7 @@ import { AppMode } from "@shared/enums";
 
 export const GlobalAppComponents = () => {
   const appMode = useAppStore((state) => state.appMode);
+  const closeToast = useAppStore((state) => state.closeToast);
   const loading = useAppStore((state) => state.loading);
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
@@ -33,11 +34,11 @@ export const GlobalAppComponents = () => {
   const openTriggerOnlyModal = useAppStore(
     (state) => state.openTriggerOnlyModal
   );
-  const openToast = useAppStore((state) => state.openToast);
+  const openToast = useAppStore((state) => state.openToastState);
   const openUploadAudioFilesSettings = useAppStore(
     (state) => state.openUploadAudioFilesSettings
   );
-  const toast = useAppStore((state) => state.toast);
+  const setLoading = useAppStore((state) => state.setLoading);
   const setOpenBuildSwarmModal = useAppStore(
     (state) => state.setOpenConnectBeesHubModal
   );
@@ -53,7 +54,7 @@ export const GlobalAppComponents = () => {
   const setOpenUploadAudioFilesSettings = useAppStore(
     (state) => state.setOpenUploadAudioFilesSettings
   );
-  const setLoading = useAppStore((state) => state.setLoading);
+  const toast = useAppStore((state) => state.toast);
 
   return (
     <>
@@ -88,13 +89,13 @@ export const GlobalAppComponents = () => {
           autoHideDuration={3000}
           onClose={(event, reason) => {
             if (reason === "timeout") {
-              // handleCloseToast();
+              closeToast();
             }
           }}
           message={toast.message}
         >
           <Alert
-            // onClose={handleCloseToast}
+            onClose={closeToast}
             severity={toast.severity}
             sx={{ width: "100%" }}
           >
