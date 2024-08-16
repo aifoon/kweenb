@@ -1,16 +1,17 @@
 import { Action } from "@components/Actions";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
 export const ActiveBeesOnline = () => {
+  const setLoading = useAppStore((state) => state.setLoading);
+
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
-  const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading({ loading: true });
+    setLoading({ loading: true });
     const activeBees = await window.kweenb.methods.fetchActiveBees();
-    appContext.setLoading({ loading: false });
+    setLoading({ loading: false });
 
     // if no active bees
     if (!activeBees || activeBees.length === 0) {

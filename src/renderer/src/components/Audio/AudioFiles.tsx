@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { Z3PageContentSidebar } from "@components/Layout";
@@ -7,20 +7,25 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ButtonGroup } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import { useAppContext, useBeeStore } from "@renderer/src/hooks";
+import { useAppStore, useBeeStore } from "@renderer/src/hooks";
 import { Box, Typography, Button } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
 
 type AudioFilesProps = {};
 
 export const AudioFiles = (props: AudioFilesProps) => {
+  // Bee Store
   const bees = useBeeStore((state) => state.bees).filter((bee) => bee.isOnline);
-  const [selectedBee, setSelectedBee] = React.useState<IBee | null>(null);
-  const { appContext } = useAppContext();
-  const [currentAudioFiles, setCurrentAudioFiles] = React.useState<AudioFile[]>(
-    []
+
+  // App Store
+  const setOpenUploadAudioFilesSettings = useAppStore(
+    (state) => state.setOpenUploadAudioFilesSettings
   );
-  const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
+
+  // Inner State
+  const [selectedBee, setSelectedBee] = useState<IBee | null>(null);
+  const [currentAudioFiles, setCurrentAudioFiles] = useState<AudioFile[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // handle selected items
   const handleSelectedItemsChange = (
@@ -102,7 +107,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
             color="primary"
             key="upload_scene"
             onClick={async () => {
-              appContext.setOpenUploadAudioFilesSettings(true);
+              setOpenUploadAudioFilesSettings(true);
             }}
           >
             Upload Scene

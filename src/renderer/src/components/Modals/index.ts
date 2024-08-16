@@ -1,11 +1,11 @@
-import { BuildHiveModal } from "./BuildHiveModal";
+import { ConnectBeesModalHub } from "./ConnectBeesModalHub";
 import { CleanHiveModal } from "./CleanHiveModal";
-import { ConnectBeesModal } from "./ConnectBeesModal";
+import { ConnectBeesModalP2P } from "./ConnectBeesModalP2P";
 import { DisconnectBeesModal } from "./DisconnectBeesModal";
 
 export {
-  BuildHiveModal,
+  ConnectBeesModalHub as BuildHiveModal,
   CleanHiveModal,
-  ConnectBeesModal,
+  ConnectBeesModalP2P as ConnectBeesModal,
   DisconnectBeesModal,
 };

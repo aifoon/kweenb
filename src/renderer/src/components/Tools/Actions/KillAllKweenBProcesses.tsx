@@ -1,14 +1,15 @@
 import { Action } from "@components/Actions";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
 export const KillAllKweenBProcesses = () => {
+  const setLoading = useAppStore((state) => state.setLoading);
+
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
-  const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading({ loading: true });
+    setLoading({ loading: true });
     try {
       await window.kweenb.methods.killJackAndJacktripOnKweenB();
       setOutput("Killed Jack & Jacktrip processes on KweenB");
@@ -17,7 +18,7 @@ export const KillAllKweenBProcesses = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, []);
 

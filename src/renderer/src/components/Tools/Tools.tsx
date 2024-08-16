@@ -1,6 +1,6 @@
 import { Card } from "@components/Cards";
 import React from "react";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import {
   Table,
@@ -32,7 +32,7 @@ import {
 } from "./Actions";
 
 export const Tools = () => {
-  const { appContext } = useAppContext();
+  const appMode = useAppStore((state) => state.appMode);
   return (
     <Z3Page pageHeader={<PageHeader title="Tools" />}>
       <Card title="Actions">
@@ -45,7 +45,7 @@ export const Tools = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {appContext.appMode === AppMode.Hub && (
+            {appMode === AppMode.Hub && (
               <>
                 <TheKweenOnline />
                 <IsZwerm3ApiRunningOnTheKween />
@@ -61,7 +61,7 @@ export const Tools = () => {
                 <MakeHubAudioConnections />
               </>
             )}
-            {appContext.appMode === AppMode.P2P && (
+            {appMode === AppMode.P2P && (
               <>
                 <ActiveBeesOnline />
                 <IsZwerm3ApiRunningOnBees />
@@ -76,38 +76,6 @@ export const Tools = () => {
             )}
           </TableBody>
         </Table>
-        {/* <ActionsContainer>
-          <ActionsHeader />
-          {appContext.appMode === AppMode.Hub && (
-            <>
-              <TheKweenOnline />
-              <IsZwerm3ApiRunningOnTheKween />
-              <ActiveBeesOnline />
-              <IsZwerm3ApiRunningOnBees />
-              <KillAllTheKweenProcesses />
-              <KillAllBeeProcesses />
-              <StartHubServerOnTheKween />
-              <StartJackWithJacktripHubClientOnActiveBees />
-              <KillAllKweenBProcesses />
-              <StartJackWithJacktripHubClientOnKweenB />
-              <ValidateHive />
-              <MakeHubAudioConnections />
-            </>
-          )}
-          {appContext.appMode === AppMode.P2P && (
-            <>
-              <ActiveBeesOnline />
-              <IsZwerm3ApiRunningOnBees />
-              <KillAllBeeProcesses />
-              <KillAllKweenBProcesses />
-              <StartJackWithJacktripP2PServerOnActiveBees />
-              <StartJackWithJacktripP2PClientOnKweenB />
-              <MakeP2PAudioConnectionOnActiveBees />
-              <DisconnectP2PAudioConnectionsOnKweenB />
-              <MakeP2PAudioConnectionsOnKweenB />
-            </>
-          )}
-        </ActionsContainer> */}
       </Card>
     </Z3Page>
   );

@@ -20,15 +20,18 @@ const AboutKweenBModalTitle = styled.div`
 `;
 
 export const AboutKweenBModal = ({ open, onClose }: AboutKweenBModalProps) => {
+  // Internal state
   const [isOpen, setIsOpen] = useState(open);
   const [kweenbVersion, setKweenBVersion] = useState("");
 
+  // When kweenb version is fetched, set it to the state
   useEffect(() => {
     window.kweenb.methods.getKweenBVersion().then((_kweenbVersion) => {
       setKweenBVersion(_kweenbVersion);
     });
   }, []);
 
+  // When the open prop changes, set the internal state
   useEffect(() => {
     setIsOpen(open);
   }, [open]);

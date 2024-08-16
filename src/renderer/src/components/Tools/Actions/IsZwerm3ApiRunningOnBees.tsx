@@ -1,14 +1,15 @@
 import { Action } from "@components/Actions";
-import { useAppContext } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
 export const IsZwerm3ApiRunningOnBees = () => {
+  const setLoading = useAppStore((state) => state.setLoading);
+
   const [output, setOutput] = useState("");
   const [outputColor, setOutputColor] = useState("var(--textColor");
-  const { appContext } = useAppContext();
 
   const onRunClick = useCallback(async () => {
-    appContext.setLoading({ loading: true });
+    setLoading({ loading: true });
     try {
       const activeBees = await window.kweenb.methods.fetchActiveBees();
 
@@ -51,7 +52,7 @@ export const IsZwerm3ApiRunningOnBees = () => {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, []);
 

@@ -14,7 +14,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
 import { AppMode } from "@shared/enums";
 import { useTheKween } from "../../hooks/useTheKween";
-import { useAppContext } from "../../hooks";
+import { useAppStore } from "../../hooks";
 
 /**
  * List of Sidebar Buttons
@@ -72,10 +72,10 @@ export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { thekween } = useTheKween();
-  const { appContext } = useAppContext();
+  const appMode = useAppStore((state) => state.appMode);
 
   const badges =
-    appContext.appMode === AppMode.Hub
+    appMode === AppMode.Hub
       ? [
           <SidebarStatusBadge
             key="theKween"

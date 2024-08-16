@@ -142,7 +142,7 @@ const startJackWithJacktripHubClient = async () => {
 
   await startJackDmpAsync(jack, {
     onLog: async (message) => {
-      console.log(message);
+      if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
   });
 
@@ -152,7 +152,7 @@ const startJackWithJacktripHubClient = async () => {
 
   await startJacktripHubClientAsync(jacktrip, {
     onLog: async (message) => {
-      console.log(message);
+      if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
   });
 };

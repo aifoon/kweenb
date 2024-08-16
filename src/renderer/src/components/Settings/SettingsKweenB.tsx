@@ -7,7 +7,7 @@ import {
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
-import { useAppContext, useAppStore, useSetting } from "@renderer/src/hooks";
+import { useAppStore, useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
 import { Grid } from "@mui/material";
 import {
@@ -31,7 +31,7 @@ export const SettingsKweenB = ({
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
-  const { appContext } = useAppContext();
+  const appMode = useAppStore((state) => state.appMode);
 
   /**
    * The initial values
@@ -282,7 +282,7 @@ export const SettingsKweenB = ({
                     name="jacktripChannels"
                     placeholder="e.g. 2"
                   />
-                  {appContext.appMode === AppMode.Hub && (
+                  {appMode === AppMode.Hub && (
                     <>
                       <TextField
                         onValidatedBlur={handleOnValidatedBlurAndChange}
@@ -346,7 +346,7 @@ export const SettingsKweenB = ({
                     name="jacktripRedundancy"
                     placeholder="e.g. 1"
                   />
-                  {appContext.appMode === AppMode.Hub && (
+                  {appMode === AppMode.Hub && (
                     <TextField
                       onValidatedBlur={handleOnValidatedBlurAndChange}
                       orientation={InputFieldOrientation.Horizontal}

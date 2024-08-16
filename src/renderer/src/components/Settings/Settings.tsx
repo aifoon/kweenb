@@ -1,6 +1,6 @@
 import { Loader } from "@components/Loader";
 import { Tab } from "@mui/material";
-import { useSettings, useAppContext } from "@renderer/src/hooks";
+import { useSettings, useAppStore } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { AppMode } from "@shared/enums";
@@ -13,7 +13,7 @@ import { SettingsPositioning } from "./SettingsPositioning";
 
 export const Settings = () => {
   const { loading, settings, reloadSettings } = useSettings();
-  const { appContext } = useAppContext();
+  const appMode = useAppStore((state) => state.appMode);
   const [value, setValue] = useState(0);
 
   if (loading || !settings) return <Loader />;
@@ -31,7 +31,7 @@ export const Settings = () => {
       <Tabs value={value} onChange={handleChange}>
         <Tab label="Bee" />
         <Tab label="KweenB" />
-        {appContext.appMode === AppMode.Hub && <Tab label="The Kween" />}
+        {appMode === AppMode.Hub && <Tab label="The Kween" />}
         <Tab label="Positioning" />
       </Tabs>
       <TabPanel value={value} index={0}>
@@ -48,7 +48,7 @@ export const Settings = () => {
           updateRate={settings.positioningSettings.updateRate}
         />
       </TabPanel>
-      {appContext.appMode === AppMode.Hub && (
+      {appMode === AppMode.Hub && (
         <TabPanel value={value} index={3}>
           <SettingsTheKween ipAddress={settings.theKweenSettings.ipAddress} />
         </TabPanel>

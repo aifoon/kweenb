@@ -4,18 +4,24 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, ButtonSize, ButtonUse } from "@components/Buttons";
 import { Box, Tooltip, Typography } from "@mui/material";
-import { useAppContext, useAppStore } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
 
 export default function ConnectBeesMenu() {
-  const [currentPresets, setCurrentPresets] = useState<IAudioPreset[]>([]);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const { appContext } = useAppContext();
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
+  const setOpenConnectBeesP2PModal = useAppStore(
+    (state) => state.setOpenConnectBeesP2PModal
+  );
+  const setOpenTriggerOnlyModal = useAppStore(
+    (state) => state.setOpenTriggerOnlyModal
+  );
+
+  const [currentPresets, setCurrentPresets] = useState<IAudioPreset[]>([]);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
   // handle click event
   const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -40,19 +46,19 @@ export default function ConnectBeesMenu() {
     setAnchorEl(null);
 
     // open the connections
-    appContext.setOpenConnectBeesModal(true);
+    setOpenConnectBeesP2PModal(true);
   }, []);
 
   // handle start without preset
   const startWithoutPreset = useCallback(() => {
     setAnchorEl(null);
-    appContext.setOpenConnectBeesModal(true);
+    setOpenConnectBeesP2PModal(true);
   }, []);
 
   // handle trigger only
   const startTriggerOnly = useCallback(() => {
     setAnchorEl(null);
-    appContext.setOpenTriggerOnlyModal(true);
+    setOpenTriggerOnlyModal(true);
   }, []);
 
   // handle close when clicking outside

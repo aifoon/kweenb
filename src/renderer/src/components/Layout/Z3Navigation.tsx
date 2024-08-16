@@ -6,14 +6,21 @@ import {
   ButtonType,
 } from "@components/Buttons/Button";
 import { Navigation, NavigationButtons } from "@components/Navigation";
-import { useAppContext, useAppStore } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import ConnectBeesMenu from "@renderer/src/components/Menu/ConnectBeesMenu";
 import { Box, Divider, Typography } from "@mui/material";
 
 export const Z3Navigation = () => {
-  const { appContext } = useAppContext();
+  // App Store
+  const setOpenDisconnectBeesModal = useAppStore(
+    (state) => state.setOpenDisconnectBeesModal
+  );
+  const setOpenConnectBeesHubModal = useAppStore(
+    (state) => state.setOpenConnectBeesHubModal
+  );
   const currentLatency = useAppStore((state) => state.currentLatency);
+  const appMode = useAppStore((state) => state.appMode);
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
@@ -28,41 +35,31 @@ export const Z3Navigation = () => {
   /**
    * Init the buttons array (for Hub or P2P)
    */
-  let buttons = [];
-  if (appContext.appMode === AppMode.Hub) {
-    buttons = [
-      <Button
-        key="cleanHive"
-        buttonSize={ButtonSize.Small}
-        buttonType={ButtonType.TertiaryWhite}
-        buttonUse={ButtonUse.Normal}
-        onClick={() => appContext.setOpenCleanSwarmModal(true)}
-      >
-        clean hive
-      </Button>,
+  let buttons = [
+    <Button
+      key="disconnectBees"
+      buttonSize={ButtonSize.Small}
+      buttonType={ButtonType.TertiaryWhite}
+      buttonUse={ButtonUse.Normal}
+      onClick={() => setOpenDisconnectBeesModal(true)}
+    >
+      disconnect
+    </Button>,
+  ];
+  if (appMode === AppMode.Hub) {
+    buttons.push(
       <Button
         key="buildHive"
         buttonSize={ButtonSize.Small}
         buttonUse={ButtonUse.Grey}
-        onClick={() => appContext.setOpenBuildSwarmModal(true)}
+        onClick={() => setOpenConnectBeesHubModal(true)}
       >
         build hive
       </Button>,
-      <ConnectBeesMenu key="connectBees" />,
-    ];
+      <ConnectBeesMenu key="connectBees" />
+    );
   } else {
-    buttons = [
-      <Button
-        key="disconnectBees"
-        buttonSize={ButtonSize.Small}
-        buttonType={ButtonType.TertiaryWhite}
-        buttonUse={ButtonUse.Normal}
-        onClick={() => appContext.setOpenDisconnectBeesModal(true)}
-      >
-        disconnect
-      </Button>,
-      <ConnectBeesMenu key="connectBees" />,
-    ];
+    buttons.push(<ConnectBeesMenu key="connectBees" />);
   }
 
   return (

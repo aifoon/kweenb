@@ -4,12 +4,13 @@ import { Z3PageContentSidebar } from "@components/Layout";
 import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
 import StopIcon from "@mui/icons-material/Stop";
-import { useAppContext, useAppStore } from "@renderer/src/hooks";
+import { useAppStore } from "@renderer/src/hooks";
 
 type AudioTriggerProps = {};
 
 export const AudioTrigger = (props: AudioTriggerProps) => {
-  const { appContext } = useAppContext();
+  const setLoading = useAppStore((state) => state.setLoading);
+
   const audioScenesCache = useAppStore((state) => state.audioScenesCache);
   const setAudioScenesCache = useAppStore((state) => state.setAudioScenesCache);
   const [currentAudioScene, setCurrentAudioScene] =
@@ -22,7 +23,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
     // if there are no cached audio scenes, fetch them
     if (audioScenesCache && audioScenesCache.length === 0) {
       fetchingAudioScenesForTheFirstTime = true;
-      appContext.setLoading({
+      setLoading({
         loading: true,
         text: "Fetching scenes from bees for the first time, this can take a while",
         cancelButton: true,
@@ -63,17 +64,13 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
       });
 
       // close losding box
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     });
 
     return () => {
       canAudioScenesFetchedCauseAReRender = false;
     };
   }, []);
-
-  useEffect(() => {
-    console.log(currentAudioScene);
-  }, [currentAudioScene]);
 
   return (
     <>
@@ -97,7 +94,6 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                   style={{ justifyContent: "left" }}
                   key={scene.name}
                   onClick={async () => {
-                    console.log(scene);
                     setCurrentAudioScene(scene);
                   }}
                 >

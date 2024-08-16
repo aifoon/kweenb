@@ -5,13 +5,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChannelType, IBee, IBeeConfig } from "@shared/interfaces";
 import { AppMode } from "@shared/enums";
-import { useAppContext } from "./useAppContext";
+import { useAppStore } from "../hooks";
 import { useIntervalAsync } from "./useIntervalAsync";
 import { pollingInterval } from "../consts";
 
 export function useBee(id: number) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const { appContext } = useAppContext();
+  const setLoading = useAppStore((state) => state.setLoading);
+  const appMode = useAppStore((state) => state.appMode);
+
   const isMounted = useRef(true);
   const [bee, setBee] = useState<IBee>({
     id: 0,
@@ -46,11 +47,11 @@ export function useBee(id: number) {
    */
   const reconnect = useCallback(async () => {
     try {
-      appContext.setLoading({ loading: true });
-      if (appContext.appMode === AppMode.Hub) {
+      setLoading({ loading: true });
+      if (appMode === AppMode.Hub) {
         await window.kweenb.methods.hookBeeOnCurrentHive(bee);
       }
-      if (appContext.appMode === AppMode.P2P) {
+      if (appMode === AppMode.P2P) {
         await window.kweenb.methods.killJackAndJacktrip(bee);
         await window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
         await window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
@@ -60,7 +61,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`reconnect: ${e.message}`);
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, [bee]);
 
@@ -69,14 +70,14 @@ export function useBee(id: number) {
    */
   const killJack = useCallback(async () => {
     try {
-      appContext.setLoading({ loading: true });
+      setLoading({ loading: true });
       await window.kweenb.methods.killJack(bee);
       bee.status.isJackRunning = false;
       setBee(bee);
     } catch (e: any) {
       console.error(`killJack: ${e.message}`);
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, [bee]);
 
@@ -85,14 +86,14 @@ export function useBee(id: number) {
    */
   const killJacktrip = useCallback(async () => {
     try {
-      appContext.setLoading({ loading: true });
+      setLoading({ loading: true });
       await window.kweenb.methods.killJacktrip(bee);
       bee.status.isJacktripRunning = false;
       setBee(bee);
     } catch (e: any) {
       console.error(`killJacktrip: ${e.message}`);
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, [bee]);
 
@@ -101,7 +102,7 @@ export function useBee(id: number) {
    */
   const killJackAndJacktrip = useCallback(async () => {
     try {
-      appContext.setLoading({ loading: true });
+      setLoading({ loading: true });
       await window.kweenb.methods.killJackAndJacktrip(bee);
       bee.status.isJackRunning = false;
       bee.status.isJacktripRunning = false;
@@ -109,7 +110,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`killJackAndJacktrip: ${e.message}`);
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, [bee]);
 
@@ -118,14 +119,14 @@ export function useBee(id: number) {
    */
   const startJack = useCallback(async () => {
     try {
-      appContext.setLoading({ loading: true });
+      setLoading({ loading: true });
       await window.kweenb.methods.startJack(bee);
       bee.status.isJackRunning = true;
       setBee(bee);
     } catch (e: any) {
       console.error(`startJack: ${e.message}`);
     } finally {
-      appContext.setLoading({ loading: false });
+      setLoading({ loading: false });
     }
   }, [bee]);
 
@@ -153,9 +154,9 @@ export function useBee(id: number) {
    * When mounting, fetch all bees
    */
   useEffect(() => {
-    setLoading(true);
+    setLoading({ loading: true });
     fetchBee().then((bee) => {
-      if (isMounted.current) setLoading(false);
+      if (isMounted.current) setLoading({ loading: false });
     });
     return () => {
       isMounted.current = false;
@@ -177,7 +178,7 @@ export function useBee(id: number) {
     killJack,
     killJacktrip,
     killJackAndJacktrip,
-    loading,
+    // loading,
     saveConfig,
     startJack,
     updateBeeSetting,

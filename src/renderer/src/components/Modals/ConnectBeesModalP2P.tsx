@@ -3,10 +3,13 @@ import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { TaskList } from "@components/TaskList";
 import { TaskListItemState } from "@components/TaskList/TaskListItem";
 
-interface ConnectBeesModalProps
+interface ConnectBeesModalP2PProps
   extends Pick<BaseModalProps, "open" | "onClose"> {}
 
-export const ConnectBeesModal = ({ open, onClose }: ConnectBeesModalProps) => {
+export const ConnectBeesModalP2P = ({
+  open,
+  onClose,
+}: ConnectBeesModalP2PProps) => {
   const [isOpen, setIsOpen] = useState(open);
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
