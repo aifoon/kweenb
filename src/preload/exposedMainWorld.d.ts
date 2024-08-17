@@ -115,7 +115,6 @@ declare global {
         };
       };
       readonly actions: {
-        hello(name: string): void;
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         disconnectPozyxMqttBroker(): void;

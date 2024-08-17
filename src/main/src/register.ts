@@ -3,7 +3,6 @@
  */
 
 import { ipcMain } from "electron";
-import { hello } from "./controllers/hello";
 import {
   fetchAllBees,
   fetchBee,
@@ -68,7 +67,6 @@ import {
 import { activatePreset, getAudioPresets } from "./controllers/presets";
 
 export const registerActions = () => {
-  ipcMain.on("hello", hello);
   ipcMain.on("bee:setBeeActive", setBeeActive);
   ipcMain.on("bee:setBeePozyxTagId", setBeePozyxTagId);
   ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
