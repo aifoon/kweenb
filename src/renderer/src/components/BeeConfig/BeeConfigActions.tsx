@@ -5,6 +5,8 @@ import styled from "styled-components";
 import { BeeConfigActionsRunJack } from "./BeeConfigActionsRunJack";
 import { BeeConfigActionsRunJacktrip } from "./BeeConfigActionsRunJacktrip";
 import { BeeConfigActionsSection } from "./BeeConfigActionsSection";
+import { useAppStore } from "@renderer/src/hooks";
+import { AppMode } from "@shared/enums";
 
 interface BeeConfigActionsProps {
   isJackRunning?: boolean;
@@ -37,6 +39,7 @@ export const BeeConfigActions = ({
     useState(isJackRunning);
   const [currentIsJacktripRunning, setCurrentIsJacktripRunning] =
     useState(isJacktripRunning);
+  const appMode = useAppStore((state) => state.appMode);
 
   useEffect(() => setCurrentIsJackRunning(isJackRunning), [isJackRunning]);
   useEffect(
@@ -64,7 +67,7 @@ export const BeeConfigActions = ({
 
       {/* Only the running jacktrip whenever a Jacktrip instance
           is started. We don't know the configuration of all the bees/kweenb.
-          Only when we started the whole connection flow, we now what params
+          Only when we started the whole connection flow, we know what params
           we can add to Jacktrip.
       */}
       {isJacktripRunning && (
@@ -97,21 +100,26 @@ export const BeeConfigActions = ({
         </Button>
       </BeeConfigActionsSection>
 
-      {/* Hook into current hive */}
+      {/*
+        Hook into current hive, only when we are not in HUB mode.
+        See useBee hook source for more information
+      */}
 
-      <BeeConfigActionsSection title="Reconnect">
-        <Button
-          buttonSize={ButtonSize.Small}
-          buttonType={ButtonType.Primary}
-          buttonUse={ButtonUse.Dark}
-          onClick={() => {
-            if (onReconnect) onReconnect();
-          }}
-          style={{ width: "100%", height: "100%" }}
-        >
-          Start
-        </Button>
-      </BeeConfigActionsSection>
+      {appMode !== AppMode.Hub && (
+        <BeeConfigActionsSection title="Reconnect">
+          <Button
+            buttonSize={ButtonSize.Small}
+            buttonType={ButtonType.Primary}
+            buttonUse={ButtonUse.Dark}
+            onClick={() => {
+              if (onReconnect) onReconnect();
+            }}
+            style={{ width: "100%", height: "100%" }}
+          >
+            Start
+          </Button>
+        </BeeConfigActionsSection>
+      )}
     </CardActions>
   );
 };

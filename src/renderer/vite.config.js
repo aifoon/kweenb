@@ -28,6 +28,10 @@ const config = {
         find: "@shared",
         replacement: resolve(PACKAGE_ROOT, "../shared"),
       },
+      {
+        find: "@seeds",
+        replacement: resolve(PACKAGE_ROOT, "../seeds"),
+      },
     ],
   },
   server: {
@@ -44,7 +48,6 @@ const config = {
       input: join(PACKAGE_ROOT, "index.html"),
       external: [...builtinModules],
       onwarn(warning, warn) {
-        // Suppress "Module level directives cause errors when bundled" warnings
         if (
           warning.code === "MODULE_LEVEL_DIRECTIVE" ||
           warning.code === "SOURCEMAP_ERROR"

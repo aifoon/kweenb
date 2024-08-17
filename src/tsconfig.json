@@ -5,9 +5,11 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": ["es6"],
+    "lib": ["es6", "dom"],
     "moduleResolution": "node",
-    "module": "ES6",
+    "module": "ESNext",
+    "target": "ESNext",
+    "importHelpers": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -16,15 +18,19 @@
     "noUnusedLocals": false,
     "pretty": true,
     "skipLibCheck": true,
-    "target": "ES6",
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@renderer/*": ["renderer/*"],
+      "@shared/*": ["shared/*"],
+      "@seeds/*": ["seeds/*"]
+    },
   },
-  "lib": ["dom"],
   "exclude": [
     "node_modules",
-    "scripts/*.js"
+    "scripts/*.js",
   ]
 }

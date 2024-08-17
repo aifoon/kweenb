@@ -1,20 +1,16 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "sourceMap": false,
-    "outDir": "../../dist",
+    // "outDir": "../../dist",
     "baseUrl": "../../src",
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "paths": {
-      "@shared/*": ["shared/*"],
-      "@seeds/*": ["seeds/*"]
-    },
     "types": ["node", "vite/client"]
   },
   "include": [ "src/**/*.ts" ],
-  "exclude": ["dist/**/*.*"],
+  "exclude": [
+    "dist/**/*.*",
+    "public/**/*.*",
+  ],
 }

@@ -2,14 +2,10 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "../../src",
-    "declaration": true,
-    "paths": {
-      "@shared/*": ["shared/*"]
-    },
   },
   "include": [
-    "**/*.d.ts",
     "src/**/*.ts",
+    "**/*.d.ts",
     "exposedMainWorld.d.ts",
   ],
   "exclude": ["dist/**/*.*"]

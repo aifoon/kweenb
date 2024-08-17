@@ -49,14 +49,29 @@ export function useBee(id: number) {
     try {
       setLoading({ loading: true });
       if (appMode === AppMode.Hub) {
-        await window.kweenb.methods.hookBeeOnCurrentHive(bee);
+        await window.kweenb.methods.killJackAndJacktrip(bee);
+        await window.kweenb.methods.startJackWithJacktripHubClientBee(bee);
+        await window.kweenb.methods.makeAudioConnectionBee(bee);
+        // @note: this is not implemented in the main process yet
+        // the problem is that when we need te reconnect in HUB mode
+        // we need to remember the connections of all the other bees as well
+        // the bees are not connected by bee1 --> channel1 --> send1
+        // the way we pick send1 is random
+        // e.g. swarm has bee3, bee7 and bee8
+        // bee3 --> channel3 --> send1
+        // bee7 --> channel7 --> send2
+        // bee8 --> channel8 --> send3
+        // if bee7 needs to reconnect, we need to remember that bee7 was connected to send2
+        // and that is not the case right now
+        // we hide the reconnect button in the UI for now
+        // await window.kweenb.methods.makeHubAudioConnectionKweenB(bee);
       }
       if (appMode === AppMode.P2P) {
         await window.kweenb.methods.killJackAndJacktrip(bee);
         await window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
         await window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
         await window.kweenb.methods.makeP2PAudioConnectionKweenB(bee);
-        await window.kweenb.methods.makeP2PAudioConnectionBee(bee);
+        await window.kweenb.methods.makeAudioConnectionBee(bee);
       }
     } catch (e: any) {
       console.error(`reconnect: ${e.message}`);

@@ -265,29 +265,6 @@ const disconnectAllP2PAudioConnections = async () => {
 };
 
 /**
- * Make a P2P audio connection from a system device to bee
- * @param bee IBee
- */
-const makeP2PAudioConnection = async (bee: IBee) => {
-  const captureChannel = `system:capture_${bee.id}`;
-  const sendChannel = `${bee.name}:send_1`;
-  await connectChannel({
-    source: captureChannel,
-    destination: sendChannel,
-  });
-};
-
-/**
- * Make all the P2P audio connection on kweenb
- */
-const makeP2PAudioConnections = async () => {
-  const activeBees = await BeeHelpers.getAllBeesData();
-  activeBees.forEach(async (bee) => {
-    await makeP2PAudioConnection(bee);
-  });
-};
-
-/**
  * Make all the audio hub connections on kweenb and the hub
  * @param sendChannels
  */
@@ -311,6 +288,29 @@ const makeHubAudioConnections = async () => {
       source: receiveChannelFromKweenBRemote,
       destination: sendChannelOfBee,
     });
+  });
+};
+
+/**
+ * Make a P2P audio connection from a system device to bee
+ * @param bee IBee
+ */
+const makeP2PAudioConnection = async (bee: IBee) => {
+  const captureChannel = `system:capture_${bee.id}`;
+  const sendChannel = `${bee.name}:send_1`;
+  await connectChannel({
+    source: captureChannel,
+    destination: sendChannel,
+  });
+};
+
+/**
+ * Make all the P2P audio connection on kweenb
+ */
+const makeP2PAudioConnections = async () => {
+  const activeBees = await BeeHelpers.getAllBeesData();
+  activeBees.forEach(async (bee) => {
+    await makeP2PAudioConnection(bee);
   });
 };
 

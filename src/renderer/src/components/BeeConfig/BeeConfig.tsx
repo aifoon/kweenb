@@ -1,12 +1,10 @@
 import { Grid } from "@mui/material";
-import React from "react";
 import { useParams } from "react-router-dom";
 import { CardVerticalStack } from "@components/Cards";
 import { PageHeader } from "@components/PageHeader";
 import { StatusBullet, StatusBulletType } from "@components/StatusBullet";
 import { Z3Page } from "@components/Layout";
 import { useBee, useBeeConfig } from "@renderer/src/hooks";
-import { Loader } from "@components/Loader";
 import { Utils } from "@shared/utils";
 import { BeeConfigActions } from "./BeeConfigActions";
 import { BeeConfigConfig } from "./BeeConfigConfig";
@@ -21,15 +19,11 @@ export const BeeConfig = () => {
     killJack,
     killJacktrip,
     killJackAndJacktrip,
-    loading,
     saveConfig,
     startJack,
     updateBeeSetting,
   } = useBee(numberizedId);
   const { beeConfig } = useBeeConfig(numberizedId);
-
-  if (loading) return <Loader />;
-
   return (
     <Z3Page
       pageHeader={

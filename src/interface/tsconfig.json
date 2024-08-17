@@ -1,21 +1,15 @@
 {
-  "files": [],
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["dom"],
     "baseUrl": "../../src",
-    "paths": {
-      "@components/*": ["components/*"],
-      "@shared/*": ["shared/*"],
-      "@seeds/*": ["seeds/*"],
-    },
   },
   "include": [
     "src/**/*",
     "types.d.ts", "../seeds/demoScenes.ts", "../seeds/demoSwarm.ts",
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist/**/*.*"
   ]
 }

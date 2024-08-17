@@ -1,26 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "lib": ["dom"],
-    "types": ["vite/client"],
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "sourceMap": true,
     "baseUrl": "../../src",
-    "paths": {
-      "@components/*": ["components/*"],
-      "@renderer/*": ["renderer/*"],
-      "@shared/*": ["shared/*"]
-    },
-    "allowSyntheticDefaultImports": true
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
   },
   "include": [
     "src/**/*.tsx",
-    "types.d.ts",
+    "**/*.d.ts",
     "../preload/exposedMainWorld.d.ts"
   ],
   "exclude": ["dist/**/*.*"]

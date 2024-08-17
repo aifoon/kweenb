@@ -1,4 +1,3 @@
-import React from "react";
 import { BeeCard, BeeCardProps } from "@components/Cards/BeeCard";
 import { useBee } from "@renderer/src/hooks";
 import { ChannelType } from "@shared/interfaces";
@@ -16,26 +15,23 @@ export const BeeCardWithPolling = ({
   collapsed,
   onDoubleClick,
 }: BeeCardProps) => {
-  const { bee, loading } = useBee(number);
+  const { bee } = useBee(number);
   return (
     <BeeCard
       key={number}
       number={number}
       onBeeConfigClick={onBeeConfigClick}
       onBeeDeleteClick={onBeeDeleteClick}
-      loading={loading}
-      name={loading ? name : bee.name}
-      ipAddress={loading ? ipAddress : bee.ipAddress}
-      apiOn={loading ? apiOn : bee.isApiOn}
-      online={loading ? online : bee.isOnline}
+      name={bee.name}
+      ipAddress={bee.ipAddress}
+      apiOn={bee.isApiOn}
+      online={bee.isOnline}
       channelType={ChannelType.MONO}
       channel1={1}
       channel2={2}
-      jackIsRunning={loading ? jackIsRunning : bee.status.isJackRunning}
-      networkPerformanceMs={loading ? 0 : bee.networkPerformanceMs}
-      jackTripIsRunning={
-        loading ? jackTripIsRunning : bee.status.isJacktripRunning
-      }
+      jackIsRunning={bee.status.isJackRunning}
+      networkPerformanceMs={bee.networkPerformanceMs}
+      jackTripIsRunning={bee.status.isJacktripRunning}
       onDoubleClick={onDoubleClick}
       onChannelTypeChange={(channelType: ChannelType) =>
         console.log("ok", channelType)
