@@ -84,7 +84,7 @@ const initApp = async () => {
 
         // init the kweenb internal logic
         // this will pass settings to external libs, initialize dictionaries and workers etc.
-        await KweenBGlobal.kweenb.init((message) => {
+        await KweenBGlobal.kweenb.initAfterWindow((message) => {
           KweenBGlobal.kweenb.setLoader(true, message);
         });
 

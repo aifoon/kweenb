@@ -76,7 +76,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`reconnect: ${e.message}`);
     } finally {
-      setLoading({ loading: false });
+      setLoading({ loading: false, text: "reconnect" });
     }
   }, [bee]);
 
@@ -92,7 +92,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`killJack: ${e.message}`);
     } finally {
-      setLoading({ loading: false });
+      setLoading({ loading: false, text: "killJack" });
     }
   }, [bee]);
 
@@ -108,7 +108,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`killJacktrip: ${e.message}`);
     } finally {
-      setLoading({ loading: false });
+      setLoading({ loading: false, text: "killJacktrip" });
     }
   }, [bee]);
 
@@ -125,7 +125,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`killJackAndJacktrip: ${e.message}`);
     } finally {
-      setLoading({ loading: false });
+      setLoading({ loading: false, text: "killJackAndJacktrip" });
     }
   }, [bee]);
 
@@ -141,7 +141,7 @@ export function useBee(id: number) {
     } catch (e: any) {
       console.error(`startJack: ${e.message}`);
     } finally {
-      setLoading({ loading: false });
+      setLoading({ loading: false, text: "startJack" });
     }
   }, [bee]);
 
@@ -169,10 +169,7 @@ export function useBee(id: number) {
    * When mounting, fetch all bees
    */
   useEffect(() => {
-    setLoading({ loading: true });
-    fetchBee().then((bee) => {
-      if (isMounted.current) setLoading({ loading: false });
-    });
+    fetchBee();
     return () => {
       isMounted.current = false;
     };

@@ -77,7 +77,7 @@ export const START_PORT_JACKTRIP = 4464;
 export const JACKTRIP_HUB_PORT = 4495;
 
 // the jacktrip download version
-export const JACKTRIP_DOWNLOAD_VERSION = "2.2.5";
+export const JACKTRIP_DOWNLOAD_VERSION = "2.3.1";
 
 // the jack download version
 export const JACK_DOWNLOAD_VERSION = "1.9.22";

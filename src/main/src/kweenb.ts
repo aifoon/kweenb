@@ -100,7 +100,6 @@ class KweenB {
    * This is an initializer, to init settinges, etc. on boot, before window is created
    * initJackFolderPath: inits the jackfolder whenever we find one in the database
    * initJacktripBinPath: inits the jacktrip binary whenever we find one in the database
-   * initBeeStatesWorker: inits the bee states worker
    */
   public async initBeforeWindow() {
     // init the jack folder path
@@ -126,7 +125,7 @@ class KweenB {
    * This is an initializer that wil happen after the window is created
    * @param callback A callback function to send messages to the renderer
    */
-  public async init(callback: (message: string) => void) {
+  public async initAfterWindow(callback: (message: string) => void) {
     // init the bee states worker
     this._beeStatesWorker = new BeeStatesWorker();
     await this._beeStatesWorker.init();
@@ -188,6 +187,37 @@ class KweenB {
           await new JackInstaller(JACK_DOWNLOAD_VERSION, jackPath).install();
         }
       }
+    }
+
+    // the folders are already present
+    else {
+      // set a flag to check if we need to reinstall
+      let reinstall = false;
+
+      // download JackTrip if not already present
+      if (fs.existsSync(jacktripPath)) {
+        // check if the installed version is the same as the one we want to install
+        const installedVersion = fs
+          .readFileSync(`${jacktripPath}/version.txt`, "utf8")
+          .trim();
+        if (installedVersion !== JACKTRIP_DOWNLOAD_VERSION) {
+          fs.rmSync(jacktripPath, { recursive: true });
+          reinstall = true;
+        }
+      }
+      if (fs.existsSync(jackdPath)) {
+        // check if the installed version is the same as the one we want to install
+        const installedVersion = fs
+          .readFileSync(`${jackPath}/version.txt`, "utf8")
+          .trim();
+        if (installedVersion !== JACK_DOWNLOAD_VERSION) {
+          fs.rmSync(jackPath, { recursive: true });
+          reinstall = true;
+        }
+      }
+
+      // reinstall if needed
+      if (reinstall) await this.initJackAndJacktrip();
     }
   }
 

@@ -1,5 +1,5 @@
 import { Loader } from "@components/Loader";
-import React from "react";
+import React, { useEffect } from "react";
 import { AboutKweenBModal } from "../Modals/AboutKweenBModal";
 import { Alert, Snackbar } from "@mui/material";
 import {
@@ -16,6 +16,11 @@ export const GlobalAppComponents = () => {
   const appMode = useAppStore((state) => state.appMode);
   const closeToast = useAppStore((state) => state.closeToast);
   const loading = useAppStore((state) => state.loading);
+
+  useEffect(() => {
+    console.log(loading);
+  }, [loading]);
+
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );

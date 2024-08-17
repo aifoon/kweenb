@@ -45,7 +45,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   currentLatency: 0,
   loading: {
     loading: false,
-    text: "",
+    text: "What's up",
     cancelButton: false,
     onCancel: () => {},
   },

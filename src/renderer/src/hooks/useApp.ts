@@ -47,7 +47,8 @@ export const useApp = () => {
 
     // Handle the loading event
     window.kweenb.events.onLoading((event, loading, text) => {
-      setLoading({ loading, text });
+      console.log("loading", loading, text);
+      setLoading({ loading, text, cancelButton: false });
     });
 
     // Handle a change in the app mode
