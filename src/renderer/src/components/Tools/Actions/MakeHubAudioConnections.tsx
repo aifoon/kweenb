@@ -34,7 +34,7 @@ export const MakeHubAudioConnections = () => {
 
   return (
     <Action
-      description="Make all audio connections on The Kween"
+      description="Make all audio connections"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

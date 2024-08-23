@@ -17,7 +17,7 @@ export interface LoadingState {
 }
 
 /**
- * For The Kween
+ * For Hub Mode
  */
 
 export interface IHubClients {
