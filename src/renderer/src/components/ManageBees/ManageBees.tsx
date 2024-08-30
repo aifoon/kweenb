@@ -17,7 +17,8 @@ import {
 } from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
-import { ChannelType, IBee, IBeeInput } from "@shared/interfaces";
+import { IBee, IBeeInput } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
   InActiveBee,

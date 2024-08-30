@@ -8,7 +8,8 @@ import React, { useEffect, useState } from "react";
 import Yup from "@renderer/src/yup-ext";
 import { Button, Flex } from "@components/.";
 import { ButtonUse, ButtonType, ButtonGroup } from "@components/Buttons";
-import { ChannelType, IBeeInput } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
+import { IBeeInput } from "@shared/interfaces";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 
 interface AddBeeModalProps extends Pick<BaseModalProps, "open" | "onClose"> {

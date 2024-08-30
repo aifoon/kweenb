@@ -1,6 +1,6 @@
 import { BeeCard, BeeCardProps } from "@components/Cards/BeeCard";
 import { useBee } from "@renderer/src/hooks";
-import { ChannelType } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 
 export const BeeCardWithPolling = ({
   number,

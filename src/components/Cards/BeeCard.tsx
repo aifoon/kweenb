@@ -5,7 +5,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Utils } from "../../shared/utils";
 import { useDrag } from "react-dnd";
-import { ChannelType } from "../../shared/interfaces";
+import { ChannelType } from "../../shared/enums";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { Label, LabelType } from "../Label";
 import {

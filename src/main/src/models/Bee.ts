@@ -1,4 +1,4 @@
-import { ChannelType } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 import { DataTypes, Model } from "sequelize";
 import Database from "../database";
 
@@ -61,7 +61,7 @@ Bee.init(
     pozyxTagId: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
   },
   {
     sequelize: Database.getSequelize(),

@@ -3,7 +3,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChannelType, IBee, IBeeConfig } from "@shared/interfaces";
+import { IBee, IBeeConfig } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 import { AppMode } from "@shared/enums";
 import { useAppStore } from "../hooks";
 import { useIntervalAsync } from "./useIntervalAsync";

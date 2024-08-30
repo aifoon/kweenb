@@ -21,3 +21,8 @@ export enum PDAudioParam {
   USE_EQ = "use_eq",
   FILE_LOOP = "file_loop",
 }
+
+export enum ChannelType {
+  MONO = "mono",
+  STEREO = "stereo",
+}

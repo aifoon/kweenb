@@ -34,7 +34,7 @@ import { Console } from "@components/Console";
 import { SwitchField } from "@components/Forms/SwitchField";
 import { Row } from "./Row";
 import { ColorCircle } from "./ColorCircle";
-import { ChannelType } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 
 // Icons
 

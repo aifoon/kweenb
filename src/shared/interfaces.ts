@@ -2,7 +2,7 @@
  * Shared interfaces
  */
 
-import { AppMode } from "./enums";
+import { AppMode, ChannelType } from "./enums";
 
 export interface IError {
   message: string;
@@ -33,11 +33,6 @@ export interface IHubClientsResponse {
 /**
  * For Bee
  */
-
-export enum ChannelType {
-  MONO = "mono",
-  STEREO = "stereo",
-}
 
 export interface IBee {
   id: number;
