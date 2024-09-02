@@ -1,34 +1,53 @@
-# KweenB
+# kweenb
 
 ## Introduction
 
-KweenB is an audio management application for the Zwerm3 project of Aifoon (BE).
+Zwerm3 is a flexible audio system for streaming audio to and triggering local audio files on mobile speakers.
 
-## Application
+## kweenb
 
-There are three project that needs to be build in order to compile into OS binaries:
+![kweenb main application](https://zwerm3-docs.onrender.com/img/hero-image.png)
 
-- `main`: The main electron application, this is basically a node application that will run native processes.
-- `preload`: A safe bridge between the electron main application and the renderer. This script will run and expose API-like code that will be available in the renderer before the application starts.
-- `renderer`: This is the frontend. A React application that will present the UI and will interact with the main electron application.
+**kweenb** is the audio management software where you can:
 
-## Scripts
+- Manage the swarm by adding new bees, activating or deactivating them.
+- Connect the active swarm to start streaming audio with Jacktrip, supporting both peer-to-peer and hub mode.
+- Connect the active swarm to start triggering actions via OSC.
+- Disconnect the swarm and cleanup all the open connections
+- Adjust the Jack and Jacktrip settings used during connection.
+- Upload and manage audio files on each bee
+- Use positioning that interacts with the MQTT server of Pozyx and translates that data into audio parameters (e.g. volume)
+- Configure the bee by calling endpoints from zwerm3-api
+- Use various tools to validate each step in the connection process.
 
-- `watch` - Starts a development server with vite and watches for changes.
-- `build` - Builds the main, preload and renderer code.
-- `build:main` - Builds the main code.
-- `build:preload` - Builds the preload code.
-- `build:renderer` - Builds the renderer code.
-- `prepare-publish` - Prepares the publication (clearing old binaries)
-- `publish` - Publishes the code to GitHub
-- `publish-test` - Publish testing (only publication)
-- `compile` - Compile the binaries.
-- `typecheck` - Typecheck the main, preload and renderer project.
-- `typecheck:main`- Typechecks the main project.
-- `typecheck:preload`- Typechecks the preload project.
-- `typecheck:renderer`- Typechecks the renderer project.
+## Documentation
 
-## Authors
+- The full technical documentation of Zwerm3 can be found [here](https://zwerm3-docs.onrender.com).
+- The technical documentation of kweenb can be found [here](https://zwerm3-docs.onrender.com/docs/for-developers/kweenb/introduction)
+
+## Contributing
+
+There are many ways in which you can participate in this project, for example:
+
+- [Reporting Bugs](CONTRIBUTING.md#1-reporting-bugs)
+- [Suggesting Enhancements](CONTRIBUTING.md#2-suggesting-enhancements)
+- [Submitting Pull Requests](CONTRIBUTING.md#3-submitting-pull-requests)
+
+
+## Related products
+
+- [zwerm3-jack]()
+- [zwerm3-api]()
+- [pd-bee]()
+
+## License
+
+Copyright (c) aifoon. All rights reserved.
+
+Licensed under the [MIT license](LICENSE).
+
+
+## Collaborators
 
 - Tim De Paepe
 - Kasper Jordaens

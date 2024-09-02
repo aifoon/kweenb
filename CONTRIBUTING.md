@@ -5,14 +5,14 @@ Thank you for considering contributing to kweenb! We welcome contributions from 
 ## How Can You Contribute?
 
 ### 1. Reporting Bugs
-If you find a bug in the project, please [open an issue](link_to_issues) with the following details:
+If you find a bug in the project, please [open an issue](https://github.com/aifoon/kweenb/issues) with the following details:
 - A clear and descriptive title.
 - Steps to reproduce the issue.
 - The expected and actual behavior.
 - Any relevant logs, screenshots, or environment details.
 
 ### 2. Suggesting Enhancements
-We welcome suggestions for new features or improvements! To suggest an enhancement, please [open an issue](link_to_issues) and include:
+We welcome suggestions for new features or improvements! To suggest an enhancement, please [open an issue](https://github.com/aifoon/kweenb/issues) and include:
 - A clear and descriptive title.
 - A detailed explanation of the proposed enhancement.
 - Any benefits or use cases for the feature.
@@ -56,7 +56,7 @@ Please ensure that your code adheres to the following guidelines:
 By participating in this project, you agree to abide by our Code of Conduct. Please be respectful and considerate in your interactions with others.
 
 ### 6. Getting Help
-If you need help, feel free to open an issue.
+If you need help, [feel free to open an issue](https://github.com/aifoon/kweenb/issues).
 
 ### 7. Acknowledgements
 We deeply appreciate the contributions made by the community! Thank you for helping to improve kweenb.
