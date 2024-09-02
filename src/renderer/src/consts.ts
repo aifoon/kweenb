@@ -2,6 +2,7 @@
  * A file with some constant variables
  */
 
+export const startDesignSystem = false;
 export const validBitrates = [8, 16, 24, 32];
 export const validSampleRates = [
   22050, 32000, 44100, 48000, 88200, 96000, 192000,

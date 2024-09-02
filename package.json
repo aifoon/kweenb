@@ -9,19 +9,19 @@
     "build:preload": "cd ./src/preload && vite build",
     "build:renderer": "cd ./src/renderer && vite build",
     "build:interface": "cd ./src/interface && vite build",
-    "watch": "node scripts/watch.js",
+    "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
+    "compile:linux": "MODE=production npm run build && MODE=production USE_SYSTEM_FPM=true electron-builder build --config .electron-builder.config.js --linux",
     "download-jacktrip": "node scripts/download_jacktrip.js",
+    "postinstall": "electron-builder install-app-deps",
     "prepare-publish": "node scripts/prepare_publish.js",
     "publish": "npm run prepare-publish && npm run compile && node scripts/publish.js",
     "publish:linux": "npm run prepare-publish  && npm run compile:linux && node scripts/publish.js",
     "publish-test": "node --max-old-space-size=4096 scripts/publish.js",
-    "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
-    "compile:linux": "MODE=production npm run build && MODE=production USE_SYSTEM_FPM=true electron-builder build --config .electron-builder.config.js --linux",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer",
     "typecheck:main": "tsc --noEmit -p src/main/tsconfig.json",
     "typecheck:preload": "tsc --noEmit -p src/preload/tsconfig.json",
     "typecheck:renderer": "tsc --noEmit -p src/renderer/tsconfig.json",
-    "postinstall": "electron-builder install-app-deps"
+    "watch": "node scripts/watch.js"
   },
   "main": "src/main/dist/index.cjs",
   "repository": {

@@ -18,8 +18,7 @@ import { PositioningModules } from "./components/Positioning/PositioningModules/
 import { Audio } from "./components/Audio/Audio";
 import { useApp } from "./hooks";
 import { GlobalAppComponents } from "./components/Layout/GlobalAppComponents";
-
-const startDesignSystem = false;
+import { startDesignSystem } from "./consts";
 
 export const App = () => {
   useApp();
