@@ -11,13 +11,13 @@ Zwerm3 is a flexible audio system for streaming audio to and triggering local au
 **kweenb** is the audio management software where you can:
 
 - Manage the swarm by adding new bees, activating or deactivating them.
-- Connect the active swarm to start streaming audio with Jacktrip, supporting both peer-to-peer and hub mode.
+- Connect the active swarm to start streaming audio with [Jacktrip](https://github.com/jacktrip/jacktrip), supporting both peer-to-peer and hub mode.
 - Connect the active swarm to start triggering actions via OSC.
 - Disconnect the swarm and cleanup all the open connections
-- Adjust the Jack and Jacktrip settings used during connection.
+- Adjust the [Jack](https://github.com/jackaudio) and [Jacktrip](https://github.com/jacktrip/jacktrip) settings used during connection.
 - Upload and manage audio files on each bee
-- Use positioning that interacts with the MQTT server of Pozyx and translates that data into audio parameters (e.g. volume)
-- Configure the bee by calling endpoints from zwerm3-api
+- Use positioning that interacts with the MQTT server of [Pozyx](https://www.pozyx.io/) and translates that data into audio parameters (e.g. volume)
+- Configure the bee by calling endpoints from [`zwerm3-api`](https://github.com/aifoon/zwerm3-api)
 - Use various tools to validate each step in the connection process.
 
 ## Documentation
