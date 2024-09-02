@@ -1,8 +1,8 @@
 # kweenb
 
-## Introduction
+## Zwerm3
 
-Zwerm3 is a flexible audio system for streaming audio to and triggering local audio files on mobile speakers.
+Zwerm3 is a flexible audio system for streaming audio to and triggering local audio files on mobile speakers and is build by [aifoon](https://aifoon.org/).
 
 ## kweenb
 
@@ -33,12 +33,15 @@ There are many ways in which you can participate in this project, for example:
 - [Suggesting Enhancements](CONTRIBUTING.md#2-suggesting-enhancements)
 - [Submitting Pull Requests](CONTRIBUTING.md#3-submitting-pull-requests)
 
+## Publishing
+
+Publishing a new release is done by [the core maintainer](https://github.com/timdpaep) of this project. They will merge contributions from the community and make a new release when new features are production ready.
 
 ## Related products
 
-- [zwerm3-jack]()
-- [zwerm3-api]()
-- [pd-bee]()
+- [zwerm3-jack](https://github.com/aifoon/zwerm3-jack)
+- [zwerm3-api](https://github.com/aifoon/zwerm3-api)
+- [pd-bee](https://github.com/aifoon/pd-bee)
 
 ## License
 
@@ -46,8 +49,11 @@ Copyright (c) aifoon. All rights reserved.
 
 Licensed under the [MIT license](LICENSE).
 
+## Big Thanks
+
+A big thanks to the open source [Jacktrip](https://github.com/jacktrip/jacktrip) project. Their effort made this audio management application possible.
 
 ## Collaborators
 
-- Tim De Paepe
-- Kasper Jordaens
+- [Tim De Paepe](https://github.com/timdpaep)
+- [Kasper Jordaens](https://github.com/kaosbeat)
