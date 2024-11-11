@@ -7,7 +7,28 @@
  */
 
 @import './reset.css';
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap');
+
+/**
+ * Fonts
+ */
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../../fonts/OpenSans-SemiBold.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../../fonts/OpenSans-Bold.ttf.ttf') format('truetype');
+  font-weight: 600;
+}
 
 /**
  * Design System Variables
@@ -261,7 +282,7 @@ label {
   display: block;
   font-size: var(--inputFieldLabelText);
   color: var(--font-color);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 input {

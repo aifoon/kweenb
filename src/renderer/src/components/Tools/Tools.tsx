@@ -22,10 +22,10 @@ import {
   StartJackWithJacktripP2PServerOnActiveBees,
   StartJackWithJacktripP2PClientsOnKweenB,
   MakeP2PAudioConnectionsOnKweenB,
-  MakeP2PAudioConnectionOnActiveBees,
   DisconnectP2PAudioConnectionsOnKweenB,
   StartJacktripHubServer,
   StartPureDataOnActiveBees,
+  MakeBeeAudioConnections,
 } from "./Actions";
 
 export const Tools = () => {
@@ -52,6 +52,7 @@ export const Tools = () => {
                 <StartJackWithJacktripHubClientOnActiveBees />
                 <StartPureDataOnActiveBees />
                 <StartJackWithJacktripHubClientOnKweenB />
+                <MakeBeeAudioConnections />
                 <MakeHubAudioConnections />
               </>
             )}
@@ -60,7 +61,7 @@ export const Tools = () => {
                 <StartJackWithJacktripP2PServerOnActiveBees />
                 <StartPureDataOnActiveBees />
                 <StartJackWithJacktripP2PClientsOnKweenB />
-                <MakeP2PAudioConnectionOnActiveBees />
+                <MakeBeeAudioConnections />
                 <MakeP2PAudioConnectionsOnKweenB />
               </>
             )}

@@ -29,6 +29,7 @@ import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
 import { killExpress } from "../../express";
 import { HubPatchMode } from "@zwerm3/jack/dist/enums";
+import { SocketSingleton } from "../socket/SocketSingleton";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -49,6 +50,9 @@ const closeApplication = async (appMode: AppMode) => {
 
   // close mqtt broker
   PozyxMqttBroker.disconnectPozyxMqttBroker();
+
+  // close the internal socket server
+  SocketSingleton.getInstance().socketServer.close();
 
   // close jack/jacktrip
   await killAllProcesses();
@@ -131,7 +135,6 @@ const startJackWithJacktripHubClient = async () => {
 
   const settings = await SettingHelpers.getAllSettings();
   const currentActiveBees = await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
-
   const jack = {
     device: settings.kweenBAudioSettings.jack.device,
     inputChannels: settings.kweenBAudioSettings.jack.inputChannels,

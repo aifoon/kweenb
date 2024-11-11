@@ -66,27 +66,43 @@ import {
 } from "./controllers/positioning";
 import { activatePreset, getAudioPresets } from "./controllers/presets";
 
-export const registerActions = () => {
-  ipcMain.on("bee:setBeeActive", setBeeActive);
-  ipcMain.on("bee:setBeePozyxTagId", setBeePozyxTagId);
-  ipcMain.on("kweenb:setJackFolderPath", setJackFolderPath);
-  ipcMain.on("kweenb:setJacktripBinPath", setJacktripBinPath);
-  ipcMain.on(
-    "positioning:disconnectPozyxMqttBroker",
-    disconnectPozyxMqttBroker
-  );
-  ipcMain.on(
-    "positioning:enablePositioningControllerTargetType",
-    enablePositioningControllerTargetType
-  );
-  ipcMain.on(
-    "positioning:enablePositioningControllerAlgorithm",
-    enablePositioningControllerAlgorithm
-  );
-  ipcMain.on(
-    "positioning:updatePositioningControllerAlgorithmOptions",
-    updatePositioningControllerAlgorithmOptions
-  );
+/**
+ * Register the actions
+ */
+
+const actionListeners = [
+  { name: "bee:setBeeActive", listener: setBeeActive },
+  { name: "bee:setBeePozyxTagId", listener: setBeePozyxTagId },
+  { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
+  { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
+  {
+    name: "positioning:disconnectPozyxMqttBroker",
+    listener: disconnectPozyxMqttBroker,
+  },
+  {
+    name: "positioning:enablePositioningControllerTargetType",
+    listener: enablePositioningControllerTargetType,
+  },
+  {
+    name: "positioning:enablePositioningControllerAlgorithm",
+    listener: enablePositioningControllerAlgorithm,
+  },
+  {
+    name: "positioning:updatePositioningControllerAlgorithmOptions",
+    listener: updatePositioningControllerAlgorithmOptions,
+  },
+];
+
+export const registerActionListeners = () => {
+  actionListeners.forEach(({ name, listener }) => {
+    ipcMain.on(name, listener);
+  });
+};
+
+export const removeActionListeners = () => {
+  actionListeners.forEach(({ name, listener }) => {
+    ipcMain.removeListener(name, listener);
+  });
 };
 
 /**

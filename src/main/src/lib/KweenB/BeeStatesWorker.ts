@@ -45,16 +45,17 @@ class BeeStatesWorker {
     this.updateBeeStates();
 
     // do interval for fetching bee states
-    this._updateBeeStatesInterval = setInterval(
-      () => this.updateBeeStates(),
-      BEE_POLLING_SECONDS * 1000
-    );
+    if (!this._updateBeeStatesInterval)
+      this._updateBeeStatesInterval = setInterval(() => {
+        this.updateBeeStates();
+      }, BEE_POLLING_SECONDS * 1000);
 
     // do interval for fetching bee network performance
-    this._updateBeeNetworkPerformanceInterval = setInterval(
-      () => this.updateBeeNetworkPerformance(),
-      NETWORK_PERFORMANCE_POLLING_SECONDS * 1000
-    );
+    if (!this._updateBeeNetworkPerformanceInterval)
+      this._updateBeeNetworkPerformanceInterval = setInterval(
+        () => this.updateBeeNetworkPerformance(),
+        NETWORK_PERFORMANCE_POLLING_SECONDS * 1000
+      );
   }
 
   /**
@@ -125,12 +126,12 @@ class BeeStatesWorker {
                 );
               });
           } catch (e) {
-            // console.error(e);
+            console.error(e);
           }
         }
       );
     } catch (e) {
-      // console.error(e);
+      console.error(e);
     }
   }
 
@@ -217,12 +218,12 @@ class BeeStatesWorker {
                 );
               });
           } catch (e) {
-            // console.error(e);
+            console.error(e);
           }
         }
       );
     } catch (e) {
-      // console.error(e);
+      console.error(e);
     }
   }
 }

@@ -56,4 +56,11 @@ export class Socket {
   public sendToClient(clientId: string, event: string, data: any) {
     this.socketServer.to(clientId).emit(event, data);
   }
+
+  /**
+   * Close the server
+   */
+  public closeServer() {
+    this.socketServer.close();
+  }
 }

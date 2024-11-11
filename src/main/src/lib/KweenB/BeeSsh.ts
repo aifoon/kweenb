@@ -1,7 +1,7 @@
 import { SSH_ERROR } from "../Exceptions/ExceptionMessages";
 import { KweenBGlobal } from "../../kweenb";
 import SettingHelpers from "./SettingHelpers";
-import { AudioFile, AudioScene } from "@shared/interfaces";
+import { AudioFile, AudioScene, IBee } from "@shared/interfaces";
 import { AUDIO_FILES_ROOT_DIRECTORY } from "../../consts";
 
 /**
@@ -320,6 +320,52 @@ const killPureData = async (ipAddress: string) => {
 };
 
 /**
+ * Check if the bee has an audio connection
+ * @param ipAddress
+ * @param bee
+ */
+const hasAudioConnection = async (ipAddress: string, bee: IBee) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+    // execute ssh command
+    const response = await ssh.execCommand(
+      `jack_lsp | grep ${bee.name}:receive_1`
+    );
+    console.log(response);
+    return response.stdout.includes("pure_data:input_1");
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * Make an audio connection with Jack over SSH
+ * @param ipAddress
+ * @param bee
+ */
+const makeAudioConnection = async (ipAddress: string, bee: IBee) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // while (!(await hasAudioConnection(ipAddress, bee))) {
+    //   console.log("Making audio connection with " + bee.name);
+    // execute ssh command
+    await ssh.execCommand(
+      `jack_connect ${bee.name}:receive_1 pure_data:input_1`
+    );
+    // }
+  } catch (e) {
+    throw new Error(SSH_ERROR("killPureData"));
+  }
+};
+
+/**
  * Start PureData on the client
  * @param ipAddress The IP address of the client
  */
@@ -363,6 +409,7 @@ export default {
   killJackAndJacktrip,
   killJacktrip,
   killPureData,
+  makeAudioConnection,
   startPureData,
   writeDataToFile,
 };

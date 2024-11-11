@@ -87,37 +87,34 @@ export const ConnectBeesModalHub = ({
     setActiveIndex(6);
     await window.kweenb.methods.startJacktripHubServer();
 
-    /* Start HUB clients on active bees */
+    /* Start Jacktrip HUB client on kweenb */
     setActiveIndex(7);
+    await window.kweenb.methods.startJackWithJacktripHubClientKweenB();
+
+    /* Start HUB clients on active bees */
+    setActiveIndex(8);
     const startJackWithJacktripHubClientBeePromises = activeBees.map((bee) =>
       window.kweenb.methods.startJackWithJacktripHubClientBee(bee)
     );
     await Promise.all(startJackWithJacktripHubClientBeePromises);
 
     /* Start Pure Data on active bees */
-    setActiveIndex(8);
+    setActiveIndex(9);
     const startPureDataPromises = activeBees.map((bee) => {
       return window.kweenb.methods.startPureData(bee);
     });
     await Promise.all(startPureDataPromises);
 
-    /* Start Jacktrip HUB client on kweenb */
-    setActiveIndex(9);
-    await window.kweenb.methods.startJackWithJacktripHubClientKweenB();
+    /* An artifical delay, for booting up Pure Data instances */
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     /* Make audio connection on active bees */
     setActiveIndex(10);
-    const makeAudioConnectionBeePromises = activeBees.map((bee) =>
-      window.kweenb.methods.makeAudioConnectionBee(bee)
-    );
-    await Promise.all(makeAudioConnectionBeePromises);
+    await window.kweenb.methods.makeAudioConnectionBee(activeBees);
 
     /* Make hub audio connection on kweenb and hub */
     setActiveIndex(11);
-    const makeHubAudioConnectionsPromises = activeBees.map((bee) =>
-      window.kweenb.methods.makeHubAudioConnectionsKweenB()
-    );
-    await Promise.all(makeHubAudioConnectionsPromises);
+    await window.kweenb.methods.makeHubAudioConnectionsKweenB();
 
     /* Close the modal */
     setActiveIndex(-1);
@@ -143,9 +140,9 @@ export const ConnectBeesModalHub = ({
           "Kill Jack & Jacktrip processes on active bees",
           "Kill Jack & Jacktrip processes on kweenb",
           "Start Jacktrip HUB server on kweenb",
+          "Start Jack & Jacktrip client on kweenb",
           "Start Jack & Jacktrip clients on bees",
           "Start Pure Data on active bees",
-          "Start Jack & Jacktrip client on kweenb",
           "Make audio connection on active bees",
           "Make all audio connections on kweenb & kweenb hub",
         ]}

@@ -17,10 +17,6 @@ export const GlobalAppComponents = () => {
   const closeToast = useAppStore((state) => state.closeToast);
   const loading = useAppStore((state) => state.loading);
 
-  useEffect(() => {
-    console.log(loading);
-  }, [loading]);
-
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );

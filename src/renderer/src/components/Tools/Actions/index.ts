@@ -10,8 +10,8 @@ import { StartJackWithJacktripP2PServerOnActiveBees } from "./StartJackWithJackt
 import { StartJackWithJacktripP2PClientsOnKweenB } from "./StartJackWithJacktripP2PClientsOnKweenB";
 import { StartPureDataOnActiveBees } from "./StartPureDataOnActiveBees";
 import { MakeP2PAudioConnectionsOnKweenB } from "./MakeP2PAudioConnectionsOnKweenB";
-import { MakeP2PAudioConnectionOnActiveBees } from "./MakeP2PAudioConnectionOnActiveBees";
 import { DisconnectP2PAudioConnectionsOnKweenB } from "./DisconnectP2PAudioConnectionsOnKweenB";
+import { MakeBeeAudioConnections } from "./MakeBeeAudioConnections";
 
 export {
   ActiveBeesOnline,
@@ -19,9 +19,9 @@ export {
   IsZwerm3ApiRunningOnBees,
   KillAllBeeProcesses,
   KillAllKweenBProcesses,
+  MakeBeeAudioConnections,
   MakeHubAudioConnections,
   MakeP2PAudioConnectionsOnKweenB,
-  MakeP2PAudioConnectionOnActiveBees,
   StartJacktripHubServer,
   StartJackWithJacktripHubClientOnActiveBees,
   StartJackWithJacktripHubClientOnKweenB,

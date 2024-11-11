@@ -7,12 +7,11 @@ import {
   dialog,
   shell,
 } from "electron";
-import { KweenBGlobal } from "../kweenb";
+import { KweenB, KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
-import { resourcesPath } from "@shared/resources";
-import { removeMethodHandlers } from "../register";
+import { removeActionListeners, removeMethodHandlers } from "../register";
 import { DEFAULT_APP_MODE } from "@shared/consts";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -255,7 +254,16 @@ export default class MenuBuilder {
           label: "Reload",
           accelerator: "Command+R",
           click: () => {
+            // remove all handlers
             removeMethodHandlers();
+
+            // remove all action listeners
+            removeActionListeners();
+
+            // stop the workers, otherwise they will be duplicated
+            KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
+
+            // reload the window
             this.mainWindow.webContents.reload();
           },
         },

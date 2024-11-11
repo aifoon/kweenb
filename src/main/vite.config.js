@@ -1,5 +1,5 @@
 import { builtinModules } from "module";
-import { join, resolve } from "path";
+import { resolve } from "path";
 import { node } from "../../.electron-vendors.cache.json";
 
 const PACKAGE_ROOT = __dirname;

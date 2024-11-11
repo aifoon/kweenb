@@ -8,9 +8,9 @@
  */
 
 import path from "path";
-import { app } from "electron";
+import { app, ipcMain, ipcRenderer } from "electron";
 import { ElectronApp } from "./lib";
-import { registerActions, registerMethodHandlers } from "./register";
+import { registerActionListeners, registerMethodHandlers } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 import { KweenB, KweenBGlobal } from "./kweenb";
@@ -32,12 +32,6 @@ app.on("window-all-closed", async () => {
     app.quit();
   }
 });
-
-const sendLoadingToRenderer = (
-  mainWindow: any,
-  loading: boolean,
-  text: string
-) => {};
 
 /**
  * A function that will initialise our application
@@ -76,7 +70,7 @@ const initApp = async () => {
 
         // register actions to execute
         // (one way direction, from renderer to main)
-        registerActions();
+        registerActionListeners();
 
         // register the methods to handle
         // (two way direction, from renderer to main and back)
@@ -105,7 +99,6 @@ const initApp = async () => {
      */
     app.on("before-quit", async (event: any) => {
       event.preventDefault();
-
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("closing");
       }

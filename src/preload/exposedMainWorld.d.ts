@@ -57,7 +57,7 @@ declare global {
         killJack(bee: IBee);
         killJacktrip(bee: IBee): void;
         hookBeeOnCurrentHive(bee: IBee): void;
-        makeAudioConnectionBee(bee: IBee): Promise<void>;
+        makeAudioConnectionBee(bees: IBee[] | IBee): Promise<void>;
         startJack(bee: IBee, triggerOnly: boolean = false): void;
         startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
         startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;

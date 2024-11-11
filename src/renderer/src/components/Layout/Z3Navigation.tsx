@@ -63,7 +63,9 @@ export const Z3Navigation = () => {
               <Pill variant="small">
                 {appMode === AppMode.Hub ? "HUB" : "P2P"}
               </Pill>
-              <Pill variant="small">Current latency is {currentLatency}ms</Pill>
+              <Pill variant="small">
+                Streaming latency is {currentLatency}ms
+              </Pill>
             </Box>
             <Divider orientation="vertical" flexItem />
           </>

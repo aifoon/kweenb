@@ -9,7 +9,7 @@ bee:
     inputChannels: -1
     outputChannels: -1
     sampleRate: 44100
-    bufferSize: 256
+    bufferSize: 128
     periods: 24
   jacktrip:
     realtimePriority: true

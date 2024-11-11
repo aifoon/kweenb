@@ -14,10 +14,7 @@ import fs from "fs";
 import Bee from "../../models/Bee";
 import {
   BEE_IS_UNDEFINED,
-  BEE_NOT_ONLINE,
-  HIVE_DOES_NOT_CONTAIN_RECEIVE_CHANNEL,
   NO_BEE_FOUND_WITH_ID,
-  ZWERM3_API_NOTRUNNING,
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
@@ -26,11 +23,12 @@ import {
   PD_PORT_BEE,
 } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
-import { spawn } from "child_process";
+import { exec, spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
 import { demoScenes } from "@seeds/demoScenes";
+import { error } from "console";
 
 /**
  * Creates a new bee
@@ -480,18 +478,41 @@ const importBees = async (filePath: string) => {
  * @param event
  * @param bee
  */
-const makeP2PAudioConnection = async (bee: IBee) => {
+const makeAudioConnection = async (bees: IBee[] | IBee): Promise<void> => {
+  // validate
+  if (!bees) throw new Error(BEE_IS_UNDEFINED());
+
+  // check if bees is an array or a single bee
+  const beeArray = Array.isArray(bees) ? bees : [bees];
+
+  // spawn a child process to check if the bees are online
+  return new Promise((resolve, reject) => {
+    const command = `${resourcesPath}/scripts/create_jack_connection_on_bee.sh ${beeArray
+      .map((b) => b.ipAddress)
+      .join(" ")}`;
+
+    exec(command, (error: any, stdout: any, stderr: any) => {
+      if (error || stderr) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+
   // validate if we found a Bee
-  if (!bee) throw new Error(BEE_IS_UNDEFINED());
+  // if (!bee) throw new Error(BEE_IS_UNDEFINED());
 
   // loop over active bees and make connections
-  const receiveChannel = `${bee.name}:receive_1`;
-  const inputChannel = "pure_data:input_1";
-  await Zwerm3ApiHelpers.connectChannel(
-    bee.ipAddress,
-    receiveChannel,
-    inputChannel
-  );
+  // const receiveChannel = `${bee.name}:receive_1`;
+  // const inputChannel = "pure_data:input_1";
+  // await Zwerm3ApiHelpers.connectChannel(
+  //   bee.ipAddress,
+  //   receiveChannel,
+  //   inputChannel
+  // );
+
+  // await BeeSsh.makeAudioConnection(bee.ipAddress, bee);
 };
 
 /**
@@ -634,7 +655,7 @@ export default {
   getBee,
   getBeeConfig,
   getCurrentBeeStates,
-  makeAudioConnection: makeP2PAudioConnection,
+  makeAudioConnection,
   setAudioParam,
   setBeeActive,
   setBeePozyxTagId,

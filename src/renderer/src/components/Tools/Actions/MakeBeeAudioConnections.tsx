@@ -2,7 +2,7 @@ import { Action } from "@components/Actions";
 import { useAppStore } from "@renderer/src/hooks";
 import React, { useCallback, useState } from "react";
 
-export const MakeP2PAudioConnectionOnActiveBees = () => {
+export const MakeBeeAudioConnections = () => {
   const setLoading = useAppStore((state) => state.setLoading);
 
   const [output, setOutput] = useState("");
@@ -11,13 +11,11 @@ export const MakeP2PAudioConnectionOnActiveBees = () => {
   const onRunClick = useCallback(async () => {
     setLoading({ loading: true });
     try {
-      const getActiveBees = await window.kweenb.methods.fetchActiveBees();
-      const makeP2PAudioConnectionBeePromises = getActiveBees.map((bee) =>
-        window.kweenb.methods.makeAudioConnectionBee(bee)
-      );
-      await Promise.all(makeP2PAudioConnectionBeePromises);
-      setOutput("Audio connections were created");
-      setOutputColor("var(--green-status)");
+      const activeBees = await window.kweenb.methods.fetchActiveBees();
+      await window.kweenb.methods.makeAudioConnectionBee(activeBees);
+
+      setOutput(`Audio connections were created`);
+      setOutputColor(`var(--green-status)`);
     } catch (e: any) {
       setOutput(e.message);
       setOutputColor("var(--red-status)");
@@ -28,7 +26,7 @@ export const MakeP2PAudioConnectionOnActiveBees = () => {
 
   return (
     <Action
-      description="Make P2P audio connection on active bees"
+      description="Make audio connections on active bees"
       onRunClick={onRunClick}
       output={output}
       outputColor={outputColor}

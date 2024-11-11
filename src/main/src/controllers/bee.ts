@@ -382,10 +382,10 @@ export const killPureData = async (
  */
 export const makeAudioConnection = async (
   event: Electron.IpcMainInvokeEvent,
-  bee: IBee
+  bees: IBee[] | IBee
 ) => {
   try {
-    await BeeHelpers.makeAudioConnection(bee);
+    await BeeHelpers.makeAudioConnection(bees);
   } catch (e: any) {
     throw new KweenBException(
       { where: "makeAudioConnection()", message: e.message },
