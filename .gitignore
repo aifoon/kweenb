@@ -55,3 +55,4 @@ resources/jack/*
 
 # Do not add compiled webserver folder
 */webserver/*
+public/*
