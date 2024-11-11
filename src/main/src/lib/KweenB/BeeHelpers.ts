@@ -29,6 +29,7 @@ import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
 import { demoScenes } from "@seeds/demoScenes";
 import { error } from "console";
+import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 
 /**
  * Creates a new bee
@@ -485,34 +486,11 @@ const makeAudioConnection = async (bees: IBee[] | IBee): Promise<void> => {
   // check if bees is an array or a single bee
   const beeArray = Array.isArray(bees) ? bees : [bees];
 
-  // spawn a child process to check if the bees are online
-  return new Promise((resolve, reject) => {
-    const command = `${resourcesPath}/scripts/create_jack_connection_on_bee.sh ${beeArray
-      .map((b) => b.ipAddress)
-      .join(" ")}`;
-
-    exec(command, (error: any, stdout: any, stderr: any) => {
-      if (error || stderr) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
-
-  // validate if we found a Bee
-  // if (!bee) throw new Error(BEE_IS_UNDEFINED());
-
-  // loop over active bees and make connections
-  // const receiveChannel = `${bee.name}:receive_1`;
-  // const inputChannel = "pure_data:input_1";
-  // await Zwerm3ApiHelpers.connectChannel(
-  //   bee.ipAddress,
-  //   receiveChannel,
-  //   inputChannel
-  // );
-
-  // await BeeSsh.makeAudioConnection(bee.ipAddress, bee);
+  // execute the script
+  await new BeeSshScriptExecutor().executeWithNoOutput(
+    "create_jack_connection_on_bee.sh",
+    beeArray
+  );
 };
 
 /**

@@ -1,19 +1,39 @@
 #!/bin/bash
 
+# Function to display usage information
+usage() {
+    echo "Usage: $0 [-k PRIVATE_KEY_PATH] <IP1> <IP2> ..."
+    exit 1
+}
+
+# Default path to the private key
+PRIVATE_KEY_PATH="~/.ssh/kweenb"
+
+# Parse options
+while getopts "k:" opt; do
+    case $opt in
+        k)
+            PRIVATE_KEY_PATH=$OPTARG
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+# Remove parsed options from the arguments
+shift $((OPTIND - 1))
+
 # Check if IP addresses are provided as arguments
 if [ "$#" -eq 0 ]; then
-    echo "No IP addresses provided. Usage: ./script.sh <IP1> <IP2> ..."
-    exit 1
+    usage
 fi
 
 # Array of IP addresses from command-line arguments
 IP_ADDRESSES=("$@")
 
-# SSH user and path to private key
+# SSH user and base command
 USER="pi"
-PRIVATE_KEY_PATH="~/.ssh/kweenb"
-
-# Base command
 BASE_COMMAND="jack_connect"
 
 # Suppress all output
