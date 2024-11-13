@@ -194,7 +194,14 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
             />
           }
         >
-          <Grid container spacing={1}>
+          <Grid
+            container
+            spacing={1}
+            style={{
+              position: "sticky",
+              top: "calc(var(--navigationHeight) + 1rem)",
+            }}
+          >
             <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <ButtonGroup fullWidth>
                 <Button

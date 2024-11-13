@@ -121,7 +121,7 @@ export const SimpleTreeviewSidebar = ({
       )}
       <SimpleTreeView>
         {filteredTreeviewSidebarData?.folders?.map((tsd, i) =>
-          renderTreeItems(tsd, `${tsd.label}-${i}`)
+          renderTreeItems(tsd, `${tsd.label}-a-${i}`)
         )}
         {filteredTreeviewSidebarData?.items?.map((item) => item.treeItem)}
       </SimpleTreeView>
