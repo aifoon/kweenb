@@ -7,8 +7,16 @@ import {
 } from "../../../hooks/useAppPersistentStorage";
 import { TriggerSceneCard } from "../../Cards/TriggerSceneCard";
 import { useAppStore } from "../../../hooks/useAppStore";
+import styled from "styled-components";
 
 type SceneTriggerProps = {};
+
+const SceneTriggerContainer = styled(Box)`
+  padding-bottom: 75px;
+  @media screen and (max-width: 480px) {
+    padding-bottom: 175px;
+  }
+`;
 
 export const SceneTrigger = (props: SceneTriggerProps) => {
   /**
@@ -57,7 +65,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
           Select Scenes
         </Button>
       </Box>
-      <Box style={{ paddingBottom: "75px" }}>
+      <SceneTriggerContainer>
         {selectedAudioScenes.length === 0 && (
           <Typography>
             No scenes selected.
@@ -78,7 +86,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
                   <Grid
                     key={orderedAudioScene.audioScene.name}
                     item
-                    xs={6}
+                    xs={12}
                     sm={4}
                     md={3}
                     lg={2}
@@ -95,7 +103,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
             )}
           </Grid>
         )}
-      </Box>
+      </SceneTriggerContainer>
     </>
   );
 };

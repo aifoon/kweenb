@@ -5,8 +5,68 @@ import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
 import StopIcon from "@mui/icons-material/Stop";
 import { useAppStore } from "@renderer/src/hooks";
+import {
+  SimpleTreeviewSidebar,
+  SimpleTreeviewSidebarData,
+} from "@components/Sidebar/SimpleTreeviewSidebar";
+import { TreeItem } from "@mui/x-tree-view";
+
+type AddProperty<T, K extends string, V> = T & { [P in K]: V };
+
+interface AudioSceneFolder {
+  label: string;
+  folders: AudioSceneFolder[];
+  audioScenes: AddProperty<AudioScene, "label", string>[];
+}
 
 type AudioTriggerProps = {};
+
+/**
+ * Builds Audio Scene Tree
+ * @param scenes
+ * @returns
+ */
+function buildAudioSceneTree(scenes: AudioScene[]): AudioSceneFolder {
+  // Initialize root folder
+  const rootFolder: AudioSceneFolder = {
+    label: "Root",
+    folders: [],
+    audioScenes: [],
+  };
+
+  scenes.forEach((scene) => {
+    // Split the scene name by "_" to determine the hierarchy
+    const parts = scene.name.split("_");
+    let currentFolder = rootFolder;
+
+    // Traverse or build folders based on parts, except the last part
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+
+      // Check if folder already exists at this level
+      let existingFolder = currentFolder.folders.find(
+        (folder) => folder.label === part
+      );
+
+      // If folder doesn't exist, create it
+      if (!existingFolder) {
+        existingFolder = { label: part, folders: [], audioScenes: [] };
+        currentFolder.folders.push(existingFolder);
+      }
+
+      // Move down to the next level in the hierarchy
+      currentFolder = existingFolder;
+    }
+
+    // Add the final part as an audioScene in the correct folder
+    currentFolder.audioScenes.push({
+      ...scene,
+      label: parts[parts.length - 1],
+    });
+  });
+
+  return rootFolder;
+}
 
 export const AudioTrigger = (props: AudioTriggerProps) => {
   const setLoading = useAppStore((state) => state.setLoading);
@@ -15,7 +75,12 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
   const setAudioScenesCache = useAppStore((state) => state.setAudioScenesCache);
   const [currentAudioScene, setCurrentAudioScene] =
     React.useState<AudioScene | null>(null);
+  const [audioSceneTree, setAudioSceneTree] =
+    React.useState<AudioSceneFolder | null>(null);
 
+  /**
+   * When the component mounts, fetch the audio scenes
+   */
   useEffect(() => {
     // set internal useEffect state
     let fetchingAudioScenesForTheFirstTime = false;
@@ -50,6 +115,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
 
       // set the store cache
       setAudioScenesCache(scenes);
+      setAudioSceneTree(buildAudioSceneTree(scenes));
 
       // if we are fetching for the first time, set the current scene to the first one
       if (fetchingAudioScenesForTheFirstTime) {
@@ -72,6 +138,44 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
     };
   }, []);
 
+  /**
+   * Converts Audio Scene Tree to Simple Treeview Sidebar Data
+   * @param folder
+   * @param currentAudioScene
+   * @param setCurrentAudioScene
+   * @returns
+   */
+  function convertToSimpleTreeviewSidebarData(
+    folder: AudioSceneFolder
+  ): SimpleTreeviewSidebarData {
+    // Map each audio scene in the folder to a button
+    const items = folder.audioScenes.map((scene) => ({
+      label: scene.label,
+      treeItem: (
+        <TreeItem
+          key={scene.name}
+          itemId={scene.name}
+          label={scene.label}
+          onClick={() => {
+            setCurrentAudioScene(scene);
+          }}
+        />
+      ),
+    }));
+
+    // Recursively process any nested folders
+    const treeviewSidebarData = folder.folders.map((subFolder) =>
+      convertToSimpleTreeviewSidebarData(subFolder)
+    );
+
+    // Return the structured data for this level, including nested folders
+    return {
+      label: folder.label,
+      items,
+      folders: treeviewSidebarData,
+    };
+  }
+
   return (
     <>
       {audioScenesCache && audioScenesCache.length === 0 && (
@@ -79,27 +183,14 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
       )}
       {audioScenesCache && audioScenesCache.length > 0 && (
         <Z3PageContentSidebar
-          pageSidebar={
-            <PageSidebar
+          sidebar={
+            <SimpleTreeviewSidebar
               filterButtons
-              buttons={audioScenesCache.map((scene) => (
-                <Button
-                  variant={
-                    scene?.name === currentAudioScene?.name
-                      ? "contained"
-                      : "text"
-                  }
-                  size="small"
-                  color="secondary"
-                  style={{ justifyContent: "left" }}
-                  key={scene.name}
-                  onClick={async () => {
-                    setCurrentAudioScene(scene);
-                  }}
-                >
-                  {scene.name}
-                </Button>
-              ))}
+              treeviewSidebarData={
+                (audioSceneTree &&
+                  convertToSimpleTreeviewSidebarData(audioSceneTree)) ||
+                null
+              }
             />
           }
         >

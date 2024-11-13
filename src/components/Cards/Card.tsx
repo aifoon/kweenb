@@ -87,9 +87,24 @@ export const Card = ({
       {title && (
         <CardHeaderWrapper variant={variant} gap={1}>
           <Box display={"flex"} justifyContent={"space-between"}>
-            <Box display={"flex"} alignItems={"center"} gap={1}>
+            <Box
+              sx={{ width: "75%" }}
+              display={"flex"}
+              alignItems={"center"}
+              gap={1}
+            >
               {statusBullet && statusBullet}
-              <Typography variant={variant === "normal" ? "normal" : "small"}>
+              <Typography
+                variant={variant === "normal" ? "normal" : "small"}
+                sx={{
+                  display: "inline-block",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  WebkitLineClamp: "2",
+                  WebkitBoxOrient: "vertical",
+                }}
+              >
                 {title}
               </Typography>
             </Box>

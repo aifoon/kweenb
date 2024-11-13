@@ -115,7 +115,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
         </ButtonGroup>
       </Box>
       <Z3PageContentSidebar
-        pageSidebar={
+        sidebar={
           <PageSidebar
             filterButtons
             buttons={bees.map((bee) => (

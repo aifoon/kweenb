@@ -20,7 +20,7 @@ interface SelectSceneModalProps {
  */
 
 const modalHeight = "80vh";
-const modalWidth = "80vw";
+const modalWidth = "90vw";
 const headerHeight = "40px";
 const textFieldHeight = 40;
 const textFieldMargin = "10px";
@@ -33,6 +33,22 @@ const FilterTextfieldContainer = styled(Box)<{ $hasBee: boolean }>`
     grid-template-columns: 1fr;
     height: ${({ $hasBee }) =>
       $hasBee ? `${textFieldHeight}px` : `${textFieldHeight * 2}px`};
+  }
+`;
+
+const ScenesContainer = styled(Box)`
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  height: calc(
+    ${modalHeight} - ${headerHeight} - ${textFieldHeight}px - ${textFieldMargin} -
+      (2 * var(--modalPadding))
+  );
+  @media (max-width: 480px) {
+    height: calc(
+      ${modalHeight} - ${headerHeight} - ${2 * textFieldHeight}px -
+        ${textFieldMargin} - (2 * var(--modalPadding))
+    );
   }
 `;
 
@@ -178,10 +194,7 @@ export const SelectSceneModal = ({
               </Button>
             )}
           </FilterTextfieldContainer>
-          <Box
-            height={`calc(${modalHeight} - ${headerHeight} - ${textFieldHeight} - ${textFieldMargin} - (2 * var(--modalPadding) ) )`}
-            overflow={"scroll"}
-          >
+          <ScenesContainer overflow={"scroll"}>
             {filteredScenes.length > 0 && (
               <Grid container spacing={1}>
                 {filteredScenes.map((scene) => (
@@ -209,7 +222,7 @@ export const SelectSceneModal = ({
               </Grid>
             )}
             {filteredScenes.length === 0 && <Box>No scenes found</Box>}
-          </Box>
+          </ScenesContainer>
         </>
       )}
     </BaseModal>

@@ -12,7 +12,7 @@ export const PositioningModules = () => {
 
   return (
     <Z3PageContentSidebar
-      pageSidebar={
+      sidebar={
         <PageSidebar
           buttons={[
             <Button
