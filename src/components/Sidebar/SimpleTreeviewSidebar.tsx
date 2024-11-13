@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import { ButtonProps } from "../Buttons/Button";
-import { Box, TextField } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import { SimpleTreeView, TreeItem, TreeItemProps } from "@mui/x-tree-view";
 
 export interface SimpleTreeviewSidebarData {
@@ -13,12 +13,14 @@ export interface SimpleTreeviewSidebarProps {
   treeviewSidebarData: SimpleTreeviewSidebarData | null;
   divider?: boolean;
   filterButtons?: boolean;
+  noItemsText?: string;
 }
 
 export const SimpleTreeviewSidebar = ({
   treeviewSidebarData = null,
   divider = false,
   filterButtons = false,
+  noItemsText = "No items found...",
 }: SimpleTreeviewSidebarProps) => {
   // If no data, return null
   if (!treeviewSidebarData) return <></>;
@@ -119,12 +121,15 @@ export const SimpleTreeviewSidebar = ({
           onChange={(event) => setCurrentFilter(event.target.value)}
         />
       )}
-      <SimpleTreeView>
-        {filteredTreeviewSidebarData?.folders?.map((tsd, i) =>
-          renderTreeItems(tsd, `${tsd.label}-a-${i}`)
-        )}
-        {filteredTreeviewSidebarData?.items?.map((item) => item.treeItem)}
-      </SimpleTreeView>
+      {!filteredTreeviewSidebarData && <Typography>{noItemsText}</Typography>}
+      {filteredTreeviewSidebarData && (
+        <SimpleTreeView>
+          {filteredTreeviewSidebarData.folders?.map((tsd, i) =>
+            renderTreeItems(tsd, `${tsd.label}-a-${i}`)
+          )}
+          {filteredTreeviewSidebarData.items?.map((item) => item.treeItem)}
+        </SimpleTreeView>
+      )}
     </Box>
   );
 };

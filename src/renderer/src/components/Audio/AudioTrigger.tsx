@@ -186,6 +186,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
           sidebar={
             <SimpleTreeviewSidebar
               filterButtons
+              noItemsText="No audio scenes found"
               treeviewSidebarData={
                 (audioSceneTree &&
                   convertToSimpleTreeviewSidebarData(audioSceneTree)) ||
