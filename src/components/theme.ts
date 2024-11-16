@@ -1,6 +1,7 @@
 import { Opacity } from "@mui/icons-material";
 import { createTheme } from "@mui/material/styles";
 import type {} from "@mui/x-data-grid/themeAugmentation";
+import type {} from "@mui/x-tree-view/themeAugmentation";
 
 declare module "@mui/material/styles" {
   interface TypographyVariants {
@@ -402,6 +403,17 @@ export default createTheme({
             },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             border: "none",
+            borderRadius: "var(--radiusMedium)",
+          },
+        },
+      },
+    },
+    MuiTreeItem: {
+      styleOverrides: {
+        root: {
+          "& > .MuiTreeItem-content.Mui-selected": {
+            color: "var(--textColor)",
+            backgroundColor: "var(--primary-200)",
             borderRadius: "var(--radiusMedium)",
           },
         },
