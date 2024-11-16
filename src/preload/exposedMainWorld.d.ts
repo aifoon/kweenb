@@ -21,7 +21,11 @@ declare global {
     readonly kweenb: {
       readonly methods: {
         // AUDIO
-        deleteAudio(bee: IBee, path: string): Promise<void>;
+        deleteAudio(
+          bee: IBee,
+          path: string,
+          deleteOnAllBees?: boolean
+        ): Promise<void>;
         getAudioFiles(bee: IBee): Promise<AudioFile[]>;
         getAudioScenes(): Promise<AudioScene[]>;
         killPureData(bee: IBee): Promise<void>;

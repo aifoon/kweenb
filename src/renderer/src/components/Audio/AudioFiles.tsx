@@ -7,9 +7,10 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ButtonGroup } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import { useAppStore, useBeeStore } from "@renderer/src/hooks";
+import { useAppStore, useBeeStore, useConfirmation } from "@renderer/src/hooks";
 import { Box, Typography, Button } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
+import { ConfirmModal } from "@components/Modals/ConfirmModal";
 
 type AudioFilesProps = {};
 
@@ -26,6 +27,11 @@ export const AudioFiles = (props: AudioFilesProps) => {
   const [selectedBee, setSelectedBee] = useState<IBee | null>(null);
   const [currentAudioFiles, setCurrentAudioFiles] = useState<AudioFile[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const {
+    open: openDeleteSceneConfirmModal,
+    handleOpen: handleDeleteSceneConfirmModal,
+    handleClose: handleCloseDeleteSceneModal,
+  } = useConfirmation<{}>(false, {});
 
   // handle selected items
   const handleSelectedItemsChange = (
@@ -48,25 +54,33 @@ export const AudioFiles = (props: AudioFilesProps) => {
 
   // when we hook up, we need to get the audio files of the first bee in the list
   useEffect(() => {
-    if (currentAudioFiles.length === 0 && bees.length > 0) {
+    if (bees.length > 0) {
       loadAudioFiles(bees[0]);
     }
-  }, [bees]);
+  }, []);
 
   // delete the audio files
-  const deleteAudio = useCallback(async () => {
-    if (selectedItems.length === 0) return;
-    else {
-      if (selectedBee === null) return;
-      Promise.all(
-        selectedItems.map(async (itemId) => {
-          await window.kweenb.methods.deleteAudio(selectedBee, itemId);
-        })
-      ).then(() => {
-        loadAudioFiles(selectedBee);
-      });
-    }
-  }, [selectedItems, selectedBee]);
+  const deleteAudio = useCallback(
+    async (deleteOnAllBees: boolean) => {
+      if (selectedItems.length === 0) return;
+      else {
+        if (selectedBee === null) return;
+        Promise.all(
+          selectedItems.map(async (itemId) => {
+            await window.kweenb.methods.deleteAudio(
+              selectedBee,
+              itemId,
+              deleteOnAllBees
+            );
+          })
+        ).then(() => {
+          loadAudioFiles(selectedBee);
+          handleCloseDeleteSceneModal();
+        });
+      }
+    },
+    [selectedItems, selectedBee]
+  );
 
   // if there are no bees online, we can't manage any files
   if (bees.length === 0)
@@ -79,92 +93,107 @@ export const AudioFiles = (props: AudioFilesProps) => {
     );
 
   return (
-    <Box display={"flex"} gap={2} flexDirection={"column"}>
-      <Box display={"flex"} justifyContent={"flex-end"}>
-        <ButtonGroup>
-          <Button
-            variant={"contained"}
-            size="small"
-            color="secondary"
-            key="delete_forever"
-            disabled={selectedItems.length === 0}
-            onClick={deleteAudio}
-          >
-            <DeleteForeverIcon style={{ fontSize: ".8rem" }} />
-          </Button>
-          <Button
-            variant={"contained"}
-            size="small"
-            color="secondary"
-            key="refresh_list"
-            onClick={() => loadAudioFiles(selectedBee)}
-          >
-            <RefreshIcon style={{ fontSize: ".8rem" }} />
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            color="primary"
-            key="upload_scene"
-            onClick={async () => {
-              setOpenUploadAudioFilesSettings(true);
-            }}
-          >
-            Upload Scene
-          </Button>
-        </ButtonGroup>
-      </Box>
-      <Z3PageContentSidebar
-        sidebar={
-          <PageSidebar
-            filterButtons
-            buttons={bees.map((bee) => (
-              <Button
-                variant={selectedBee?.id === bee.id ? "contained" : "text"}
-                style={{ justifyContent: "left" }}
-                size="small"
-                color="secondary"
-                key={bee.id}
-                onClick={async () => {
-                  await loadAudioFiles(bee);
-                  setSelectedItems([]);
-                }}
-              >
-                {bee.name}
-              </Button>
-            ))}
-          />
-        }
-      >
-        <Box display={"flex"} flexDirection={"column"} gap={1}>
-          <Card variant="small">
-            <SimpleTreeView
-              onSelectedItemsChange={handleSelectedItemsChange}
-              multiSelect
-              selectedItems={selectedItems}
-              checkboxSelection
+    <>
+      <ConfirmModal
+        message="Do you want to remove selected scenes if found on multiple bees?"
+        open={openDeleteSceneConfirmModal}
+        onClose={() => {
+          deleteAudio(false);
+        }}
+        onConfirm={() => {
+          deleteAudio(true);
+        }}
+      />
+      <Box display={"flex"} gap={2} flexDirection={"column"}>
+        <Box display={"flex"} justifyContent={"flex-end"}>
+          <ButtonGroup>
+            <Button
+              variant={"contained"}
+              size="small"
+              color="secondary"
+              key="delete_forever"
+              disabled={selectedItems.length === 0}
+              onClick={() => handleDeleteSceneConfirmModal(true)}
             >
-              {currentAudioFiles.map((audioFile) => (
-                <TreeItem
-                  disabled={audioFile.name === "tests"}
-                  key={audioFile.name}
-                  itemId={audioFile.fullPath}
-                  label={audioFile.name}
+              <DeleteForeverIcon style={{ fontSize: ".8rem" }} />
+            </Button>
+            <Button
+              variant={"contained"}
+              size="small"
+              color="secondary"
+              key="refresh_list"
+              onClick={() => loadAudioFiles(selectedBee)}
+            >
+              <RefreshIcon style={{ fontSize: ".8rem" }} />
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              color="primary"
+              key="upload_scene"
+              onClick={async () => {
+                setOpenUploadAudioFilesSettings(true);
+              }}
+            >
+              Upload Scene
+            </Button>
+          </ButtonGroup>
+        </Box>
+        <Z3PageContentSidebar
+          sidebar={
+            <PageSidebar
+              filterButtons
+              buttons={bees.map((bee) => (
+                <Button
+                  variant={selectedBee?.id === bee.id ? "contained" : "text"}
+                  style={{ justifyContent: "left" }}
+                  size="small"
+                  color="secondary"
+                  key={bee.id}
+                  onClick={async () => {
+                    await loadAudioFiles(bee);
+                    setSelectedItems([]);
+                  }}
                 >
-                  {audioFile.files.map((file) => (
+                  {bee.name}
+                </Button>
+              ))}
+            />
+          }
+        >
+          <Box display={"flex"} flexDirection={"column"} gap={1}>
+            {currentAudioFiles.length === 0 && (
+              <Card variant="small">
+                <Typography>No audio files are found on this bee.</Typography>
+              </Card>
+            )}
+            {currentAudioFiles.length > 0 && (
+              <Card variant="small">
+                <SimpleTreeView
+                  onSelectedItemsChange={handleSelectedItemsChange}
+                  multiSelect
+                  selectedItems={selectedItems}
+                  checkboxSelection
+                >
+                  {currentAudioFiles.map((audioFile) => (
                     <TreeItem
+                      sx={{
+                        ".MuiTreeItem-iconContainer": {
+                          display: "none !important",
+                        },
+                      }}
                       disabled={audioFile.name === "tests"}
-                      key={file.name}
-                      itemId={file.fullPath}
-                      label={file.name}
+                      key={audioFile.name}
+                      itemId={audioFile.fullPath}
+                      label={audioFile.name}
                     />
                   ))}
-                </TreeItem>
-              ))}
-            </SimpleTreeView>
-          </Card>
-        </Box>
-      </Z3PageContentSidebar>
-    </Box>
+                </SimpleTreeView>
+              </Card>
+            )}
+          </Box>
+        </Z3PageContentSidebar>
+      </Box>
+    </>
   );
 };

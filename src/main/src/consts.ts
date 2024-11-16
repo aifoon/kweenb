@@ -59,7 +59,7 @@ export const BEE_CONSIDERED_OFFLINE_SECONDS = 10;
 export const NETWORK_PERFORMANCE_POLLING_SECONDS = 5;
 
 // the interval we use to poll the audio scenes (check each x seconds)
-export const AUDIOSCENES_POLLING_SECONDS = 15;
+export const AUDIOSCENES_POLLING_SECONDS = 5;
 
 /**
  * Zwerm3 API Configuration

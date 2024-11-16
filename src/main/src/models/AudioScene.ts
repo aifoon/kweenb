@@ -6,8 +6,6 @@ import Database from "../database";
  * Create the internal AudioScene Model
  */
 class AudioScene extends Model {
-  declare id: number;
-
   declare name: string;
 
   declare oscAddress: string;

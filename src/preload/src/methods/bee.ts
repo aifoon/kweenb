@@ -13,8 +13,12 @@ import { PDAudioParam } from "@shared/enums";
  * All the audio settings for the bee (eg. triggering)
  */
 const audio = {
-  deleteAudio: (bee: IBee, path: string): Promise<void> =>
-    ipcRenderer.invoke("bee:deleteAudio", bee, path),
+  deleteAudio: (
+    bee: IBee,
+    path: string,
+    deleteOnAllBees: boolean = false
+  ): Promise<void> =>
+    ipcRenderer.invoke("bee:deleteAudio", bee, path, deleteOnAllBees),
   getAudioFiles: (bee: IBee): Promise<AudioFile[]> =>
     ipcRenderer.invoke("bee:getAudioFiles", bee),
   getAudioScenes: (): Promise<AudioScene[]> =>

@@ -7,6 +7,11 @@ import { IBee } from "@shared/interfaces";
 import { resourcesPath } from "@shared/resources";
 import { exec } from "child_process";
 
+interface CLIParam {
+  flag: string;
+  value: string;
+}
+
 export default class BeeSshScriptExecutor {
   private privateKeyPath: string;
 
@@ -20,12 +25,23 @@ export default class BeeSshScriptExecutor {
    * @param bees The bees to execute the script on
    * @returns
    */
-  async executeWithNoOutput(script: string, bees: IBee[]): Promise<void> {
+  async executeWithNoOutput(
+    script: string,
+    bees: IBee[],
+    cliParams?: CLIParam[]
+  ): Promise<void> {
     try {
       return new Promise((resolve, reject) => {
-        const command = `${resourcesPath}/scripts/${script} -k ${
-          this.privateKeyPath
-        } ${bees.map((b) => b.ipAddress).join(" ")}`;
+        const cliParamsString =
+          cliParams && cliParams.length > 0
+            ? cliParams
+                .map((cliParam) => `${cliParam.flag} ${cliParam.value}`)
+                .join(" ")
+            : "";
+
+        const beeAddresses = bees.map((b) => b.ipAddress).join(" ");
+
+        const command = `${resourcesPath}/scripts/${script} -k ${this.privateKeyPath} ${cliParamsString} ${beeAddresses}`;
 
         exec(command, (error: any, stdout: any, stderr: any) => {
           if (error || stderr) {

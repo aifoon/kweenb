@@ -15,11 +15,12 @@ import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import BeeSsh from "../lib/KweenB/BeeSsh";
-import { Bee } from "../models";
+import { AudioScene, Bee } from "../models";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
 import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
 import Ssh2SftpClient from "ssh2-sftp-client";
+import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
 
 /**
  * Create a new bee
@@ -98,12 +99,32 @@ export const deleteBee = (event: Electron.IpcMainInvokeEvent, id: number) => {
 export const deleteAudio = async (
   event: Electron.IpcMainInvokeEvent,
   bee: IBee,
-  path: string
+  path: string,
+  deleteOnAllBees: boolean = false
 ) => {
   try {
-    // set the guard to prevent deleting files outside the audio files root directory
-    if (path.startsWith(AUDIO_FILES_ROOT_DIRECTORY)) {
+    if (!path.startsWith(AUDIO_FILES_ROOT_DIRECTORY)) return;
+
+    // if we need to delete on all bees, delete the file on all bees
+    if (deleteOnAllBees) {
+      const bees = await BeeHelpers.getAllBees(BeeActiveState.ALL);
+      await new BeeSshScriptExecutor().executeWithNoOutput(
+        "remove_folders_on_bees.sh",
+        bees.filter((bee) => bee.isOnline),
+        [{ flag: "-d", value: path }]
+      );
+      await Promise.all(
+        bees.map(async (bee) => {
+          await AudioScene.destroy({
+            where: { localFolderPath: path, beeId: bee.id },
+          });
+        })
+      );
+    } else {
       await BeeSsh.deletePath(bee.ipAddress, path);
+      await AudioScene.destroy({
+        where: { localFolderPath: path, beeId: bee.id },
+      });
     }
   } catch (e: any) {
     throw new KweenBException(
@@ -736,12 +757,24 @@ export const uploadAudioFiles = async (
               );
             },
           });
+
+          // write the data to the local data file
           await BeeSsh.writeDataToFile(
             bee.ipAddress,
             `${remoteDirectory}/data.json`,
             JSON.stringify({ name, oscAddress: `${legalName}/audio.wav` })
           );
+
+          // close the connection
           sftp.end();
+
+          // add the audio scene to the database
+          AudioScene.create({
+            name,
+            oscAddress: `${legalName}/audio.wav`,
+            localFolderPath: remoteDirectory,
+            beeId: bee.id,
+          });
         } catch (e: any) {
           throw new Error(e.message);
         }

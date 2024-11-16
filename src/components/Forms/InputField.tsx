@@ -29,7 +29,7 @@ export const InputField = styled.div<Omit<InputFieldProps, "label">>`
         display: block;
         label {
           margin: 0;
-          margin-bottom: 10px;
+          margin-bottom: 2px;
         }
       `;
     }

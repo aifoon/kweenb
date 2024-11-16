@@ -28,7 +28,12 @@ export const ConfirmModal = ({
   const [isOpen, setIsOpen] = useState(open);
   useEffect(() => setIsOpen(open), [open]);
   return (
-    <BaseModal title={title} open={isOpen} onClose={() => onClose()}>
+    <BaseModal
+      title={title}
+      showCloseButton={false}
+      open={isOpen}
+      onClose={() => onClose()}
+    >
       <p>{message}</p>
       <ConfirmModalFooter>
         <ButtonGroup>

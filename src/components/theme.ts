@@ -411,10 +411,21 @@ export default createTheme({
     MuiTreeItem: {
       styleOverrides: {
         root: {
-          "& > .MuiTreeItem-content.Mui-selected": {
-            color: "var(--textColor)",
-            backgroundColor: "var(--primary-200)",
+          "& > .MuiTreeItem-content": {
             borderRadius: "var(--radiusMedium)",
+            color: "var(--textColor)",
+          },
+          "& > .MuiTreeItem-content.Mui-selected": {
+            backgroundColor: "var(--primary-200)",
+          },
+          "& > .MuiTreeItem-content.Mui-selected:hover": {
+            backgroundColor: "var(--primary-200)",
+          },
+          "& > .MuiTreeItem-content.Mui-focused": {
+            backgroundColor: "var(--primary-200)",
+          },
+          "& > .MuiTreeItem-content.Mui-selected.Mui-focused": {
+            backgroundColor: "var(--primary-200)",
           },
         },
       },

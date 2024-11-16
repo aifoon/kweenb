@@ -87,7 +87,7 @@ export const UploadAudioFilesSettings = ({
                 type="text"
                 labelWidth="250px"
                 name="name"
-                placeholder=""
+                placeholder="Use underscores to make subfolders e.g. folder_subfolder"
               />
               <Box>
                 <Box

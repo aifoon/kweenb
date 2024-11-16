@@ -65,6 +65,12 @@ const getAudioFiles = async (ipAddress: string): Promise<AudioFile[]> => {
     const audioFiles: AudioFile[] = [];
     let currentDirectory: string | undefined;
     const rootDirectory = AUDIO_FILES_ROOT_DIRECTORY;
+    if (
+      fileLines.length === 1 &&
+      fileLines.pop() === `${AUDIO_FILES_ROOT_DIRECTORY}:`
+    ) {
+      return audioFiles;
+    }
 
     // loop over files
     for (const line of fileLines) {
