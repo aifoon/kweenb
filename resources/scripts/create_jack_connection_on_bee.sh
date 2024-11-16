@@ -1,13 +1,13 @@
 #!/bin/bash
 
+# Default path to the private key
+PRIVATE_KEY_PATH="~/.ssh/kweenb"
+
 # Function to display usage information
 usage() {
     echo "Usage: $0 [-k PRIVATE_KEY_PATH] <IP1> <IP2> ..."
     exit 1
 }
-
-# Default path to the private key
-PRIVATE_KEY_PATH="~/.ssh/kweenb"
 
 # Parse options
 while getopts "k:" opt; do

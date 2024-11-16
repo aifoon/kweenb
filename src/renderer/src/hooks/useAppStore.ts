@@ -6,7 +6,7 @@ import { DEFAULT_APP_MODE } from "@shared/consts";
 
 type AppState = {
   appMode: AppMode;
-  audioScenesCache: AudioScene[];
+  audioScenes: AudioScene[];
   currentLatency: number;
   loading: LoadingState;
   openAboutKweenBModal: boolean;
@@ -23,7 +23,7 @@ type AppState = {
 type AppAction = {
   closeToast: () => void;
   setAppMode: (appMode: AppMode) => void;
-  setAudioScenesCache: (audioScenes: AudioScene[]) => void;
+  setAudioScenes: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
   setOpenConnectBeesHubModal: (open: boolean) => void;
@@ -38,7 +38,7 @@ type AppAction = {
 
 export const useAppStore = create<AppState & AppAction>((set) => ({
   appMode: DEFAULT_APP_MODE,
-  audioScenesCache: [],
+  audioScenes: [],
   closeToast: () => {
     set({ openToastState: false });
   },
@@ -58,8 +58,8 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openToastState: false,
   openUploadAudioFilesSettings: false,
   setAppMode: (appMode: AppMode) => set({ appMode }),
-  setAudioScenesCache: (audioScenes: AudioScene[]) =>
-    set({ audioScenesCache: audioScenes }),
+  setAudioScenes: (audioScenes: AudioScene[]) =>
+    set({ audioScenes: audioScenes }),
   setLoading: (loading) => set({ loading }),
   setManageBeesCollapsed: (collapsed) =>
     set({ manageBeesCollapsed: collapsed }),

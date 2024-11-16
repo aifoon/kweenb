@@ -99,6 +99,7 @@ export interface AudioScene {
   name: string;
   foundOnBees: IBee[];
   oscAddress: string;
+  localFolderPath: string;
 }
 
 /**

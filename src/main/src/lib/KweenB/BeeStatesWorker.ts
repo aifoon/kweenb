@@ -1,13 +1,19 @@
 import BeeHelpers from "./BeeHelpers";
-import { exec, spawn, spawnSync } from "node:child_process";
+import { exec, spawn } from "node:child_process";
 import { BeeActiveState } from "@shared/enums";
 import {
+  AUDIOSCENES_POLLING_SECONDS,
   BEE_POLLING_SECONDS,
   NETWORK_PERFORMANCE_POLLING_SECONDS,
 } from "../../consts";
 import { BeeStates } from "../Dictionaries";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
+import { IBee } from "@shared/interfaces";
+import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
+import { AudioScene as AudioSceneDB } from "../../models";
+import Database from "../../database";
+import { Op } from "sequelize";
 
 interface SshOutputState {
   ipAddress: string;
@@ -17,10 +23,13 @@ interface SshOutputState {
 
 class BeeStatesWorker {
   private _beeStates: BeeStates;
+  private _allBees: IBee[];
   private _updateBeeStatesInterval: NodeJS.Timeout;
   private _updateBeeNetworkPerformanceInterval: NodeJS.Timeout;
+  private _updateAudioScenesInterval: NodeJS.Timeout;
 
   constructor() {
+    this._allBees = [];
     this._beeStates = new BeeStates();
   }
 
@@ -36,12 +45,12 @@ class BeeStatesWorker {
    */
   public async init() {
     // get all the bees
-    const bees = await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
+    this._allBees = await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
 
     // loop through the bees
-    this._beeStates.addBees(bees);
+    this._beeStates.addBees(this._allBees);
 
-    // get the bee states
+    // start doing this in the background
     this.updateBeeStates();
 
     // do interval for fetching bee states
@@ -56,6 +65,13 @@ class BeeStatesWorker {
         () => this.updateBeeNetworkPerformance(),
         NETWORK_PERFORMANCE_POLLING_SECONDS * 1000
       );
+
+    // do interval for fetching audio scenes on the bees
+    if (!this._updateAudioScenesInterval)
+      this._updateAudioScenesInterval = setInterval(
+        () => this.updateAudioScenes(),
+        AUDIOSCENES_POLLING_SECONDS * 1000
+      );
   }
 
   /**
@@ -64,6 +80,7 @@ class BeeStatesWorker {
   public stopWorkers() {
     clearInterval(this._updateBeeStatesInterval);
     clearInterval(this._updateBeeNetworkPerformanceInterval);
+    clearInterval(this._updateAudioScenesInterval);
   }
 
   /**
@@ -222,6 +239,67 @@ class BeeStatesWorker {
           }
         }
       );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  /**
+   * Update the audio scenes
+   */
+  private updateAudioScenes() {
+    try {
+      // validate
+      if (!this._allBees) return;
+
+      // execute the script
+      new BeeSshScriptExecutor()
+        .executeWithOutput<string>("get_audio_scenes.sh", this._allBees)
+        .then((output) => {
+          // validate
+          if (!output) return;
+
+          // parse the scenes
+          const audioScenesOnBees = JSON.parse(output);
+
+          // create the records for the database
+          const audioScenesForDatabase: any[] = [];
+          audioScenesOnBees.forEach(({ id, audioScenes }: any) => {
+            if (!audioScenes || audioScenes.length === 0) return;
+            for (const audioScene of audioScenes) {
+              audioScenesForDatabase.push({
+                beeId: id,
+                oscAddress: audioScene.oscAddress,
+                name: audioScene.name,
+                localFolderPath: audioScene.localFolderPath,
+              });
+            }
+          });
+
+          // get the composite keys, these are the combination of keys inside
+          // the audio scenes that are unique
+          const compositeKeys = audioScenesForDatabase.map((scene) => ({
+            localFolderPath: scene.localFolderPath,
+            beeId: scene.beeId,
+          }));
+
+          // create the audio scenes
+          AudioSceneDB.bulkCreate(audioScenesForDatabase, {
+            updateOnDuplicate: ["localFolderPath", "beeId"],
+          }).then(() => {
+            // extract the composite key values (localFolderPath, beeId) from the new list
+            // delete the records that are not in the new list
+            AudioSceneDB.destroy({
+              where: {
+                [Op.not]: [
+                  {
+                    [Op.or]: compositeKeys, // Records to keep
+                  },
+                ],
+              },
+            });
+          });
+        });
     } catch (e) {
       console.error(e);
     }

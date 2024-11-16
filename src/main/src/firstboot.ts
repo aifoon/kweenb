@@ -9,7 +9,7 @@ import { Utils } from "@shared/utils";
 import { app } from "electron";
 import { MAIN_PATH } from "./consts";
 import settings from "./.firstboot/settings";
-import Setting from "./models/Setting";
+import { Setting } from "./models";
 
 /**
  * Before the first boot (remove everything in case of reinstall)

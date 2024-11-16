@@ -11,7 +11,7 @@ import {
   IBeeState,
 } from "@shared/interfaces";
 import fs from "fs";
-import Bee from "../../models/Bee";
+import { AudioScene as AudioSceneDb, Bee } from "../../models";
 import {
   BEE_IS_UNDEFINED,
   NO_BEE_FOUND_WITH_ID,
@@ -30,6 +30,7 @@ import { PDBeeOsc } from "../OSC";
 import { demoScenes } from "@seeds/demoScenes";
 import { error } from "console";
 import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
+import { Op } from "sequelize";
 
 /**
  * Creates a new bee
@@ -218,57 +219,6 @@ const getAllBeesData = async (
 };
 
 /**
- * Get Audio Scenes for a bee
- * @param bee The bee
- * @returns AudioScene[]
- */
-const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
-  // @note: this condition is only used for development purpose
-  // whenever we are not connected to the physical swarm, we still
-  // get scenes, but we get them from a demo file
-  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-    demoScenes.filter((scene) =>
-      scene.foundOnBees.some((currentBee) => currentBee.id === bee.id)
-    );
-  }
-
-  // init the audio scenes
-  const audioScenes: AudioScene[] = [];
-
-  // get the latest status of the bee
-  const currentBee = await getBee(bee.id);
-
-  // check if the bee is online
-  if (!currentBee.isOnline) return audioScenes;
-
-  // get the audio scenes
-  const beeAudioScenes = await BeeSsh.getAudioScenes(bee.ipAddress);
-
-  // loop over the audio scenes
-  for (const dataFileContent of beeAudioScenes) {
-    // check if the scene already exists in audioScenes
-    const foundScene = audioScenes.find(
-      (scene) => scene.name === dataFileContent.name
-    );
-
-    // if the scene is not found, add it
-    if (!foundScene) {
-      const audioScene: AudioScene = {
-        name: dataFileContent.name,
-        foundOnBees: [bee],
-        oscAddress: dataFileContent.oscAddress,
-      };
-      audioScenes.push(audioScene);
-    } else {
-      // if the scene is found, add the bee to the scene
-      foundScene.foundOnBees.push(bee);
-    }
-  }
-
-  return audioScenes;
-};
-
-/**
  * Get the audio scenes
  * @returns AudioScene[]
  */
@@ -283,41 +233,76 @@ const getAudioScenes = async (): Promise<AudioScene[]> => {
   // get all bees
   const bees = await getAllBees(BeeActiveState.ACTIVE);
 
-  // init the audio scenes
-  const audioScenes: AudioScene[] = [];
+  // get all audio scenes from the database, for the active bees
+  return await getAudioScenesForBees(bees);
+};
 
-  // loop over the bees
-  for (const bee of bees) {
-    // check if the bee is online
-    if (!bee.isOnline) continue;
-
-    // get the audio scenes
-    const beeAudioScenes = await BeeSsh.getAudioScenes(bee.ipAddress);
-
-    // loop over the audio scenes
-    for (const dataFileContent of beeAudioScenes) {
-      // check if the scene already exists in audioScenes
-      const foundScene = audioScenes.find(
-        (scene) => scene.name === dataFileContent.name
-      );
-
-      // if the scene is not found, add it
-      if (!foundScene) {
-        const audioScene: AudioScene = {
-          name: dataFileContent.name,
-          foundOnBees: [bee],
-          oscAddress: dataFileContent.oscAddress,
-        };
-        audioScenes.push(audioScene);
-      } else {
-        // if the scene is found, add the bee to the scene
-        foundScene.foundOnBees.push(bee);
-      }
-    }
+/**
+ * Get Audio Scenes for a bee
+ * @param bee The bee
+ * @returns AudioScene[]
+ */
+const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
+  // @note: this condition is only used for development purpose
+  // whenever we are not connected to the physical swarm, we still
+  // get scenes, but we get them from a demo file
+  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+    demoScenes.filter((scene) =>
+      scene.foundOnBees.some((currentBee) => currentBee.id === bee.id)
+    );
   }
 
-  // return the audio scenes
-  return audioScenes;
+  return await getAudioScenesForBees(bee);
+};
+
+/**
+ * Get the audio scenes for bees
+ * @returns AudioScene[]
+ */
+const getAudioScenesForBees = async (
+  bees: IBee[] | IBee
+): Promise<AudioScene[]> => {
+  // @note: this condition is only used for development purpose
+  // whenever we are not connected to the physical swarm, we still
+  // get scenes, but we get them from a demo file
+  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+    return demoScenes;
+  }
+
+  // check if bees is an array or a single bee
+  const beeArray = Array.isArray(bees) ? bees : [bees];
+
+  // get all audio scenes from the database, for the active bees
+  const audioScenesDb = await AudioSceneDb.findAll({
+    where: {
+      beeId: {
+        [Op.in]: beeArray.map((b) => b.id),
+      },
+    },
+  });
+
+  // Reduce data into the desired structure
+  const sceneMap: Record<string, AudioScene> = {};
+  audioScenesDb.forEach((scene) => {
+    const { name, beeId, oscAddress, localFolderPath } = scene.toJSON(); // Extract raw data
+
+    if (!sceneMap[localFolderPath]) {
+      // Initialize a new AudioScene object
+      sceneMap[localFolderPath] = {
+        name,
+        foundOnBees: [],
+        oscAddress,
+        localFolderPath,
+      };
+    }
+
+    // Add the beeId to foundOnBees array
+    const bee = beeArray.find((b) => b.id === beeId);
+    if (bee) sceneMap[localFolderPath].foundOnBees.push(bee);
+  });
+
+  // Convert the map to an array
+  return Object.values(sceneMap);
 };
 
 /**
@@ -630,6 +615,7 @@ export default {
   getAllBeesData,
   getAudioScenes,
   getAudioScenesForBee,
+  getAudioScenesForBees,
   getBee,
   getBeeConfig,
   getCurrentBeeStates,

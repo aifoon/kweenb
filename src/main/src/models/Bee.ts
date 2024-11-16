@@ -1,6 +1,7 @@
 import { ChannelType } from "@shared/enums";
 import { DataTypes, Model } from "sequelize";
 import Database from "../database";
+import AudioScene from "./AudioScene";
 
 /**
  * Create the internal Bee Model

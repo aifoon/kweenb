@@ -71,8 +71,8 @@ function buildAudioSceneTree(scenes: AudioScene[]): AudioSceneFolder {
 export const AudioTrigger = (props: AudioTriggerProps) => {
   const setLoading = useAppStore((state) => state.setLoading);
 
-  const audioScenesCache = useAppStore((state) => state.audioScenesCache);
-  const setAudioScenesCache = useAppStore((state) => state.setAudioScenesCache);
+  const audioScenes = useAppStore((state) => state.audioScenes);
+  const setAudioScenes = useAppStore((state) => state.setAudioScenes);
   const [currentAudioScene, setCurrentAudioScene] =
     React.useState<AudioScene | null>(null);
   const [audioSceneTree, setAudioSceneTree] =
@@ -82,46 +82,23 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
    * When the component mounts, fetch the audio scenes
    */
   useEffect(() => {
-    // set internal useEffect state
-    let fetchingAudioScenesForTheFirstTime = false;
-
-    // if there are no cached audio scenes, fetch them
-    if (audioScenesCache && audioScenesCache.length === 0) {
-      fetchingAudioScenesForTheFirstTime = true;
-      setLoading({
-        loading: true,
-        text: "Fetching scenes from bees for the first time, this can take a while",
-        cancelButton: true,
-        onCancel: () => {
-          console.log("cancelling");
-        },
-      });
-    }
-
-    // there are scenes, add the first cached one
-    else {
-      setCurrentAudioScene(audioScenesCache[0]);
-    }
-
-    // set an internal variable to check if new settings can be fetched
-    let canAudioScenesFetchedCauseAReRender = true;
+    setLoading({
+      loading: true,
+      text: "Fetching scenes from bees...",
+      cancelButton: true,
+      onCancel: () => {
+        console.log("cancelling");
+      },
+    });
 
     // always fetch new scenes, we want to perform at best value
     window.kweenb.methods.getAudioScenes().then((scenes) => {
-      if (!canAudioScenesFetchedCauseAReRender) return;
-
       // always sort the scenes by name
       scenes.sort((a, b) => a.name.localeCompare(b.name));
 
       // set the store cache
-      setAudioScenesCache(scenes);
+      setAudioScenes(scenes);
       setAudioSceneTree(buildAudioSceneTree(scenes));
-
-      // if we are fetching for the first time, set the current scene to the first one
-      if (fetchingAudioScenesForTheFirstTime) {
-        fetchingAudioScenesForTheFirstTime = false;
-        setCurrentAudioScene(scenes[0]);
-      }
 
       // when we are not fetching for the first time, we want to keep the current scene
       setCurrentAudioScene((current) => {
@@ -132,10 +109,6 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
       // close losding box
       setLoading({ loading: false });
     });
-
-    return () => {
-      canAudioScenesFetchedCauseAReRender = false;
-    };
   }, []);
 
   /**
@@ -178,10 +151,10 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
 
   return (
     <>
-      {audioScenesCache && audioScenesCache.length === 0 && (
+      {audioScenes && audioScenes.length === 0 && (
         <Typography>No scenes discovered on the bees...</Typography>
       )}
-      {audioScenesCache && audioScenesCache.length > 0 && (
+      {audioScenes && audioScenes.length > 0 && (
         <Z3PageContentSidebar
           sidebar={
             <SimpleTreeviewSidebar

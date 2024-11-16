@@ -37,7 +37,7 @@ export const AddBeeModal = ({
         validationSchema={Yup.object().shape({
           id: Yup.number()
             .min(1, "The minimun amount of bee number is 1")
-            .max(30, "The maximum amount of channels is 30")
+            .max(149, "The maximum amount of channels is 30")
             .required("The number of a bee is required"),
           name: Yup.string().required("A name is required"),
           ipAddress: Yup.string()

@@ -15,7 +15,7 @@ import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import BeeSsh from "../lib/KweenB/BeeSsh";
-import Bee from "../models/Bee";
+import { Bee } from "../models";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
 import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
