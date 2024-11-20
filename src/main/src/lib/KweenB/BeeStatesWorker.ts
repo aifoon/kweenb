@@ -276,29 +276,40 @@ class BeeStatesWorker {
             }
           });
 
-          // get the composite keys, these are the combination of keys inside
-          // the audio scenes that are unique
-          const compositeKeys = audioScenesForDatabase.map((scene) => ({
-            localFolderPath: scene.localFolderPath,
-            beeId: scene.beeId,
-          }));
-
           // create the audio scenes
           AudioSceneDB.bulkCreate(audioScenesForDatabase, {
             updateOnDuplicate: ["localFolderPath", "beeId"],
-          }).then(() => {
-            // extract the composite key values (localFolderPath, beeId) from the new list
-            // delete the records that are not in the new list
-            AudioSceneDB.destroy({
-              where: {
-                [Op.not]: [
-                  {
-                    [Op.or]: compositeKeys, // Records to keep
+          })
+            .then(() => {
+              // get all the audio scenes from the database
+              AudioSceneDB.findAll().then((values) => {
+                // get a list of audio scenes that are in the database but not in the new list
+                const audioScenesToDelete = values.filter(
+                  (scene) =>
+                    !audioScenesForDatabase.some(
+                      (newScene) =>
+                        newScene.localFolderPath === scene.localFolderPath &&
+                        newScene.beeId === scene.beeId
+                    )
+                );
+
+                // validate if there are any scenes to delete
+                if (audioScenesToDelete.length === 0) return;
+
+                // destroy the audio scenes
+                AudioSceneDB.destroy({
+                  where: {
+                    [Op.or]: audioScenesToDelete.map((scene) => ({
+                      beeId: scene.beeId,
+                      localFolderPath: scene.localFolderPath,
+                    })),
                   },
-                ],
-              },
+                });
+              });
+            })
+            .catch((e) => {
+              console.error(e);
             });
-          });
         });
     } catch (e) {
       console.error(e);

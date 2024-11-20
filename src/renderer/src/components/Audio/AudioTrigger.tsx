@@ -209,41 +209,43 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                 </Button>
               </ButtonGroup>
             </Grid>
-            {currentAudioScene?.foundOnBees.map((bee) => (
-              <Grid
-                key={`control_bee_${bee.id}`}
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                xl={2}
-              >
-                <ButtonGroup fullWidth>
-                  <Button
-                    onClick={() =>
-                      window.kweenb.methods.startAudio(
-                        bee,
-                        currentAudioScene.oscAddress
-                      )
-                    }
-                    variant="contained"
-                    color="primary"
-                  >
-                    {bee.name}
-                  </Button>
-                  <Button
-                    onClick={() => window.kweenb.methods.stopAudio(bee)}
-                    style={{ width: "20%" }}
-                    variant="contained"
-                    size="small"
-                    color="secondary"
-                  >
-                    <StopIcon />
-                  </Button>
-                </ButtonGroup>
-              </Grid>
-            ))}
+            {currentAudioScene?.foundOnBees
+              .sort((a, b) => a.id - b.id)
+              .map((bee) => (
+                <Grid
+                  key={`control_bee_${bee.id}`}
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  xl={2}
+                >
+                  <ButtonGroup fullWidth>
+                    <Button
+                      onClick={() =>
+                        window.kweenb.methods.startAudio(
+                          bee,
+                          currentAudioScene.oscAddress
+                        )
+                      }
+                      variant="contained"
+                      color="primary"
+                    >
+                      {bee.name}
+                    </Button>
+                    <Button
+                      onClick={() => window.kweenb.methods.stopAudio(bee)}
+                      style={{ width: "20%" }}
+                      variant="contained"
+                      size="small"
+                      color="secondary"
+                    >
+                      <StopIcon />
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+              ))}
           </Grid>
         </Z3PageContentSidebar>
       )}
