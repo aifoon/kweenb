@@ -1,6 +1,6 @@
 ---
-name: 12 Bees
-description: Audio preset for 12 bees
+name: high latency
+description: Audio preset for high latency (12 bees)
 appMode: p2p
 maxAllowedBees: -1
 bee:

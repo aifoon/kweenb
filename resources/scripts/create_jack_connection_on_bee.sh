@@ -46,9 +46,14 @@ connect_and_execute() {
     local BEE_ID="bee${LAST_OCTET: -2}"  # Use last two digits of last octet as a string
     local FULL_COMMAND="$BASE_COMMAND $BEE_ID:receive_1 pure_data:input_1"
 
-    # Perform SSH and run the command
-    ssh -i "$PRIVATE_KEY_PATH" -o StrictHostKeyChecking=no -o ControlMaster=auto \
-        -o ControlPath="/tmp/%r@%h:%p" -o ControlPersist=5m "$USER@$IP" "$FULL_COMMAND" >/dev/null 2>&1
+    # Perform SSH and run the command with no fingerprint prompt
+    ssh -i "$PRIVATE_KEY_PATH" \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o ControlMaster=auto \
+        -o ControlPath="/tmp/%r@%h:%p" \
+        -o ControlPersist=5m \
+        "$USER@$IP" "$FULL_COMMAND" >/dev/null 2>&1
 }
 
 # Run the connect_and_execute function in parallel for each IP

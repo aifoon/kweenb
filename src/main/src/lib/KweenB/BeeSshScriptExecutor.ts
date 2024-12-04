@@ -6,6 +6,7 @@
 import { IBee } from "@shared/interfaces";
 import { resourcesPath } from "@shared/resources";
 import { exec } from "child_process";
+import * as log from "electron-log";
 
 interface CLIParam {
   flag: string;
@@ -13,10 +14,12 @@ interface CLIParam {
 }
 
 export default class BeeSshScriptExecutor {
-  private privateKeyPath: string;
+  public privateKeyPath: string;
 
   constructor() {
-    this.privateKeyPath = `${resourcesPath}/kweenb.key`;
+    // @todo - this should be a config setting
+    // this.privateKeyPath = `${resourcesPath}/kweenb.key`;
+    this.privateKeyPath = `~/.ssh/kweenb`;
   }
 
   /**
@@ -73,7 +76,6 @@ export default class BeeSshScriptExecutor {
         const command = `${resourcesPath}/scripts/${script} -k ${
           this.privateKeyPath
         } ${bees.map((b) => b.ipAddress).join(" ")}`;
-
         exec(command, (error: any, stdout: any, stderr: any) => {
           if (error || stderr) {
             reject(error as T);
@@ -83,7 +85,6 @@ export default class BeeSshScriptExecutor {
         });
       });
     } catch (error) {
-      console.error("Error executing script:", error);
       throw error;
     }
   }

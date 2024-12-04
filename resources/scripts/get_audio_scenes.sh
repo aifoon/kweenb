@@ -33,7 +33,7 @@ TEMP_DIR=$(mktemp -d)
 # Fetch JSON data from each device
 for IP in "${IPS[@]}"; do
     {
-        scp -q -o ConnectTimeout=$CONNECTION_TIMEOUT -i "$PRIVATE_KEY_PATH" "pi@$IP:$REMOTE_JSON_PATH" "$TEMP_DIR/audioscenes_index_$IP.json" 2>/dev/null
+        scp -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=$CONNECTION_TIMEOUT -i "$PRIVATE_KEY_PATH" "pi@$IP:$REMOTE_JSON_PATH" "$TEMP_DIR/audioscenes_index_$IP.json" 2>/dev/null
     } &
 done
 

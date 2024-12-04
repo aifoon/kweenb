@@ -1,6 +1,6 @@
 ---
-name: 4 Bees
-description: Audio preset for 4 bees
+name: very low latency
+description: Audio preset for very low latency (4 bees)
 appMode: p2p
 maxAllowedBees: -1
 bee:

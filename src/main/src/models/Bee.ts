@@ -74,6 +74,6 @@ Bee.init(
 /**
  * Sync the bee table
  */
-Bee.sync({ alter: true });
+Bee.sync();
 
 export default Bee;

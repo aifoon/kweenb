@@ -21,7 +21,7 @@ Setting.init(
     },
     value: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {
@@ -40,6 +40,6 @@ Setting.init(
 /**
  * Sync the settings table
  */
-Setting.sync({ alter: true });
+Setting.sync();
 
 export default Setting;

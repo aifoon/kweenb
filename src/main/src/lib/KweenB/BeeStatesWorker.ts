@@ -9,11 +9,12 @@ import {
 import { BeeStates } from "../Dictionaries";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
-import { IBee } from "@shared/interfaces";
+import { IBee, AudioScene } from "@shared/interfaces";
 import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 import { AudioScene as AudioSceneDB } from "../../models";
-import Database from "../../database";
 import { Op } from "sequelize";
+import { fsync } from "fs";
+import * as log from "electron-log";
 
 interface SshOutputState {
   ipAddress: string;
@@ -252,10 +253,20 @@ class BeeStatesWorker {
       // validate
       if (!this._allBees) return;
 
+      // create a new bee ssh script executer
+      const beeSshScriptExecuter = new BeeSshScriptExecutor();
+
       // execute the script
-      new BeeSshScriptExecutor()
+      beeSshScriptExecuter
         .executeWithOutput<string>("get_audio_scenes.sh", this._allBees)
         .then((output) => {
+          // log.info("KeyPath:");
+          // log.info(beeSshScriptExecuter.privateKeyPath);
+          // log.info("Bee:");
+          // log.info(this._allBees);
+          // log.info("Audio scenes output:");
+          // log.info(output);
+
           // validate
           if (!output) return;
 
@@ -282,36 +293,37 @@ class BeeStatesWorker {
           })
             .then(() => {
               // get all the audio scenes from the database
-              AudioSceneDB.findAll().then((values) => {
-                // get a list of audio scenes that are in the database but not in the new list
-                const audioScenesToDelete = values.filter(
-                  (scene) =>
-                    !audioScenesForDatabase.some(
-                      (newScene) =>
-                        newScene.localFolderPath === scene.localFolderPath &&
-                        newScene.beeId === scene.beeId
-                    )
-                );
-
-                // validate if there are any scenes to delete
-                if (audioScenesToDelete.length === 0) return;
-
-                // destroy the audio scenes
-                AudioSceneDB.destroy({
-                  where: {
-                    [Op.or]: audioScenesToDelete.map((scene) => ({
-                      beeId: scene.beeId,
-                      localFolderPath: scene.localFolderPath,
-                    })),
-                  },
-                });
-              });
+              // AudioSceneDB.findAll().then((values) => {
+              //   // get a list of audio scenes that are in the database but not in the new list
+              //   const audioScenesToDelete = values.filter(
+              //     (scene) =>
+              //       !audioScenesForDatabase.some(
+              //         (newScene) =>
+              //           newScene.localFolderPath ===
+              //             scene.dataValues.localFolderPath &&
+              //           newScene.beeId === scene.dataValues.beeId
+              //       )
+              //   );
+              //   // validate if there are any scenes to delete
+              //   if (audioScenesToDelete.length === 0) return;
+              //   // destroy the audio scenes
+              //   AudioSceneDB.destroy({
+              //     where: {
+              //       [Op.or]: audioScenesToDelete.map((scene) => ({
+              //         beeId: scene.beeId,
+              //         localFolderPath: scene.localFolderPath,
+              //       })),
+              //     },
+              //   });
+              // });
             })
             .catch((e) => {
+              // log.info(e);
               console.error(e);
             });
         });
     } catch (e) {
+      // log.info(e);
       console.error(e);
     }
   }

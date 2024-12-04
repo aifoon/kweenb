@@ -12,7 +12,6 @@ import {
   disconnectChannel,
   Zwerm3Jack,
 } from "@zwerm3/jack";
-// import * as log from "electron-log";
 import { AppMode, BeeActiveState } from "@shared/enums";
 import { IBee } from "@shared/interfaces";
 import fs from "fs";

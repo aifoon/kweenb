@@ -43,7 +43,11 @@ FULL_PATH="$BASE_PATH/$DIRECTORY_TO_REMOVE"
 # Function to remove directory on a remote device
 remove_directory() {
     local device=$1
-    ssh -o ConnectTimeout=$SSH_TIMEOUT -i "$PRIVATE_KEY_PATH" "pi@$device" "rm -rf \"$FULL_PATH\"" </dev/null &>/dev/null &
+    ssh -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o ConnectTimeout=$SSH_TIMEOUT \
+        -i "$PRIVATE_KEY_PATH" \
+        "pi@$device" "rm -rf \"$FULL_PATH\"" </dev/null &>/dev/null &
 }
 
 # Iterate over devices and process in parallel
