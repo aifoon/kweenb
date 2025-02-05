@@ -300,7 +300,7 @@ const getAudioScenesForBees = async (
     const bee = beeArray.find((b) => b.id === beeId);
     if (bee) sceneMap[localFolderPath].foundOnBees.push(bee);
   });
-  console.log(Object.values(sceneMap));
+
   // Convert the map to an array
   return Object.values(sceneMap);
 };

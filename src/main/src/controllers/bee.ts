@@ -107,14 +107,22 @@ export const deleteAudio = async (
 
     // if we need to delete on all bees, delete the file on all bees
     if (deleteOnAllBees) {
-      const bees = await BeeHelpers.getAllBees(BeeActiveState.ALL);
+      const onlineBees = (
+        await BeeHelpers.getAllBees(BeeActiveState.ALL)
+      ).filter((bee) => bee.isOnline);
+
+      // DEBUG 05/02
+      // Check if this script is working??
+      // You receive the bees but the shell script is not working
+      console.log(onlineBees);
+
       await new BeeSshScriptExecutor().executeWithNoOutput(
         "remove_folders_on_bees.sh",
-        bees.filter((bee) => bee.isOnline),
+        onlineBees,
         [{ flag: "-d", value: path }]
       );
       await Promise.all(
-        bees.map(async (bee) => {
+        onlineBees.map(async (bee) => {
           await AudioScene.destroy({
             where: { localFolderPath: path, beeId: bee.id },
           });
@@ -769,7 +777,7 @@ export const uploadAudioFiles = async (
           sftp.end();
 
           // add the audio scene to the database
-          AudioScene.create({
+          await AudioScene.upsert({
             name,
             oscAddress: `${legalName}/audio.wav`,
             localFolderPath: remoteDirectory,

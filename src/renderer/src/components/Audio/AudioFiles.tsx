@@ -10,7 +10,7 @@ import { Card } from "@components/Cards";
 import { useAppStore, useBeeStore, useConfirmation } from "@renderer/src/hooks";
 import { Box, Typography, Button } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
-import { ConfirmModal } from "@components/Modals/ConfirmModal";
+import { DeleteAudioScenes } from "../Modals";
 
 type AudioFilesProps = {};
 
@@ -27,11 +27,8 @@ export const AudioFiles = (props: AudioFilesProps) => {
   const [selectedBee, setSelectedBee] = useState<IBee | null>(null);
   const [currentAudioFiles, setCurrentAudioFiles] = useState<AudioFile[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const {
-    open: openDeleteSceneConfirmModal,
-    handleOpen: handleDeleteSceneConfirmModal,
-    handleClose: handleCloseDeleteSceneModal,
-  } = useConfirmation<{}>(false, {});
+  const [isDeleteAudioScenesOpen, handleIsDeleteAudioScenesOpen] =
+    useState(false);
 
   // handle selected items
   const handleSelectedItemsChange = (
@@ -62,6 +59,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
   // delete the audio files
   const deleteAudio = useCallback(
     async (deleteOnAllBees: boolean) => {
+      console.log("deleting audio files");
       if (selectedItems.length === 0) return;
       else {
         if (selectedBee === null) return;
@@ -74,8 +72,8 @@ export const AudioFiles = (props: AudioFilesProps) => {
             );
           })
         ).then(() => {
+          setSelectedItems([]);
           loadAudioFiles(selectedBee);
-          handleCloseDeleteSceneModal();
         });
       }
     },
@@ -94,14 +92,14 @@ export const AudioFiles = (props: AudioFilesProps) => {
 
   return (
     <>
-      <ConfirmModal
-        message="Do you want to remove selected scenes if found on multiple bees?"
-        open={openDeleteSceneConfirmModal}
+      <DeleteAudioScenes
+        open={isDeleteAudioScenesOpen}
         onClose={() => {
-          deleteAudio(false);
+          handleIsDeleteAudioScenesOpen(false);
         }}
-        onConfirm={() => {
-          deleteAudio(true);
+        onConfirm={(deleteOnAllBees) => {
+          handleIsDeleteAudioScenesOpen(false);
+          deleteAudio(deleteOnAllBees);
         }}
       />
       <Box display={"flex"} gap={2} flexDirection={"column"}>
@@ -113,7 +111,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
               color="secondary"
               key="delete_forever"
               disabled={selectedItems.length === 0}
-              onClick={() => handleDeleteSceneConfirmModal(true)}
+              onClick={() => handleIsDeleteAudioScenesOpen(true)}
             >
               <DeleteForeverIcon style={{ fontSize: ".8rem" }} />
             </Button>
