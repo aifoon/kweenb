@@ -22,15 +22,17 @@
     "declaration": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "outDir": "../dist", // added this to ignore errors
     "paths": {
       "@components/*": ["components/*"],
       "@renderer/*": ["renderer/*"],
       "@shared/*": ["shared/*"],
       "@seeds/*": ["seeds/*"]
-    },
+    }
   },
   "exclude": [
     "node_modules",
     "scripts/*.js",
+    "interface/vite.config.js"
   ]
 }

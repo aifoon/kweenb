@@ -134,13 +134,13 @@ const setupInterfacePackageWatcher = ({ ws }) =>
      * The interface application for touch screen devices
      */
 
-    // const viteDevServerInterface = await createServer({
-    //   ...sharedConfig,
-    //   root: `${__dirname}/../src/main/public/webserver`,
-    //   configFile: "src/interface/vite.config.js",
-    // });
-    // await viteDevServerInterface.listen();
-    // await setupInterfacePackageWatcher(viteDevServerInterface);
+    const viteDevServerInterface = await createServer({
+      ...sharedConfig,
+      root: `${__dirname}/../src/main/public/webserver`,
+      configFile: "src/interface/vite.config.js",
+    });
+    await viteDevServerInterface.listen();
+    await setupInterfacePackageWatcher(viteDevServerInterface);
   } catch (e) {
     console.error(e);
     process.exit(1);

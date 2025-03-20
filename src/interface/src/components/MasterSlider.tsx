@@ -1,16 +1,28 @@
 import { NumberSlider } from "@components/Slider";
-import { Box, Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import React, { useState, useEffect, useCallback } from "react";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import {
+  Box,
+  Button,
+  ToggleButton,
+  ToggleButtonGroup,
+  ButtonGroup,
+} from "@mui/material";
+import React, { useState, useEffect } from "react";
+
 import { useAppStore } from "../hooks/useAppStore";
-import StopIcon from "@mui/icons-material/Stop";
 import styled from "styled-components";
-import LoopIcon from "@mui/icons-material/Loop";
 import { useAppPersistentStorage } from "../hooks/useAppPersistentStorage";
 import { useSocket } from "../hooks/useSocket";
 import { PDAudioParam } from "@shared/enums";
+import {
+  PlayArrow as PlayIcon,
+  Loop as LoopIcon,
+  VolumeUp as VolumeUpIcon,
+  Stop as StopIcon,
+} from "@mui/icons-material";
 
-type MasterSliderProps = {};
+type MasterSliderProps = {
+  type?: "singleBees" | "sceneTrigger";
+};
 
 const MasterSliderContainer = styled(Box)`
   display: flex;
@@ -49,7 +61,7 @@ const MasterSliderGrid = styled(Box)`
   }
 `;
 
-export const MasterSlider = (props: MasterSliderProps) => {
+export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
   /**
    * Get the states and functions from the useAppStore hook
    */
@@ -152,7 +164,7 @@ export const MasterSlider = (props: MasterSliderProps) => {
               }}
             />
           </Box>
-          <Box display={"grid"} gap={1} gridTemplateColumns="1fr 1fr">
+          <Box display="grid" gap={1} gridTemplateColumns="1fr 1fr">
             <ToggleButtonGroup
               fullWidth={true}
               size="small"
@@ -190,21 +202,75 @@ export const MasterSlider = (props: MasterSliderProps) => {
                 HIGH
               </ToggleButton>
             </ToggleButtonGroup>
-            <Box display="flex" gap={1} maxWidth="100%">
-              <Button
-                sx={{ padding: 0, minWidth: "auto" }}
-                fullWidth={true}
-                security="small"
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  sendToServerWithoutResponse("stopAudio", {
-                    bees: currentSwarm,
-                  });
-                }}
-              >
-                <StopIcon />
-              </Button>
+            <Box display="grid" gridTemplateColumns={"1fr 0.5fr"} gap={1}>
+              {/* On the single bees page */}
+              {type === "singleBees" && (
+                <ButtonGroup>
+                  <Button
+                    sx={{ padding: 0, minWidth: "auto" }}
+                    fullWidth={true}
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      console.log("beeAudioScenes", beeAudioScenes);
+                      sendToServerWithoutResponse("startAudioMultiple", {
+                        data: beeAudioScenes
+                          .filter((beeAudioScene) => {
+                            return beeAudioScene.audioScene !== undefined;
+                          })
+                          .map((beeAudioScene) => {
+                            return {
+                              scene: beeAudioScene.audioScene,
+                              bee: beeAudioScene.bee,
+                            };
+                          }),
+                      });
+                    }}
+                  >
+                    <PlayIcon />
+                  </Button>
+                  <Box
+                    sx={{
+                      width: "1px",
+                      backgroundColor: "var(--primary-300)",
+                      margin: "0 2px",
+                    }}
+                  />
+                  <Button
+                    sx={{ padding: 0, minWidth: "auto" }}
+                    fullWidth={true}
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      sendToServerWithoutResponse("stopAudio", {
+                        bees: currentSwarm,
+                      });
+                    }}
+                  >
+                    <StopIcon />
+                  </Button>
+                </ButtonGroup>
+              )}
+              {/* On the scene trigger page */}
+              {type === "sceneTrigger" && (
+                <Button
+                  sx={{ padding: 0, minWidth: "auto" }}
+                  fullWidth={true}
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    sendToServerWithoutResponse("stopAudio", {
+                      bees: currentSwarm,
+                    });
+                  }}
+                >
+                  <StopIcon />
+                </Button>
+              )}
+
               <Button
                 sx={{ padding: 0, minWidth: "auto" }}
                 fullWidth={true}

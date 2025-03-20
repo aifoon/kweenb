@@ -8,6 +8,7 @@ import {
 import { TriggerSceneCard } from "../../Cards/TriggerSceneCard";
 import { useAppStore } from "../../../hooks/useAppStore";
 import styled from "styled-components";
+import { MasterSlider } from "../../MasterSlider";
 
 type SceneTriggerProps = {};
 
@@ -104,6 +105,7 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
           </Grid>
         )}
       </SceneTriggerContainer>
+      <MasterSlider type="sceneTrigger" />
     </>
   );
 };

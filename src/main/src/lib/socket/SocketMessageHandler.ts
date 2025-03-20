@@ -2,7 +2,7 @@
  * This class is used to handle the messages coming from the socket
  */
 
-import { IBee, SocketMessage } from "@shared/interfaces";
+import { AudioScene, IBee, SocketMessage } from "@shared/interfaces";
 import { SocketSingleton } from "./SocketSingleton";
 import BeeHelpers from "../KweenB/BeeHelpers";
 import { BeeActiveState } from "@shared/enums";
@@ -143,15 +143,37 @@ export class SocketMessageHandler {
 
   /**
    * Start audio on bees
+   * Note: we have an AudioScene to play on one or more bees
    * @param param0
    */
   public static async handleMessageStartAudio({ json }: SocketHandlerParams) {
     try {
-      // get the volume and the bees
+      // get the scenes and the bees
       const { scene, bees } = json;
 
-      // loop over bees and set the volume
+      // loop over bees and start audio
       await BeeHelpers.startAudio(bees, scene.oscAddress);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Start audio on multiple bees
+   * Note: we have a list of multiple AudioScenes to play on one bee
+   * @param param0
+   */
+  public static async handleMessageStartAudioMultiple({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // get the scenes and the bees
+      const { data }: { data: { scene: AudioScene; bee: IBee }[] } = json;
+
+      // loop over the data
+      for (const { scene, bee } of data) {
+        await BeeHelpers.startAudio(bee, scene.oscAddress);
+      }
     } catch (error) {
       console.error(error);
     }

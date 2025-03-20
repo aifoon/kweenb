@@ -7,7 +7,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ButtonGroup } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import { useAppStore, useBeeStore, useConfirmation } from "@renderer/src/hooks";
+import { useAppStore, useBeeStore } from "@renderer/src/hooks";
 import { Box, Typography, Button } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
 import { DeleteAudioScenes } from "../Modals";

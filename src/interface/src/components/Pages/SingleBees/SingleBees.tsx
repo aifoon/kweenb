@@ -6,7 +6,7 @@ import { useApp } from "../../../hooks/useApp";
 import { useAppPersistentStorage } from "../../../hooks/useAppPersistentStorage";
 import { IBee } from "@shared/interfaces";
 import styled from "styled-components";
-import { Loader } from "@components/Loader";
+import { MasterSlider } from "../../MasterSlider";
 
 const SingleBeeCardContainer = styled(Box)`
   padding-bottom: 75px;
@@ -48,24 +48,31 @@ export const SingleBees = () => {
   const { loading } = useApp();
 
   return (
-    <SingleBeeCardContainer>
-      {!loading && currentBees.length === 0 && (
-        <Box>
-          <Typography>
-            The swarm does not contain bees. Please selected one or more in the
-            main kweenb application.
-          </Typography>
-        </Box>
-      )}
-      {!loading && currentBees.length > 0 && (
-        <Grid container spacing={2}>
-          {currentBees.map((bee: IBee) => (
-            <Grid key={bee.name} item xs={12} sm={6} md={4} lg={3} xl={2}>
-              <SingleBeeCard bee={bee} volume={masterVolume} title={bee.name} />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </SingleBeeCardContainer>
+    <>
+      <SingleBeeCardContainer>
+        {!loading && currentBees.length === 0 && (
+          <Box>
+            <Typography>
+              The swarm does not contain bees. Please selected one or more in
+              the main kweenb application.
+            </Typography>
+          </Box>
+        )}
+        {!loading && currentBees.length > 0 && (
+          <Grid container spacing={2}>
+            {currentBees.map((bee: IBee) => (
+              <Grid key={bee.name} item xs={12} sm={6} md={4} lg={3} xl={2}>
+                <SingleBeeCard
+                  bee={bee}
+                  volume={masterVolume}
+                  title={bee.name}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </SingleBeeCardContainer>
+      <MasterSlider type="singleBees" />
+    </>
   );
 };

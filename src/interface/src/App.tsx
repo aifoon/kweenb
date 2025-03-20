@@ -24,7 +24,6 @@ function App() {
                   <Route path="/" element={<SingleBees />} />
                   <Route path="/scene-trigger" element={<SceneTrigger />} />
                 </Routes>
-                <MasterSlider />
               </Z3Page>
             </>
           </HydrationHelper>
