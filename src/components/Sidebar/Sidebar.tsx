@@ -4,6 +4,8 @@ import sidebarLogo from "../images/sidebar-logo.png";
 import { SidebarButtonProps } from "./SidebarButton";
 import { SidebarBadgeProps } from "./SidebarStatusBadge";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
+import kweenb from "preload/src/methods/kweenb";
 
 interface SidebarProps {
   badges?: ReactElement<SidebarBadgeProps>[];
@@ -11,7 +13,6 @@ interface SidebarProps {
   width?: string;
   height?: string;
   fixedToSide?: boolean;
-  versionNumber?: string;
   collapseble?: boolean;
 }
 
@@ -76,18 +77,27 @@ const SidebarButtonsWrapper = styled.div`
   }
 `;
 
-const SidebarLogoWrapper = styled.div`
+const SidebarLogoWrapper = styled.div<{
+  hasConnectionWithPhysicalSwarm?: boolean;
+}>`
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: flex-end;
   opacity: 0.5;
   & > img {
     width: 80px;
   }
-  & > .version {
-    font-size: 0.8rem;
-  }
+  ${({ hasConnectionWithPhysicalSwarm }) =>
+    hasConnectionWithPhysicalSwarm
+      ? `flex-direction: auto;
+        align-items: flex-end;`
+      : `
+        flex-direction: column;
+        align-items: center;
+        & > .kweenb-state {
+          font-size: 0.8rem;
+          text-align: center;
+    `}}
 `;
 
 export const Sidebar = ({
@@ -97,7 +107,6 @@ export const Sidebar = ({
   width = "200px",
   height = "200px",
   fixedToSide = false,
-  versionNumber = "",
 }: SidebarProps) => (
   <SidebarWrapper width={width} height={height} fixedToSide={fixedToSide}>
     <SidebarContainer collapseble={collapseble}>
@@ -118,11 +127,15 @@ export const Sidebar = ({
           </SidebarButtonsWrapper>
         )}
       </div>
-      <SidebarLogoWrapper>
+      <SidebarLogoWrapper
+        hasConnectionWithPhysicalSwarm={HAS_CONNECTION_WITH_PHYSICAL_SWARM}
+      >
         <div>
           <img src={sidebarLogo} alt="Sidebar Logo" />
         </div>
-        {versionNumber && <div className="version">v{versionNumber}</div>}
+        {!HAS_CONNECTION_WITH_PHYSICAL_SWARM && (
+          <div className="kweenb-state">NO CONNECTION TO PHYSICAL SWARM</div>
+        )}
       </SidebarLogoWrapper>
     </SidebarContainer>
   </SidebarWrapper>
