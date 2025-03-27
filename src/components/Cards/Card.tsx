@@ -14,12 +14,12 @@ interface CardProps {
   children?: React.ReactNode;
   className?: string;
   introduction?: string;
-  variant?: "normal" | "small" | "extraSmall";
+  variant?: "noPadding" | "normal" | "small" | "extraSmall";
   statusBullet?: ReactElement<StatusBulletProps>;
 }
 
 type CardVariantProps = {
-  variant: "normal" | "small" | "extraSmall";
+  variant: "noPadding" | "normal" | "small" | "extraSmall";
 };
 
 const CardWrapper = styled.div`
@@ -31,6 +31,7 @@ const CardInnerWrapper = styled(Box)<CardVariantProps>`
   padding: ${(props) => {
     if (props.variant === "extraSmall") return "10px";
     else if (props.variant === "small") return "10px 15px";
+    else if (props.variant === "noPadding") return "0";
     return "20px";
   }}};
   div:not(.MuiGrid-root):last-child {
@@ -42,6 +43,12 @@ const CardHeaderWrapper = styled(CardInnerWrapper)`
   display: grid;
   justify-content: space-between;
   grid-template-columns: 1fr auto;
+   padding: ${(props) => {
+     if (props.variant === "extraSmall") return "10px";
+     else if (props.variant === "small") return "10px 15px";
+     else if (props.variant === "noPadding") return "10px";
+     return "20px";
+   }}};
   background-color: var(--primary-400);
   border-bottom: 1px solid var(--primary-100);
   border-radius: var(--radiusLarge) var(--radiusLarge) 0 0;

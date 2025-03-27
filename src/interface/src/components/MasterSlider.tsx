@@ -19,6 +19,8 @@ import {
   VolumeUp as VolumeUpIcon,
   Stop as StopIcon,
   Clear as ClearIcon,
+  Add as AddIcon,
+  Remove as RemoveIcon,
 } from "@mui/icons-material";
 
 type MasterSliderProps = {
@@ -44,7 +46,7 @@ const MasterSliderInnerContainer = styled(Box)`
   padding: 7px 15px;
   width: 100%;
   @media screen and (max-width: 480px) {
-    padding: 7px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
   }
 `;
 
@@ -53,11 +55,11 @@ const MasterSliderGrid = styled(Box)`
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
   width: 100%;
-  gap: 24px;
+  gap: 10px;
   @media screen and (max-width: 480px) {
     grid-template-columns: 1fr;
     grid-template-rows: repeat(2, 1fr);
-    gap: 0;
+    gap: 2;
     width: 100%;
   }
 `;
@@ -101,6 +103,10 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
     (state) => state.setSelectedInterfaceComposition
   );
 
+  const selectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.selectedInterfaceComposition
+  );
+
   // set the looping state
   const [oneOrMoreBeesAreLooping, setOneOrMoreBeesAreLooping] = useState(
     beeAudioScenes.some((beeAudioScene) => beeAudioScene.isLooping)
@@ -117,15 +123,114 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
   /**
    * Reusable function to set all bees to looping state
    */
+  const removeAllBeeAudioScenes = () => {
+    const bees = beeAudioScenes.map((beeAudioScene) => {
+      return beeAudioScene.bee;
+    });
+    sendToServerWithoutResponse("stopAudio", {
+      bees,
+    });
+    removeAllAudioScenes();
+    setSelectedInterfaceComposition(undefined);
+  };
 
   const setAllBeesToLoopingState = (isLooping: boolean) => {
-    const updatedBeeAudioScenes = beeAudioScenes.map((beeAudioScene) => {
-      return {
-        ...beeAudioScene,
-        isLooping,
-      };
+    // 1. Update local component state
+    setOneOrMoreBeesAreLooping(isLooping);
+
+    // 2. Send update to server for all bees in the swarm
+    sendToServerWithoutResponse("setParamOfBees", {
+      type: PDAudioParam.FILE_LOOP,
+      value: isLooping,
+      bees: currentSwarm,
     });
+
+    // 3. Update all bee audio scenes with new looping state
+    const updatedBeeAudioScenes = beeAudioScenes.map((beeAudioScene) => ({
+      ...beeAudioScene,
+      isLooping,
+    }));
+
+    // 4. Update the state with the modified scenes
     swapAllBeeAudioScenes(updatedBeeAudioScenes);
+
+    // 5. If there's a selected composition, update its bee looping states on the server
+    if (selectedInterfaceComposition) {
+      const updatedBeeAudioScenesWithAudioScene = updatedBeeAudioScenes.filter(
+        (beeAudioScene) => beeAudioScene.audioScene !== undefined
+      );
+      sendToServerWithoutResponse(
+        "updateMultipleInterfaceCompositionBeeLooping",
+        {
+          interfaceCompositions: updatedBeeAudioScenesWithAudioScene.map(
+            (beeAudioScene) => ({
+              interfaceCompositionId: selectedInterfaceComposition.id,
+              beeId: beeAudioScene.bee.id,
+              isLooping,
+            })
+          ),
+        }
+      );
+    }
+  };
+
+  const setParamOfBees = (value: number, type: PDAudioParam) => {
+    sendToServerWithoutResponse("setParamOfBees", {
+      type: selectedPDAudioParam,
+      value,
+      bees: currentSwarm,
+    });
+    switch (selectedPDAudioParam) {
+      case PDAudioParam.VOLUME:
+        setMasterVolume(value);
+        break;
+      case PDAudioParam.LOW:
+        setMasterLow(value);
+        break;
+      case PDAudioParam.HIGH:
+        setMasterHigh(value);
+        break;
+      default:
+        setMasterVolume(value);
+        break;
+    }
+  };
+
+  const startAudio = () => {
+    sendToServerWithoutResponse("startAudioMultiple", {
+      data: beeAudioScenes
+        .filter((beeAudioScene) => {
+          return beeAudioScene.audioScene !== undefined;
+        })
+        .map((beeAudioScene) => {
+          return {
+            scene: beeAudioScene.audioScene,
+            bee: beeAudioScene.bee,
+          };
+        }),
+    });
+  };
+
+  const stopAudio = () => {
+    sendToServerWithoutResponse("stopAudio", {
+      bees: currentSwarm,
+    });
+  };
+
+  const paramUp = () => {
+    const maxValue = selectedPDAudioParam === PDAudioParam.VOLUME ? 100 : 2;
+    const increment = selectedPDAudioParam === PDAudioParam.VOLUME ? 10 : 0.1;
+    const newValue = Math.min(sliderValue + increment, maxValue);
+    setSliderValue(newValue);
+    setParamOfBees(newValue, selectedPDAudioParam);
+  };
+
+  const paramDown = () => {
+    const minValue = selectedPDAudioParam === PDAudioParam.VOLUME ? 0 : 0.1;
+    const decrement = selectedPDAudioParam === PDAudioParam.VOLUME ? 10 : 0.1;
+    const newValue = Math.max(sliderValue - decrement, minValue);
+    setSliderValue(newValue);
+    setParamOfBees(newValue, selectedPDAudioParam);
   };
 
   /**
@@ -142,7 +247,13 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
     <MasterSliderContainer paddingTop={3}>
       <MasterSliderInnerContainer>
         <MasterSliderGrid alignItems="center">
-          <Box sx={{ padding: "0px 10px" }}>
+          <Box
+            sx={{ padding: "0 0 0 10px" }}
+            display={"grid"}
+            gap={2}
+            gridTemplateColumns={"1fr 100px"}
+            alignItems={"center"}
+          >
             <NumberSlider
               step={selectedPDAudioParam === "volume" ? 1 : 0.1}
               min={0}
@@ -152,27 +263,34 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
               marginBottom="0"
               onChangeCommitted={(value) => {
                 setSliderValue(value);
-                sendToServerWithoutResponse("setParamOfBees", {
-                  type: selectedPDAudioParam,
-                  value,
-                  bees: currentSwarm,
-                });
-                switch (selectedPDAudioParam) {
-                  case PDAudioParam.VOLUME:
-                    setMasterVolume(value);
-                    break;
-                  case PDAudioParam.LOW:
-                    setMasterLow(value);
-                    break;
-                  case PDAudioParam.HIGH:
-                    setMasterHigh(value);
-                    break;
-                  default:
-                    setMasterVolume(value);
-                    break;
-                }
+                setParamOfBees(value, selectedPDAudioParam);
               }}
             />
+            <Box
+              display={"grid"}
+              justifyContent={"flex-end"}
+              gridTemplateColumns={"repeat(2, 1fr)"}
+              gap={1}
+            >
+              <Button
+                sx={{ minWidth: "auto" }}
+                color="secondary"
+                variant="outlined"
+                size="small"
+                onClick={paramDown}
+              >
+                <RemoveIcon />
+              </Button>
+              <Button
+                sx={{ minWidth: "auto" }}
+                color="secondary"
+                variant="outlined"
+                size="small"
+                onClick={paramUp}
+              >
+                <AddIcon />
+              </Button>
+            </Box>
           </Box>
           <Box display="grid" gap={1} gridTemplateColumns="1fr 1fr">
             <ToggleButtonGroup
@@ -217,25 +335,12 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
               {type === "singleBees" && (
                 <ButtonGroup>
                   <Button
-                    sx={{ padding: 0, minWidth: "auto" }}
+                    sx={{ minWidth: "auto" }}
                     fullWidth={true}
                     size="small"
                     variant="contained"
                     color="primary"
-                    onClick={() => {
-                      sendToServerWithoutResponse("startAudioMultiple", {
-                        data: beeAudioScenes
-                          .filter((beeAudioScene) => {
-                            return beeAudioScene.audioScene !== undefined;
-                          })
-                          .map((beeAudioScene) => {
-                            return {
-                              scene: beeAudioScene.audioScene,
-                              bee: beeAudioScene.bee,
-                            };
-                          }),
-                      });
-                    }}
+                    onClick={startAudio}
                   >
                     <PlayIcon />
                   </Button>
@@ -247,16 +352,12 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
                     }}
                   />
                   <Button
-                    sx={{ padding: 0, minWidth: "auto" }}
+                    sx={{ minWidth: "auto" }}
                     fullWidth={true}
                     size="small"
                     variant="contained"
                     color="primary"
-                    onClick={() => {
-                      sendToServerWithoutResponse("stopAudio", {
-                        bees: currentSwarm,
-                      });
-                    }}
+                    onClick={stopAudio}
                   >
                     <StopIcon />
                   </Button>
@@ -265,54 +366,35 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
               {/* On the scene trigger page */}
               {type === "sceneTrigger" && (
                 <Button
-                  sx={{ padding: 0, minWidth: "auto" }}
+                  sx={{ minWidth: "auto" }}
                   fullWidth={true}
                   size="small"
                   variant="contained"
                   color="primary"
-                  onClick={() => {
-                    sendToServerWithoutResponse("stopAudio", {
-                      bees: currentSwarm,
-                    });
-                  }}
+                  onClick={stopAudio}
                 >
                   <StopIcon />
                 </Button>
               )}
               <Button
-                sx={{ padding: 0, minWidth: "auto" }}
+                sx={{ minWidth: "auto" }}
                 fullWidth={true}
                 size="small"
                 variant={oneOrMoreBeesAreLooping ? "contained" : "outlined"}
                 color={oneOrMoreBeesAreLooping ? "primary" : "secondary"}
                 onClick={() => {
-                  sendToServerWithoutResponse("setParamOfBees", {
-                    type: PDAudioParam.FILE_LOOP,
-                    value: !oneOrMoreBeesAreLooping,
-                    bees: currentSwarm,
-                  });
                   setAllBeesToLoopingState(!oneOrMoreBeesAreLooping);
-                  setOneOrMoreBeesAreLooping(!oneOrMoreBeesAreLooping);
                 }}
               >
                 <LoopIcon />
               </Button>
               <Button
-                sx={{ padding: 0, minWidth: "auto" }}
+                sx={{ minWidth: "auto" }}
                 color="secondary"
                 variant="outlined"
                 size="small"
                 fullWidth={true}
-                onClick={() => {
-                  const bees = beeAudioScenes.map((beeAudioScene) => {
-                    return beeAudioScene.bee;
-                  });
-                  sendToServerWithoutResponse("stopAudio", {
-                    bees,
-                  });
-                  removeAllAudioScenes();
-                  setSelectedInterfaceComposition(undefined);
-                }}
+                onClick={removeAllBeeAudioScenes}
               >
                 <ClearIcon />
               </Button>

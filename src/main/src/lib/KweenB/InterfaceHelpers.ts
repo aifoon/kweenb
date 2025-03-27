@@ -8,6 +8,16 @@ import InterfaceCompositionBeeDB from "../../models/InterfaceCompostionBee";
 import BeeHelpers from "./BeeHelpers";
 
 /**
+ * Update interface model representing a single bee update
+ */
+interface BeeLooopingUpdate {
+  interfaceCompositionId: string | number;
+  beeId: string | number;
+  isLooping: boolean;
+  audioSceneId?: string | number;
+}
+
+/**
  * Add a Bee to an InterfaceComposition
  * @param interfaceCompositionId The ID of the InterfaceComposition
  * @param beeId The ID of the Bee to add
@@ -69,6 +79,82 @@ const addInterfaceCompositionBee = async (
     // If anything goes wrong, roll back the transaction
     await transaction.rollback();
     console.error("Error adding bee to interface composition:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update the looping state of multiple Bees in InterfaceCompositions
+ * @param updates Array of update objects containing interfaceCompositionId, beeId, isLooping, and optional audioSceneId
+ * @returns Promise<{ success: boolean, updatedCount: number }> Result object with success status and count of updated records
+ */
+const bulkUpdateInterfaceCompositionBeeLooping = async (
+  updates: BeeLooopingUpdate[]
+): Promise<{ success: boolean; updatedCount: number }> => {
+  // Validate input
+  if (!updates || !Array.isArray(updates) || updates.length === 0) {
+    return { success: false, updatedCount: 0 };
+  }
+
+  // Filter out invalid entries (missing required fields)
+  const validUpdates = updates.filter(
+    (update) => !!update.interfaceCompositionId && !!update.beeId
+  );
+
+  if (validUpdates.length === 0) {
+    return { success: false, updatedCount: 0 };
+  }
+
+  // Using a transaction to ensure data consistency
+  const transaction = await Database.sequelize.transaction();
+  let totalUpdatedCount = 0;
+
+  try {
+    // Process each update in the same transaction
+    const updatePromises = validUpdates.map(async (update) => {
+      const { interfaceCompositionId, beeId, isLooping, audioSceneId } = update;
+
+      // Build the where clause
+      const whereClause: any = {
+        interfaceCompositionId,
+        beeId,
+      };
+
+      // If audioSceneId is provided, add it to the where clause
+      if (audioSceneId) {
+        whereClause.audioSceneId = audioSceneId;
+      }
+
+      // Update the isLooping state
+      const [updatedCount] = await InterfaceCompositionBeeDB.update(
+        { isLooping },
+        {
+          where: whereClause,
+          transaction,
+        }
+      );
+
+      return updatedCount;
+    });
+
+    // Wait for all updates to complete
+    const results = await Promise.all(updatePromises);
+
+    // Sum up the total number of updated records
+    totalUpdatedCount = results.reduce((sum, count) => sum + count, 0);
+
+    // Commit the transaction
+    await transaction.commit();
+
+    // Return success if at least one record was updated
+    return {
+      success: totalUpdatedCount > 0,
+      updatedCount: totalUpdatedCount,
+    };
+  } catch (error) {
+    // If anything goes wrong, roll back the transaction
+    await transaction.rollback();
+    console.error("Error updating bee looping states:", error);
     throw error;
   }
 };
@@ -375,7 +461,7 @@ const updateInterfaceComposition = async (
 };
 
 /**
- * Update the looping state of a Bee in an InterfaceComposition
+ * Legacy function that calls the bulk update with a single item
  * @param interfaceCompositionId The ID of the InterfaceComposition
  * @param beeId The ID of the Bee
  * @param isLooping Boolean indicating the new looping state
@@ -388,45 +474,11 @@ const updateInterfaceCompositionBeeLooping = async (
   isLooping: boolean,
   audioSceneId?: string | number
 ): Promise<boolean> => {
-  if (!interfaceCompositionId || !beeId) {
-    return false;
-  }
+  const result = await bulkUpdateInterfaceCompositionBeeLooping([
+    { interfaceCompositionId, beeId, isLooping, audioSceneId },
+  ]);
 
-  // Using a transaction to ensure data consistency
-  const transaction = await Database.sequelize.transaction();
-
-  try {
-    // Build the where clause
-    const whereClause: any = {
-      interfaceCompositionId: interfaceCompositionId,
-      beeId: beeId,
-    };
-
-    // If audioSceneId is provided, add it to the where clause
-    if (audioSceneId) {
-      whereClause.audioSceneId = audioSceneId;
-    }
-
-    // Update the isLooping state
-    const [updatedCount] = await InterfaceCompositionBeeDB.update(
-      { isLooping },
-      {
-        where: whereClause,
-        transaction,
-      }
-    );
-
-    // Commit the transaction
-    await transaction.commit();
-
-    // Return true if at least one record was updated
-    return updatedCount > 0;
-  } catch (error) {
-    // If anything goes wrong, roll back the transaction
-    await transaction.rollback();
-    console.error("Error updating bee looping state:", error);
-    throw error;
-  }
+  return result.success;
 };
 
 /**
@@ -478,6 +530,7 @@ const saveInterfaceCompositionAs = async (
 
 export default {
   addInterfaceCompositionBee,
+  bulkUpdateInterfaceCompositionBeeLooping,
   deleteInterfaceCompositionBee,
   deleteMultipleInterfaceCompositions,
   getInterfaceCompositions,

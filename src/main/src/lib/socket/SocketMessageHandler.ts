@@ -371,4 +371,24 @@ export class SocketMessageHandler {
       console.error(error);
     }
   }
+
+  /**
+   * Update the looping state of a bee in an interface composition
+   * @param param0
+   */
+  public static async handleMessageUpdateMultipleInterfaceCompositionBeeLooping({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const { interfaceCompositions } = json;
+
+      // update the composition
+      await InterfaceHelpers.bulkUpdateInterfaceCompositionBeeLooping(
+        interfaceCompositions
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
