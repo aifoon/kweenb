@@ -6,7 +6,7 @@
 import { IBee } from "@shared/interfaces";
 import { resourcesPath } from "@shared/resources";
 import { exec } from "child_process";
-import * as log from "electron-log";
+import SettingHelpers from "./SettingHelpers";
 
 interface CLIParam {
   flag: string;
@@ -17,9 +17,14 @@ export default class BeeSshScriptExecutor {
   public privateKeyPath: string;
 
   constructor() {
-    // @todo - this should be a config setting
-    // this.privateKeyPath = `${resourcesPath}/kweenb.key`;
+    // the default private key path
     this.privateKeyPath = `~/.ssh/kweenb`;
+
+    // get the private key path from the settings
+    SettingHelpers.getAllSettings().then((settings) => {
+      if (settings.kweenBSettings.sshKeyPath)
+        this.privateKeyPath = settings.kweenBSettings.sshKeyPath;
+    });
   }
 
   /**

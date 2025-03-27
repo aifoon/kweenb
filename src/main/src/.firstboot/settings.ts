@@ -124,6 +124,10 @@ export default [
     value: "",
   },
   {
+    key: "kweenbSshKeyPath",
+    value: "~/.ssh/kweenb",
+  },
+  {
     key: "positioningUpdateRate",
     value: "500",
   },

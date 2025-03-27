@@ -30,5 +30,9 @@ export function useSetting() {
     window.kweenb.actions.setJacktripBinPath(jacktripBinPath);
   }, []);
 
-  return { updateSetting, setJackFolderPath, setJacktripBinPath };
+  return {
+    updateSetting,
+    setJackFolderPath,
+    setJacktripBinPath,
+  };
 }

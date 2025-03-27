@@ -27,10 +27,12 @@ class BeeStatesWorker {
   private _updateBeeStatesInterval: NodeJS.Timeout;
   private _updateBeeNetworkPerformanceInterval: NodeJS.Timeout;
   private _updateAudioScenesInterval: NodeJS.Timeout;
+  private _beeSshScriptExecutor: BeeSshScriptExecutor;
 
   constructor() {
     this._allBees = [];
     this._beeStates = new BeeStates();
+    this._beeSshScriptExecutor = new BeeSshScriptExecutor();
   }
 
   /**
@@ -252,11 +254,8 @@ class BeeStatesWorker {
       // validate
       if (!this._allBees) return;
 
-      // create a new bee ssh script executer
-      const beeSshScriptExecuter = new BeeSshScriptExecutor();
-
       // execute the script
-      beeSshScriptExecuter
+      this._beeSshScriptExecutor
         .executeWithOutput<string>("get_audio_scenes.sh", this._allBees)
         .then((output) => {
           // log.info("KeyPath:");

@@ -241,6 +241,7 @@ export interface IKweenBAudioSettings {
 export interface IKweenBSettings {
   jackFolderPath: string;
   jacktripBinPath: string;
+  sshKeyPath: string;
 }
 
 // Socket

@@ -78,6 +78,7 @@ const getAllSettings = async (): Promise<ISettings> => {
     kweenBSettings: {
       jackFolderPath: String(findKey("kweenbJackFolderPath")?.value || ""),
       jacktripBinPath: String(findKey("kweenbJacktripBinPath")?.value || ""),
+      sshKeyPath: String(findKey("kweenbSshKeyPath")?.value || ""),
     },
     positioningSettings: {
       updateRate: Number(findKey("positioningUpdateRate")?.value) || 200,

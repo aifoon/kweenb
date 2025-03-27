@@ -9,7 +9,7 @@ import {
 import Yup from "@renderer/src/yup-ext";
 import { useAppStore, useSetting } from "@renderer/src/hooks";
 import { Utils } from "@shared/utils";
-import { Grid } from "@mui/material";
+import { Grid, shouldSkipGeneratingVar } from "@mui/material";
 import {
   validBitrates,
   validBufferSizes,
@@ -54,6 +54,7 @@ export const SettingsKweenB = ({
     jacktripRealtimePriority: kweenbAudioSettings.jacktrip.realtimePriority,
     jacktripSendChannels: kweenbAudioSettings.jacktrip.sendChannels,
     jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
+    sshKeyPath: kweenbSettings.sshKeyPath,
   };
 
   // remember the latency values
@@ -175,6 +176,7 @@ export const SettingsKweenB = ({
           .required("The amount of receive channels is required"),
         jackFolderPath: Yup.string(),
         jacktripBinPath: Yup.string(),
+        sshKeyPath: Yup.string(),
       })}
       onSubmit={() => {}}
     >
@@ -387,6 +389,18 @@ export const SettingsKweenB = ({
                     labelWidth="150px"
                     name="jacktripBinPath"
                     placeholder="jacktrip"
+                  />
+                  <TextField
+                    onValidatedBlur={(e) => {
+                      handleOnValidatedBlurAndChange(e);
+                    }}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="SSH Key Path"
+                    type="text"
+                    labelWidth="150px"
+                    name="sshKeyPath"
+                    placeholder="~/.ssh/kweenb"
                   />
                 </Card>
               </CardVerticalStack>
