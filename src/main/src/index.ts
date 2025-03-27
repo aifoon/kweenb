@@ -8,7 +8,7 @@
  */
 
 import path from "path";
-import { app, ipcMain, ipcRenderer } from "electron";
+import { app } from "electron";
 import { ElectronApp } from "./lib";
 import { registerActionListeners, registerMethodHandlers } from "./register";
 import firstBoot from "./firstboot";

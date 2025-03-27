@@ -15,12 +15,15 @@ import { BeeActiveState, PDAudioParam } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import BeeSsh from "../lib/KweenB/BeeSsh";
-import { AudioScene, Bee } from "../models";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
 import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
 import Ssh2SftpClient from "ssh2-sftp-client";
 import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
+
+// Import models
+import AudioScene from "../models/AudioScene";
+import Bee from "../models/Bee";
 
 /**
  * Create a new bee

@@ -1,61 +1,34 @@
 import { BaseModal } from "@components/Modals/BaseModal";
 import { Box, Grid, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { demoScenes } from "@seeds/demoScenes";
 import { AudioScene, IBee } from "@shared/interfaces";
 import { Button } from "@mui/material";
 import { useAppPersistentStorage } from "../../hooks/useAppPersistentStorage";
 import { useSocket } from "../../hooks/useSocket";
 import { Loader } from "@components/Loader";
-import styled from "styled-components";
+import {
+  FilterTextfieldContainer,
+  FilteredContentContainer,
+} from "./FilterComponents";
+import { modalWidth, modalHeight } from "./ModalConfig";
+
+export enum SelectSceneModalType {
+  Bee,
+  SceneTrigger,
+}
 
 interface SelectSceneModalProps {
   open: boolean;
   bee?: IBee | undefined;
   onClose: () => void;
+  modalType: SelectSceneModalType;
 }
 
-/**
- * Variables
- */
-
-const modalHeight = "80vh";
-const modalWidth = "90vw";
-const headerHeight = "40px";
-const textFieldHeight = 40;
-const textFieldMargin = "10px";
-
-const FilterTextfieldContainer = styled(Box)<{ $hasBee: boolean }>`
-  grid-template-columns: ${({ $hasBee }) => ($hasBee ? "1fr" : "1fr 150px")};
-  height: ${textFieldHeight}px;
-  margin-bottom: ${textFieldMargin};
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    height: ${({ $hasBee }) =>
-      $hasBee ? `${textFieldHeight}px` : `${textFieldHeight * 2}px`};
-  }
-`;
-
-const ScenesContainer = styled(Box)`
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  height: calc(
-    ${modalHeight} - ${headerHeight} - ${textFieldHeight}px - ${textFieldMargin} -
-      (2 * var(--modalPadding))
-  );
-  @media (max-width: 480px) {
-    height: calc(
-      ${modalHeight} - ${headerHeight} - ${2 * textFieldHeight}px -
-        ${textFieldMargin} - (2 * var(--modalPadding))
-    );
-  }
-`;
-
 export const SelectSceneModal = ({
-  open,
-  onClose,
   bee,
+  onClose,
+  open,
+  modalType = SelectSceneModalType.Bee,
 }: SelectSceneModalProps) => {
   /**
    * Inner states
@@ -104,6 +77,10 @@ export const SelectSceneModal = ({
     (state) => state.setCachedAudioScenes
   );
 
+  const selectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.selectedInterfaceComposition
+  );
+
   /**
    * Reusable functions
    */
@@ -123,6 +100,29 @@ export const SelectSceneModal = ({
         setCachedAudioScenes(data as AudioScene[]);
       })
       .finally(() => setLoading(false));
+  };
+
+  const selectScene = (scene: AudioScene) => {
+    // When there is a bee selected
+    if (modalType === SelectSceneModalType.Bee && bee) {
+      updateBeeAudioScene(bee, scene);
+      if (selectedInterfaceComposition) {
+        sendToServerAndExpectResponseAsync("addInterfaceCompositionBee", {
+          interfaceCompositionId: selectedInterfaceComposition.id,
+          beeId: bee.id,
+          audioSceneId: scene.id,
+        });
+      }
+    }
+
+    // Otherwise, we are adding a scene to the ordered audio scenes
+    else {
+      addOrderedAudioScene({
+        order: orderedAudioScenes.length,
+        audioScene: scene,
+      });
+    }
+    onClose();
   };
 
   /**
@@ -174,7 +174,11 @@ export const SelectSceneModal = ({
       {loading && <Loader text="Fetching scenes" />}
       {!loading && (
         <>
-          <FilterTextfieldContainer display={"grid"} $hasBee={!!bee} gap={1}>
+          <FilterTextfieldContainer
+            display={"grid"}
+            $hasSidebutton={bee === undefined}
+            gap={1}
+          >
             <TextField
               autoFocus
               size="small"
@@ -194,7 +198,7 @@ export const SelectSceneModal = ({
               </Button>
             )}
           </FilterTextfieldContainer>
-          <ScenesContainer overflow={"scroll"}>
+          <FilteredContentContainer overflow={"scroll"}>
             {filteredScenes.length > 0 && (
               <Grid container spacing={1}>
                 {filteredScenes.map((scene) => (
@@ -204,16 +208,7 @@ export const SelectSceneModal = ({
                       size="small"
                       variant="contained"
                       color="primary"
-                      onClick={() => {
-                        if (bee) updateBeeAudioScene(bee || 0, scene);
-                        else {
-                          addOrderedAudioScene({
-                            order: orderedAudioScenes.length,
-                            audioScene: scene,
-                          });
-                        }
-                        onClose();
-                      }}
+                      onClick={() => selectScene(scene)}
                     >
                       {scene.name}
                     </Button>
@@ -222,7 +217,7 @@ export const SelectSceneModal = ({
               </Grid>
             )}
             {filteredScenes.length === 0 && <Box>No scenes found</Box>}
-          </ScenesContainer>
+          </FilteredContentContainer>
         </>
       )}
     </BaseModal>

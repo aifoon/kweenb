@@ -105,4 +105,15 @@ export const Utils = {
   hasDecimals: (number: number): boolean => {
     return number % 1 !== 0;
   },
+
+  /**
+   * This function will generate a unique id
+   * @param prefix
+   * @returns
+   */
+  generateUniqueIdForReactComponents: (prefix = "id") => {
+    const timestamp = Date.now().toString(36); // compact time
+    const random = Math.random().toString(36).slice(2, 10); // 8 random characters
+    return `${prefix}-${timestamp}-${random}`;
+  },
 };

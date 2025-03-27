@@ -150,6 +150,25 @@ export default createTheme({
           },
         },
 
+        // DELETE/ERROR
+
+        {
+          props: {
+            variant: "contained",
+            size: "small",
+            color: "error",
+          },
+          style: {
+            fontSize: "var(--smallText)",
+            padding: "var(--smallButtonPadding)",
+            lineHeight: "normal",
+            backgroundColor: "var(--red-status)",
+            "&:hover": {
+              backgroundColor: "var(--red-status)",
+            },
+          },
+        },
+
         /**
          * Outlined buttons
          */

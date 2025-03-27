@@ -18,6 +18,7 @@ import {
   Loop as LoopIcon,
   VolumeUp as VolumeUpIcon,
   Stop as StopIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 
 type MasterSliderProps = {
@@ -49,7 +50,7 @@ const MasterSliderInnerContainer = styled(Box)`
 
 const MasterSliderGrid = styled(Box)`
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
   width: 100%;
   gap: 24px;
@@ -92,6 +93,14 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
     (state) => state.swapAllBeeAudioScenes
   );
 
+  const removeAllAudioScenes = useAppPersistentStorage(
+    (state) => state.removeAllAudioScenes
+  );
+
+  const setSelectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.setSelectedInterfaceComposition
+  );
+
   // set the looping state
   const [oneOrMoreBeesAreLooping, setOneOrMoreBeesAreLooping] = useState(
     beeAudioScenes.some((beeAudioScene) => beeAudioScene.isLooping)
@@ -108,6 +117,7 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
   /**
    * Reusable function to set all bees to looping state
    */
+
   const setAllBeesToLoopingState = (isLooping: boolean) => {
     const updatedBeeAudioScenes = beeAudioScenes.map((beeAudioScene) => {
       return {
@@ -202,7 +212,7 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
                 HIGH
               </ToggleButton>
             </ToggleButtonGroup>
-            <Box display="grid" gridTemplateColumns={"1fr 0.5fr"} gap={1}>
+            <Box display="grid" gridTemplateColumns={"1fr 0.5fr 0.5fr"} gap={1}>
               {/* On the single bees page */}
               {type === "singleBees" && (
                 <ButtonGroup>
@@ -213,7 +223,6 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      console.log("beeAudioScenes", beeAudioScenes);
                       sendToServerWithoutResponse("startAudioMultiple", {
                         data: beeAudioScenes
                           .filter((beeAudioScene) => {
@@ -270,7 +279,6 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
                   <StopIcon />
                 </Button>
               )}
-
               <Button
                 sx={{ padding: 0, minWidth: "auto" }}
                 fullWidth={true}
@@ -288,6 +296,25 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
                 }}
               >
                 <LoopIcon />
+              </Button>
+              <Button
+                sx={{ padding: 0, minWidth: "auto" }}
+                color="secondary"
+                variant="outlined"
+                size="small"
+                fullWidth={true}
+                onClick={() => {
+                  const bees = beeAudioScenes.map((beeAudioScene) => {
+                    return beeAudioScene.bee;
+                  });
+                  sendToServerWithoutResponse("stopAudio", {
+                    bees,
+                  });
+                  removeAllAudioScenes();
+                  setSelectedInterfaceComposition(undefined);
+                }}
+              >
+                <ClearIcon />
               </Button>
             </Box>
           </Box>

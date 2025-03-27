@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    // "outDir": "../../dist",
+    "outDir": "./dist",
     "baseUrl": "../../src",
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,

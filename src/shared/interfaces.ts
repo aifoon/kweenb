@@ -96,6 +96,7 @@ export interface AudioFile {
 }
 
 export interface AudioScene {
+  id: number;
   name: string;
   foundOnBees: IBee[];
   oscAddress: string;
@@ -248,4 +249,18 @@ export interface SocketMessage {
   clientId?: string;
   message: string;
   payload?: any;
+}
+
+// Interface specific
+
+export interface BeeAudioScene {
+  bee: IBee;
+  audioScene: AudioScene | undefined;
+  isLooping: boolean;
+}
+
+export interface InterfaceComposition {
+  id: number;
+  name: string;
+  composition: BeeAudioScene[];
 }

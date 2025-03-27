@@ -24,7 +24,7 @@ const config = {
     ],
   },
   build: {
-    sourcemap: "inline",
+    sourcemap: true,
     target: `node${node}`,
     outDir: "dist",
     assetsDir: ".",
@@ -65,15 +65,14 @@ const config = {
       output: {
         entryFileNames: "[name].cjs",
       },
+      onwarn: (warning, defaultHandler) => {
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+        defaultHandler(warning);
+      },
     },
     emptyOutDir: true,
     brotliSize: false,
-  },
-  rollupOptions: {
-    warn: (warning) => {
-      if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
-      warn(warning.message);
-    },
+    chunkSizeWarningLimit: 30000,
   },
 };
 

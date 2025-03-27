@@ -3,6 +3,7 @@ import { ChannelType } from "@shared/enums";
 
 export const demoScenes: AudioScene[] = [
   ...Array.from({ length: 100 }, (_, sceneIndex) => ({
+    id: sceneIndex + 1, // Adding unique incremental id starting from 1
     name: [
       "RC_Tree_Speedy",
       "RC_Tree_Silent",
@@ -121,5 +122,6 @@ export const demoScenes: AudioScene[] = [
       channel1: 1,
     })).slice(0, Math.floor(Math.random() * 12) + 5), // Randomly select 5-16 bees for each scene
     oscAddress: `/scene/${sceneIndex + 1}`,
+    localFolderPath: "/",
   })),
 ];

@@ -1,6 +1,9 @@
 import { Box, Button, Grid, Link, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { SelectSceneModal } from "../../Modals/SelectScene";
+import {
+  SelectSceneModal,
+  SelectSceneModalType,
+} from "../../Modals/SelectScene";
 import {
   OrderedAudioScene,
   useAppPersistentStorage,
@@ -52,8 +55,9 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
   return (
     <>
       <SelectSceneModal
-        open={openSelectSceneModal}
         onClose={() => setOpenSelectSceneModal(false)}
+        open={openSelectSceneModal}
+        modalType={SelectSceneModalType.SceneTrigger}
       />
       <Box display="flex" justifyContent="flex-end" marginBottom={2}>
         <Button

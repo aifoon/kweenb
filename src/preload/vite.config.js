@@ -39,6 +39,7 @@ const config = {
     },
     emptyOutDir: true,
     brotliSize: false,
+    chunkSizeWarningLimit: 30000,
   },
   rollupOptions: {
     warn: (warning) => {

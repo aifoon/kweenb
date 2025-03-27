@@ -4,12 +4,9 @@ import { NumberSlider } from "@components/Slider";
 import { Box, Button, Typography } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
-import { SelectSceneModal } from "../Modals/SelectScene";
-import {
-  BeeAudioScene,
-  useAppPersistentStorage,
-} from "../../hooks/useAppPersistentStorage";
-import { AudioScene, IBee } from "@shared/interfaces";
+import { SelectSceneModal, SelectSceneModalType } from "../Modals/SelectScene";
+import { useAppPersistentStorage } from "../../hooks/useAppPersistentStorage";
+import { AudioScene, IBee, BeeAudioScene } from "@shared/interfaces";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoopIcon from "@mui/icons-material/Loop";
 import { useSocket } from "../../hooks/useSocket";
@@ -55,6 +52,14 @@ export const SingleBeeCard = ({
     (state) => state.removeBeeAudioScene
   );
 
+  const selectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.selectedInterfaceComposition
+  );
+
+  const setSelectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.setSelectedInterfaceComposition
+  );
+
   /**
    * When effect is happening, set the selected bee audio scene and audio scene
    */
@@ -74,9 +79,10 @@ export const SingleBeeCard = ({
   return (
     <>
       <SelectSceneModal
-        open={openSelectSceneModal}
         bee={bee}
         onClose={() => setOpenSelectSceneModal(false)}
+        open={openSelectSceneModal}
+        modalType={SelectSceneModalType.Bee}
       />
       <Card variant="extraSmall" title={title}>
         <Box
@@ -151,6 +157,18 @@ export const SingleBeeCard = ({
 
                 // state management
                 updateBeeAudioScene(bee, selectedAudioScene, value);
+
+                // if we have a selected interface composition, update the looping state in the database
+                if (selectedInterfaceComposition) {
+                  sendToServerWithoutResponse(
+                    "updateInterfaceCompositionBeeLooping",
+                    {
+                      interfaceCompositionId: selectedInterfaceComposition.id,
+                      beeId: bee.id,
+                      isLooping: value,
+                    }
+                  );
+                }
               }}
             >
               <LoopIcon />
@@ -178,10 +196,22 @@ export const SingleBeeCard = ({
               fullWidth={true}
               disabled={selectedAudioScene === undefined}
               onClick={() => {
+                // Stop the audio
                 sendToServerWithoutResponse("stopAudio", {
                   bees: [bee],
                 });
+
+                // Remove the bee audio scene
                 removeBeeAudioScene(bee);
+
+                // Update the interface composition
+                if (selectedInterfaceComposition) {
+                  // Update the server
+                  sendToServerWithoutResponse("deleteInterfaceCompositionBee", {
+                    interfaceCompositionId: selectedInterfaceComposition.id,
+                    beeId: bee.id,
+                  });
+                }
               }}
             >
               <ClearIcon />

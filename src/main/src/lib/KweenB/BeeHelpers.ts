@@ -11,7 +11,6 @@ import {
   IBeeState,
 } from "@shared/interfaces";
 import fs from "fs";
-import { AudioScene as AudioSceneDb, Bee } from "../../models";
 import {
   BEE_IS_UNDEFINED,
   NO_BEE_FOUND_WITH_ID,
@@ -23,14 +22,17 @@ import {
   PD_PORT_BEE,
 } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
-import { exec, spawn } from "child_process";
+import { spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
 import { demoScenes } from "@seeds/demoScenes";
-import { error } from "console";
 import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 import { Op } from "sequelize";
+
+// Import models
+import AudioSceneDb from "../../models/AudioScene";
+import Bee from "../../models/Bee";
 
 /**
  * Creates a new bee
@@ -222,19 +224,28 @@ const getAllBeesData = async (
  * Get the audio scenes
  * @returns AudioScene[]
  */
-const getAudioScenes = async (): Promise<AudioScene[]> => {
+const getAudioScenes = async (ids: number[] = []): Promise<AudioScene[]> => {
   // @note: this condition is only used for development purpose
   // whenever we are not connected to the physical swarm, we still
   // get scenes, but we get them from a demo file
   if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-    return demoScenes;
+    return ids.length === 0
+      ? demoScenes
+      : demoScenes.filter((scene) => ids.includes(scene.id));
   }
 
   // get all bees
   const bees = await getAllBees(BeeActiveState.ACTIVE);
 
   // get all audio scenes from the database, for the active bees
-  return await getAudioScenesForBees(bees);
+  const audioScenes = await getAudioScenesForBees(bees);
+
+  // filter out the ids
+  if (ids.length > 0) {
+    return audioScenes.filter((scene) => ids.includes(scene.id));
+  }
+
+  return audioScenes;
 };
 
 /**
@@ -284,11 +295,12 @@ const getAudioScenesForBees = async (
   // Reduce data into the desired structure
   const sceneMap: Record<string, AudioScene> = {};
   audioScenesDb.forEach((scene) => {
-    const { name, beeId, oscAddress, localFolderPath } = scene.toJSON(); // Extract raw data
+    const { id, name, beeId, oscAddress, localFolderPath } = scene.toJSON(); // Extract raw data
 
     if (!sceneMap[localFolderPath]) {
       // Initialize a new AudioScene object
       sceneMap[localFolderPath] = {
+        id,
         name,
         foundOnBees: [],
         oscAddress,

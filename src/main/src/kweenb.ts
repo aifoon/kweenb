@@ -24,6 +24,7 @@ import { exec } from "child_process";
 import { JackInstaller } from "./lib/Installers/JackInstaller";
 import { initExpress } from "./express";
 import { initSocketIo } from "./socket";
+import Database from "./database";
 
 /**
  * A KweenB class
@@ -102,6 +103,9 @@ class KweenB {
    * initJacktripBinPath: inits the jacktrip binary whenever we find one in the database
    */
   public async initBeforeWindow() {
+    // sync the database
+    await Database.sync();
+
     // init the jack folder path
     await this.initJackFolderPath();
 

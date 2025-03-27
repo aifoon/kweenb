@@ -11,10 +11,9 @@ import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
 import { IBee, AudioScene } from "@shared/interfaces";
 import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
-import { AudioScene as AudioSceneDB } from "../../models";
-import { Op } from "sequelize";
-import { fsync } from "fs";
-import * as log from "electron-log";
+
+// Import the audio scene model
+import AudioSceneDb from "../../models/AudioScene";
 
 interface SshOutputState {
   ipAddress: string;
@@ -288,7 +287,7 @@ class BeeStatesWorker {
           });
 
           // create the audio scenes
-          AudioSceneDB.bulkCreate(audioScenesForDatabase, {
+          AudioSceneDb.bulkCreate(audioScenesForDatabase, {
             updateOnDuplicate: ["localFolderPath", "beeId"],
           })
             .then(() => {

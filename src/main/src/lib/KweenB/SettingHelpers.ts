@@ -4,7 +4,9 @@
 
 import { ISetting, ISettings } from "@shared/interfaces";
 import fs from "fs";
-import { Setting } from "../../models";
+
+// import the setting model
+import Setting from "../../models/Setting";
 
 /**
  * Get the settings

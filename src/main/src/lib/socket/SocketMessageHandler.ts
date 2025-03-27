@@ -2,12 +2,16 @@
  * This class is used to handle the messages coming from the socket
  */
 
-import { AudioScene, IBee, SocketMessage } from "@shared/interfaces";
+import {
+  AudioScene,
+  IBee,
+  SocketMessage,
+  InterfaceComposition,
+} from "@shared/interfaces";
 import { SocketSingleton } from "./SocketSingleton";
 import BeeHelpers from "../KweenB/BeeHelpers";
+import InterfaceHelpers from "../KweenB/InterfaceHelpers";
 import { BeeActiveState } from "@shared/enums";
-import { PD_PORT_BEE } from "@shared/consts";
-import { PDBeeOsc } from "../OSC";
 
 interface SocketHandlerParams {
   json: any;
@@ -55,6 +59,75 @@ export class SocketMessageHandler {
   }
 
   /**
+   * Delete an interface composition
+   * @param param0
+   */
+  public static async handleMessageDeleteInterfaceComposition({
+    clientId,
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const interfaceComposition = json as InterfaceComposition;
+
+      // save the composition
+      await InterfaceHelpers.deleteMultipleInterfaceCompositions([
+        interfaceComposition.id,
+      ]);
+
+      // send to client that made the request
+      SocketSingleton.getInstance().sendToClient(
+        clientId,
+        "deleteInterfaceComposition",
+        true
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Delete an interface composition bee
+   */
+  public static async handleMessageAddInterfaceCompositionBee({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const { interfaceCompositionId, beeId, audioSceneId } = json;
+
+      // update the composition
+      await InterfaceHelpers.addInterfaceCompositionBee(
+        interfaceCompositionId,
+        beeId,
+        audioSceneId
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Delete an interface composition bee
+   */
+  public static async handleMessageDeleteInterfaceCompositionBee({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const { interfaceCompositionId, beeId } = json;
+
+      // update the composition
+      await InterfaceHelpers.deleteInterfaceCompositionBee(
+        interfaceCompositionId,
+        beeId
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
    * Fetch the active bees
    */
   public static async handleMessageFetchActiveBees({
@@ -91,6 +164,29 @@ export class SocketMessageHandler {
         clientId,
         "fetchAllScenes",
         audioScenes
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Fetch the interface compositions
+   * @param param0
+   */
+  public static async handleMessageFetchInterfaceCompositions({
+    clientId,
+  }: SocketHandlerParams) {
+    try {
+      // get the interface compositions
+      const interfaceCompositions =
+        await InterfaceHelpers.getInterfaceCompositions();
+
+      // send to client that made the request
+      SocketSingleton.getInstance().sendToClient(
+        clientId,
+        "fetchInterfaceCompositions",
+        interfaceCompositions
       );
     } catch (error) {
       console.error(error);
@@ -136,6 +232,33 @@ export class SocketMessageHandler {
 
       // loop over bees and set the volume
       BeeHelpers.setAudioParam(bees, type, value);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Save the composition in the database
+   * @param param0
+   */
+  public static async handleMessageSaveInterfaceCompositionAs({
+    clientId,
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const interfaceComposition = json as InterfaceComposition;
+
+      // save the composition
+      const savedInterfaceComposition =
+        await InterfaceHelpers.saveInterfaceCompositionAs(interfaceComposition);
+
+      // send to client that made the request
+      SocketSingleton.getInstance().sendToClient(
+        clientId,
+        "saveInterfaceCompositionAs",
+        savedInterfaceComposition
+      );
     } catch (error) {
       console.error(error);
     }
@@ -208,5 +331,44 @@ export class SocketMessageHandler {
           console.log(`Client ${index + 1}:`, socket.id);
         });
       });
+  }
+
+  /**
+   * Handle the message show connected clients
+   */
+  public static async handleMessageUpdateInterfaceComposition({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const interfaceComposition = json as InterfaceComposition;
+
+      // update the composition
+      await InterfaceHelpers.updateInterfaceComposition(interfaceComposition);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Update the looping state of a bee in an interface composition
+   * @param param0
+   */
+  public static async handleMessageUpdateInterfaceCompositionBeeLooping({
+    json,
+  }: SocketHandlerParams) {
+    try {
+      // convert the json to an InterfaceComposition
+      const { interfaceCompositionId, beeId, isLooping } = json;
+
+      // update the composition
+      await InterfaceHelpers.updateInterfaceCompositionBeeLooping(
+        interfaceCompositionId,
+        beeId,
+        isLooping
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

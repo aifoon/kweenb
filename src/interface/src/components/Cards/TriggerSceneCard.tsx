@@ -46,21 +46,24 @@ export const TriggerSceneCard = ({
   /**
    * Get states and functions from the useAppPersistentStorage hook
    */
-
-  const removeOrderedAudioScene = useAppPersistentStorage(
-    (state) => state.removeOrderedAudioScene
-  );
-
-  const setAllBeesToAudioScene = useAppPersistentStorage(
-    (state) => state.setAllBeesToAudioScene
-  );
-
   const moveUpOrderedAudioScene = useAppPersistentStorage(
     (state) => state.moveUpOrderedAudioScene
   );
 
   const moveDownOrderedAudioScene = useAppPersistentStorage(
     (state) => state.moveDownOrderedAudioScene
+  );
+
+  const removeOrderedAudioScene = useAppPersistentStorage(
+    (state) => state.removeOrderedAudioScene
+  );
+
+  const setSelectedInterfaceComposition = useAppPersistentStorage(
+    (state) => state.setSelectedInterfaceComposition
+  );
+
+  const setAllBeesToAudioScene = useAppPersistentStorage(
+    (state) => state.setAllBeesToAudioScene
   );
 
   /**
@@ -120,6 +123,7 @@ export const TriggerSceneCard = ({
                 scene: orderedAudioScene.audioScene,
               });
               setAllBeesToAudioScene(orderedAudioScene.audioScene);
+              setSelectedInterfaceComposition(undefined); // Clear the selected composition (because we are overriding it)
             }
           }}
         >

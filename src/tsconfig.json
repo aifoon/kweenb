@@ -22,7 +22,7 @@
     "declaration": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "outDir": "../dist", // added this to ignore errors
+    "outDir": "./dist",
     "paths": {
       "@components/*": ["components/*"],
       "@renderer/*": ["renderer/*"],

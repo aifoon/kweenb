@@ -1,55 +1,58 @@
 import { ChannelType } from "@shared/enums";
-import { DataTypes, Model } from "sequelize";
-import Database from "../database";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
 /**
  * Create the internal AudioScene Model
  */
 class AudioScene extends Model {
+  declare id: number;
   declare name: string;
-
   declare oscAddress: string;
-
   declare localFolderPath: string;
-
   declare beeId: number;
-}
 
-/**
- * Init the Bee Model with sequelize
- */
-AudioScene.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    oscAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    localFolderPath: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-    beeId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
-  },
-  {
-    sequelize: Database.getSequelize(),
-    modelName: "AudioScene",
-    tableName: "audio_scenes",
+  /**
+   * Initialize the model with Sequelize instance
+   */
+  static initialize(sequelize: Sequelize): void {
+    AudioScene.init(
+      {
+        id: {
+          type: DataTypes.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        name: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        oscAddress: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        localFolderPath: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        beeId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+      },
+      {
+        sequelize,
+        modelName: "AudioScene",
+        tableName: "audio_scenes",
+      }
+    );
   }
-);
 
-/**
- * Sync the audio_scenes table
- */
-
-AudioScene.sync();
+  /**
+   * Set up associations with other models
+   */
+  static associate(models: any): void {
+    AudioScene.belongsTo(models.Bee, { foreignKey: "beeId" });
+  }
+}
 
 export default AudioScene;

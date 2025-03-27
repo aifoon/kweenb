@@ -1,14 +1,13 @@
-import { AudioScene, IBee } from "shared/interfaces";
+import {
+  AudioScene,
+  IBee,
+  InterfaceComposition,
+  BeeAudioScene,
+} from "@shared/interfaces";
 import { create } from "zustand";
 import { persist, createJSONStorage, StateStorage } from "zustand/middleware";
 import { get, set, del } from "idb-keyval";
 import { useAppStore } from "./useAppStore";
-
-export interface BeeAudioScene {
-  bee: IBee;
-  audioScene: AudioScene | undefined;
-  isLooping: boolean;
-}
 
 export interface OrderedAudioScene {
   audioScene: AudioScene;
@@ -22,18 +21,25 @@ interface useAppPersistentStorageState {
   moveUpOrderedAudioScene: (audioScene: OrderedAudioScene) => void;
   moveDownOrderedAudioScene: (audioScene: OrderedAudioScene) => void;
   orderedAudioScenes: OrderedAudioScene[];
+  removeAllAudioScenes: () => void;
   removeBeeAudioScene: (bee: IBee) => void;
   removeOrderedAudioScene: (orderedAudioScene: OrderedAudioScene) => void;
   setCachedAudioScenes: (audioScenes: AudioScene[]) => void;
   setAllBeesToAudioScene: (audioScene: AudioScene) => void;
+  setSelectedInterfaceComposition: (
+    selectedInterfaceComposition: InterfaceComposition | undefined
+  ) => void;
   socketUrl: string;
+  selectedInterfaceComposition:
+    | Omit<InterfaceComposition, "composition">
+    | undefined;
   setSocketUrl: (socketUrl: string) => void;
   swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => void;
   updateBeeAudioScene: (
-    bee: IBee,
+    bee: IBee | undefined,
     audioScene: AudioScene | undefined,
     isLooping?: boolean
-  ) => void;
+  ) => BeeAudioScene;
 }
 
 const storage: StateStorage = {
@@ -99,6 +105,15 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
         }
       },
       orderedAudioScenes: [],
+      removeAllAudioScenes: () => {
+        const beeAudioScenes = get().beeAudioScenes;
+        set({
+          beeAudioScenes: beeAudioScenes.map((beeAudio) => {
+            beeAudio.audioScene = undefined;
+            return beeAudio;
+          }),
+        });
+      },
       removeOrderedAudioScene: (audioScene) => {
         set({
           orderedAudioScenes: get()
@@ -122,6 +137,7 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
           });
         }
       },
+      selectedInterfaceComposition: undefined,
       setAllBeesToAudioScene: (audioScene: AudioScene) => {
         const beeAudioScenes = get().beeAudioScenes;
         beeAudioScenes.forEach((beeAudio) => {
@@ -135,42 +151,60 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
       setCachedAudioScenes: (audioScenes: AudioScene[]) => {
         set({ cachedAudioScenes: audioScenes });
       },
-      socketUrl: "http://kweenb.local:4444",
+      setSelectedInterfaceComposition: (
+        selectedInterfaceComposition: InterfaceComposition | undefined
+      ) => {
+        set({ selectedInterfaceComposition });
+      },
       setSocketUrl: (socketUrl: string) => {
         set({ socketUrl });
       },
+      socketUrl: "http://kweenb.local:4444",
       swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => {
         set({ beeAudioScenes });
       },
       updateBeeAudioScene: (
-        bee: IBee,
+        bee: IBee | undefined,
         audioScene: AudioScene | undefined,
         isLooping?: boolean
-      ): void => {
+      ): BeeAudioScene => {
+        // if bee is undefined, return an empty object
+        if (!bee)
+          return { bee: {}, audioScene: {}, isLooping: false } as BeeAudioScene;
+
+        // variables
         const beeAudioScenes = get().beeAudioScenes;
-        const index = beeAudioScenes?.findIndex(
+        const beeAudioScenesIndex = beeAudioScenes?.findIndex(
           (beeAudio) => beeAudio.bee.id === bee.id
         );
-        if (index === -1) {
+        const beeAudioSceneExists = beeAudioScenesIndex !== -1;
+        let beeAudioScene: BeeAudioScene = {
+          bee,
+          audioScene,
+          isLooping: false,
+        };
+
+        // add to the internal beeAudioScenes if not existing, otherwise update
+        if (!beeAudioSceneExists) {
           set({
-            beeAudioScenes: [
-              ...beeAudioScenes,
-              { bee, audioScene, isLooping: false },
-            ],
+            beeAudioScenes: [...beeAudioScenes, beeAudioScene],
           });
         } else {
           if (beeAudioScenes) {
-            beeAudioScenes[index] = {
-              bee,
-              audioScene,
+            beeAudioScene = {
+              ...beeAudioScene,
               isLooping:
                 typeof isLooping === "undefined"
-                  ? beeAudioScenes[index].isLooping
+                  ? beeAudioScenes[beeAudioScenesIndex].isLooping
                   : isLooping,
             };
+            beeAudioScenes[beeAudioScenesIndex] = beeAudioScene;
             set({ beeAudioScenes: [...beeAudioScenes] });
           }
         }
+
+        // return the updated beeAudioScene
+        return beeAudioScene;
       },
     }),
     {
@@ -179,6 +213,7 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
       partialize: (state) => ({
         beeAudioScenes: state.beeAudioScenes,
         orderedAudioScenes: state.orderedAudioScenes,
+        selectedInterfaceComposition: state.selectedInterfaceComposition,
         socketUrl: state.socketUrl,
       }),
       onRehydrateStorage: (state) => {

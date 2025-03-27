@@ -1,45 +1,49 @@
-import { DataTypes, Model } from "sequelize";
-import Database from "../database";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
 /**
  * Create the internal Setting Model
  */
 class Setting extends Model {
+  declare id: number;
   declare key: string;
-
   declare value: string;
-}
 
-/**
- * Init the Bee Model with sequelize
- */
-Setting.init(
-  {
-    key: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    value: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize: Database.getSequelize(),
-    indexes: [
+  /**
+   * Initialize the model with Sequelize instance
+   */
+  static initialize(sequelize: Sequelize): void {
+    Setting.init(
       {
-        unique: true,
-        fields: ["key"],
+        id: {
+          type: DataTypes.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
+        },
+        value: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
       },
-    ],
-    modelName: "Setting",
-    tableName: "settings",
+      {
+        sequelize,
+        modelName: "Setting",
+        tableName: "settings",
+      }
+    );
   }
-);
 
-/**
- * Sync the settings table
- */
-Setting.sync();
+  /**
+   * Set up associations with other models
+   */
+  static associate(models: any): void {
+    // Settings typically don't have associations
+    // But you can add them here if needed
+  }
+}
 
 export default Setting;

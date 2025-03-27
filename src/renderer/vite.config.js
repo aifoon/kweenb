@@ -57,7 +57,7 @@ const config = {
         warn(warning);
       },
     },
-    chunkSizeWarningLimit: 5000,
+    chunkSizeWarningLimit: 30000,
     emptyOutDir: true,
     brotliSize: false,
   },
