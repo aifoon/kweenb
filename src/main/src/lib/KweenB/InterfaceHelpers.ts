@@ -44,7 +44,6 @@ const addInterfaceCompositionBee = async (
       where: {
         interfaceCompositionId: interfaceCompositionId,
         beeId: beeId,
-        audioSceneId: audioSceneId,
       },
       transaction,
     });
@@ -53,6 +52,10 @@ const addInterfaceCompositionBee = async (
       // If the relation exists but isLooping changed, update it
       if (existingRelation.dataValues.isLooping !== isLooping) {
         await existingRelation.update({ isLooping }, { transaction });
+      }
+
+      if (existingRelation.dataValues.audioSceneId !== audioSceneId) {
+        await existingRelation.update({ audioSceneId }, { transaction });
       }
 
       await transaction.commit();
