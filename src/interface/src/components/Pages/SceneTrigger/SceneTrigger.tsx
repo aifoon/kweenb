@@ -92,9 +92,9 @@ export const SceneTrigger = (props: SceneTriggerProps) => {
                     key={orderedAudioScene.audioScene.name}
                     item
                     xs={12}
-                    sm={4}
-                    md={3}
-                    lg={2}
+                    sm={6}
+                    md={4}
+                    lg={3}
                     xl={2}
                   >
                     <TriggerSceneCard

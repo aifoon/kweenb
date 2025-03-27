@@ -91,9 +91,9 @@ export const Card = ({
 
   return (
     <CardWrapper className={`card ${className}`}>
-      {title && (
-        <CardHeaderWrapper variant={variant} gap={1}>
-          <Box display={"flex"} justifyContent={"space-between"}>
+      <CardHeaderWrapper variant={variant} gap={1}>
+        <Box display={"flex"} justifyContent={"space-between"}>
+          {title && (
             <Box
               sx={{ width: "75%" }}
               display={"flex"}
@@ -115,15 +115,15 @@ export const Card = ({
                 {title}
               </Typography>
             </Box>
-            {headerSubtitle && (
-              <Typography variant="small">{headerSubtitle}</Typography>
-            )}
-          </Box>
-          {headerButtons && (
-            <ButtonGroup>{headerButtons.map((button) => button)}</ButtonGroup>
           )}
-        </CardHeaderWrapper>
-      )}
+          {headerSubtitle && (
+            <Typography variant="small">{headerSubtitle}</Typography>
+          )}
+        </Box>
+        {headerButtons && (
+          <ButtonGroup>{headerButtons.map((button) => button)}</ButtonGroup>
+        )}
+      </CardHeaderWrapper>
       <CardInnerWrapper variant={variant}>
         {introduction && <CardIntroduction>{introduction}</CardIntroduction>}
         {children}

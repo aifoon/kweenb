@@ -1,5 +1,5 @@
 import { Card } from "@components/Cards/Card";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -75,7 +75,6 @@ export const TriggerSceneCard = ({
   return (
     <Card
       variant="extraSmall"
-      title={orderedAudioScene.audioScene.name}
       headerButtons={[
         <Button
           sx={{ padding: 0, minWidth: "auto" }}
@@ -127,7 +126,12 @@ export const TriggerSceneCard = ({
             }
           }}
         >
-          <PlayArrowIcon />
+          <Box display={"flex"} gap={1} alignItems={"center"}>
+            <PlayArrowIcon />
+            <Typography variant="extraSmall">
+              {orderedAudioScene.audioScene.name}
+            </Typography>
+          </Box>
         </Button>
       </Box>
     </Card>
