@@ -3,6 +3,8 @@ import { KweenBGlobal } from "../../kweenb";
 import SettingHelpers from "./SettingHelpers";
 import { AudioFile, AudioScene, IBee } from "@shared/interfaces";
 import { AUDIO_FILES_ROOT_DIRECTORY } from "../../consts";
+import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
+import { demoAudioFiles } from "@seeds/demoAudioFiles";
 
 /**
  * Create a directory on the client
@@ -52,6 +54,11 @@ const deletePath = async (ipAddress: string, path: string) => {
  */
 const getAudioFiles = async (ipAddress: string): Promise<AudioFile[]> => {
   try {
+    //
+    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+      return demoAudioFiles;
+    }
+
     // get the ssh connection
     const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
       ipAddress

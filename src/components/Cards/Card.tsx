@@ -91,39 +91,41 @@ export const Card = ({
 
   return (
     <CardWrapper className={`card ${className}`}>
-      <CardHeaderWrapper variant={variant} gap={1}>
-        <Box display={"flex"} justifyContent={"space-between"}>
-          {title && (
-            <Box
-              sx={{ width: "75%" }}
-              display={"flex"}
-              alignItems={"center"}
-              gap={1}
-            >
-              {statusBullet && statusBullet}
-              <Typography
-                variant={variant === "normal" ? "normal" : "small"}
-                sx={{
-                  display: "inline-block",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  WebkitLineClamp: "2",
-                  WebkitBoxOrient: "vertical",
-                }}
+      {(title || headerSubtitle || headerButtons) && (
+        <CardHeaderWrapper variant={variant} gap={1}>
+          <Box display={"flex"} justifyContent={"space-between"}>
+            {title && (
+              <Box
+                sx={{ width: "75%" }}
+                display={"flex"}
+                alignItems={"center"}
+                gap={1}
               >
-                {title}
-              </Typography>
-            </Box>
+                {statusBullet && statusBullet}
+                <Typography
+                  variant={variant === "normal" ? "normal" : "small"}
+                  sx={{
+                    display: "inline-block",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    WebkitLineClamp: "2",
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {title}
+                </Typography>
+              </Box>
+            )}
+            {headerSubtitle && (
+              <Typography variant="small">{headerSubtitle}</Typography>
+            )}
+          </Box>
+          {headerButtons && (
+            <ButtonGroup>{headerButtons.map((button) => button)}</ButtonGroup>
           )}
-          {headerSubtitle && (
-            <Typography variant="small">{headerSubtitle}</Typography>
-          )}
-        </Box>
-        {headerButtons && (
-          <ButtonGroup>{headerButtons.map((button) => button)}</ButtonGroup>
-        )}
-      </CardHeaderWrapper>
+        </CardHeaderWrapper>
+      )}
       <CardInnerWrapper variant={variant}>
         {introduction && <CardIntroduction>{introduction}</CardIntroduction>}
         {children}

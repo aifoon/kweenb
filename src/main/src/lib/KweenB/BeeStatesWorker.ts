@@ -14,6 +14,7 @@ import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 
 // Import the audio scene model
 import AudioSceneDb from "../../models/AudioScene";
+import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
 
 interface SshOutputState {
   ipAddress: string;
@@ -105,15 +106,23 @@ class BeeStatesWorker {
             const json = JSON.parse(onlineStatus.toString().trim());
 
             // get the output states
-            const states: SshOutputState[] = json.map(
-              (state: SshOutputState) => {
-                return {
-                  ipAddress: state.ipAddress,
-                  responseTime: new Date(state.responseTime),
-                  isOnline: state.isOnline,
-                };
-              }
-            );
+            let states: SshOutputState[] = json.map((state: SshOutputState) => {
+              return {
+                ipAddress: state.ipAddress,
+                responseTime: new Date(state.responseTime),
+                isOnline: state.isOnline,
+              };
+            });
+
+            /**
+             * @debug - This is spoofing the connection status
+             */
+            if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+              states = states.map((state) => ({
+                ...state,
+                isOnline: true,
+              }));
+            }
 
             // loop over the states that are online
             states
@@ -126,6 +135,20 @@ class BeeStatesWorker {
 
                 // validate
                 if (!bee) return;
+
+                /**
+                 * @debug - This is spoofing the connection status
+                 */
+                if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+                  // Generate random network performance value between 1 and 5
+                  const randomNetworkPerformance = Math.random() * 4 + 1;
+                  this._beeStates.update(
+                    "networkPerformanceMs",
+                    bee,
+                    parseFloat(randomNetworkPerformance.toFixed(2))
+                  );
+                  return;
+                }
 
                 // spawn a child process to check the network performance
                 const childNetworkPerformance = spawn(
@@ -174,15 +197,23 @@ class BeeStatesWorker {
             const json = JSON.parse(onlineStatus.toString().trim());
 
             // get the output states
-            const states: SshOutputState[] = json.map(
-              (state: SshOutputState) => {
-                return {
-                  ipAddress: state.ipAddress,
-                  responseTime: new Date(state.responseTime),
-                  isOnline: state.isOnline,
-                };
-              }
-            );
+            let states: SshOutputState[] = json.map((state: SshOutputState) => {
+              return {
+                ipAddress: state.ipAddress,
+                responseTime: new Date(state.responseTime),
+                isOnline: state.isOnline,
+              };
+            });
+
+            /**
+             * @debug - This is spoofing the connection status
+             */
+            if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+              states = states.map((state) => ({
+                ...state,
+                isOnline: true,
+              }));
+            }
 
             // loop over the states that are online
             states
@@ -204,6 +235,16 @@ class BeeStatesWorker {
                   bee,
                   state.responseTime
                 );
+
+                /**
+                 * @debug - This is spoofing the connection status
+                 */
+                if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+                  this._beeStates.update("isApiOn", bee, true);
+                  this._beeStates.update("isJackRunning", bee, true);
+                  this._beeStates.update("isJacktripRunning", bee, true);
+                  return;
+                }
 
                 /**
                  * Check if the Zwerm3 API is running
