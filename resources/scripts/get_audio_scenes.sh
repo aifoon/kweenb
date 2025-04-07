@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default configurations
-PRIVATE_KEY_PATH="~/.ssh/kweenb"
+PRIVATE_KEY_PATH="${HOME}/.ssh/kweenb"
 REMOTE_JSON_PATH="/home/pi/pd-bee/audioscenes_index.json"
 CONNECTION_TIMEOUT=3
 

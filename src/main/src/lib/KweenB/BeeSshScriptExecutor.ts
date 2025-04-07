@@ -7,6 +7,7 @@ import { IBee } from "@shared/interfaces";
 import { resourcesPath } from "@shared/resources";
 import { exec } from "child_process";
 import SettingHelpers from "./SettingHelpers";
+import { SSH_PRIVATE_KEY_PATH } from "../../consts";
 
 interface CLIParam {
   flag: string;
@@ -14,17 +15,17 @@ interface CLIParam {
 }
 
 export default class BeeSshScriptExecutor {
-  public privateKeyPath: string;
+  constructor() {}
 
-  constructor() {
-    // the default private key path
-    this.privateKeyPath = `~/.ssh/kweenb`;
-
-    // get the private key path from the settings
-    SettingHelpers.getAllSettings().then((settings) => {
-      if (settings.kweenBSettings.sshKeyPath)
-        this.privateKeyPath = settings.kweenBSettings.sshKeyPath;
-    });
+  /**
+   * Get the private key path
+   * @returns
+   */
+  async getPrivateKeyPath() {
+    return (
+      (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
+      SSH_PRIVATE_KEY_PATH
+    );
   }
 
   /**
@@ -39,6 +40,8 @@ export default class BeeSshScriptExecutor {
     cliParams?: CLIParam[]
   ): Promise<void> {
     try {
+      const privateKeyPath = await this.getPrivateKeyPath();
+
       return new Promise((resolve, reject) => {
         const cliParamsString =
           cliParams && cliParams.length > 0
@@ -49,7 +52,7 @@ export default class BeeSshScriptExecutor {
 
         const beeAddresses = bees.map((b) => b.ipAddress).join(" ");
 
-        const command = `${resourcesPath}/scripts/${script} -k ${this.privateKeyPath} ${cliParamsString} ${beeAddresses}`;
+        const command = `${resourcesPath}/scripts/${script} -k ${privateKeyPath} ${cliParamsString} ${beeAddresses}`;
 
         exec(command, (error: any, stdout: any, stderr: any) => {
           if (error || stderr) {
@@ -76,11 +79,12 @@ export default class BeeSshScriptExecutor {
     bees: IBee[]
   ): Promise<T | undefined> {
     try {
+      const privateKeyPath = await this.getPrivateKeyPath();
       if (!bees || bees.length === 0) return;
       return new Promise<T>((resolve, reject) => {
-        const command = `${resourcesPath}/scripts/${script} -k ${
-          this.privateKeyPath
-        } ${bees.map((b) => b.ipAddress).join(" ")}`;
+        const command = `${resourcesPath}/scripts/${script} -k ${privateKeyPath} ${bees
+          .map((b) => b.ipAddress)
+          .join(" ")}`;
         exec(command, (error: any, stdout: any, stderr: any) => {
           if (error || stderr) {
             reject(error as T);

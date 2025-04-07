@@ -1,5 +1,6 @@
 import { SSH_PRIVATE_KEY_PATH, SSH_USERNAME_BEE } from "../../consts";
 import { NodeSSH } from "node-ssh";
+import SettingHelpers from "../KweenB/SettingHelpers";
 
 class BeeSshConnections {
   // Dictionary to store NodeSSH instances
@@ -41,13 +42,18 @@ class BeeSshConnections {
     // Get or create the NodeSSH instance
     const ssh = this.getNodeSshInstance(ipAddress);
 
+    // get the location of the ssh private key
+    const sshPrivateKey =
+      (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
+      SSH_PRIVATE_KEY_PATH;
+
     // if the ssh client is not connected
     if (ssh && !ssh.isConnected()) {
       // connect to the ssh client
       await ssh.connect({
         host: ipAddress,
         username: SSH_USERNAME_BEE,
-        privateKeyPath: SSH_PRIVATE_KEY_PATH,
+        privateKeyPath: sshPrivateKey,
       });
     }
 

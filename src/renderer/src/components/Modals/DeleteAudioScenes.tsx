@@ -32,7 +32,14 @@ export const DeleteAudioScenes = ({
   return (
     <BaseModal disableBackdropClick open={isOpen} onClose={onClose}>
       <form>
-        <Box width={"100%"} display={"flex"} justifyContent={"space-between"}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 3,
+          }}
+        >
           <Typography variant="small">Delete on all bees</Typography>
           <CustomSwitch
             checked={deleteOnAllBees}

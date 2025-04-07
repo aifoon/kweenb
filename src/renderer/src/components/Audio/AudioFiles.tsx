@@ -8,7 +8,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ButtonGroup } from "@components/Buttons";
 import { Card } from "@components/Cards";
 import { useAppStore, useBeeStore } from "@renderer/src/hooks";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, TextField } from "@mui/material";
 import { AudioFile, IBee } from "@shared/interfaces";
 import { DeleteAudioScenes } from "../Modals";
 
@@ -26,6 +26,8 @@ export const AudioFiles = (props: AudioFilesProps) => {
   // Inner State
   const [selectedBee, setSelectedBee] = useState<IBee | null>(null);
   const [currentAudioFiles, setCurrentAudioFiles] = useState<AudioFile[]>([]);
+  const [currentFilter, setCurrentFilter] = useState<string>("");
+  const [filteredAudioFiles, setFilteredAudioFiles] = useState<AudioFile[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDeleteAudioScenesOpen, handleIsDeleteAudioScenesOpen] =
     useState(false);
@@ -43,7 +45,11 @@ export const AudioFiles = (props: AudioFilesProps) => {
     (bee) => {
       window.kweenb.methods.getAudioFiles(bee).then((audioFiles) => {
         setSelectedBee(bee);
-        setCurrentAudioFiles(audioFiles);
+        const audioFilesWithoutTests = audioFiles.filter(
+          (audioFile) => audioFile.name !== "tests"
+        );
+        setCurrentAudioFiles(audioFilesWithoutTests);
+        setFilteredAudioFiles(audioFilesWithoutTests);
       });
     },
     [bees]
@@ -54,12 +60,27 @@ export const AudioFiles = (props: AudioFilesProps) => {
     if (bees.length > 0) {
       loadAudioFiles(bees[0]);
     }
+    return () => {
+      setFilteredAudioFiles([]);
+      setCurrentAudioFiles([]);
+      setCurrentFilter("");
+    };
   }, []);
+
+  useEffect(() => {
+    if (currentAudioFiles.length > 0) {
+      const filteredAudioFiles = currentAudioFiles.filter((audioFile) =>
+        audioFile.name.toLowerCase().includes(currentFilter.toLowerCase())
+      );
+      setFilteredAudioFiles(filteredAudioFiles);
+    } else {
+      setFilteredAudioFiles([]);
+    }
+  }, [currentFilter, currentAudioFiles]);
 
   // delete the audio files
   const deleteAudio = useCallback(
     async (deleteOnAllBees: boolean) => {
-      console.log("deleting audio files");
       if (selectedItems.length === 0) return;
       else {
         if (selectedBee === null) return;
@@ -108,12 +129,12 @@ export const AudioFiles = (props: AudioFilesProps) => {
             <Button
               variant={"contained"}
               size="small"
-              color="secondary"
+              color="error"
               key="delete_forever"
               disabled={selectedItems.length === 0}
               onClick={() => handleIsDeleteAudioScenesOpen(true)}
             >
-              <DeleteForeverIcon style={{ fontSize: ".8rem" }} />
+              DELETE
             </Button>
             <Button
               variant={"contained"}
@@ -122,7 +143,7 @@ export const AudioFiles = (props: AudioFilesProps) => {
               key="refresh_list"
               onClick={() => loadAudioFiles(selectedBee)}
             >
-              <RefreshIcon style={{ fontSize: ".8rem" }} />
+              REFRESH
             </Button>
             <Button
               variant="contained"
@@ -159,13 +180,21 @@ export const AudioFiles = (props: AudioFilesProps) => {
             />
           }
         >
-          <Box display={"flex"} flexDirection={"column"} gap={1}>
-            {currentAudioFiles.length === 0 && (
+          <Box display={"flex"} flexDirection={"column"}>
+            <TextField
+              sx={{ marginBottom: "10px" }}
+              size="small"
+              value={currentFilter}
+              onChange={(event) => setCurrentFilter(event.target.value)}
+            />
+            {filteredAudioFiles.length === 0 && (
               <Card variant="small">
-                <Typography>No audio files are found on this bee.</Typography>
+                <Typography>
+                  No audio files with current filter are found on this bee.
+                </Typography>
               </Card>
             )}
-            {currentAudioFiles.length > 0 && (
+            {filteredAudioFiles.length > 0 && (
               <Card variant="small">
                 <SimpleTreeView
                   onSelectedItemsChange={handleSelectedItemsChange}
@@ -173,19 +202,21 @@ export const AudioFiles = (props: AudioFilesProps) => {
                   selectedItems={selectedItems}
                   checkboxSelection
                 >
-                  {currentAudioFiles.map((audioFile) => (
-                    <TreeItem
-                      sx={{
-                        ".MuiTreeItem-iconContainer": {
-                          display: "none !important",
-                        },
-                      }}
-                      disabled={audioFile.name === "tests"}
-                      key={audioFile.name}
-                      itemId={audioFile.fullPath}
-                      label={audioFile.name}
-                    />
-                  ))}
+                  {filteredAudioFiles.map((audioFile) => {
+                    return (
+                      <TreeItem
+                        sx={{
+                          ".MuiTreeItem-iconContainer": {
+                            display: "none !important",
+                          },
+                        }}
+                        disabled={audioFile.name === "tests"}
+                        key={audioFile.name}
+                        itemId={audioFile.fullPath}
+                        label={audioFile.name}
+                      />
+                    );
+                  })}
                 </SimpleTreeView>
               </Card>
             )}

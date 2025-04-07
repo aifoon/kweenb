@@ -289,6 +289,7 @@ const getAudioScenesForBees = async (
       beeId: {
         [Op.in]: beeArray.map((b) => b.id),
       },
+      markedForDeletion: false,
     },
   });
 

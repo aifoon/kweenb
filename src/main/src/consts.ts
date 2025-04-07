@@ -12,7 +12,10 @@ import { app } from "electron";
  */
 
 export const DEBUG_JACK_JACKTRIP = false;
-export const DEBUG_KWEENB = false;
+
+// the debug flag for the audio scenes. Options are
+// - audioScenesSync
+export const DEBUG_MODULES = ["audioScenesSync"];
 
 /**
  * Paths
@@ -60,6 +63,12 @@ export const NETWORK_PERFORMANCE_POLLING_SECONDS = 5;
 
 // the interval we use to poll the audio scenes (check each x seconds)
 export const AUDIOSCENES_POLLING_SECONDS = 5;
+
+// the interval we use to remove flagged audio scenes (check each x seconds)
+// this is the interval, almost the same as the timing needed for indexing
+// The timing on the pi is 5 minutes, so we need to wait for 5 minutes
+// we added extra 30 seconds to be sure that the audio scenes are removed
+export const AUDIOSCENES_REMOVING_SECONDS = 5 * 60 + 30;
 
 /**
  * Zwerm3 API Configuration

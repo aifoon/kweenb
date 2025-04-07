@@ -10,6 +10,8 @@ class AudioScene extends Model {
   declare oscAddress: string;
   declare localFolderPath: string;
   declare beeId: number;
+  declare manuallyAdded: boolean;
+  declare markedForDeletion: boolean;
 
   /**
    * Initialize the model with Sequelize instance
@@ -37,6 +39,16 @@ class AudioScene extends Model {
         beeId: {
           type: DataTypes.INTEGER,
           allowNull: false,
+        },
+        manuallyAdded: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        markedForDeletion: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {

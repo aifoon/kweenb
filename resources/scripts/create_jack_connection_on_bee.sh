@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default path to the private key
-PRIVATE_KEY_PATH="~/.ssh/kweenb"
+PRIVATE_KEY_PATH="${HOME}/.ssh/kweenb"
 
 # Function to display usage information
 usage() {

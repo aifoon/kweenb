@@ -1,10 +1,7 @@
 #!/bin/bash
 
 # Default path to the private key
-PRIVATE_KEY_PATH="~/.ssh/kweenb"
-
-# Base path for allowed directories
-BASE_PATH="/home/pi/pd-bee/files"
+PRIVATE_KEY_PATH="${HOME}/.ssh/kweenb"
 
 # Maximum connection timeout in seconds
 SSH_TIMEOUT=3
@@ -37,9 +34,6 @@ if [[ -z "$DIRECTORY_TO_REMOVE" || "$#" -eq 0 ]]; then
     usage
 fi
 
-# Construct the full directory path
-FULL_PATH="$BASE_PATH/$DIRECTORY_TO_REMOVE"
-
 # Function to remove directory on a remote device
 remove_directory() {
     local device=$1
@@ -47,7 +41,7 @@ remove_directory() {
         -o UserKnownHostsFile=/dev/null \
         -o ConnectTimeout=$SSH_TIMEOUT \
         -i "$PRIVATE_KEY_PATH" \
-        "pi@$device" "rm -rf \"$FULL_PATH\"" </dev/null &>/dev/null &
+        "pi@$device" "rm -rf \"$DIRECTORY_TO_REMOVE\"" </dev/null &>/dev/null &
 }
 
 # Iterate over devices and process in parallel

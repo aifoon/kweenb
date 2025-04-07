@@ -52,7 +52,7 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
   }
 
   const logger = createLogger(LOG_LEVEL, {
-    prefix: "[main]",
+    // prefix: "[main]",
   });
 
   /** @type {ChildProcessWithoutNullStreams | null} */
@@ -72,8 +72,7 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
 
       spawnProcess.stdout.on(
         "data",
-        (d) =>
-          d.toString().trim() && logger.warn(d.toString(), { timestamp: true })
+        (d) => d.toString().trim() && console.log(d.toString())
       );
       spawnProcess.stderr.on("data", (d) => {
         const data = d.toString().trim();
@@ -134,7 +133,7 @@ const setupInterfacePackageWatcher = ({ ws }) =>
      * The interface application for touch screen devices
      */
 
-    const spinViteDevServerInterface = true;
+    const spinViteDevServerInterface = false;
     if (spinViteDevServerInterface) {
       const viteDevServerInterface = await createServer({
         ...sharedConfig,

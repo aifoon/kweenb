@@ -24,6 +24,7 @@ import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
 // Import models
 import AudioScene from "../models/AudioScene";
 import Bee from "../models/Bee";
+import SettingHelpers from "../lib/KweenB/SettingHelpers";
 
 /**
  * Create a new bee
@@ -114,28 +115,28 @@ export const deleteAudio = async (
         await BeeHelpers.getAllBees(BeeActiveState.ALL)
       ).filter((bee) => bee.isOnline);
 
-      // DEBUG 05/02
-      // Check if this script is working??
-      // You receive the bees but the shell script is not working
-      console.log(onlineBees);
-
+      // remove the folders on all bees
       await new BeeSshScriptExecutor().executeWithNoOutput(
         "remove_folders_on_bees.sh",
         onlineBees,
         [{ flag: "-d", value: path }]
       );
+
+      // remove the folders in the database
       await Promise.all(
         onlineBees.map(async (bee) => {
-          await AudioScene.destroy({
-            where: { localFolderPath: path, beeId: bee.id },
-          });
+          await AudioScene.update(
+            { markedForDeletion: true },
+            { where: { localFolderPath: path, beeId: bee.id } }
+          );
         })
       );
     } else {
       await BeeSsh.deletePath(bee.ipAddress, path);
-      await AudioScene.destroy({
-        where: { localFolderPath: path, beeId: bee.id },
-      });
+      await AudioScene.update(
+        { markedForDeletion: true },
+        { where: { localFolderPath: path, beeId: bee.id } }
+      );
     }
   } catch (e: any) {
     throw new KweenBException(
@@ -721,6 +722,11 @@ export const uploadAudioFiles = async (
     // get all current bees
     const bees = await fetchAllBees();
 
+    // get the location of the ssh private key
+    const sshPrivateKey =
+      (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
+      SSH_PRIVATE_KEY_PATH;
+
     // get all the wav files
     const files = await fs.readdirSync(path);
     const wavFiles = files.filter((file) => /^\d+\.wav$/.test(file));
@@ -752,7 +758,7 @@ export const uploadAudioFiles = async (
           await sftp.connect({
             host: bee.ipAddress,
             username: "pi",
-            privateKey: fs.readFileSync(SSH_PRIVATE_KEY_PATH),
+            privateKey: fs.readFileSync(sshPrivateKey),
           });
           await sftp.mkdir(remoteDirectory);
           await sftp.fastPut(fullPath, remotePath, {
@@ -785,6 +791,7 @@ export const uploadAudioFiles = async (
             oscAddress: `${legalName}/audio.wav`,
             localFolderPath: remoteDirectory,
             beeId: bee.id,
+            manuallyAdded: true,
           });
         } catch (e: any) {
           throw new Error(e.message);

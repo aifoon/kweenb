@@ -14,6 +14,8 @@ import { registerActionListeners, registerMethodHandlers } from "./register";
 import firstBoot from "./firstboot";
 import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 import { KweenB, KweenBGlobal } from "./kweenb";
+import { Debugger } from "./logger";
+import { DEBUG_MODULES } from "./consts";
 
 /**
  * Get the resources path
@@ -43,6 +45,9 @@ const initApp = async () => {
 
     // check if the first start script ran before going further
     await firstBoot();
+
+    // init the logger, so we can use this in the rest of the application
+    Debugger.getInstance().initialize(DEBUG_MODULES);
 
     // create new KweenB instance
     KweenBGlobal.kweenb = new KweenB();

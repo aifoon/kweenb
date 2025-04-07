@@ -49,7 +49,12 @@ export const UploadAudioFilesSettings = ({
   }, [open]);
 
   return (
-    <BaseModal disableBackdropClick open={isOpen} onClose={onClose}>
+    <BaseModal
+      disableBackdropClick
+      open={isOpen}
+      onClose={onClose}
+      width="70vw"
+    >
       {!isUploading && (
         <Formik
           initialValues={{
@@ -96,7 +101,7 @@ export const UploadAudioFilesSettings = ({
                   gridTemplateColumns={"1fr 100px"}
                   gap={1}
                 >
-                  <Typography variant="small">
+                  <Typography variant="extraSmall">
                     {e.values.localDirectory || "No directory selected"}
                   </Typography>
                   <Button

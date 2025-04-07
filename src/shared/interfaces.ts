@@ -103,6 +103,15 @@ export interface AudioScene {
   localFolderPath: string;
 }
 
+export interface AudioSceneDbRecord {
+  id: number;
+  name: string;
+  beeId: number;
+  oscAddress: string;
+  localFolderPath: string;
+  manuallyAdded: boolean;
+}
+
 /**
  * For Positioning
  */
