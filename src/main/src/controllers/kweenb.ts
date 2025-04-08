@@ -38,6 +38,23 @@ export const calculateCurrentLatency = async () => {
 };
 
 /**
+ * Close the application
+ * @param event Electron.IpcMainInvokeEvent
+ * @param method Method to call
+ * @param params Params to pass
+ */
+export const closeKweenB = async () => {
+  try {
+    app.quit();
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "closeKweenB()", message: e.message },
+      false
+    );
+  }
+};
+
+/**
  * Disconnect all the P2P audio connections on kweenb
  */
 export const disconnectAllP2PAudioConnections = async () => {

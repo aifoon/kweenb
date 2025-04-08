@@ -1,8 +1,8 @@
 import { useState, MouseEvent, useCallback } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { Button, ButtonSize, ButtonUse } from "@components/Buttons";
-import { Box, Tooltip, Typography } from "@mui/material";
+// import { , ButtonSize, ButtonUse } from "@components/Buttons";
+import { Button, Box, Tooltip, Typography } from "@mui/material";
 import { useAppStore } from "@renderer/src/hooks";
 import { IAudioPreset } from "@shared/interfaces";
 import Divider from "@mui/material/Divider";
@@ -105,11 +105,12 @@ export default function ConnectBeesMenu() {
   }, []);
 
   return (
-    <div>
+    <>
       <Button
         key="connectBees"
-        buttonSize={ButtonSize.Small}
-        buttonUse={ButtonUse.Grey}
+        variant="contained"
+        size="small"
+        color="secondary"
         onClick={openMenu}
       >
         Connect
@@ -172,6 +173,6 @@ export default function ConnectBeesMenu() {
           </Tooltip>
         ))}
       </Menu>
-    </div>
+    </>
   );
 }

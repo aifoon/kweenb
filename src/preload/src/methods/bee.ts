@@ -7,7 +7,7 @@ import {
   IBeeInput,
   IBeeState,
 } from "@shared/interfaces";
-import { PDAudioParam } from "@shared/enums";
+import { BeeDeviceManagerActions, PDAudioParam } from "@shared/enums";
 
 /**
  * All the audio settings for the bee (eg. triggering)
@@ -100,11 +100,21 @@ const configBee = {
 };
 
 /**
+ * All for managing the bee
+ */
+
+const manageBeeDevice = {
+  manageBeeDevice: (bees: IBee | IBee[], action: BeeDeviceManagerActions) =>
+    ipcRenderer.invoke("bee:manageBeeDevice", bees, action),
+};
+
+/**
  * Export the methods
  */
 export default {
   ...audio,
+  ...configBee,
   ...crudBee,
   ...jackJacktripBee,
-  ...configBee,
+  ...manageBeeDevice,
 };

@@ -1,16 +1,11 @@
 import React, { useEffect } from "react";
-import {
-  Button,
-  ButtonSize,
-  ButtonUse,
-  ButtonType,
-} from "@components/Buttons/Button";
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import ConnectBeesMenu from "@renderer/src/components/Menu/ConnectBeesMenu";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography, Button } from "@mui/material";
 import styled from "styled-components";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 const Pill = styled(Typography)`
   background-color: var(--primary-500);
@@ -24,6 +19,9 @@ export const Z3Navigation = () => {
   // App Store
   const setOpenDisconnectBeesModal = useAppStore(
     (state) => state.setOpenDisconnectBeesModal
+  );
+  const setOpenBeeDeviceManagerModal = useAppStore(
+    (state) => state.setOpenBeeDeviceManagerModal
   );
   const currentLatency = useAppStore((state) => state.currentLatency);
   const appMode = useAppStore((state) => state.appMode);
@@ -44,14 +42,23 @@ export const Z3Navigation = () => {
   let buttons = [
     <Button
       key="disconnectBees"
-      buttonSize={ButtonSize.Small}
-      buttonType={ButtonType.TertiaryWhite}
-      buttonUse={ButtonUse.Normal}
+      variant="text"
+      size="small"
+      color="secondary"
       onClick={() => setOpenDisconnectBeesModal(true)}
     >
       disconnect
     </Button>,
     <ConnectBeesMenu key="connectBees" />,
+    <Button
+      key="beeDeviceManager"
+      variant="text"
+      size="small"
+      color="secondary"
+      onClick={() => setOpenBeeDeviceManagerModal(true)}
+    >
+      <PowerSettingsNewIcon />
+    </Button>,
   ];
 
   return (

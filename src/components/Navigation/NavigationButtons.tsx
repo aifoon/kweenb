@@ -11,9 +11,6 @@ export interface NavigationButtonsProps {
   buttons: ReactElement<ButtonProps>[];
 }
 
-const NavigationButtonsWrapper = styled.div`
-  display: flex;
-`;
 export const NavigationButtons = ({ buttons }: NavigationButtonsProps) => (
   <>
     <Box display="flex" gap={1}>

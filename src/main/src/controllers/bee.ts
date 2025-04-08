@@ -11,7 +11,11 @@ import {
   IBeeState,
 } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
-import { BeeActiveState, PDAudioParam } from "@shared/enums";
+import {
+  BeeActiveState,
+  BeeDeviceManagerActions,
+  PDAudioParam,
+} from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
 import BeeSsh from "../lib/KweenB/BeeSsh";
@@ -403,6 +407,27 @@ export const killPureData = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "killPureData()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Manage the bee device
+ * @param event
+ * @param bees
+ * @param action
+ */
+export const manageBeeDevice = async (
+  event: Electron.IpcMainInvokeEvent,
+  bees: IBee[] | IBee,
+  action: BeeDeviceManagerActions
+) => {
+  try {
+    await BeeHelpers.manageBeeDevice(bees, action);
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "manageBeeDevice()", message: e.message },
       true
     );
   }

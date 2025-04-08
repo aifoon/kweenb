@@ -8,6 +8,11 @@ export enum BeeActiveState {
   ALL = 2,
 }
 
+export enum BeeDeviceManagerActions {
+  SHUTDOWN = 0,
+  REBOOT = 1,
+}
+
 export enum AppMode {
   Hub = "hub",
   P2P = "p2p",

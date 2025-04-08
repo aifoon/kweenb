@@ -15,7 +15,7 @@ export const DEBUG_JACK_JACKTRIP = false;
 
 // the debug flag for the audio scenes. Options are
 // - audioScenesSync
-export const DEBUG_MODULES = ["audioScenesSync"];
+export const DEBUG_MODULES = [];
 
 /**
  * Paths

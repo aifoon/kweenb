@@ -11,6 +11,7 @@ import { TriggerOnlyModal } from "../Modals/TriggerOnlyModal";
 import { UploadAudioFilesSettings } from "../Modals/UploadAudioFilesSettings";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
+import { BeeDeviceManagerModal } from "../Modals/BeeDeviceManagerModal";
 
 export const GlobalAppComponents = () => {
   const appMode = useAppStore((state) => state.appMode);
@@ -22,6 +23,9 @@ export const GlobalAppComponents = () => {
   );
   const openAboutKweenBModal = useAppStore(
     (state) => state.openAboutKweenBModal
+  );
+  const openBeeDeviceManagerModal = useAppStore(
+    (state) => state.openBeeDeviceManagerModal
   );
   const openConnectBeesHubModal = useAppStore(
     (state) => state.openConnectBeesHubModal
@@ -40,6 +44,9 @@ export const GlobalAppComponents = () => {
     (state) => state.openUploadAudioFilesSettings
   );
   const setLoading = useAppStore((state) => state.setLoading);
+  const setOpenBeeDeviceManagerModal = useAppStore(
+    (state) => state.setOpenBeeDeviceManagerModal
+  );
   const setOpenConnectBeesHubModal = useAppStore(
     (state) => state.setOpenConnectBeesHubModal
   );
@@ -129,15 +136,23 @@ export const GlobalAppComponents = () => {
         onClose={() => setOpenDisconnectBeesModal(false)}
       />
 
+      {/* The Trigger Only bees modal */}
       <TriggerOnlyModal
         open={openTriggerOnlyModal}
         onClose={() => setOpenTriggerOnlyModal(false)}
       ></TriggerOnlyModal>
 
+      {/* The Upload Audio Files modal */}
       <UploadAudioFilesSettings
         open={openUploadAudioFilesSettings}
         onClose={() => setOpenUploadAudioFilesSettings(false)}
       ></UploadAudioFilesSettings>
+
+      {/* The Bee Device Manager modal */}
+      <BeeDeviceManagerModal
+        open={openBeeDeviceManagerModal}
+        onClose={() => setOpenBeeDeviceManagerModal(false)}
+      ></BeeDeviceManagerModal>
     </>
   );
 };

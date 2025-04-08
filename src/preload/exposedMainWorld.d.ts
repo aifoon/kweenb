@@ -13,7 +13,7 @@ import {
   AudioFile,
   AudioScene,
 } from "@shared/interfaces";
-import { AppMode } from "@shared/enums";
+import { AppMode, BeeDeviceManagerActions } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
 
 declare global {
@@ -71,6 +71,12 @@ declare global {
         getBeeConfig(bee: IBee | number): Promise<IBeeConfig>;
         saveConfig(bee: IBee, config: Partial<IBeeConfig>);
 
+        // CONFIG
+        manageBeeDevice(
+          bees: IBee | IBee[],
+          action: BeeDeviceManagerActions
+        ): Promise<void>;
+
         /**
          * KweenB
          */
@@ -121,6 +127,7 @@ declare global {
       readonly actions: {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        closeKweenB(): void;
         disconnectPozyxMqttBroker(): void;
         setBeeActive(id: number, active: boolean): void;
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;

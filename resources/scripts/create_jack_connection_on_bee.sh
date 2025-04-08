@@ -39,21 +39,20 @@ BASE_COMMAND="jack_connect"
 # Suppress all output
 exec >/dev/null 2>&1
 
-# Function to perform the SSH connection and run the command
+# Function to perform the SSH connection, get the BEE_ID, and run the command
 connect_and_execute() {
     local IP=$1
-    local LAST_OCTET=$(echo $IP | awk -F '.' '{print $4}')
-    local BEE_ID="bee${LAST_OCTET: -2}"  # Use last two digits of last octet as a string
-    local FULL_COMMAND="$BASE_COMMAND $BEE_ID:receive_1 pure_data:input_1"
 
-    # Perform SSH and run the command with no fingerprint prompt
+    # Create a single SSH connection that:
+    # 1. Reads the BEE_ID from the file
+    # 2. Uses that BEE_ID to run the jack_connect command
     ssh -i "$PRIVATE_KEY_PATH" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         -o ControlMaster=auto \
         -o ControlPath="/tmp/%r@%h:%p" \
         -o ControlPersist=5m \
-        "$USER@$IP" "$FULL_COMMAND" >/dev/null 2>&1
+        "$USER@$IP" "BEE_ID=\$(cat /home/pi/.beeid) && $BASE_COMMAND \$BEE_ID:receive_1 pure_data:input_1" >/dev/null 2>&1
 }
 
 # Run the connect_and_execute function in parallel for each IP

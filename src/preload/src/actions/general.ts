@@ -8,6 +8,9 @@ export default {
   beesPoller: (action: "start" | "stop" | "pause"): void => {
     ipcRenderer.send("bee:beesPoller", action);
   },
+  closeKweenB: (): void => {
+    ipcRenderer.send("kweenb:closeKweenB");
+  },
   disconnectPozyxMqttBroker: (): void => {
     ipcRenderer.send("positioning:disconnectPozyxMqttBroker");
   },

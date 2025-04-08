@@ -2,7 +2,11 @@
  * A module with helpers used for getting bees and their config
  */
 
-import { BeeActiveState, PDAudioParam } from "@shared/enums";
+import {
+  BeeActiveState,
+  BeeDeviceManagerActions,
+  PDAudioParam,
+} from "@shared/enums";
 import {
   AudioScene,
   IBee,
@@ -473,6 +477,39 @@ const importBees = async (filePath: string) => {
 };
 
 /**
+ * Manage the bee device
+ * @param bee - Single bee or array of bees to manage
+ * @param action - Action to perform on the bee device
+ */
+const manageBeeDevice = async (
+  bees: IBee[] | IBee,
+  action: BeeDeviceManagerActions
+): Promise<void> => {
+  // Convert input to array and handle empty/null cases
+  let internalBees: IBee[] = Array.isArray(bees) ? bees : bees ? [bees] : [];
+
+  // If no bees provided, get all active and online bees
+  if (internalBees.length === 0) {
+    internalBees = (await getAllBees(BeeActiveState.ALL)).filter(
+      (b) => b.isOnline
+    );
+  }
+
+  // Validate we have bees to manage
+  if (internalBees.length === 0) {
+    console.error("No bees found to manage.");
+    return;
+  }
+
+  // Execute the script
+  await new BeeSshScriptExecutor().executeWithNoOutput(
+    "device_manager.sh",
+    internalBees,
+    [{ flag: "-t", value: action.toString() }]
+  );
+};
+
+/**
  * Make audio connection on bee
  * @param event
  * @param bee
@@ -632,6 +669,7 @@ export default {
   getBee,
   getBeeConfig,
   getCurrentBeeStates,
+  manageBeeDevice,
   makeAudioConnection,
   setAudioParam,
   setBeeActive,

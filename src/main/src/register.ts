@@ -22,6 +22,7 @@ import {
   saveConfig,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
+  manageBeeDevice,
   makeAudioConnection,
   setBeePozyxTagId,
   getBeeConfig,
@@ -39,20 +40,21 @@ import {
   getAudioScenes,
 } from "./controllers/bee";
 import {
-  startJacktripHubServer,
-  startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
-  killJackAndJacktrip as killJackAndJacktripOnKweenB,
-  startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
-  makeP2PAudioConnections as makeP2PAudioConnectionsKweenB,
-  makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
+  calculateCurrentLatency,
+  closeKweenB,
   disconnectAllP2PAudioConnections,
   getKweenBVersion,
+  isJackAndJacktripInstalled,
+  killJackAndJacktrip as killJackAndJacktripOnKweenB,
   makeHubAudioConnections as makeHubAudioConnectionsKweenB,
+  makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
+  makeP2PAudioConnections as makeP2PAudioConnectionsKweenB,
+  openDialog,
   setJackFolderPath,
   setJacktripBinPath,
-  calculateCurrentLatency,
-  isJackAndJacktripInstalled,
-  openDialog,
+  startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
+  startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
+  startJacktripHubServer,
 } from "./controllers/kweenb";
 import { fetchSettings, updateSetting } from "./controllers/setting";
 import {
@@ -73,6 +75,7 @@ import { activatePreset, getAudioPresets } from "./controllers/presets";
 const actionListeners = [
   { name: "bee:setBeeActive", listener: setBeeActive },
   { name: "bee:setBeePozyxTagId", listener: setBeePozyxTagId },
+  { name: "kweenb:closeKweenB", listener: closeKweenB },
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
   {
@@ -162,6 +165,9 @@ const methodHandlers = [
   { name: "bee:stopAudio", handler: stopAudio },
   { name: "bee:startPureData", handler: startPureData },
   { name: "bee:uploadAudioFiles", handler: uploadAudioFiles },
+
+  // DEVICES
+  { name: "bee:manageBeeDevice", handler: manageBeeDevice },
 
   /**
    * KweenB

@@ -10,6 +10,7 @@ type AppState = {
   currentLatency: number;
   loading: LoadingState;
   openAboutKweenBModal: boolean;
+  openBeeDeviceManagerModal: boolean;
   openConnectBeesHubModal: boolean;
   openConnectBeesP2PModal: boolean;
   openDisconnectBeesModal: boolean;
@@ -26,6 +27,7 @@ type AppAction = {
   setAudioScenes: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
+  setOpenBeeDeviceManagerModal: (open: boolean) => void;
   setOpenConnectBeesHubModal: (open: boolean) => void;
   setOpenConnectBeesP2PModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
@@ -51,6 +53,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   },
   manageBeesCollapsed: true,
   openAboutKweenBModal: false,
+  openBeeDeviceManagerModal: false,
   openConnectBeesHubModal: false,
   openConnectBeesP2PModal: false,
   openDisconnectBeesModal: false,
@@ -64,6 +67,8 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   setManageBeesCollapsed: (collapsed) =>
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
+  setOpenBeeDeviceManagerModal: (open) =>
+    set({ openBeeDeviceManagerModal: open }),
   setOpenConnectBeesHubModal: (open) => set({ openConnectBeesHubModal: open }),
   setOpenConnectBeesP2PModal: (open) => set({ openConnectBeesP2PModal: open }),
   setOpenDisconnectBeesModal: (open) => set({ openDisconnectBeesModal: open }),
