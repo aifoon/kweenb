@@ -34,6 +34,11 @@ export default {
     ipcRenderer.on(channel, callback);
     return () => ipcRenderer.removeAllListeners(channel);
   },
+  onStreamingConnectionStatus: (callback: any) => {
+    const channel = "streaming-connection-status";
+    ipcRenderer.on(channel, callback);
+    return () => ipcRenderer.removeAllListeners(channel);
+  },
   onSuccess: (callback: any) => {
     ipcRenderer.on("success", callback);
   },

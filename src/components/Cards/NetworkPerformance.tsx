@@ -76,7 +76,10 @@ export const NetworkPerformance = ({
           {networkPresentationType ===
             NetworkPerformancePresentationType.DETAILED && (
             <Typography display={"block"} variant="extraSmall">
-              {currentNetworkPerformanceMs} ms
+              {currentNetworkPerformanceMs >= 999 && <>Very Slow</>}
+              {currentNetworkPerformanceMs < 999 && (
+                <>{currentNetworkPerformanceMs} ms</>
+              )}
             </Typography>
           )}
         </NetworkPerformanceContainer>

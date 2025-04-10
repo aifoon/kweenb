@@ -13,11 +13,11 @@ import {
   Zwerm3Jack,
 } from "@zwerm3/jack";
 import { AppMode, BeeActiveState } from "@shared/enums";
-import { IBee } from "@shared/interfaces";
+import { IBee, IHubServerInfo } from "@shared/interfaces";
 import fs from "fs";
 import {
   DEBUG_JACK_JACKTRIP,
-  JACKTRIP_HUB_PORT,
+  START_PORT_JACKTRIP_HUB_SERVER,
   USER_DATA,
 } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
@@ -27,8 +27,13 @@ import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
 import { killExpress } from "../../express";
-import { HubPatchMode } from "@zwerm3/jack/dist/enums";
+import { BitRate, HubPatchMode } from "@zwerm3/jack/dist/enums";
 import { SocketSingleton } from "../socket/SocketSingleton";
+import {
+  JacktripHubServerParams,
+  RunningCommand,
+} from "@zwerm3/jack/dist/interfaces";
+import cluster from "cluster";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -94,46 +99,12 @@ const isJackAndJacktripInstalled = () => {
 };
 
 /**
- * Start Jacktrip Hub Server
+ * Start Jack
  */
-const startJacktripHubServer = async () => {
-  /**
-   * Get and set the settings
-   */
-
+const startJack = async () => {
+  // get the settings
   const settings = await SettingHelpers.getAllSettings();
 
-  const jacktrip = {
-    channels: settings.kweenBAudioSettings.jacktrip.channels,
-    debug: false,
-    localPort: JACKTRIP_HUB_PORT,
-    queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
-    realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
-    connectDefaultAudioPorts: false,
-    HubPatchMode: HubPatchMode.NoConnections,
-  };
-
-  /**
-   * Start Jacktrip
-   */
-
-  await startJacktripHubServerAsync(jacktrip, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
-};
-
-/**
- * Start Jack With Jacktrip Hub client
- */
-const startJackWithJacktripHubClient = async () => {
-  /**
-   * Get and set the settings
-   */
-
-  const settings = await SettingHelpers.getAllSettings();
-  const currentActiveBees = await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
   const jack = {
     device: settings.kweenBAudioSettings.jack.device,
     inputChannels: settings.kweenBAudioSettings.jack.inputChannels,
@@ -143,38 +114,94 @@ const startJackWithJacktripHubClient = async () => {
     periods: settings.kweenBAudioSettings.jack.periods,
   };
 
-  const jacktrip = {
-    channels: settings.kweenBAudioSettings.jacktrip.channels,
-    debug: false,
-    killAllJacktripBeforeStart: false,
-    localPort: settings.kweenBAudioSettings.jacktrip.localPort,
-    queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
-    realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
-    bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
-    clientName: "kweenb",
-    host: "localhost",
-    receiveChannels: settings.kweenBAudioSettings.jacktrip.receiveChannels,
-    // if in the settings the sendChannels is higher than the active bees, use the active bees
-    // it's not necessary to have more send channels than active bees
-    sendChannels:
-      settings.kweenBAudioSettings.jacktrip.sendChannels >
-      currentActiveBees.length
-        ? currentActiveBees.length
-        : settings.kweenBAudioSettings.jacktrip.sendChannels,
-    redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
-    remotePort: JACKTRIP_HUB_PORT,
-    connectDefaultAudioPorts: false,
-  };
-
-  /**
-   * Start Jack
-   */
-
   await startJackDmpAsync(jack, {
     onLog: async (message) => {
       if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
   });
+};
+
+/**
+ * Start Jacktrip Hub Server
+ * @param groupedBees The amount of numbers in the array define the amount of servers, the number itself defines the max amount of bees per server
+ */
+const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
+  /**
+   * Get and set the settings
+   */
+
+  const settings = await SettingHelpers.getAllSettings();
+
+  /**
+   * Create the Jacktrip Server Params
+   */
+
+  const jacktrip = {
+    channels: settings.kweenBAudioSettings.jacktrip.channels,
+    debug: false,
+    localPort: START_PORT_JACKTRIP_HUB_SERVER,
+    queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
+    realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
+    connectDefaultAudioPorts: false,
+    hubPatchMode: HubPatchMode.NoConnections,
+    bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
+  };
+
+  /**
+   * Start Jacktrip
+   */
+
+  const runningCommand = await startJacktripHubServerAsync(jacktrip, {
+    onLog: async (message) => {
+      if (DEBUG_JACK_JACKTRIP) console.log(message);
+    },
+  });
+
+  /**
+   * Add the output to the array
+   */
+
+  return {
+    jacktripHubServerParams: jacktrip,
+    runningCommand,
+  };
+};
+
+/**
+ * Start Jack With Jacktrip Hub client
+ */
+const startJacktripHubClient = async (
+  clusterNumber: number,
+  sendChannels: number,
+  hubServerInfo: IHubServerInfo
+) => {
+  /**
+   * Get and set the settings
+   */
+
+  // get the settings
+  const settings = await SettingHelpers.getAllSettings();
+
+  // create the jackktrip hub client params
+  const jacktrip = {
+    channels: settings.kweenBAudioSettings.jacktrip.channels,
+    debug: false,
+    killAllJacktripBeforeStart: false,
+    localPort: settings.kweenBAudioSettings.jacktrip.localPort + clusterNumber,
+    queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
+    realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
+    bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
+    clientName: `kweenb${clusterNumber}`,
+    host: "localhost",
+    receiveChannels: settings.kweenBAudioSettings.jacktrip.receiveChannels,
+    // if in the settings the sendChannels is higher than the active bees, use the active bees
+    // it's not necessary to have more send channels than active bees
+    sendChannels: sendChannels,
+    redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
+    remotePort: hubServerInfo.jacktripHubServerParams.localPort,
+    connectDefaultAudioPorts: false,
+    compression: true,
+  };
 
   /**
    * Start Jacktrip
@@ -270,21 +297,34 @@ const disconnectAllP2PAudioConnections = async () => {
  * Make all the audio hub connections on kweenb and the hub
  * @param sendChannels
  */
-const makeHubAudioConnections = async () => {
-  const activeBees = await BeeHelpers.getAllBeesData();
+const makeHubAudioConnections = async (
+  bees: IBee[] | null = null,
+  clusterNumber: number = -1
+) => {
+  // get all bees if no bees are given
+  let currentBees = bees;
+  if (!currentBees) {
+    currentBees = await BeeHelpers.getAllBeesData();
+  }
+
+  // create the cluster name
+  let clusterName = "kweenb";
+  if (clusterNumber >= 0) clusterName = `kweenb${clusterNumber}`;
 
   // Connect the active bees in the hub
-  activeBees.forEach(async (bee, index) => {
+  currentBees.forEach(async (bee, index) => {
     // Connect the capture channel to the open send channels on kweenb
     const captureChannelToBee = `system:capture_${bee.id}`;
-    const sendChannelToKweenBRemote = `kweenb:send_${index + 1}`;
+    const sendChannelToKweenBRemote = `${clusterName}:send_${index + 1}`;
     await connectChannel({
       source: captureChannelToBee,
       destination: sendChannelToKweenBRemote,
     });
 
     // Connect the receive channel from kweenb-remote to the bee
-    const receiveChannelFromKweenBRemote = `kweenb-remote:receive_${index + 1}`;
+    const receiveChannelFromKweenBRemote = `${clusterName}-remote:receive_${
+      index + 1
+    }`;
     const sendChannelOfBee = `${bee.name}:send_1`;
     await connectChannel({
       source: receiveChannelFromKweenBRemote,
@@ -348,8 +388,9 @@ export default {
   makeHubAudioConnections,
   makeP2PAudioConnection,
   makeP2PAudioConnections,
+  startJack,
   startJacktripHubServer,
-  startJackWithJacktripHubClient,
+  startJacktripHubClient,
   startJackWithJacktripP2PClient,
   setJackFolderPath,
   setJacktripBinPath,

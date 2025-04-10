@@ -1,50 +1,102 @@
 #!/bin/bash
 
-# Check if at least one IP address is provided
-if [ $# -eq 0 ]; then
+# Debug mode (set to false by default)
+DEBUG=false
+
+# Timeout in seconds for each ping (2 seconds)
+TIMEOUT=2
+
+# Number of ping attempts
+PING_COUNT=1
+
+# OS detection
+OS=$(uname)
+
+# Create a temporary directory to store results
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
+# Debug function - only prints if DEBUG is true
+debug() {
+    if [ "$DEBUG" = true ]; then
+        echo "DEBUG: $1" >&2
+    fi
+}
+
+# Function to check if a host is online
+check_online() {
+    local ip=$1
+    local result_file="$TEMP_DIR/$ip.result"
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # ISO 8601 format
+
+    # Ping with OS-specific options
+    if [[ "$OS" == "Darwin" ]]; then
+        # macOS
+        ping_output=$(ping -c $PING_COUNT -t $TIMEOUT $ip 2>/dev/null)
+    else
+        # Linux and others
+        ping_output=$(ping -c $PING_COUNT -W $TIMEOUT $ip 2>/dev/null)
+    fi
+    ping_success=$?
+
+    debug "Checking $ip - Result: $ping_success"
+    if [ "$DEBUG" = true ]; then
+        echo "$ping_output" >&2
+    fi
+
+    # Check if the ping was successful
+    if [ $ping_success -eq 0 ] && echo "$ping_output" | grep -q "time="; then
+        debug "$ip is online"
+        echo "{\"ipAddress\":\"$ip\",\"responseTime\":\"$timestamp\",\"isOnline\":true}" > "$result_file"
+    else
+        debug "$ip is offline"
+        echo "{\"ipAddress\":\"$ip\",\"responseTime\":\"$timestamp\",\"isOnline\":false}" > "$result_file"
+    fi
+}
+
+# Parse for debug flag option
+for arg in "$@"; do
+    if [ "$arg" = "--debug" ]; then
+        DEBUG=true
+        # Remove --debug from arguments
+        set -- "${@/--debug/}"
+        break
+    fi
+done
+
+# Validate arguments
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 [--debug] <host1> <host2> ..."
     echo "[]"
     exit 1
 fi
 
-# Read all IP addresses from the command line
-ip_addresses=("$@")
-
-# Timeout in seconds for each ping
-timeout=2000  # Each ping will wait up to 2 seconds for a response
-
-# Temporary file for storing output
-output_file=$(mktemp)
-
-# Function to ping an IP address and return a JSON object
-ping_ip() {
-    local ip=$1
-    # Ping the IP address with a timeout, counting only one packet
-    local result=$(ping -c 1 -W $timeout $ip 2>&1)
-    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-
-    # Check if the ping was successful
-    if echo "$result" | grep -q "time="; then
-        echo "{\"ipAddress\": \"$ip\", \"responseTime\": \"$timestamp\", \"isOnline\": true}," >> "$output_file"
-    else
-        echo "{\"ipAddress\": \"$ip\", \"responseTime\": \"$timestamp\", \"isOnline\": false}," >> "$output_file"
+# Start checking each host in parallel
+for ip in "$@"; do
+    # Skip empty arguments (could happen when removing --debug)
+    if [ -z "$ip" ]; then
+        continue
     fi
-}
-
-echo "["  # Start of JSON array
-
-# Loop through IP addresses and ping each one in the background by calling the function
-for ip in "${ip_addresses[@]}"; do
-    ping_ip $ip &  # Background the function call, not the definition
+    check_online "$ip" &
 done
 
-# Wait for all background pinging processes to complete
+# Wait for all background processes to complete
 wait
 
-# Remove the last comma from the output to maintain valid JSON format
-# Read from the temporary file, and use 'head' to avoid the final comma
-sed '$ s/,$//' "$output_file"
-
-echo "]"  # Start of JSON array
-
-# Remove the temporary file
-rm "$output_file"
+# Collect all results into a JSON array
+echo -n "["
+first=true
+for ip in "$@"; do
+    # Skip empty arguments
+    if [ -z "$ip" ]; then
+        continue
+    fi
+    if [ -f "$TEMP_DIR/$ip.result" ]; then
+        if ! $first; then
+            echo -n ","
+        fi
+        cat "$TEMP_DIR/$ip.result"
+        first=false
+    fi
+done
+echo "]"

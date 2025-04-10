@@ -12,6 +12,7 @@ import {
   ITargetAndOptionsForPositioningAlgorithm,
   AudioFile,
   AudioScene,
+  StreamingConnectionStatus,
 } from "@shared/interfaces";
 import { AppMode, BeeDeviceManagerActions } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
@@ -114,6 +115,10 @@ declare global {
         ): Promise<IAudioPreset[]>;
         activatePreset(fileName: string): Promise<IError>;
 
+        /**
+         * Positioning
+         */
+
         positioning: {
           connectPozyxMqttBroker(pozyxMqttBrokerUrl: string): Promise<boolean>;
           getAllTagIds(): Promise<string[]>;
@@ -122,6 +127,17 @@ declare global {
           ) => Promise<
             ITargetAndOptionsForPositioningAlgorithm<TAlgorithmOptions>
           >;
+        };
+
+        /**
+         * Streaming
+         */
+
+        streaming: {
+          startDisconnectStreaming(): void;
+          startHubStreaming(): void;
+          startP2PStreaming(): void;
+          startTriggerOnlyStreaming(): void;
         };
       };
       readonly actions: {
@@ -180,6 +196,12 @@ declare global {
           callback: (
             event: IpcMessageEvent,
             pozyxData: Map<string, IPozyxData>
+          ) => void
+        ): () => void;
+        onStreamingConnectionStatus(
+          callback: (
+            event: IpcMessageEvent,
+            streamConnectionStatus: StreamingConnectionStatus
           ) => void
         ): () => void;
         onSuccess(

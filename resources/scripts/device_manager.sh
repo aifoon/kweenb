@@ -40,32 +40,30 @@ if [[ "$ACTION_TYPE" != "0" && "$ACTION_TYPE" != "1" || "$#" -eq 0 ]]; then
     usage
 fi
 
-# Function to perform action on remote device
-perform_action() {
-    local device=$1
-    local action_command=""
+# Determine action command
+if [[ "$ACTION_TYPE" == "0" ]]; then
+    ACTION_COMMAND="sudo shutdown -h now"
+    ACTION_NAME="Shutting down"
+elif [[ "$ACTION_TYPE" == "1" ]]; then
+    ACTION_COMMAND="sudo reboot"
+    ACTION_NAME="Restarting"
+fi
 
-    if [[ "$ACTION_TYPE" == "0" ]]; then
-        action_command="sudo shutdown -h now"
-        echo "Shutting down device: $device"
-    elif [[ "$ACTION_TYPE" == "1" ]]; then
-        action_command="sudo reboot"
-        echo "Restarting device: $device"
-    fi
+# Launch all SSH commands in true parallel mode
+for device in "$@"; do
+    echo "${ACTION_NAME} device: $device"
 
-    ssh -o StrictHostKeyChecking=no \
+    # Launch SSH in background with no wait
+    (ssh -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         -o ConnectTimeout=$SSH_TIMEOUT \
+        -o BatchMode=yes \
         -i "$PRIVATE_KEY_PATH" \
-        "pi@$device" "$action_command" </dev/null &>/dev/null &
-}
+        "pi@$device" "$ACTION_COMMAND" </dev/null &>/dev/null) &
 
-# Iterate over devices and process in parallel
-for device in "$@"; do
-    perform_action "$device"
+    # Small delay to prevent SSH connection flood
+    sleep 0.1
 done
 
-# Wait for all background processes to complete
-wait
-
+# Don't wait for processes to complete - they're truly detached now
 echo "All actions have been initiated."

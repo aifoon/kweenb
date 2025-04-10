@@ -1,5 +1,5 @@
 import BeeHelpers from "./BeeHelpers";
-import { exec, spawn } from "node:child_process";
+import { exec } from "node:child_process";
 import { BeeActiveState } from "@shared/enums";
 import {
   AUDIOSCENES_POLLING_SECONDS,
@@ -10,7 +10,7 @@ import {
 import { BeeStates } from "../Dictionaries";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
-import { IBee, AudioSceneDbRecord } from "@shared/interfaces";
+import { IBee, AudioSceneDbRecord, SshOutputState } from "@shared/interfaces";
 import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 import { logger, debug } from "../../logger";
 
@@ -18,12 +18,6 @@ import { logger, debug } from "../../logger";
 import AudioSceneDb from "../../models/AudioScene";
 import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
 import { Op } from "sequelize";
-
-interface SshOutputState {
-  ipAddress: string;
-  responseTime: Date;
-  isOnline: boolean;
-}
 
 class BeeStatesWorker {
   private _beeStates: BeeStates;
@@ -271,49 +265,79 @@ class BeeStatesWorker {
               }));
             }
 
-            // loop over the states that are online
-            states
-              .filter((state) => state.isOnline)
-              .forEach((state) => {
-                // get the bee
+            // Get only the online bees
+            const onlineBees = states.filter((state) => state.isOnline);
+
+            // If no online bees, return early
+            if (onlineBees.length === 0) return;
+
+            /**
+             * @debug - This is spoofing the connection status
+             */
+            if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+              // Generate random network performance for all online bees
+              onlineBees.forEach((state) => {
                 const bee = this.beeStates.bees.find(
                   (bee) => bee.ipAddress === state.ipAddress
                 );
-
-                // validate
                 if (!bee) return;
 
-                /**
-                 * @debug - This is spoofing the connection status
-                 */
-                if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-                  // Generate random network performance value between 1 and 5
-                  const randomNetworkPerformance = Math.random() * 4 + 1;
-                  this._beeStates.update(
-                    "networkPerformanceMs",
-                    bee,
-                    parseFloat(randomNetworkPerformance.toFixed(2))
-                  );
+                // Generate random network performance value between 1 and 5
+                const randomNetworkPerformance = Math.random() * 4 + 1;
+                this._beeStates.update(
+                  "networkPerformanceMs",
+                  bee,
+                  parseFloat(randomNetworkPerformance.toFixed(2))
+                );
+              });
+              return;
+            }
+
+            // Get only the IP addresses of online bees
+            const onlineIpAddresses = onlineBees.map((bee) => bee.ipAddress);
+
+            // Run parallel network performance check on all online bees
+            exec(
+              `${resourcesPath}/scripts/network_performance_multiple.sh ${onlineIpAddresses.join(
+                " "
+              )}`,
+              (error, performanceData, stderr) => {
+                if (error) {
+                  console.error("Network performance check error:", error);
                   return;
                 }
 
-                // spawn a child process to check the network performance
-                const childNetworkPerformance = spawn(
-                  `${resourcesPath}/scripts/network_performance.sh`,
-                  [state.ipAddress]
-                );
+                try {
+                  // Parse the performance data
+                  const performanceResults = JSON.parse(
+                    performanceData.toString().trim()
+                  );
 
-                childNetworkPerformance.stdout.on(
-                  "data",
-                  (networkPerformance) => {
+                  // Update the network performance for each bee
+                  performanceResults.forEach((result: any) => {
+                    const bee = this.beeStates.bees.find(
+                      (bee) => bee.ipAddress === result.ipAddress
+                    );
+
+                    if (!bee) return;
+
+                    // Update with the latency value (999.99 means failed check)
+                    const latency =
+                      result.latency >= 999 ? result.latency : result.latency;
                     this._beeStates.update(
                       "networkPerformanceMs",
                       bee,
-                      parseFloat(networkPerformance.toString().trim())
+                      latency
                     );
-                  }
-                );
-              });
+                  });
+                } catch (e) {
+                  console.error(
+                    "Error processing network performance data:",
+                    e
+                  );
+                }
+              }
+            );
           } catch (e) {
             console.error(e);
           }
@@ -424,6 +448,9 @@ class BeeStatesWorker {
                   }
                 );
               });
+
+            // @debug Uncomment if you want to see the debug info
+            // this._beeStates.printDebugInfo();
           } catch (e) {
             console.error(e);
           }

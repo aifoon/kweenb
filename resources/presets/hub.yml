@@ -1,8 +1,8 @@
 ---
-name: 8 Bees
-description: Audio preset for max. 8 bees
+name: Default Streaming
+description: A preset for starting a streaming session via HUB mode
 appMode: hub
-maxAllowedBees: 8
+maxAllowedBees: 22
 bee:
   jack:
     device: hw:sndrpihifiberry

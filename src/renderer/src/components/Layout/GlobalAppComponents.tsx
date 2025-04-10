@@ -1,13 +1,8 @@
 import { Loader } from "@components/Loader";
-import React, { useEffect } from "react";
+import React from "react";
 import { AboutKweenBModal } from "../Modals/AboutKweenBModal";
 import { Alert, Snackbar } from "@mui/material";
-import {
-  ConnectBeesModalHub,
-  ConnectBeesModalP2P,
-  DisconnectBeesModal,
-} from "../Modals";
-import { TriggerOnlyModal } from "../Modals/TriggerOnlyModal";
+import { ConnectBeesModal } from "../Modals";
 import { UploadAudioFilesSettings } from "../Modals/UploadAudioFilesSettings";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
@@ -27,11 +22,8 @@ export const GlobalAppComponents = () => {
   const openBeeDeviceManagerModal = useAppStore(
     (state) => state.openBeeDeviceManagerModal
   );
-  const openConnectBeesHubModal = useAppStore(
-    (state) => state.openConnectBeesHubModal
-  );
-  const openConnectBeesP2PModal = useAppStore(
-    (state) => state.openConnectBeesP2PModal
+  const openConnectBeesModal = useAppStore(
+    (state) => state.openConnectBeesModal
   );
   const openDisconnectBeesModal = useAppStore(
     (state) => state.openDisconnectBeesModal
@@ -47,11 +39,8 @@ export const GlobalAppComponents = () => {
   const setOpenBeeDeviceManagerModal = useAppStore(
     (state) => state.setOpenBeeDeviceManagerModal
   );
-  const setOpenConnectBeesHubModal = useAppStore(
-    (state) => state.setOpenConnectBeesHubModal
-  );
-  const setOpenConnectBeesP2PModal = useAppStore(
-    (state) => state.setOpenConnectBeesP2PModal
+  const setOpenConnectBeesModal = useAppStore(
+    (state) => state.setOpenConnectBeesModal
   );
   const setOpenDisconnectBeesModal = useAppStore(
     (state) => state.setOpenDisconnectBeesModal
@@ -112,35 +101,26 @@ export const GlobalAppComponents = () => {
         </Snackbar>
       </div>
 
-      {appMode === AppMode.Hub && (
-        <>
-          <ConnectBeesModalHub
-            open={openConnectBeesHubModal}
-            onClose={() => setOpenConnectBeesHubModal(false)}
-          />
-        </>
-      )}
-
-      {appMode === AppMode.P2P && (
-        <>
-          <ConnectBeesModalP2P
-            open={openConnectBeesP2PModal}
-            onClose={() => setOpenConnectBeesP2PModal(false)}
-          />
-        </>
-      )}
+      {/* Open the connection window */}
+      <ConnectBeesModal
+        type={appMode === AppMode.Hub ? "HUB" : "P2P"}
+        open={openConnectBeesModal}
+        onClose={() => setOpenConnectBeesModal(false)}
+      />
 
       {/* The Disconnect bees modal */}
-      <DisconnectBeesModal
+      <ConnectBeesModal
+        type={"DISCONNECT"}
         open={openDisconnectBeesModal}
         onClose={() => setOpenDisconnectBeesModal(false)}
       />
 
       {/* The Trigger Only bees modal */}
-      <TriggerOnlyModal
+      <ConnectBeesModal
+        type={"TRIGGER_ONLY"}
         open={openTriggerOnlyModal}
         onClose={() => setOpenTriggerOnlyModal(false)}
-      ></TriggerOnlyModal>
+      />
 
       {/* The Upload Audio Files modal */}
       <UploadAudioFilesSettings

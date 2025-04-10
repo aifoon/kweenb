@@ -45,7 +45,11 @@ class BeeStates {
           this.isJackRunning(beeState.bee) ? "Jack ON" : "Jack OFF"
         } - ${
           this.isJacktripRunning(beeState.bee) ? "Jacktrip ON" : "Jacktrip OFF"
-        } - Network Perf.: ${this.getNetworkPerformanceMs(beeState.bee) || 0}ms`
+        } - Network Perf.: ${
+          this.getNetworkPerformanceMs(beeState.bee) || 0
+        }ms - Last Ping Resp.: ${this.convertPingResponseIntoReadable(
+          beeState.lastPingResponse
+        )}`
       );
     };
 
@@ -95,6 +99,36 @@ class BeeStates {
    */
   public getBeeState(bee: IBee) {
     return this.beeStates.find((b) => b.bee.id === bee.id);
+  }
+
+  /**
+   * Converts the ping response into a readable format
+   * @param date The date to convert
+   * @returns The readable date
+   */
+  public convertPingResponseIntoReadable(date: Date | null) {
+    try {
+      // Check if date is null
+      if (!date) {
+        return "No ping response";
+      }
+
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date format";
+      }
+
+      // Format to HH:mm:ss
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+
+      return `${hours}:${minutes}:${seconds}`;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      return `Error converting time: ${errorMessage}`;
+    }
   }
 
   /**

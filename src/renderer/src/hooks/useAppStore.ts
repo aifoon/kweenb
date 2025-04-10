@@ -11,8 +11,7 @@ type AppState = {
   loading: LoadingState;
   openAboutKweenBModal: boolean;
   openBeeDeviceManagerModal: boolean;
-  openConnectBeesHubModal: boolean;
-  openConnectBeesP2PModal: boolean;
+  openConnectBeesModal: boolean;
   openDisconnectBeesModal: boolean;
   openTriggerOnlyModal: boolean;
   openUploadAudioFilesSettings: boolean;
@@ -28,8 +27,7 @@ type AppAction = {
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
   setOpenBeeDeviceManagerModal: (open: boolean) => void;
-  setOpenConnectBeesHubModal: (open: boolean) => void;
-  setOpenConnectBeesP2PModal: (open: boolean) => void;
+  setOpenConnectBeesModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
   setOpenTriggerOnlyModal: (open: boolean) => void;
   setOpenUploadAudioFilesSettings: (open: boolean) => void;
@@ -54,8 +52,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   manageBeesCollapsed: true,
   openAboutKweenBModal: false,
   openBeeDeviceManagerModal: false,
-  openConnectBeesHubModal: false,
-  openConnectBeesP2PModal: false,
+  openConnectBeesModal: false,
   openDisconnectBeesModal: false,
   openTriggerOnlyModal: false,
   openToastState: false,
@@ -67,11 +64,12 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   setManageBeesCollapsed: (collapsed) =>
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
-  setOpenBeeDeviceManagerModal: (open) =>
+  setOpenBeeDeviceManagerModal: (open: boolean) =>
     set({ openBeeDeviceManagerModal: open }),
-  setOpenConnectBeesHubModal: (open) => set({ openConnectBeesHubModal: open }),
-  setOpenConnectBeesP2PModal: (open) => set({ openConnectBeesP2PModal: open }),
-  setOpenDisconnectBeesModal: (open) => set({ openDisconnectBeesModal: open }),
+  setOpenConnectBeesModal: (open: boolean) =>
+    set({ openConnectBeesModal: open }),
+  setOpenDisconnectBeesModal: (open: boolean) =>
+    set({ openDisconnectBeesModal: open }),
   setOpenTriggerOnlyModal: (open) => set({ openTriggerOnlyModal: open }),
   setOpenUploadAudioFilesSettings: (open) =>
     set({ openUploadAudioFilesSettings: open }),

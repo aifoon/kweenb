@@ -2,7 +2,11 @@
  * Shared interfaces
  */
 
-import { AppMode, ChannelType } from "./enums";
+import {
+  JacktripHubServerParams,
+  RunningCommand,
+} from "@zwerm3/jack/dist/interfaces";
+import { AppMode, ChannelType, StreamingConnectionStatusType } from "./enums";
 
 export interface IError {
   message: string;
@@ -28,6 +32,20 @@ export interface IHubClients {
 export interface IHubClientsResponse {
   message: string;
   hubClients: IHubClients;
+}
+
+export interface IHubServerInfo {
+  jacktripHubServerParams: JacktripHubServerParams;
+  runningCommand: RunningCommand;
+}
+
+/**
+ * For Streaming (connections)
+ */
+
+export interface StreamingConnectionStatus {
+  type: StreamingConnectionStatusType;
+  message: string;
 }
 
 /**
@@ -273,4 +291,11 @@ export interface InterfaceComposition {
   id: number;
   name: string;
   composition: BeeAudioScene[];
+}
+
+// SSH/Scripts
+export interface SshOutputState {
+  ipAddress: string;
+  responseTime: Date;
+  isOnline: boolean;
 }

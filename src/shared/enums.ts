@@ -31,3 +31,10 @@ export enum ChannelType {
   MONO = "mono",
   STEREO = "stereo",
 }
+
+export enum StreamingConnectionStatusType {
+  IDLE = "IDLE",
+  INFO = "INFO",
+  ERROR = "ERROR",
+  SUCCES = "EXIT",
+}

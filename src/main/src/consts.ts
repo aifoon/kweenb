@@ -128,7 +128,7 @@ export const PING_CONFIG: PingConfig = {
 export const START_PORT_JACKTRIP = 4464;
 
 // the port of the jacktrip HUB server
-export const JACKTRIP_HUB_PORT = 4495;
+export const START_PORT_JACKTRIP_HUB_SERVER = 4495;
 
 // the jacktrip download version
 export const JACKTRIP_DOWNLOAD_VERSION = "2.3.1";

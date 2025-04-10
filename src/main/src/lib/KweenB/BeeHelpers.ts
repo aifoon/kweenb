@@ -13,6 +13,7 @@ import {
   IBeeConfig,
   IBeeInput,
   IBeeState,
+  SshOutputState,
 } from "@shared/interfaces";
 import fs from "fs";
 import {
@@ -26,7 +27,7 @@ import {
   PD_PORT_BEE,
 } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
-import { spawn } from "child_process";
+import { exec, spawn } from "child_process";
 import BeeSsh from "./BeeSsh";
 import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
@@ -425,6 +426,52 @@ const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
 };
 
 /**
+ * Check if the bees are online
+ * @param bees
+ * @returns
+ */
+const isOnlineMultiple = async (bees: IBee[]) => {
+  // spawn a child process to check if the bees are online
+  const allBeesOnline = new Promise<SshOutputState[]>((resolve, reject) => {
+    exec(
+      `${resourcesPath}/scripts/is_online_multiple.sh ${bees
+        .map((bee) => bee.ipAddress)
+        .join(" ")}`,
+      (error, onlineStatus, stderr) => {
+        try {
+          // convert the json
+          const json = JSON.parse(onlineStatus.toString().trim());
+
+          // get the output states
+          let states: SshOutputState[] = json.map((state: SshOutputState) => {
+            return {
+              ipAddress: state.ipAddress,
+              responseTime: new Date(state.responseTime),
+              isOnline: state.isOnline,
+            };
+          });
+
+          // Check if all bees are online
+          const allBeesOnline = states.every((state) => state.isOnline);
+          if (!allBeesOnline) {
+            const offlineBees = states
+              .filter((state) => !state.isOnline)
+              .map((state) => state.ipAddress)
+              .join(", ");
+            throw new Error(`Some bees are offline: ${offlineBees}`);
+          }
+          resolve(states);
+        } catch (e: any) {
+          reject(e);
+        }
+      }
+    );
+  });
+
+  return await allBeesOnline;
+};
+
+/**
  * Import the bees in the database
  * @param filePath
  */
@@ -669,6 +716,7 @@ export default {
   getBee,
   getBeeConfig,
   getCurrentBeeStates,
+  isOnlineMultiple,
   manageBeeDevice,
   makeAudioConnection,
   setAudioParam,

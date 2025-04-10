@@ -6,6 +6,7 @@ import {
   IBeeConfig,
   IHubClients,
   IHubClientsResponse,
+  IHubServerInfo,
   ISetting,
   ISystemClients,
   ISystemClientsResponse,
@@ -13,7 +14,7 @@ import {
 import fetch from "node-fetch";
 import {
   DEFAULT_BEE_CONFIG,
-  JACKTRIP_HUB_PORT,
+  START_PORT_JACKTRIP_HUB_SERVER,
   ZWERM3API_PORT,
 } from "../../consts";
 import {
@@ -387,7 +388,8 @@ const startJackWithJacktripHubServer = async (ipAddress: string) => {
  */
 const startJackWithJacktripHubClient = async (
   ipAddress: string,
-  clientName: string = "beeworker"
+  clientName: string = "beeworker",
+  hubServerInfo: IHubServerInfo | null = null
 ) => {
   // validate if Zwerm3API is running
   if (!(await isZwerm3ApiRunning(ipAddress)))
@@ -419,7 +421,9 @@ const startJackWithJacktripHubClient = async (
       host: ip.address(),
       receiveChannels: settings.beeAudioSettings.jacktrip.receiveChannels,
       redundancy: settings.beeAudioSettings.jacktrip.redundancy,
-      remotePort: JACKTRIP_HUB_PORT,
+      remotePort: hubServerInfo
+        ? hubServerInfo.jacktripHubServerParams.localPort
+        : START_PORT_JACKTRIP_HUB_SERVER,
       sendChannels: settings.beeAudioSettings.jacktrip.sendChannels,
       connectDefaultAudioPorts: false,
     },

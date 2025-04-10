@@ -24,11 +24,11 @@ import BeeHelpers from "../lib/KweenB/BeeHelpers";
 import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
 import Ssh2SftpClient from "ssh2-sftp-client";
 import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
+import SettingHelpers from "../lib/KweenB/SettingHelpers";
 
 // Import models
 import AudioScene from "../models/AudioScene";
 import Bee from "../models/Bee";
-import SettingHelpers from "../lib/KweenB/SettingHelpers";
 
 /**
  * Create a new bee

@@ -45,14 +45,24 @@ connect_and_execute() {
 
     # Create a single SSH connection that:
     # 1. Reads the BEE_ID from the file
-    # 2. Uses that BEE_ID to run the jack_connect command
+    # 2. Makes sure it has the proper format (bee followed by 2 digits)
+    # 3. Uses that BEE_ID to run the jack_connect command
     ssh -i "$PRIVATE_KEY_PATH" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         -o ControlMaster=auto \
         -o ControlPath="/tmp/%r@%h:%p" \
         -o ControlPersist=5m \
-        "$USER@$IP" "BEE_ID=\$(cat /home/pi/.beeid) && $BASE_COMMAND \$BEE_ID:receive_1 pure_data:input_1" >/dev/null 2>&1
+        "$USER@$IP" "if [ -f /home/pi/.beeid ]; then
+                        RAW_ID=\$(cat /home/pi/.beeid | tr -cd '0-9');
+                        # Format to ensure it has leading zeros if needed (bee01, bee02, etc.)
+                        BEE_ID=\"bee\$(printf '%02d' \$RAW_ID)\";
+                     else
+                        LAST_OCTET=\$(hostname -I | awk -F '.' '{print \$4}' | tr -cd '0-9');
+                        # Format to ensure it has leading zeros if needed
+                        BEE_ID=\"bee\$(printf '%02d' \$LAST_OCTET)\";
+                     fi &&
+                     $BASE_COMMAND \$BEE_ID:receive_1 pure_data:input_1" >/dev/null 2>&1
 }
 
 # Run the connect_and_execute function in parallel for each IP

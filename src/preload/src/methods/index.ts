@@ -1,13 +1,15 @@
 import bee from "./bee";
 import kweenb from "./kweenb";
-import settings from "./settings";
 import positioning from "./positioning";
 import presets from "./presets";
+import settings from "./settings";
+import streaming from "./streaming";
 
 export default {
   ...bee,
   ...kweenb,
-  ...settings,
   ...positioning,
   ...presets,
+  ...settings,
+  ...streaming,
 };

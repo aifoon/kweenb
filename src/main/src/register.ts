@@ -67,6 +67,12 @@ import {
   updatePositioningControllerAlgorithmOptions,
 } from "./controllers/positioning";
 import { activatePreset, getAudioPresets } from "./controllers/presets";
+import {
+  startDisconnectStreaming,
+  startHubStreaming,
+  startP2PStreaming,
+  startTriggerOnlyStreaming,
+} from "./controllers/streaming";
 
 /**
  * Register the actions
@@ -243,6 +249,27 @@ const methodHandlers = [
   {
     name: "positioning:getTargetsAndOptionsForAlgorithm",
     handler: getTargetsAndOptionsForAlgorithm,
+  },
+
+  /**
+   * Streaming
+   */
+
+  {
+    name: "streaming:startHubStreaming",
+    handler: startHubStreaming,
+  },
+  {
+    name: "streaming:startP2PStreaming",
+    handler: startP2PStreaming,
+  },
+  {
+    name: "streaming:startDisconnectStreaming",
+    handler: startDisconnectStreaming,
+  },
+  {
+    name: "streaming:startTriggerOnlyStreaming",
+    handler: startTriggerOnlyStreaming,
   },
 ];
 

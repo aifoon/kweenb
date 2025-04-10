@@ -14,11 +14,8 @@ export default function ConnectBeesMenu() {
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
-  const setOpenConnectBeesP2PModal = useAppStore(
-    (state) => state.setOpenConnectBeesP2PModal
-  );
-  const setOpenConnectBeesHubModal = useAppStore(
-    (state) => state.setOpenConnectBeesHubModal
+  const setOpenConnectBeesModal = useAppStore(
+    (state) => state.setOpenConnectBeesModal
   );
   const setOpenTriggerOnlyModal = useAppStore(
     (state) => state.setOpenTriggerOnlyModal
@@ -81,11 +78,7 @@ export default function ConnectBeesMenu() {
    * Start the process
    */
   const startProcess = () => {
-    if (appMode === AppMode.P2P) {
-      setOpenConnectBeesP2PModal(true);
-    } else {
-      setOpenConnectBeesHubModal(true);
-    }
+    setOpenConnectBeesModal(true);
   };
 
   /**

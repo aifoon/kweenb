@@ -24,27 +24,6 @@ export const Utils = {
   capitalize: (s: string) => (s && s[0].toUpperCase() + s.slice(1)) || "",
 
   /**
-   * A function that will compare two arrays
-   */
-  compareArrays: (a: any, b: any) => {
-    return (
-      a.length === b.length &&
-      a.every((element: any, index: any) => element === b[index])
-    );
-  },
-
-  /**
-   * A function that will round a number to a specified number of decimal places
-   * @param number The number to round
-   * @param decimals The number of decimal places to round to
-   * @returns The rounded number
-   */
-  roundToDecimals: (number: number, decimals: number): number => {
-    const factor = Math.pow(10, decimals);
-    return Math.round(number * factor) / factor;
-  },
-
-  /**
    * Calculate the latency of the audio system
    * @param sampleRate The sample rate of the audio system
    * @param bufferSize The buffer size of the audio system
@@ -57,6 +36,16 @@ export const Utils = {
     periods: number
   ) => {
     return Utils.roundToDecimals((bufferSize / sampleRate) * periods * 1000, 2);
+  },
+
+  /**
+   * A function that will compare two arrays
+   */
+  compareArrays: (a: any, b: any) => {
+    return (
+      a.length === b.length &&
+      a.every((element: any, index: any) => element === b[index])
+    );
   },
 
   /**
@@ -84,6 +73,25 @@ export const Utils = {
   },
 
   /**
+   * Returns a Promise that resolves after a specified delay
+   * @param ms The delay time in milliseconds
+   * @returns A Promise that resolves after the specified delay
+   */
+  delay: (ms: number): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  },
+
+  /**
+   * This function will generate a unique id
+   * @param prefix
+   * @returns
+   */
+  generateUniqueIdForReactComponents: (prefix = "id") => {
+    const timestamp = Date.now().toString(36); // compact time
+    const random = Math.random().toString(36).slice(2, 10); // 8 random characters
+    return `${prefix}-${timestamp}-${random}`;
+  },
+  /**
    * Get the time difference between two dates in seconds
    * @param date1 The first date
    * @param date2 The second date
@@ -107,13 +115,13 @@ export const Utils = {
   },
 
   /**
-   * This function will generate a unique id
-   * @param prefix
-   * @returns
+   * A function that will round a number to a specified number of decimal places
+   * @param number The number to round
+   * @param decimals The number of decimal places to round to
+   * @returns The rounded number
    */
-  generateUniqueIdForReactComponents: (prefix = "id") => {
-    const timestamp = Date.now().toString(36); // compact time
-    const random = Math.random().toString(36).slice(2, 10); // 8 random characters
-    return `${prefix}-${timestamp}-${random}`;
+  roundToDecimals: (number: number, decimals: number): number => {
+    const factor = Math.pow(10, decimals);
+    return Math.round(number * factor) / factor;
   },
 };
