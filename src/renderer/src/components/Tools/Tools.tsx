@@ -22,7 +22,6 @@ import {
   StartJackWithJacktripP2PServerOnActiveBees,
   StartJackWithJacktripP2PClientsOnKweenB,
   MakeP2PAudioConnectionsOnKweenB,
-  DisconnectP2PAudioConnectionsOnKweenB,
   StartJacktripHubServer,
   StartPureDataOnActiveBees,
   MakeBeeAudioConnections,

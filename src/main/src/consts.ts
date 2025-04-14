@@ -111,6 +111,9 @@ export const DEFAULT_BEE_STATUS = {
   isJacktripRunning: false,
 };
 
+// the amount of speakers in a cluster
+export const BEES_PER_CLUSTER_IN_HUB_MODE = 4;
+
 /**
  * Ping Configuration
  */
@@ -131,7 +134,7 @@ export const START_PORT_JACKTRIP = 4464;
 export const START_PORT_JACKTRIP_HUB_SERVER = 4495;
 
 // the jacktrip download version
-export const JACKTRIP_DOWNLOAD_VERSION = "2.3.1";
+export const JACKTRIP_DOWNLOAD_VERSION = "2.5.1";
 
 // the jack download version
 export const JACK_DOWNLOAD_VERSION = "1.9.22";
