@@ -297,6 +297,15 @@ export default class MenuBuilder {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           },
         },
+        { type: "separator" },
+        ...Object.values(AppViews).map((view) => ({
+          label: view.charAt(0).toUpperCase() + view.slice(1),
+          type: "checkbox" as const,
+          checked: DEFAULT_APP_VIEWS.includes(view),
+          click: (e: Electron.MenuItem) => {
+            this.mainWindow.webContents.send("show-view", view, e.checked);
+          },
+        })),
       ],
     };
 
