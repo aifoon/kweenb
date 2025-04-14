@@ -16,6 +16,8 @@ import { Utils } from "@shared/utils";
 import { IBeeAudioSettings } from "@shared/interfaces";
 import { useAppStore, useSetting } from "@renderer/src/hooks";
 import { Grid } from "@mui/material";
+import { app } from "electron";
+import { AppMode } from "@shared/enums";
 
 interface BeeSettingsBeesProps {
   beeAudioSettings: IBeeAudioSettings;
@@ -26,6 +28,7 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
+  const appMode = useAppStore((state) => state.appMode);
 
   /**
    * The initial values
@@ -261,6 +264,7 @@ export const SettingsBees = ({ beeAudioSettings }: BeeSettingsBeesProps) => {
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
                   />
+
                   <TextField
                     onValidatedBlur={handleOnValidatedBlurAndChange}
                     orientation={InputFieldOrientation.Horizontal}

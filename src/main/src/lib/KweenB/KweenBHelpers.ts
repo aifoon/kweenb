@@ -172,8 +172,7 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
  */
 const startJacktripHubClient = async (
   clusterNumber: number,
-  sendChannels: number,
-  hubServerInfo: IHubServerInfo
+  sendChannels: number
 ) => {
   /**
    * Get and set the settings
@@ -196,9 +195,9 @@ const startJacktripHubClient = async (
     receiveChannels: settings.kweenBAudioSettings.jacktrip.receiveChannels,
     // if in the settings the sendChannels is higher than the active bees, use the active bees
     // it's not necessary to have more send channels than active bees
-    sendChannels: sendChannels,
+    sendChannels,
     redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
-    remotePort: hubServerInfo.jacktripHubServerParams.localPort,
+    remotePort: START_PORT_JACKTRIP_HUB_SERVER,
     connectDefaultAudioPorts: false,
     compression: true,
   };

@@ -11,7 +11,10 @@ export default class HubStreaming extends Streaming {
    * @param maxBeesPerCluster - Maximum number of bees allowed in each cluster
    * @returns An array of clusters, where each cluster is an array of IBee objects
    */
-  distributeBeeIntoClusters(bees: IBee[], maxBeesPerCluster: number): IBee[][] {
+  public static distributeBeesIntoClusters(
+    bees: IBee[],
+    maxBeesPerCluster: number
+  ): IBee[][] {
     // Input validation
     if (maxBeesPerCluster <= 0) {
       throw new Error("Maximum bees per cluster must be greater than 0");
@@ -83,7 +86,7 @@ export default class HubStreaming extends Streaming {
        */
 
       // let's create a cluster of bees
-      const clusters = this.distributeBeeIntoClusters(
+      const clusters = HubStreaming.distributeBeesIntoClusters(
         activeBees,
         BEES_PER_CLUSTER_IN_HUB_MODE
       );
@@ -94,11 +97,7 @@ export default class HubStreaming extends Streaming {
         );
         const startJacktripHubClientOnKweenBPromises = clusters.map(
           (cluster, i) => {
-            KweenBHelpers.startJacktripHubClient(
-              i,
-              cluster.length,
-              hubServerInfo
-            );
+            KweenBHelpers.startJacktripHubClient(i, cluster.length);
           }
         );
         await Promise.all(startJacktripHubClientOnKweenBPromises);

@@ -272,20 +272,21 @@ export const SettingsKweenB = ({
                     orientation={InputFieldOrientation.Horizontal}
                     size={InputFieldSize.Small}
                   />
-                  <TextField
-                    onValidatedBlur={handleOnValidatedBlurAndChange}
-                    orientation={InputFieldOrientation.Horizontal}
-                    size={InputFieldSize.Small}
-                    label="Channels"
-                    type="number"
-                    labelWidth="150px"
-                    min={1}
-                    max={99}
-                    name="jacktripChannels"
-                    placeholder="e.g. 2"
-                  />
-                  {appMode === AppMode.Hub && (
+                  {appMode !== AppMode.Hub && appMode !== AppMode.P2P && (
                     <>
+                      <TextField
+                        onValidatedBlur={handleOnValidatedBlurAndChange}
+                        orientation={InputFieldOrientation.Horizontal}
+                        size={InputFieldSize.Small}
+                        label="Channels"
+                        type="number"
+                        labelWidth="150px"
+                        min={1}
+                        max={99}
+                        name="jacktripChannels"
+                        placeholder="e.g. 2"
+                      />
+
                       <TextField
                         onValidatedBlur={handleOnValidatedBlurAndChange}
                         orientation={InputFieldOrientation.Horizontal}

@@ -1,5 +1,5 @@
 ---
-name: very high latency
+name: Very High Latency
 description: Audio preset for very high latency (16+ bees)
 appMode: p2p
 maxAllowedBees: -1

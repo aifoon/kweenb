@@ -1,5 +1,5 @@
 ---
-name: very low latency
+name: Very Low Latency
 description: Audio preset for very low latency (4 bees)
 appMode: p2p
 maxAllowedBees: -1
