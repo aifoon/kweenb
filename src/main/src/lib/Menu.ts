@@ -1,4 +1,4 @@
-import { AppMode } from "@shared/enums";
+import { AppMode, AppViews } from "@shared/enums";
 import {
   app,
   Menu,
@@ -12,7 +12,7 @@ import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
 import { removeActionListeners, removeMethodHandlers } from "../register";
-import { DEFAULT_APP_MODE } from "@shared/consts";
+import { DEFAULT_APP_MODE, DEFAULT_APP_VIEWS } from "@shared/consts";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -254,16 +254,9 @@ export default class MenuBuilder {
           label: "Reload",
           accelerator: "Command+R",
           click: () => {
-            // remove all handlers
             removeMethodHandlers();
-
-            // remove all action listeners
             removeActionListeners();
-
-            // stop the workers, otherwise they will be duplicated
             KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
-
-            // reload the window
             this.mainWindow.webContents.reload();
           },
         },
@@ -281,6 +274,15 @@ export default class MenuBuilder {
             this.mainWindow.webContents.toggleDevTools();
           },
         },
+        { type: "separator" },
+        ...Object.values(AppViews).map((view) => ({
+          label: view.charAt(0).toUpperCase() + view.slice(1),
+          type: "checkbox" as const,
+          checked: DEFAULT_APP_VIEWS.includes(view),
+          click: (e: Electron.MenuItem) => {
+            this.mainWindow.webContents.send("show-view", view, e.checked);
+          },
+        })),
       ],
     };
 

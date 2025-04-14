@@ -1,55 +1,34 @@
 import { ipcRenderer } from "electron";
 
-export default {
-  onAboutKweenB: (callback: any) => {
-    ipcRenderer.on("about-kweenb", callback);
+type Callback = (event: any, ...args: any[]) => void;
+
+const handlers = {
+  onAboutKweenB: { channel: "about-kweenb", cleanup: false },
+  onAppMode: { channel: "app-mode", cleanup: false },
+  onClosing: { channel: "closing", cleanup: false },
+  onError: { channel: "error", cleanup: false },
+  onImportedBees: { channel: "imported-bees", cleanup: true },
+  onImportedSettings: { channel: "imported-settings", cleanup: true },
+  onInfo: { channel: "info", cleanup: false },
+  onLoading: { channel: "loading", cleanup: false },
+  onPozyxData: { channel: "pozyx-data", cleanup: true },
+  onShowView: { channel: "show-view", cleanup: false },
+  onStreamingConnectionStatus: {
+    channel: "streaming-connection-status",
+    cleanup: true,
   },
-  onAppMode: (callback: any) => {
-    ipcRenderer.on("app-mode", callback);
-  },
-  onClosing: (callback: any) => {
-    ipcRenderer.on("closing", callback);
-  },
-  onError: (callback: any) => {
-    ipcRenderer.on("error", callback);
-  },
-  onImportedBees: (callback: any) => {
-    const channel = "imported-bees";
+  onSuccess: { channel: "success", cleanup: false },
+  onUpdateBees: { channel: "update-bees", cleanup: true },
+  onUploadAudioProgress: { channel: "upload-audio-progress", cleanup: true },
+} as const;
+
+const api: Record<string, (callback: Callback) => void | (() => void)> = {};
+
+for (const [key, { channel, cleanup }] of Object.entries(handlers)) {
+  api[key] = (callback: Callback) => {
     ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-  onImportedSettings: (callback: any) => {
-    const channel = "imported-settings";
-    ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-  onInfo: (callback: any) => {
-    ipcRenderer.on("info", callback);
-  },
-  onLoading: (callback: any) => {
-    ipcRenderer.on("loading", callback);
-  },
-  onPozyxData: (callback: any) => {
-    const channel = "pozyx-data";
-    ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-  onStreamingConnectionStatus: (callback: any) => {
-    const channel = "streaming-connection-status";
-    ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-  onSuccess: (callback: any) => {
-    ipcRenderer.on("success", callback);
-  },
-  onUpdateBees: (callback: any) => {
-    const channel = "update-bees";
-    ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-  onUploadAudioProgress: (callback: any) => {
-    const channel = "upload-audio-progress";
-    ipcRenderer.on(channel, callback);
-    return () => ipcRenderer.removeAllListeners(channel);
-  },
-};
+    return cleanup ? () => ipcRenderer.removeAllListeners(channel) : undefined;
+  };
+}
+
+export default api;

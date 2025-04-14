@@ -14,7 +14,7 @@ import {
   AudioScene,
   StreamingConnectionStatus,
 } from "@shared/interfaces";
-import { AppMode, BeeDeviceManagerActions } from "@shared/enums";
+import { AppMode, AppViews, BeeDeviceManagerActions } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
 
 declare global {
@@ -196,6 +196,13 @@ declare global {
           callback: (
             event: IpcMessageEvent,
             pozyxData: Map<string, IPozyxData>
+          ) => void
+        ): () => void;
+        onShowView(
+          callback: (
+            event: IpcMessageEvent,
+            appView: AppViews,
+            show: boolean
           ) => void
         ): () => void;
         onStreamingConnectionStatus(

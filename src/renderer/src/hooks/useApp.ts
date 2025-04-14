@@ -1,14 +1,15 @@
 import { useEffect } from "react";
 import { useAppStore } from "../hooks/useAppStore";
-import { AppMode } from "@shared/enums";
+import { AppMode, AppViews } from "@shared/enums";
 
 export const useApp = () => {
   const setAppMode = useAppStore((state) => state.setAppMode);
+  const setAppView = useAppStore((state) => state.setAppView);
+  const setLoading = useAppStore((state) => state.setLoading);
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );
   const showToast = useAppStore((state) => state.showToast);
-  const setLoading = useAppStore((state) => state.setLoading);
 
   useEffect(() => {
     // When we need to show the about kweenb window
@@ -51,8 +52,12 @@ export const useApp = () => {
     });
 
     // Handle a change in the app mode
-    window.kweenb.events.onAppMode((event, _appMode) => {
-      setAppMode(_appMode as AppMode);
+    window.kweenb.events.onAppMode((event, appMode) => {
+      setAppMode(appMode as AppMode);
+    });
+
+    window.kweenb.events.onShowView((event, appView, show) => {
+      setAppView(appView as AppViews, show);
     });
   }, []);
 };

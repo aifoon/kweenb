@@ -1,11 +1,12 @@
-import { AppMode } from "@shared/enums";
+import { AppMode, AppViews } from "@shared/enums";
 import { AudioScene, LoadingState } from "@shared/interfaces";
 import { create } from "zustand";
 import { ToastMessage } from "../interfaces";
-import { DEFAULT_APP_MODE } from "@shared/consts";
+import { DEFAULT_APP_MODE, DEFAULT_APP_VIEWS } from "@shared/consts";
 
 type AppState = {
   appMode: AppMode;
+  appViews: AppViews[];
   audioScenes: AudioScene[];
   currentLatency: number;
   loading: LoadingState;
@@ -23,6 +24,7 @@ type AppState = {
 type AppAction = {
   closeToast: () => void;
   setAppMode: (appMode: AppMode) => void;
+  setAppView: (appView: AppViews, show: boolean) => void;
   setAudioScenes: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
@@ -38,6 +40,7 @@ type AppAction = {
 
 export const useAppStore = create<AppState & AppAction>((set) => ({
   appMode: DEFAULT_APP_MODE,
+  appViews: DEFAULT_APP_VIEWS,
   audioScenes: [],
   closeToast: () => {
     set({ openToastState: false });
@@ -45,7 +48,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   currentLatency: 0,
   loading: {
     loading: false,
-    text: "What's up",
+    text: "Loading...",
     cancelButton: false,
     onCancel: () => {},
   },
@@ -58,6 +61,15 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openToastState: false,
   openUploadAudioFilesSettings: false,
   setAppMode: (appMode: AppMode) => set({ appMode }),
+  setAppView: (appView: AppViews, show: boolean) => {
+    set((state) => {
+      const appViews = state.appViews.filter((view) => view !== appView);
+      if (show) {
+        appViews.push(appView);
+      }
+      return { appViews };
+    });
+  },
   setAudioScenes: (audioScenes: AudioScene[]) =>
     set({ audioScenes: audioScenes }),
   setLoading: (loading) => set({ loading }),

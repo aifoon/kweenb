@@ -79,6 +79,7 @@ export const BeeDeviceManagerModal = ({
       open={isOpen}
       onClose={onClose}
       showCloseButton={false}
+      width="250px"
     >
       <Box display="flex" flexDirection="column" gap={3}>
         {!isProcessing ? (

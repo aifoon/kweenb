@@ -18,6 +18,14 @@ export enum AppMode {
   P2P = "p2p",
 }
 
+export enum AppViews {
+  Swarm = "swarm",
+  Audio = "audio",
+  Positioning = "positioning",
+  Settings = "settings",
+  Tools = "tools",
+}
+
 export enum PDAudioParam {
   VOLUME = "volume",
   LOW = "low",

@@ -12,13 +12,15 @@ import SpeakerIcon from "@mui/icons-material/Speaker";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
+import { useAppStore } from "@renderer/src/hooks";
+import { app } from "electron";
 
 /**
  * List of Sidebar Buttons
  */
 const sidebarButtons = [
   {
-    key: "manageSwarm",
+    key: "swarm",
     title: "Swarm",
     pathNames: ["/", "/swarm/*"],
     icon: <EmojiNatureIcon />,
@@ -68,25 +70,34 @@ const isActive = (navigatedPath: string, pathNames: string[]): boolean =>
 export const Z3Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const appViews = useAppStore((state) => state.appViews);
 
   return (
     <Sidebar
       fixedToSide
       width="var(--sidebarWidth)"
       height="var(--contentHeight)"
-      buttons={sidebarButtons.map(({ icon, title, pathNames, key }) => (
-        <SidebarButton
-          icon={icon}
-          text={title}
-          key={key}
-          active={isActive(location.pathname, pathNames)}
-          onClick={() => {
-            if (location.pathname !== pathNames[0]) {
-              navigate(pathNames[0]);
-            }
-          }}
-        />
-      ))}
+      buttons={sidebarButtons.map(({ icon, title, pathNames, key }) => {
+        // Define what we need to show in the sidebar
+        if (!appViews.map((view) => view.toLowerCase()).includes(key)) {
+          return <></>;
+        }
+
+        // Return the button in the sidebar whenever we need to show it
+        return (
+          <SidebarButton
+            icon={icon}
+            text={title}
+            key={key}
+            active={isActive(location.pathname, pathNames)}
+            onClick={() => {
+              if (location.pathname !== pathNames[0]) {
+                navigate(pathNames[0]);
+              }
+            }}
+          />
+        );
+      })}
     />
   );
 };
