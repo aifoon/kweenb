@@ -136,13 +136,13 @@ export const SingleBeeCard = ({
   };
 
   const volumeUp = () => {
-    const newVolume = Math.min(currentVolume + 10, 100);
+    const newVolume = Math.min(currentVolume + 1, 100);
     setCurrentVolume(newVolume);
     setParamOfBees(newVolume, PDAudioParam.VOLUME);
   };
 
   const volumeDown = () => {
-    const newVolume = Math.max(currentVolume - 10, 0);
+    const newVolume = Math.max(currentVolume - 1, 0);
     setCurrentVolume(newVolume);
     setParamOfBees(newVolume, PDAudioParam.VOLUME);
   };

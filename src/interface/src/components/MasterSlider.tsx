@@ -219,7 +219,7 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
 
   const paramUp = () => {
     const maxValue = selectedPDAudioParam === PDAudioParam.VOLUME ? 100 : 2;
-    const increment = selectedPDAudioParam === PDAudioParam.VOLUME ? 10 : 0.1;
+    const increment = selectedPDAudioParam === PDAudioParam.VOLUME ? 1 : 0.1;
     const newValue = Math.min(sliderValue + increment, maxValue);
     setSliderValue(newValue);
     setParamOfBees(newValue, selectedPDAudioParam);
@@ -227,7 +227,8 @@ export const MasterSlider = ({ type = "singleBees" }: MasterSliderProps) => {
 
   const paramDown = () => {
     const minValue = selectedPDAudioParam === PDAudioParam.VOLUME ? 0 : 0.1;
-    const decrement = selectedPDAudioParam === PDAudioParam.VOLUME ? 10 : 0.1;
+    const decrement = selectedPDAudioParam === PDAudioParam.VOLUME ? 1 : 0.1;
+    console.log("decrement", decrement);
     const newValue = Math.max(sliderValue - decrement, minValue);
     setSliderValue(newValue);
     setParamOfBees(newValue, selectedPDAudioParam);

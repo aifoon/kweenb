@@ -133,7 +133,7 @@ const setupInterfacePackageWatcher = ({ ws }) =>
      * The interface application for touch screen devices
      */
 
-    const spinViteDevServerInterface = false;
+    const spinViteDevServerInterface = true;
     if (spinViteDevServerInterface) {
       const viteDevServerInterface = await createServer({
         ...sharedConfig,
