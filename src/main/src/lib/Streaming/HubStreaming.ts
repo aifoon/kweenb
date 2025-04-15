@@ -113,10 +113,12 @@ export default class HubStreaming extends Streaming {
 
       try {
         this.sendInfo(
-          `Start Jack & Jacktrip clients on bees. We have ${clusters.length} clusters.`
+          `Start Jack & Jacktrip clients on bees. We have ${clusters.length} ${
+            clusters.length === 1 ? "cluster" : "clusters"
+          }.`
         );
 
-        // Create an array of promises for each subarray
+        // Create an array of promises for each    subarray
         const startJackWithJacktripHubClientBeePromises = clusters.map(
           async (bees) => {
             // For each subarray, create and await all promises for its objects

@@ -32,6 +32,10 @@ const config = {
       target: "dmg",
       arch: ["arm64"],
     },
+    extendInfo: {
+      NSMicrophoneUsageDescription: "Please give us access to your microphone",
+      "com.apple.security.device.audio-input": true,
+    },
   },
   dmg: {
     sign: false,
