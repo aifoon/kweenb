@@ -55,6 +55,7 @@ export const SettingsKweenB = ({
     jacktripSendChannels: kweenbAudioSettings.jacktrip.sendChannels,
     jacktripReceiveChannels: kweenbAudioSettings.jacktrip.receiveChannels,
     sshKeyPath: kweenbSettings.sshKeyPath,
+    hubModeClusterSize: kweenbSettings.hubModeClusterSize,
   };
 
   // remember the latency values
@@ -177,6 +178,10 @@ export const SettingsKweenB = ({
         jackFolderPath: Yup.string(),
         jacktripBinPath: Yup.string(),
         sshKeyPath: Yup.string(),
+        hubModeClusterSize: Yup.number()
+          .min(1, "The minimum cluster size is 1")
+          .max(8, "The maximum cluster size is 8")
+          .required("The cluster size is required"),
       })}
       onSubmit={() => {}}
     >
@@ -402,6 +407,18 @@ export const SettingsKweenB = ({
                     labelWidth="150px"
                     name="sshKeyPath"
                     placeholder="~/.ssh/kweenb"
+                  />
+                  <TextField
+                    onValidatedBlur={(e) => {
+                      handleOnValidatedBlurAndChange(e);
+                    }}
+                    orientation={InputFieldOrientation.Horizontal}
+                    size={InputFieldSize.Small}
+                    label="Hub Mode Cluster Size"
+                    type="number"
+                    labelWidth="150px"
+                    name="hubModeClusterSize"
+                    placeholder="e.g. 4"
                   />
                 </Card>
               </CardVerticalStack>

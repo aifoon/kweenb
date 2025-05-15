@@ -4,7 +4,7 @@
 
 import { app, dialog } from "electron";
 import { IBee } from "@shared/interfaces";
-import { BEES_PER_CLUSTER_IN_HUB_MODE, START_PORT_JACKTRIP } from "../consts";
+import { START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "../kweenb";
@@ -245,6 +245,10 @@ export const startJacktripHubServer = async () => {
  */
 export const startJackWithJacktripHubClient = async () => {
   try {
+    // Get the cluster size from the settings
+    const hubModeClusterSize = (await SettingHelpers.getAllSettings())
+      .kweenBSettings.hubModeClusterSize;
+
     // Get the active bees (data only is enough for this case)
     const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
 
@@ -254,7 +258,7 @@ export const startJackWithJacktripHubClient = async () => {
     // Distribute the bees into clusters
     const distributedBeesIntoClusters = HubStreaming.distributeBeesIntoClusters(
       activeBees,
-      BEES_PER_CLUSTER_IN_HUB_MODE
+      hubModeClusterSize
     );
 
     // Start Jacktrip client

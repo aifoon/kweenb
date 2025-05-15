@@ -79,6 +79,9 @@ const getAllSettings = async (): Promise<ISettings> => {
       jackFolderPath: String(findKey("kweenbJackFolderPath")?.value || ""),
       jacktripBinPath: String(findKey("kweenbJacktripBinPath")?.value || ""),
       sshKeyPath: String(findKey("kweenbSshKeyPath")?.value || ""),
+      hubModeClusterSize: Number(
+        findKey("kweenbHubModeClusterSize")?.value || 4
+      ),
     },
     positioningSettings: {
       updateRate: Number(findKey("positioningUpdateRate")?.value) || 200,

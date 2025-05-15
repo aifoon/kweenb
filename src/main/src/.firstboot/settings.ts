@@ -128,6 +128,10 @@ export default [
     value: "~/.ssh/kweenb",
   },
   {
+    key: "kweenbHubModeClusterSize",
+    value: "4",
+  },
+  {
     key: "positioningUpdateRate",
     value: "500",
   },

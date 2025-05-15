@@ -269,6 +269,7 @@ export interface IKweenBSettings {
   jackFolderPath: string;
   jacktripBinPath: string;
   sshKeyPath: string;
+  hubModeClusterSize: number;
 }
 
 // Socket

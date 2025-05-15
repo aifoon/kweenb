@@ -111,9 +111,6 @@ export const DEFAULT_BEE_STATUS = {
   isJacktripRunning: false,
 };
 
-// the amount of speakers in a cluster
-export const BEES_PER_CLUSTER_IN_HUB_MODE = 4;
-
 /**
  * Ping Configuration
  */

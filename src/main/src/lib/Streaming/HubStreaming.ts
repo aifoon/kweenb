@@ -2,7 +2,7 @@ import KweenBHelpers from "../KweenB/KweenBHelpers";
 import Streaming from "./Streaming";
 import Zwerm3ApiHelpers from "../KweenB/Zwerm3ApiHelpers";
 import { IBee, IHubServerInfo } from "@shared/interfaces";
-import { BEES_PER_CLUSTER_IN_HUB_MODE } from "../../consts";
+import SettingHelpers from "../KweenB/SettingHelpers";
 
 export default class HubStreaming extends Streaming {
   /**
@@ -51,6 +51,13 @@ export default class HubStreaming extends Streaming {
   public async handleConnect(): Promise<void> {
     try {
       /**
+       * Step 0: Get settings
+       */
+
+      const hubModeClusterSize = (await SettingHelpers.getAllSettings())
+        .kweenBSettings.hubModeClusterSize;
+
+      /**
        * Step 1: Generic pre-connection check
        */
 
@@ -88,7 +95,7 @@ export default class HubStreaming extends Streaming {
       // let's create a cluster of bees
       const clusters = HubStreaming.distributeBeesIntoClusters(
         activeBees,
-        BEES_PER_CLUSTER_IN_HUB_MODE
+        hubModeClusterSize
       );
 
       try {
