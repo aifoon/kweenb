@@ -16,12 +16,21 @@ const validationSchema = Yup.object({
       "Invalid IP address format"
     ),
   name: Yup.string()
-    .required("Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be less than 50 characters")
+    .required("A name is required")
     .matches(
-      /^[a-zA-Z0-9_-]+$/,
-      "Name can only contain letters, numbers, hyphens, and underscores"
+      /^bee\d{2,3}$/,
+      "Name must be in format 'bee' followed by a 2-3 digit number (e.g., bee01, bee123)"
+    )
+    .test(
+      "leading-zero",
+      "Numbers 1-99 must have leading zero (e.g., bee01, not bee1)",
+      function (value) {
+        if (!value) return true; // Let required() handle empty values
+        const match = value.match(/^bee(\d+)$/);
+        if (!match) return true; // Let matches() handle invalid format
+        const number = parseInt(match[1], 10);
+        return number >= 100 || match[1].length >= 2;
+      }
     ),
 });
 
@@ -105,7 +114,6 @@ export const BeeConfigSettings = ({
 
   useEffect(() => {
     setCurrentBeeConfigSettings({ ipAddress, name });
-    console.log("here", ipAddress, name);
   }, [ipAddress, name]);
 
   return (
