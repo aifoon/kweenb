@@ -14,3 +14,4 @@ export const validBufferSizes = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 // Polling interval for fetching bees every ... seconds in useBee
 export const pollingInterval = 3000;
+export const retryOfflinePolling = 5;

@@ -118,12 +118,16 @@ export const Sidebar = ({
       <div>
         {badges && badges.length > 0 && (
           <SidebarBadgesWrapper>
-            {badges.map((badge) => badge)}
+            {badges.map((badge, index) =>
+              React.cloneElement(badge, { key: `badge-${index}` })
+            )}
           </SidebarBadgesWrapper>
         )}
         {buttons && buttons.length && (
           <SidebarButtonsWrapper>
-            {buttons.map((button) => button)}
+            {buttons.map((button, index) =>
+              React.cloneElement(button, { key: `button-${index}` })
+            )}
           </SidebarButtonsWrapper>
         )}
       </div>

@@ -22,6 +22,7 @@ class BeeStates {
         isJackRunning: false,
         isJacktripRunning: false,
         networkPerformanceMs: 0,
+        isOnline: false,
       });
     });
   }
@@ -102,6 +103,15 @@ class BeeStates {
   }
 
   /**
+   * Get the online bees
+   * @description Returns an array of bees that are online
+   * @returns
+   */
+  public getBeesWithOnlineState() {
+    return this.beeStates.filter((b) => this.isOnline(b.bee));
+  }
+
+  /**
    * Converts the ping response into a readable format
    * @param date The date to convert
    * @returns The readable date
@@ -149,14 +159,8 @@ class BeeStates {
     // return false if the bee state is null
     if (!beeState) return false;
 
-    // return false if the last ping response is null
-    if (beeState.lastPingResponse === null) return false;
-
     // return true if the bee is online
-    return (
-      Utils.getTimeDifferenceInSeconds(new Date(), beeState.lastPingResponse) <
-      BEE_CONSIDERED_OFFLINE_SECONDS
-    );
+    return beeState.isOnline;
   }
 
   /**
@@ -210,7 +214,8 @@ class BeeStates {
       | "isApiOn"
       | "isJackRunning"
       | "isJacktripRunning"
-      | "networkPerformanceMs",
+      | "networkPerformanceMs"
+      | "isOnline",
     bee: IBee,
     value: Date | boolean | number = false
   ) {
@@ -228,6 +233,9 @@ class BeeStates {
           break;
         case "isJacktripRunning":
           beeState.isJacktripRunning = value as boolean;
+          break;
+        case "isOnline":
+          beeState.isOnline = value as boolean;
           break;
         case "networkPerformanceMs":
           beeState.networkPerformanceMs = (value as number)

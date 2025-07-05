@@ -294,7 +294,7 @@ export default createTheme({
         root: {
           color: "var(--primary-100)", // change this to your desired color
           "&.Mui-focused": {
-            color: "var(--primary-50)", // your custom focus color
+            color: "var(--primary-100)", // your custom focus color
           },
         },
         filled: {
@@ -302,9 +302,6 @@ export default createTheme({
           "&.MuiInputLabel-shrink": {
             transform: "translate(12px, 5px) scale(0.75)",
           },
-        },
-        focused: {
-          color: "var(--primary-100)", // change this to your desired textColor
         },
       },
     },

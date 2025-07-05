@@ -95,6 +95,7 @@ export interface IBeeState {
   isJackRunning: boolean;
   isJacktripRunning: boolean;
   networkPerformanceMs: number;
+  isOnline: boolean;
 }
 
 export interface ISystemClients {
