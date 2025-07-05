@@ -257,6 +257,57 @@ export default createTheme({
         },
       },
     },
+
+    /**
+     * Form Helpers
+     */
+
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: "#888888",
+          fontSize: "0.85rem",
+          backgroundColor: "var(--primary-300)",
+          margin: "4px 0 0 0",
+          padding: "4px 8px",
+          borderRadius: "0 0 var(--radiusMedium) var(--radiusMedium)",
+        },
+      },
+    },
+    MuiInput: {
+      styleOverrides: {
+        underline: {
+          "&:before": {
+            borderBottomColor: "gray", // default underline
+          },
+          "&:hover:not(.Mui-disabled):before": {
+            borderBottomColor: "black", // hover underline
+          },
+          "&:after": {
+            borderBottomColor: "#ff5722", // focused underline
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: "var(--primary-100)", // change this to your desired color
+          "&.Mui-focused": {
+            color: "var(--primary-50)", // your custom focus color
+          },
+        },
+        filled: {
+          transform: "translate(12px, 10px) scale(1)",
+          "&.MuiInputLabel-shrink": {
+            transform: "translate(12px, 5px) scale(0.75)",
+          },
+        },
+        focused: {
+          color: "var(--primary-100)", // change this to your desired textColor
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -287,6 +338,25 @@ export default createTheme({
         },
       ],
     },
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          "&:before": {
+            borderBottomColor: "var(--primary-100)",
+            borderBottom: "none",
+          },
+          "&:hover:before": {
+            borderBottomColor: "var(--primary-100)",
+            borderBottom: "none !important",
+          },
+          "&:after": {
+            borderBottomColor: "#ff5722",
+            borderBottom: "none",
+          },
+        },
+      },
+    },
+
     MuiDivider: {
       styleOverrides: {
         root: {

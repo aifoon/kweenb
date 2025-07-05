@@ -1,13 +1,32 @@
 import { Card } from "@components/Cards";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
-import { TextField, SwitchField } from "@components/Forms";
 import {
   InputFieldOrientation,
   InputFieldSize,
 } from "@components/Forms/InputField";
 import Yup from "@renderer/src/yup-ext";
 import { IBeeConfig } from "@shared/interfaces";
+import { Stack, TextField } from "@mui/material";
+
+/**
+ * Validation schema
+ */
+
+const validationSchema = Yup.object({
+  device: Yup.string()
+    .required("Device is required")
+    .min(2, "Device must be at least 2 characters")
+    .max(50, "Device must be less than 50 characters")
+    .matches(
+      /^[a-zA-Z0-9_-]+$/,
+      "Device can only contain letters, numbers, hyphens, and underscores"
+    ),
+});
+
+/**
+ * Props interface
+ */
 
 interface BeeConfigConfigProps {
   beeConfig: IBeeConfig;
@@ -18,80 +37,84 @@ export const BeeConfigConfig = ({
   beeConfig,
   onUpdate,
 }: BeeConfigConfigProps) => {
-  // set internal state to manage the form
+  /**
+   * State management
+   */
+
   const [currentBeeConfig, setCurrentBeeConfig] =
     useState<IBeeConfig>(beeConfig);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // handle the change of the form fields
-  const handleOnValidatedBlurAndChange = (e: any) => {
-    onUpdate({ [e.target.name]: e.target.value });
+  /**
+   * Functions
+   */
+
+  const handleOnBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setTouched((prev) => ({ ...prev, [name]: true }));
+
+    const isValid = await validateField(name, value);
+
+    // Only update parent if validation passes
+    if (isValid) {
+      onUpdate({ [name]: value });
+    }
   };
 
-  // update the internal state when the beeConfig changes
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setCurrentBeeConfig((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Validate if field has been touched
+    if (touched[name]) {
+      validateField(name, value);
+    }
+  };
+
+  const validateField = async (fieldName: string, value: string) => {
+    try {
+      await validationSchema.validateAt(fieldName, { [fieldName]: value });
+      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+      return true;
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        setErrors((prev) => ({ ...prev, [fieldName]: error.message }));
+      }
+      return false;
+    }
+  };
+
+  /**
+   * Effects
+   */
+
   useEffect(() => {
     setCurrentBeeConfig(beeConfig);
   }, [beeConfig]);
 
-  // render the form
   return (
     <Card title="Config">
-      <Formik
-        enableReinitialize={true}
-        initialValues={{ ...currentBeeConfig }}
-        validationSchema={Yup.object().shape({
-          jacktripVersion: Yup.string().required(
-            "A Jacktrip Version is required!"
-          ),
-          useMqtt: Yup.boolean().required(),
-          mqttBroker: Yup.string().required("An MQTT broker is required"),
-          mqttChannel: Yup.string().required("An MQTT channel is required"),
-          device: Yup.string(),
-        })}
-        onSubmit={() => {}}
-      >
-        {() => (
-          <Form>
-            <SwitchField
-              onValidatedChange={handleOnValidatedBlurAndChange}
-              name="useMqtt"
-              label="Use MQTT"
-              labelWidth="150px"
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
-            />
-            <TextField
-              onValidatedBlur={handleOnValidatedBlurAndChange}
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
-              label="MQTT broker"
-              type="text"
-              labelWidth="150px"
-              name="mqttBroker"
-              placeholder="e.g. 192.168.0.2"
-            />
-            <TextField
-              onValidatedBlur={handleOnValidatedBlurAndChange}
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
-              label="MQTT channel"
-              type="text"
-              labelWidth="150px"
-              name="mqttChannel"
-              placeholder="e.g. bee1"
-            />
-            <TextField
-              onValidatedBlur={handleOnValidatedBlurAndChange}
-              orientation={InputFieldOrientation.Horizontal}
-              size={InputFieldSize.Small}
-              label="Device"
-              type="text"
-              labelWidth="150px"
-              name="device"
-              placeholder="e.g. hw:Device"
-            />
-          </Form>
-        )}
-      </Formik>
+      <Stack spacing={2} direction={"column"} gap={2}>
+        <TextField
+          size="small"
+          label="Device"
+          variant="filled"
+          type="text"
+          name="device"
+          placeholder="e.g. hw:Device"
+          onBlur={handleOnBlur}
+          onChange={handleOnChange}
+          value={currentBeeConfig.device}
+          error={touched.device && !!errors.device}
+          helperText={touched.device && errors.device}
+        />
+      </Stack>
     </Card>
   );
 };

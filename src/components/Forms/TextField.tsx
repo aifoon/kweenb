@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useField, FieldHookConfig } from "formik";
 import {
   InputField,
@@ -7,7 +7,6 @@ import {
   InputFieldOrientation,
 } from "./InputField";
 import { ErrorMessage } from "./ErrorMessage";
-import { Tooltip } from "@mui/material";
 
 export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
   const [field, meta] = useField(props);
@@ -23,6 +22,13 @@ export const TextField = (props: FieldHookConfig<string> & InputFieldProps) => {
     onValidatedBlur,
     disabled = false,
   } = props;
+
+  useEffect(() => {
+    if (name === "ipAddress") {
+      console.log("field", field.value);
+    }
+  }, [field]);
+
   return (
     <InputField
       size={size}

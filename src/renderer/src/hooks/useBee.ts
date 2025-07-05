@@ -10,7 +10,7 @@ import { useAppStore } from "../hooks";
 import { useIntervalAsync } from "./useIntervalAsync";
 import { pollingInterval } from "../consts";
 
-export function useBee(id: number) {
+export function useBee(id: number, syncWithInterval = true) {
   const setLoading = useAppStore((state) => state.setLoading);
   const appMode = useAppStore((state) => state.appMode);
 
@@ -180,8 +180,10 @@ export function useBee(id: number) {
    * Use an interval to fetch a bee
    */
   useIntervalAsync(async () => {
+    if (!syncWithInterval) return;
     if (isMounted.current) {
-      setBee(await window.kweenb.methods.fetchBee(id));
+      const fetchedBee = await window.kweenb.methods.fetchBee(id);
+      setBee(fetchedBee);
     }
   }, pollingInterval);
 
@@ -191,7 +193,6 @@ export function useBee(id: number) {
     killJack,
     killJacktrip,
     killJackAndJacktrip,
-    // loading,
     saveConfig,
     startJack,
     updateBeeSetting,
