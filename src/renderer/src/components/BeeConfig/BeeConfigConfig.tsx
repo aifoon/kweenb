@@ -82,9 +82,12 @@ export const BeeConfigConfig = ({
       await validationSchema.validateAt(fieldName, { [fieldName]: value });
       setErrors((prev) => ({ ...prev, [fieldName]: "" }));
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Yup.ValidationError) {
         setErrors((prev) => ({ ...prev, [fieldName]: error.message }));
+      } else {
+        // Handle other error types
+        setErrors((prev) => ({ ...prev, [fieldName]: "Validation failed" }));
       }
       return false;
     }
