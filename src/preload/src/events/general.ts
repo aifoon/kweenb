@@ -5,6 +5,7 @@ type Callback = (event: any, ...args: any[]) => void;
 const handlers = {
   onAboutKweenB: { channel: "about-kweenb", cleanup: false },
   onAppMode: { channel: "app-mode", cleanup: false },
+  onAppClosing: { channel: "app-closing", cleanup: false },
   onClosing: { channel: "closing", cleanup: false },
   onError: { channel: "error", cleanup: false },
   onImportedBees: { channel: "imported-bees", cleanup: true },

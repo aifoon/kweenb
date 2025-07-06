@@ -174,6 +174,7 @@ declare global {
         onAppMode(
           callback: (event: IpcMessageEvent, appMode: AppMode) => void
         ): () => void;
+        onAppClosing(callback: (event: IpcMessageEvent) => void): () => void;
         onClosing(
           callback: (event: IpcMessageEvent, error: IError) => void
         ): () => void;

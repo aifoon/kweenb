@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAppStore } from "../hooks/useAppStore";
+import { useBeeStore } from "../hooks/useBeeStore";
 import { AppMode, AppViews } from "@shared/enums";
 
 export const useApp = () => {
@@ -23,6 +24,11 @@ export const useApp = () => {
         message: error.message,
         severity: "error",
       });
+    });
+
+    // Stop polling when the app is closing
+    window.kweenb.events.onAppClosing(() => {
+      useBeeStore.getState().stopPolling();
     });
 
     // Handle an informative message

@@ -1,5 +1,5 @@
 import { BeeCard, BeeCardProps } from "@components/Cards/BeeCard";
-import { useBee } from "@renderer/src/hooks";
+import { useBeeStore } from "@renderer/src/hooks";
 import { ChannelType } from "@shared/enums";
 
 export const BeeCardWithPolling = ({
@@ -15,7 +15,24 @@ export const BeeCardWithPolling = ({
   collapsed,
   onDoubleClick,
 }: BeeCardProps) => {
-  const { bee } = useBee(number);
+  const { bee } = useBeeStore((state) => ({
+    bee: state.bees.find((bee) => bee.id === number) || {
+      id: 0,
+      name: "...",
+      ipAddress: "...",
+      isOnline: false,
+      isApiOn: false,
+      isActive: false,
+      channel1: 0,
+      channel2: 0,
+      networkPerformanceMs: 0,
+      channelType: ChannelType.MONO,
+      status: {
+        isJackRunning: false,
+        isJacktripRunning: false,
+      },
+    },
+  }));
   return (
     <BeeCard
       key={number}

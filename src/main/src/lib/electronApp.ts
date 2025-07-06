@@ -97,6 +97,23 @@ export default class ElectronApp {
       browserWindow = null;
     });
 
+    // when we close
+    browserWindow.on("close", (e) => {
+      // prevent the window from closing
+      e.preventDefault();
+
+      // if the window is already destroyed, do nothing
+      if (browserWindow === null) return;
+
+      // Notify renderer to cleanup
+      browserWindow.webContents.send("app-closing");
+
+      // Give renderer time to cleanup, then close
+      setTimeout(() => {
+        browserWindow?.destroy();
+      }, 1000);
+    });
+
     // load the index html page
     browserWindow.loadURL(this.resolveHtmlPath("index.html"));
 
