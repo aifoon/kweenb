@@ -5,6 +5,7 @@
 import fs from "fs";
 import {
   AudioFile,
+  AudioUploadStatusInfo,
   IBee,
   IBeeConfig,
   IBeeInput,
@@ -12,6 +13,7 @@ import {
 } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import {
+  AudioUploadStatus,
   BeeActiveState,
   BeeDeviceManagerActions,
   PDAudioParam,
@@ -739,13 +741,39 @@ export const uploadAudioFiles = async (
   event: Electron.IpcMainInvokeEvent,
   name: string,
   path: string
-) => {
+): Promise<AudioUploadStatusInfo> => {
   try {
     // create legal name for directory
     const legalName = Utils.convertToLegalDirectoryName(name);
 
     // get all current bees
     const bees = await fetchAllBees();
+
+    // get the bees disk spaces (online bees only)
+    const beesDiskSpaces = await BeeHelpers.getBeesDiskSpace(
+      bees.filter((b) => b.isOnline)
+    );
+
+    // filter out the bees that have no space left
+    const beesWithoutSpaceLeft = beesDiskSpaces.filter(
+      (beeDiskSpace) => !beeDiskSpace.hasSpaceLeft
+    );
+
+    if (beesWithoutSpaceLeft.length > 0) {
+      // get all the bees that have no space left
+      const beesWithoutSpaceLeftList = beesWithoutSpaceLeft
+        .map((beeDiskSpace) => {
+          return bees.find((bee) => bee.ipAddress === beeDiskSpace.ipAddress);
+        })
+        .map((b) => b?.name)
+        .join(", ");
+
+      // let the renderer know that there is no space left
+      return {
+        status: AudioUploadStatus.NO_DISK_SPACE,
+        message: `The following bees have no space left: ${beesWithoutSpaceLeftList}. Please free up some space on the bees before uploading audio files.`,
+      };
+    }
 
     // get the location of the ssh private key
     const sshPrivateKey =
@@ -761,7 +789,7 @@ export const uploadAudioFiles = async (
       bees.find((bee) => bee.isOnline && wavFile.startsWith(`${bee.id}.`))
     );
 
-    // loop over filteredWavFiles and create the directory with legel name on the bee
+    // loop over filteredWavFiles and create the directory with legal name on the bee
     for (const wavFile of filteredWavFiles) {
       const beeId = parseInt(wavFile.split(".")[0]);
       const bee = bees.find((bee) => bee.id === beeId);
@@ -823,6 +851,12 @@ export const uploadAudioFiles = async (
         }
       }
     }
+
+    // show confirmation when audio files were uploaded
+    return {
+      status: AudioUploadStatus.SUCCESS,
+      message: `Audio files were uploaded successfully.`,
+    };
   } catch (e: any) {
     throw new KweenBException(
       { where: "uploadAudioFiles()", message: e.message },

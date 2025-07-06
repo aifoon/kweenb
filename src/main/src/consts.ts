@@ -111,6 +111,13 @@ export const DEFAULT_BEE_STATUS = {
   isJacktripRunning: false,
 };
 
+// this is the remaining disk space threshold in MB
+// if the disk space is below this threshold, we will warn the user
+// and stop the audio scenes from being created
+// this is the threshold we use to check if the disk space is low
+// we use this to prevent the disk from being full and causing issues
+export const DISK_REMAINING_ON_BEE_TRESHOLD_MB = 4000;
+
 /**
  * Ping Configuration
  */

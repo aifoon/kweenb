@@ -18,6 +18,8 @@ import {
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 import { ErrorMessage } from "@components/Forms/ErrorMessage";
 import { IBee } from "@shared/interfaces";
+import { AudioUploadStatus } from "@shared/enums";
+import { useAppStore } from "@renderer/src/hooks";
 
 interface UploadAudioFilesSettingsProps
   extends Pick<BaseModalProps, "open" | "onClose"> {}
@@ -32,6 +34,7 @@ export const UploadAudioFilesSettings = ({
     bee: IBee | null;
     percentage: number;
   }>({ bee: null, percentage: 0 });
+  const showToast = useAppStore((state) => state.showToast);
 
   useEffect(() => {
     setIsOpen(open);
@@ -72,10 +75,20 @@ export const UploadAudioFilesSettings = ({
             setIsUploading(true);
 
             // start upload
-            await window.kweenb.methods.uploadAudioFiles(
-              values.name,
-              values.localDirectory
-            );
+            const audioUploadStatusInfo =
+              await window.kweenb.methods.uploadAudioFiles(
+                values.name,
+                values.localDirectory
+              );
+
+            // show a toast with the status
+            showToast({
+              severity:
+                audioUploadStatusInfo.status === AudioUploadStatus.SUCCESS
+                  ? "success"
+                  : "warning",
+              message: audioUploadStatusInfo.message || "",
+            });
 
             // close the modal
             setIsUploading(false);

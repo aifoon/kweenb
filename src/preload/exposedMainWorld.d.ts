@@ -13,6 +13,7 @@ import {
   AudioFile,
   AudioScene,
   StreamingConnectionStatus,
+  AudioUploadStatusInfo,
 } from "@shared/interfaces";
 import { AppMode, AppViews, BeeDeviceManagerActions } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
@@ -42,7 +43,10 @@ declare global {
         startAudio(bees: IBee[] | IBee, value: string): Promise<void>;
         startPureData(bees: IBee[] | IBee): Promise<void>;
         stopAudio(bees: IBee[] | IBee): Promise<void>;
-        uploadAudioFiles(name: string, path: string): Promise<void>;
+        uploadAudioFiles(
+          name: string,
+          path: string
+        ): Promise<AudioUploadStatusInfo>;
 
         // CRUD BEE
         createBee(bee: IBeeInput): Promise<IBee>;

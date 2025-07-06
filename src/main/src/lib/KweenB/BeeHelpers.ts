@@ -13,6 +13,7 @@ import {
   IBeeConfig,
   IBeeInput,
   IBeeState,
+  SshOutputDiskSpace,
   SshOutputState,
 } from "@shared/interfaces";
 import fs from "fs";
@@ -21,7 +22,12 @@ import {
   NO_BEE_FOUND_WITH_ID,
 } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
-import { DEFAULT_BEE_CONFIG, DEFAULT_BEE_STATUS } from "../../consts";
+import {
+  DEFAULT_BEE_CONFIG,
+  DEFAULT_BEE_STATUS,
+  DISK_REMAINING_ON_BEE_TRESHOLD_MB,
+  SSH_PRIVATE_KEY_PATH,
+} from "../../consts";
 import {
   HAS_CONNECTION_WITH_PHYSICAL_SWARM,
   PD_PORT_BEE,
@@ -38,6 +44,7 @@ import { Op } from "sequelize";
 // Import models
 import AudioSceneDb from "../../models/AudioScene";
 import Bee from "../../models/Bee";
+import SettingHelpers from "./SettingHelpers";
 
 /**
  * Creates a new bee
@@ -379,6 +386,42 @@ const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
 };
 
 /**
+ * Get the remaining disk space of the given bees
+ * @param bees
+ */
+const getBeesDiskSpace = async (
+  bees: IBee[]
+): Promise<SshOutputDiskSpace[]> => {
+  // get the location of the ssh private key
+  const sshPrivateKey =
+    (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
+    SSH_PRIVATE_KEY_PATH;
+
+  return new Promise<SshOutputDiskSpace[]>((resolve, reject) => {
+    exec(
+      `${resourcesPath}/scripts/disk_space_monitor.sh -k ${sshPrivateKey} ${bees
+        .map((b) => b.ipAddress)
+        .join(" ")}`,
+      (error, beeDisksSpace, stderr) => {
+        const json = JSON.parse(beeDisksSpace.toString().trim()) as Omit<
+          SshOutputDiskSpace,
+          "hasSpaceLeft"
+        >[];
+        const beesDiskSpace = json.map((diskSpace) => {
+          diskSpace.remainingDiskSpace = Number(diskSpace.remainingDiskSpace);
+          return {
+            ...diskSpace,
+            hasSpaceLeft:
+              diskSpace.remainingDiskSpace > DISK_REMAINING_ON_BEE_TRESHOLD_MB,
+          };
+        });
+        resolve(beesDiskSpace);
+      }
+    );
+  });
+};
+
+/**
  * Get the current bee states (this is the realtime data, not the cached data in BeeStatesWorker)
  * @param bees
  * @returns
@@ -399,6 +442,7 @@ const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
           isJackRunning: false,
           isJacktripRunning: false,
           networkPerformanceMs: 0,
+          isOnline: false,
         };
 
         // check if the bee is online
@@ -415,6 +459,7 @@ const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
             iBeeState.isJacktripRunning = await BeeSsh.isJacktripRunning(
               bee.ipAddress
             );
+            iBeeState.isOnline = true;
           }
           resolve(iBeeState);
         });
@@ -715,6 +760,7 @@ export default {
   getAudioScenesForBees,
   getBee,
   getBeeConfig,
+  getBeesDiskSpace,
   getCurrentBeeStates,
   isOnlineMultiple,
   manageBeeDevice,

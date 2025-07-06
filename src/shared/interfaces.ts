@@ -6,7 +6,12 @@ import {
   JacktripHubServerParams,
   RunningCommand,
 } from "@zwerm3/jack/dist/interfaces";
-import { AppMode, ChannelType, StreamingConnectionStatusType } from "./enums";
+import {
+  AppMode,
+  AudioUploadStatus,
+  ChannelType,
+  StreamingConnectionStatusType,
+} from "./enums";
 
 export interface IError {
   message: string;
@@ -129,6 +134,11 @@ export interface AudioSceneDbRecord {
   oscAddress: string;
   localFolderPath: string;
   manuallyAdded: boolean;
+}
+
+export interface AudioUploadStatusInfo {
+  status: AudioUploadStatus;
+  message?: string;
 }
 
 /**
@@ -300,4 +310,10 @@ export interface SshOutputState {
   ipAddress: string;
   responseTime: Date;
   isOnline: boolean;
+}
+
+export interface SshOutputDiskSpace {
+  ipAddress: string;
+  remainingDiskSpace: number; // in MB
+  hasSpaceLeft: boolean; // true if disk space is above 1000 MB
 }
