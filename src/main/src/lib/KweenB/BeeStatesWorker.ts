@@ -18,7 +18,6 @@ import { logger, debug } from "../../logger";
 import AudioSceneDb from "../../models/AudioScene";
 import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
 import { Op } from "sequelize";
-import { stat } from "node:fs";
 
 class BeeStatesWorker {
   private _beeStates: BeeStates;

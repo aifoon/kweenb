@@ -16,6 +16,7 @@ import KweenBHelpers from "./lib/KweenB/KweenBHelpers";
 import { KweenB, KweenBGlobal } from "./kweenb";
 import { Debugger } from "./logger";
 import { DEBUG_MODULES } from "./consts";
+import { globalErrorHandler } from "./globalerrorhandler";
 
 /**
  * Get the resources path
@@ -104,10 +105,22 @@ const initApp = async () => {
      */
     app.on("before-quit", async (event: any) => {
       event.preventDefault();
+
+      // Log the shutdown event
+      globalErrorHandler.reportInfo(
+        "App is about to quit - user initiated shutdown"
+      );
+
+      // If we have a main window, send a closing message to the renderer
+      // for showing the closing spinner
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("closing");
       }
+
+      // Close the application
       await KweenBHelpers.closeApplication(KweenBGlobal.kweenb.appMode);
+
+      // Destroy the main window
       app.exit(0);
     });
   } catch (e: any) {

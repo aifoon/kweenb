@@ -1,5 +1,3 @@
-// Debugger.ts
-
 /**
  * Debug priority levels
  */

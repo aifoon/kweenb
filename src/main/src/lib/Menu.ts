@@ -13,6 +13,8 @@ import SettingsHelper from "./KweenB/SettingHelpers";
 import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
 import { removeActionListeners, removeMethodHandlers } from "../register";
 import { DEFAULT_APP_MODE, DEFAULT_APP_VIEWS } from "@shared/consts";
+import path from "node:path";
+import fs from "node:fs";
 
 interface CustomMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -115,7 +117,7 @@ export default class MenuBuilder {
       label: "File",
       submenu: [
         {
-          label: "Export bees",
+          label: "Export Bees",
           click: () => {
             // Opens file dialog looking for bees data
             dialog
@@ -129,7 +131,7 @@ export default class MenuBuilder {
           },
         },
         {
-          label: "Import bees",
+          label: "Import Bees",
           click: () => {
             // Opens file dialog looking for the bees data
             dialog
@@ -147,7 +149,7 @@ export default class MenuBuilder {
         },
         { type: "separator" },
         {
-          label: "Export settings",
+          label: "Export Settings",
           click: () => {
             // Opens file dialog looking for settings data
             dialog
@@ -161,7 +163,7 @@ export default class MenuBuilder {
           },
         },
         {
-          label: "Import settings",
+          label: "Import Settings",
           click: () => {
             // Opens file dialog looking for the bees data
             dialog
@@ -179,10 +181,30 @@ export default class MenuBuilder {
         },
         { type: "separator" },
         {
-          label: "Open presets folder",
+          label: "Open Presets Folder",
           click: () => {
             // Opens file dialog looking for the bees data
             shell.openPath(PRESETS_FOLDER_PATH);
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Show App Logging",
+          click: () => {
+            // Get the path to the log file
+            const logPath = path.join(app.getPath("userData"), "app.log");
+
+            // Check if the log file exists
+            if (!fs.existsSync(logPath)) {
+              dialog.showErrorBox(
+                "Log File Not Found",
+                "The log file does not exist."
+              );
+              return;
+            }
+
+            // Open the log file in the default text editor
+            shell.openPath(path.join(app.getPath("userData"), "app.log"));
           },
         },
         { type: "separator" },
