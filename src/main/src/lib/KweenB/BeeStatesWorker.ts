@@ -27,6 +27,7 @@ class BeeStatesWorker {
   private _updateAudioScenesInterval: NodeJS.Timeout;
   private _removingAudioScenesInterval: NodeJS.Timeout;
   private _beeSshScriptExecutor: BeeSshScriptExecutor;
+  private _isUpdatingBeeStates = false;
 
   constructor() {
     this._allBees = [];
@@ -310,6 +311,13 @@ class BeeStatesWorker {
    * Refresh the bee states
    */
   private updateBeeStates() {
+    if (this._isUpdatingBeeStates) {
+      console.log("Previous updateBeeStates still running, skipping...");
+      return;
+    }
+
+    this._isUpdatingBeeStates = true;
+
     // map the ip addresses
     const ipAddresses = this._beeStates.bees.map((bee) => bee.ipAddress);
 
@@ -381,32 +389,24 @@ class BeeStatesWorker {
               }
 
               /**
-               * Check if the Zwerm3 API is running
+               * Check if the bee is online and check the services
                */
-              BeeSsh.isZwerm3ApiRunning(state.ipAddress).then(
-                (isApiOn: boolean) => {
-                  this._beeStates.update("isApiOn", bee, isApiOn);
-                }
-              );
-
-              /**
-               * Check if Jack is running
-               */
-              BeeSsh.isJackRunning(state.ipAddress).then(
-                (isJackRunning: boolean) => {
-                  this._beeStates.update("isJackRunning", bee, isJackRunning);
-                }
-              );
-
-              /**
-               * Check if Jacktrip is running
-               */
-              BeeSsh.isJacktripRunning(state.ipAddress).then(
-                (isJacktripRunning: boolean) => {
+              BeeSsh.checkAllServicesStatus(state.ipAddress).then(
+                (serviceStatus) => {
+                  this._beeStates.update(
+                    "isApiOn",
+                    bee,
+                    serviceStatus.zwerm3ApiRunning
+                  );
+                  this._beeStates.update(
+                    "isJackRunning",
+                    bee,
+                    serviceStatus.jackRunning
+                  );
                   this._beeStates.update(
                     "isJacktripRunning",
                     bee,
-                    isJacktripRunning
+                    serviceStatus.jacktripRunning
                   );
                 }
               );
@@ -421,6 +421,8 @@ class BeeStatesWorker {
       );
     } catch (e) {
       console.error(e);
+    } finally {
+      this._isUpdatingBeeStates = false;
     }
   }
 

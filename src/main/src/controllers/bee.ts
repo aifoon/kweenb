@@ -27,6 +27,7 @@ import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
 import Ssh2SftpClient from "ssh2-sftp-client";
 import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
+import AudioSceneDb from "../models/AudioScene";
 
 // Import models
 import AudioScene from "../models/AudioScene";
@@ -256,6 +257,21 @@ export const fetchBee = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "fetchBee()", message: e.message },
+      true
+    );
+  }
+};
+
+/**
+ * Flush all audio scenes from the database
+ * @param event
+ */
+export const flushAudioScenes = async (event: Electron.IpcMainInvokeEvent) => {
+  try {
+    await AudioSceneDb.destroy({ where: {} });
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "flushAudioScenes()", message: e.message },
       true
     );
   }

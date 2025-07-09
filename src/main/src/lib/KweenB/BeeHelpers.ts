@@ -593,12 +593,16 @@ const manageBeeDevice = async (
     return;
   }
 
-  // Execute the script
-  await new BeeSshScriptExecutor().executeWithNoOutput(
-    "device_manager.sh",
-    internalBees,
-    [{ flag: "-t", value: action.toString() }]
-  );
+  try {
+    // Execute the script
+    await new BeeSshScriptExecutor().executeWithNoOutput(
+      "device_manager.sh",
+      internalBees,
+      [{ flag: "-t", value: action.toString() }]
+    );
+  } catch (error) {
+    console.log("error!!!");
+  }
 };
 
 /**

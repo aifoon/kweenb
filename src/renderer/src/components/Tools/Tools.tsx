@@ -26,12 +26,27 @@ import {
   StartPureDataOnActiveBees,
   MakeBeeAudioConnections,
 } from "./Actions";
+import { FlushAudioScenes } from "./Actions/FlushAudioScenes";
 
 export const Tools = () => {
   const appMode = useAppStore((state) => state.appMode);
   return (
     <Z3Page pageHeader={<PageHeader title="Tools" />}>
-      <Card title="Actions">
+      <Card title="Database Tools">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ width: "45%" }}>Description</TableCell>
+              <TableCell style={{ width: "45%" }}>Output</TableCell>
+              <TableCell style={{ width: "10%" }} />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <FlushAudioScenes />
+          </TableBody>
+        </Table>
+      </Card>
+      <Card title="Streaming Tools">
         <Table>
           <TableHead>
             <TableRow>

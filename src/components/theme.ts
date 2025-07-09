@@ -1,4 +1,3 @@
-import { Opacity } from "@mui/icons-material";
 import { createTheme } from "@mui/material/styles";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 import type {} from "@mui/x-tree-view/themeAugmentation";

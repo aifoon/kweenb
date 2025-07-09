@@ -14,6 +14,9 @@ export default {
   disconnectPozyxMqttBroker: (): void => {
     ipcRenderer.send("positioning:disconnectPozyxMqttBroker");
   },
+  flushAudioScenes: (): void => {
+    ipcRenderer.send("bee:flushAudioScenes");
+  },
   setBeeActive: (id: number, active: boolean) =>
     ipcRenderer.send("bee:setBeeActive", id, active),
   setBeePozyxTagId: (bee: IBee, pozyxTagId: string) =>

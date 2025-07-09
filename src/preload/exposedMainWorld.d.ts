@@ -148,6 +148,7 @@ declare global {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         closeKweenB(): void;
+        flushAudioScenes(): void;
         disconnectPozyxMqttBroker(): void;
         setBeeActive(id: number, active: boolean): void;
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;

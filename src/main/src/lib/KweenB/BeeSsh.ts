@@ -30,6 +30,65 @@ const writeDataToFile = async (
 };
 
 /**
+ * Check the status of Jack, Jacktrip, and Zwerm3API services in a single SSH request
+ * @param ipAddress
+ * @returns Promise<{jackRunning: boolean, jacktripRunning: boolean, zwerm3ApiRunning: boolean}>
+ */
+const checkAllServicesStatus = async (ipAddress: string) => {
+  try {
+    // get the ssh connection
+    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+      ipAddress
+    );
+
+    // execute all commands in a single SSH request using command chaining
+    const command = `
+      echo "JACK_STATUS:$(pgrep -x jackd > /dev/null && echo true || echo false)";
+      echo "JACKTRIP_STATUS:$(pgrep -x jacktrip > /dev/null && echo true || echo false)";
+      echo "ZWERM3API_STATUS:$(systemctl is-active zwermAPI 2>/dev/null || echo inactive)"
+    `;
+
+    const response = await ssh.execCommand(command);
+
+    // if the response is valid
+    if (response.code === 0) {
+      const lines = response.stdout.trim().split("\n");
+      const results = {
+        jackRunning: false,
+        jacktripRunning: false,
+        zwerm3ApiRunning: false,
+      };
+
+      // parse the output
+      lines.forEach((line) => {
+        if (line.startsWith("JACK_STATUS:")) {
+          results.jackRunning = line.split(":")[1] === "true";
+        } else if (line.startsWith("JACKTRIP_STATUS:")) {
+          results.jacktripRunning = line.split(":")[1] === "true";
+        } else if (line.startsWith("ZWERM3API_STATUS:")) {
+          results.zwerm3ApiRunning = line.split(":")[1] === "active";
+        }
+      });
+
+      return results;
+    }
+
+    // return false values if the response is invalid
+    return {
+      jackRunning: false,
+      jacktripRunning: false,
+      zwerm3ApiRunning: false,
+    };
+  } catch (e) {
+    return {
+      jackRunning: false,
+      jacktripRunning: false,
+      zwerm3ApiRunning: false,
+    };
+  }
+};
+
+/**
  * Delete audio on the client
  * @param ipAddress
  * @param filePath
@@ -365,6 +424,7 @@ const startPureData = async (ipAddress: string) => {
 };
 
 export default {
+  checkAllServicesStatus,
   deletePath,
   getAudioFiles,
   isJackRunning,

@@ -19,6 +19,7 @@ import {
   fetchAllBeesData,
   fetchActiveBeesData,
   fetchInActiveBeesData,
+  flushAudioScenes,
   saveConfig,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
@@ -79,6 +80,7 @@ import {
  */
 
 const actionListeners = [
+  { name: "bee:flushAudioScenes", listener: flushAudioScenes },
   { name: "bee:setBeeActive", listener: setBeeActive },
   { name: "bee:setBeePozyxTagId", listener: setBeePozyxTagId },
   { name: "kweenb:closeKweenB", listener: closeKweenB },

@@ -53,7 +53,7 @@ export const SEQUELIZE_LOGGING = false;
  */
 
 // the interval we use to poll a bee for its status
-export const BEE_POLLING_SECONDS = 2;
+export const BEE_POLLING_SECONDS = 5;
 
 // the amount of seconds a bee is considered to be offline
 export const BEE_CONSIDERED_OFFLINE_SECONDS = 10;
