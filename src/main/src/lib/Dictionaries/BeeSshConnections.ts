@@ -3,59 +3,42 @@ import { NodeSSH } from "node-ssh";
 import SettingHelpers from "../KweenB/SettingHelpers";
 
 class BeeSshConnections {
-  // Dictionary to store NodeSSH instances
-  private _beeSshInstances: { [ipAddress: string]: NodeSSH } = {};
+  private _connectionCount = 0;
 
   /**
-   * Get the amount of ssh instances
+   * Get the total number of SSH connections created
    */
-  public get amountOfSshInstances() {
-    return Object.keys(this._beeSshInstances).length;
+  public get connectionCount() {
+    return this._connectionCount;
   }
-
-  /**
-   * Get or create the NodeSSH instance for a specific ipAddress
-   * @param ipAddress The ip address of the client
-   * @returns The NodeSSH instance
-   */
-  private getNodeSshInstance = (ipAddress: string): NodeSSH => {
-    // Check if the instance already exists
-    if (this._beeSshInstances[ipAddress]) {
-      return this._beeSshInstances[ipAddress];
-    }
-
-    // Create a new NodeSSH instance
-    const ssh = new NodeSSH();
-
-    // Add the instance to the dictionary
-    this._beeSshInstances[ipAddress] = ssh;
-
-    // return the instance
-    return ssh;
-  };
 
   /**
    * Get the ssh connection to the client
    * @param ipAddress The ip address of the client
    */
   public getSshConnection = async (ipAddress: string) => {
-    // Get or create the NodeSSH instance
-    const ssh = this.getNodeSshInstance(ipAddress);
+    // Create a new NodeSSH instance every time
+    const ssh = new NodeSSH();
+
+    // Increment the connection counter
+    this._connectionCount++;
+
+    // @debug Console log the connection count and IP address
+    // console.log(
+    //   `Creating SSH connection #${this._connectionCount} to ${ipAddress}`
+    // );
 
     // get the location of the ssh private key
     const sshPrivateKey =
       (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
       SSH_PRIVATE_KEY_PATH;
 
-    // if the ssh client is not connected
-    if (ssh && !ssh.isConnected()) {
-      // connect to the ssh client
-      await ssh.connect({
-        host: ipAddress,
-        username: SSH_USERNAME_BEE,
-        privateKeyPath: sshPrivateKey,
-      });
-    }
+    // connect to the ssh client
+    await ssh.connect({
+      host: ipAddress,
+      username: SSH_USERNAME_BEE,
+      privateKeyPath: sshPrivateKey,
+    });
 
     // return the ssh connection
     return ssh;
