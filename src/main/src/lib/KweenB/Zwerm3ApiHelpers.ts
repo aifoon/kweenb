@@ -308,7 +308,7 @@ const startJack = async (ipAddress: string, triggerOnly: boolean = false) => {
     device: settings.beeAudioSettings.jack.device,
     inputChannels: settings.beeAudioSettings.jack.inputChannels,
     outputChannels: settings.beeAudioSettings.jack.outputChannels,
-    bufferSize: triggerOnly ? 128 : settings.beeAudioSettings.jack.bufferSize,
+    bufferSize: triggerOnly ? 512 : settings.beeAudioSettings.jack.bufferSize,
     sampleRate: settings.beeAudioSettings.jack.sampleRate,
     periods: triggerOnly ? 24 : settings.beeAudioSettings.jack.periods,
   };
