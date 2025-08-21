@@ -801,9 +801,11 @@ export const uploadAudioFiles = async (
     const wavFiles = files.filter((file) => /^\d+\.wav$/.test(file));
 
     // filter out the wavfiles
-    const filteredWavFiles = wavFiles.filter((wavFile) =>
-      bees.find((bee) => bee.isOnline && wavFile.startsWith(`${bee.id}.`))
-    );
+    const filteredWavFiles = wavFiles
+      .filter((wavFile) =>
+        bees.find((bee) => bee.isOnline && wavFile.startsWith(`${bee.id}.`))
+      )
+      .sort((a, b) => parseInt(a) - parseInt(b));
 
     // loop over filteredWavFiles and create the directory with legal name on the bee
     for (const wavFile of filteredWavFiles) {

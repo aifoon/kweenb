@@ -1,6 +1,6 @@
 {
   "name": "kweenb",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "private": true,
   "description": "KweenB is an audio management application for the Zwerm3 project of Aifoon (BE).",
   "scripts": {
