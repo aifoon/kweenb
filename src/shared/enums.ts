@@ -50,4 +50,5 @@ export enum StreamingConnectionStatusType {
 export enum AudioUploadStatus {
   SUCCESS = "success",
   NO_DISK_SPACE = "no_disk_space",
+  CANCELLED = "cancelled",
 }

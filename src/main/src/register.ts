@@ -39,6 +39,7 @@ import {
   uploadAudioFiles,
   startJacktripP2PServer as startJacktripP2PServerBee,
   getAudioScenes,
+  cancelUploadAudioFiles,
 } from "./controllers/bee";
 import {
   calculateCurrentLatency,
@@ -83,6 +84,7 @@ const actionListeners = [
   { name: "bee:flushAudioScenes", listener: flushAudioScenes },
   { name: "bee:setBeeActive", listener: setBeeActive },
   { name: "bee:setBeePozyxTagId", listener: setBeePozyxTagId },
+  { name: "bee:cancelUploadAudioFiles", listener: cancelUploadAudioFiles },
   { name: "kweenb:closeKweenB", listener: closeKweenB },
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },

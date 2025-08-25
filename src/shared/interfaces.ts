@@ -12,6 +12,7 @@ import {
   ChannelType,
   StreamingConnectionStatusType,
 } from "./enums";
+import Ssh2SftpClient from "ssh2-sftp-client";
 
 export interface IError {
   message: string;
@@ -139,6 +140,12 @@ export interface AudioSceneDbRecord {
 export interface AudioUploadStatusInfo {
   status: AudioUploadStatus;
   message?: string;
+}
+
+export interface CurrentUploadOperation {
+  cancelled: boolean;
+  beeId?: number;
+  sftp?: Ssh2SftpClient;
 }
 
 /**

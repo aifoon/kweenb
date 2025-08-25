@@ -51,11 +51,25 @@ export const UploadAudioFilesSettings = ({
     };
   }, [open]);
 
+  const handleClose = async () => {
+    if (isUploading) {
+      // Cancel the upload in main process
+      try {
+        await window.kweenb.actions.cancelUploadAudioFiles();
+      } catch (error) {
+        console.error("Failed to cancel upload:", error);
+      }
+      setIsUploading(false);
+      setUploadProgress({ bee: null, percentage: 0 });
+    }
+    onClose();
+  };
+
   return (
     <BaseModal
       disableBackdropClick
       open={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       width="70vw"
     >
       {!isUploading && (
@@ -71,29 +85,51 @@ export const UploadAudioFilesSettings = ({
             localDirectory: Yup.string().required("Directory is required"),
           })}
           onSubmit={async (values) => {
-            // start uploading
-            setIsUploading(true);
+            try {
+              // start uploading
+              setIsUploading(true);
 
-            // start upload
-            const audioUploadStatusInfo =
-              await window.kweenb.methods.uploadAudioFiles(
-                values.name,
-                values.localDirectory
-              );
+              // start upload
+              const audioUploadStatusInfo =
+                await window.kweenb.methods.uploadAudioFiles(
+                  values.name,
+                  values.localDirectory
+                );
 
-            // show a toast with the status
-            showToast({
-              severity:
-                audioUploadStatusInfo.status === AudioUploadStatus.SUCCESS
-                  ? "success"
-                  : "warning",
-              message: audioUploadStatusInfo.message || "",
-            });
+              // show a toast with the status
+              showToast({
+                severity:
+                  audioUploadStatusInfo.status === AudioUploadStatus.SUCCESS ||
+                  audioUploadStatusInfo.status === AudioUploadStatus.CANCELLED
+                    ? "success"
+                    : "warning",
+                message: audioUploadStatusInfo.message || "",
+              });
 
-            // close the modal
-            setIsUploading(false);
-            setUploadProgress({ bee: null, percentage: 0 });
-            onClose();
+              // close the modal
+              setIsUploading(false);
+              setUploadProgress({ bee: null, percentage: 0 });
+              onClose();
+            } catch (error) {
+              // Cancel upload in main process on error
+              try {
+                await window.kweenb.actions.cancelUploadAudioFiles();
+              } catch (cancelError) {
+                console.error(
+                  "Failed to cancel upload after error:",
+                  cancelError
+                );
+              }
+
+              setIsUploading(false);
+              setUploadProgress({ bee: null, percentage: 0 });
+
+              showToast({
+                severity: "error",
+                message:
+                  error instanceof Error ? error.message : "Upload failed",
+              });
+            }
           }}
         >
           {(e) => (
@@ -148,7 +184,7 @@ export const UploadAudioFilesSettings = ({
                   <ButtonGroup>
                     <Button
                       type="button"
-                      onClick={onClose}
+                      onClick={handleClose}
                       buttonType={ButtonType.TertiaryWhite}
                       buttonSize={ButtonSize.Small}
                     >

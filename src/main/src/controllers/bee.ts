@@ -34,6 +34,25 @@ import AudioScene from "../models/AudioScene";
 import Bee from "../models/Bee";
 
 /**
+ * Cancel the current upload operation
+ */
+export const cancelUploadAudioFiles = async (
+  event: Electron.IpcMainInvokeEvent
+): Promise<void> => {
+  if (KweenBGlobal.kweenb.currentUploadOperation) {
+    // Close any active SFTP connections
+    if (KweenBGlobal.kweenb.currentUploadOperation.sftp) {
+      try {
+        KweenBGlobal.kweenb.currentUploadOperation.sftp.end();
+      } catch (e) {
+        // Ignore errors when closing
+      }
+    }
+    KweenBGlobal.kweenb.currentUploadOperation.cancelled = true;
+  }
+};
+
+/**
  * Create a new bee
  * @param event The invoke event
  * @param bee
@@ -758,9 +777,24 @@ export const uploadAudioFiles = async (
   name: string,
   path: string
 ): Promise<AudioUploadStatusInfo> => {
+  // reset the cancelled state
+  KweenBGlobal.kweenb.currentUploadOperation = { cancelled: false };
+
   try {
+    // during the upload process, pause the background worker that is constantly
+    // synchronizing the data in the database with the state of the bees
+    // The total upload process takes longer than the interval of the background worker
+    // So, when we are uploading and upserting the database, the background worker
+    // is in fact conflicting the database right away. Therefore, pause his behavour
+    // once the upload is done, the background worker can start the sync work again
+    // (see the finally statement in this function)
+    KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes = true;
+
     // create legal name for directory
     const legalName = Utils.convertToLegalDirectoryName(name);
+
+    // the remote directory and path
+    const remoteDirectory = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}`;
 
     // get all current bees
     const bees = await fetchAllBees();
@@ -791,6 +825,19 @@ export const uploadAudioFiles = async (
       };
     }
 
+    // Whenever we start uploading, remove all the file that are known based on the path
+    // Why? Because if we upload KWEENB_TEST_ONE ONE and KWEENB_TEST_ONE-ONE, the (safe) path
+    // is the same, but the naming is different... We want to avoid that there are duplicates
+    // that were not removed
+    await AudioScene.update(
+      { markedForDeletion: true },
+      {
+        where: {
+          localFolderPath: remoteDirectory,
+        },
+      }
+    );
+
     // get the location of the ssh private key
     const sshPrivateKey =
       (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
@@ -809,6 +856,13 @@ export const uploadAudioFiles = async (
 
     // loop over filteredWavFiles and create the directory with legal name on the bee
     for (const wavFile of filteredWavFiles) {
+      if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+        return {
+          status: AudioUploadStatus.CANCELLED,
+          message: `Audio upload was cancelled.`,
+        };
+      }
+
       const beeId = parseInt(wavFile.split(".")[0]);
       const bee = bees.find((bee) => bee.id === beeId);
 
@@ -817,21 +871,39 @@ export const uploadAudioFiles = async (
         // create the full path
         const fullPath = `${path}/${wavFile}`;
 
-        // the remote directory and path
-        const remoteDirectory = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}`;
-
         // the remote path of the audio file
         const remotePath = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}/audio.wav`;
 
         // upload the file to the bee
         const sftp = new Ssh2SftpClient();
+
+        // set the current upload operation
+        KweenBGlobal.kweenb.currentUploadOperation.sftp = sftp;
+        KweenBGlobal.kweenb.currentUploadOperation.beeId = bee.id;
+
         try {
           await sftp.connect({
             host: bee.ipAddress,
             username: "pi",
             privateKey: fs.readFileSync(sshPrivateKey),
           });
+
+          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+            return {
+              status: AudioUploadStatus.CANCELLED,
+              message: `Audio upload was cancelled.`,
+            };
+          }
+
           await sftp.mkdir(remoteDirectory);
+
+          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+            return {
+              status: AudioUploadStatus.CANCELLED,
+              message: `Audio upload was cancelled.`,
+            };
+          }
+
           await sftp.fastPut(fullPath, remotePath, {
             step: function (total_transferred, chunk, total) {
               // calculate the percentage
@@ -846,6 +918,13 @@ export const uploadAudioFiles = async (
             },
           });
 
+          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+            return {
+              status: AudioUploadStatus.CANCELLED,
+              message: `Audio upload was cancelled.`,
+            };
+          }
+
           // write the data to the local data file
           await BeeSsh.writeDataToFile(
             bee.ipAddress,
@@ -855,6 +934,14 @@ export const uploadAudioFiles = async (
 
           // close the connection
           sftp.end();
+
+          // Check for cancellation before database update
+          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+            return {
+              status: AudioUploadStatus.CANCELLED,
+              message: `Audio upload was cancelled.`,
+            };
+          }
 
           // add the audio scene to the database
           await AudioScene.upsert({
@@ -880,5 +967,7 @@ export const uploadAudioFiles = async (
       { where: "uploadAudioFiles()", message: e.message },
       true
     );
+  } finally {
+    KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes = false;
   }
 };

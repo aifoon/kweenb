@@ -5,7 +5,7 @@
  */
 
 import { AppMode } from "@shared/enums";
-import { IError } from "@shared/interfaces";
+import { CurrentUploadOperation, IError } from "@shared/interfaces";
 import { BrowserWindow, app } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
@@ -37,6 +37,8 @@ class KweenB {
   private _beeStatesWorker: BeeStatesWorker;
 
   private _beeSshConnections: BeeSshConnections;
+
+  private _currentUploadOperation: CurrentUploadOperation | null;
 
   constructor() {
     this._appMode = AppMode.P2P;
@@ -72,6 +74,22 @@ class KweenB {
 
   public set mainWindow(mainWindow: BrowserWindow) {
     this._mainWindow = mainWindow;
+  }
+
+  /**
+   * Current upload operations in kweenb
+   */
+  public set currentUploadOperation(
+    currentUploadOperation: CurrentUploadOperation | null
+  ) {
+    this._currentUploadOperation = currentUploadOperation;
+  }
+
+  /**
+   * Current upload operations in kweenb
+   */
+  public get currentUploadOperation() {
+    return this._currentUploadOperation;
   }
 
   /**

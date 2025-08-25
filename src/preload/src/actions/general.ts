@@ -8,6 +8,9 @@ export default {
   beesPoller: (action: "start" | "stop" | "pause"): void => {
     ipcRenderer.send("bee:beesPoller", action);
   },
+  cancelUploadAudioFiles: (): void => {
+    ipcRenderer.send("bee:cancelUploadAudioFiles");
+  },
   closeKweenB: (): void => {
     ipcRenderer.send("kweenb:closeKweenB");
   },

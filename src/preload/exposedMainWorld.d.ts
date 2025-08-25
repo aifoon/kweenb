@@ -147,6 +147,7 @@ declare global {
       readonly actions: {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
         flushAudioScenes(): void;
         disconnectPozyxMqttBroker(): void;

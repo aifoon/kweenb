@@ -25,6 +25,7 @@ class BeeStatesWorker {
   private _updateBeeStatesInterval: NodeJS.Timeout;
   private _updateBeeNetworkPerformanceInterval: NodeJS.Timeout;
   private _updateAudioScenesInterval: NodeJS.Timeout;
+  private _pauseUpdateAudioScenes: boolean;
   private _removingAudioScenesInterval: NodeJS.Timeout;
   private _beeSshScriptExecutor: BeeSshScriptExecutor;
   private _isUpdatingBeeStates = false;
@@ -33,6 +34,7 @@ class BeeStatesWorker {
     this._allBees = [];
     this._beeStates = new BeeStates();
     this._beeSshScriptExecutor = new BeeSshScriptExecutor();
+    this._pauseUpdateAudioScenes = false;
   }
 
   /**
@@ -40,6 +42,20 @@ class BeeStatesWorker {
    */
   public get beeStates() {
     return this._beeStates;
+  }
+
+  /**
+   * Pause the update of audio scenes
+   */
+  public set pauseUpdateAudioScenes(value: boolean) {
+    this._pauseUpdateAudioScenes = value;
+  }
+
+  /**
+   * Get the pause update of audio scenes
+   */
+  public get pauseUpdateAudioScenes() {
+    return this._pauseUpdateAudioScenes;
   }
 
   /**
@@ -431,6 +447,11 @@ class BeeStatesWorker {
    */
   private async updateAudioScenes() {
     try {
+      // if paused, skip
+      if (this._pauseUpdateAudioScenes) {
+        return;
+      }
+
       // validate
       if (!this._allBees) return;
 
@@ -472,7 +493,7 @@ class BeeStatesWorker {
               oscAddress: audioScene.oscAddress,
               name: audioScene.name,
               localFolderPath: audioScene.localFolderPath,
-              manuallyAdded: audioScene.manuallyAdded,
+              manuallyAdded: false,
             });
           }
 
