@@ -149,8 +149,9 @@ declare global {
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
-        flushAudioScenes(): void;
         disconnectPozyxMqttBroker(): void;
+        flushAudioScenes(): void;
+        pauseUpdateAudioScenes(pause: boolean): void;
         setBeeActive(id: number, active: boolean): void;
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;
         setJackFolderPath(jackFolderPath: string);

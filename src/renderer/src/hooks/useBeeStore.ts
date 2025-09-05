@@ -122,7 +122,6 @@ export const useBeeStore = create<BeeStoreState & BeeStoreAction>((set) => {
       // a function that fetches all bees and updates the store
       const updateBeesState = async () => {
         const allBees = await window.kweenb.methods.fetchAllBees();
-        console.debug(allBees);
         set({
           bees: allBees,
           activeBees: allBees.filter((bee) => bee.isActive),

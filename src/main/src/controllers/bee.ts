@@ -490,6 +490,28 @@ export const makeAudioConnection = async (
 };
 
 /**
+ * Pause or resume the update of audio scenes
+ * @param event The invoke event
+ * @param pause Whether to pause or resume
+ */
+export const pauseUpdateAudioScenes = async (
+  event: Electron.IpcMainInvokeEvent,
+  pause: boolean
+) => {
+  try {
+    // only pause when the paused state is different than the current state
+    if (KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes !== pause) {
+      KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes = pause;
+    }
+  } catch (e: any) {
+    throw new KweenBException(
+      { where: "pauseUpdateAudioScenes()", message: e.message },
+      false
+    );
+  }
+};
+
+/**
  * Set the audio param on the bee
  * @param event The invoke event
  * @param bees The bee or bees

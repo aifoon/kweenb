@@ -20,6 +20,9 @@ export default {
   flushAudioScenes: (): void => {
     ipcRenderer.send("bee:flushAudioScenes");
   },
+  pauseUpdateAudioScenes: (pause: boolean): void => {
+    ipcRenderer.send("bee:pauseUpdateAudioScenes", pause);
+  },
   setBeeActive: (id: number, active: boolean) =>
     ipcRenderer.send("bee:setBeeActive", id, active),
   setBeePozyxTagId: (bee: IBee, pozyxTagId: string) =>

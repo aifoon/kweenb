@@ -17,11 +17,9 @@ const writeDataToFile = async (
   data: string
 ) => {
   try {
-    // get the ssh connection
     const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
       ipAddress
     );
-
     // execute ssh command
     await ssh.execCommand(`echo '${data}' > ${path}`);
   } catch (e) {
@@ -40,7 +38,6 @@ const checkAllServicesStatus = async (ipAddress: string) => {
     const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
       ipAddress
     );
-
     // execute all commands in a single SSH request using command chaining
     const command = `
       echo "JACK_STATUS:$(pgrep -x jackd > /dev/null && echo true || echo false)";
@@ -99,7 +96,6 @@ const deletePath = async (ipAddress: string, path: string) => {
     const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
       ipAddress
     );
-
     // execute ssh command
     await ssh.execCommand(`rm -rf ${path}`);
   } catch (e) {

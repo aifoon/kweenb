@@ -1,5 +1,5 @@
 import { Tab } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { PageHeader } from "@components/PageHeader";
 import { Z3Page } from "@components/Layout";
@@ -17,6 +17,17 @@ export const Audio = () => {
   ) => {
     setValue(newValue);
   };
+
+  /**
+   * This effect was create to pause the updating of audio scenes when we leave the audio page
+   * and resume it when we come back to the audio page. This is a performance optimization.
+   */
+  useEffect(() => {
+    window.kweenb.actions.pauseUpdateAudioScenes(false);
+    return () => {
+      window.kweenb.actions.pauseUpdateAudioScenes(true);
+    };
+  }, []);
 
   return (
     <Z3Page pageHeader={<PageHeader title="Audio" />}>

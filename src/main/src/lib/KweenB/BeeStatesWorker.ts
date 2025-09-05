@@ -34,7 +34,7 @@ class BeeStatesWorker {
     this._allBees = [];
     this._beeStates = new BeeStates();
     this._beeSshScriptExecutor = new BeeSshScriptExecutor();
-    this._pauseUpdateAudioScenes = false;
+    this._pauseUpdateAudioScenes = true;
   }
 
   /**
@@ -79,23 +79,20 @@ class BeeStatesWorker {
 
     // do interval for fetching bee network performance
     if (!this._updateBeeNetworkPerformanceInterval)
-      this._updateBeeNetworkPerformanceInterval = setInterval(
-        () => this.updateBeeNetworkPerformance(),
-        NETWORK_PERFORMANCE_POLLING_SECONDS * 1000
-      );
+      this._updateBeeNetworkPerformanceInterval = setInterval(() => {
+        this.updateBeeNetworkPerformance();
+      }, NETWORK_PERFORMANCE_POLLING_SECONDS * 1000);
 
     // do interval for fetching audio scenes on the bees
     if (!this._updateAudioScenesInterval)
-      this._updateAudioScenesInterval = setInterval(
-        () => this.updateAudioScenes(),
-        AUDIOSCENES_POLLING_SECONDS * 1000
-      );
+      this._updateAudioScenesInterval = setInterval(() => {
+        this.updateAudioScenes();
+      }, AUDIOSCENES_POLLING_SECONDS * 1000);
 
     if (!this._removingAudioScenesInterval) {
-      this._removingAudioScenesInterval = setInterval(
-        () => this.removeFlaggedAudioScenes(),
-        AUDIOSCENES_REMOVING_SECONDS * 1000
-      );
+      this._removingAudioScenesInterval = setInterval(() => {
+        this.removeFlaggedAudioScenes();
+      }, AUDIOSCENES_REMOVING_SECONDS * 1000);
     }
   }
 
