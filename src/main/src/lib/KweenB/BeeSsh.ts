@@ -391,20 +391,20 @@ const makeAudioConnection = async (ipAddress: string, bee: IBee) => {
  * @param ipAddress The IP address of the client
  */
 const startPureData = async (ipAddress: string) => {
-  try {
-    // get the ssh connection
-    const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
-      ipAddress
-    );
+  // get the ssh connection
+  const ssh = await KweenBGlobal.kweenb.beeSshConnections.getSshConnection(
+    ipAddress
+  );
 
+  try {
     // check if pd is running
-    const response = await ssh.execCommand(
+    const response = await ssh.execCommandAndKeepAlive(
       "pgrep -x pd > /dev/null && echo true || echo false"
     );
 
     // kill pd if it is running
     if (response.stdout === "true") {
-      await ssh.execCommand("killall pd");
+      await ssh.execCommandAndKeepAlive("killall pd");
     }
 
     // get the settings

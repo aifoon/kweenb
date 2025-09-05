@@ -37,6 +37,20 @@ class BeeSshConnection {
   }
 
   /**
+   * Execute a command on the SSH connection and keep the connection alive
+   * @param command The command to execute
+   * @returns The command output
+   */
+  public async execCommandAndKeepAlive(command: string) {
+    try {
+      return await this._ssh.execCommand(command);
+    } catch (error) {
+      console.error("Error executing SSH command:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Dispose the SSH connection
    */
   public dispose() {
