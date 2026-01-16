@@ -303,41 +303,18 @@ syncRouter.get("/all", async (req, res) => {
     // Get compositions (same as /compositions endpoint)
     const compositions = await InterfaceComposition.findAll();
     const compositionIds = compositions.map((c) => c.dataValues.id);
-    console.log(`[KWEENB SYNC DEBUG] Found ${compositions.length} compositions with IDs:`, compositionIds);
 
     const compositionBees = await InterfaceCompositionBee.findAll({
       where: { interfaceCompositionId: { [Op.in]: compositionIds } },
     });
-    console.log(`[KWEENB SYNC DEBUG] Found ${compositionBees.length} composition-bee relations`);
-    compositionBees.forEach((cb, idx) => {
-      console.log(`[KWEENB SYNC DEBUG]   [${idx}] compositionId=${cb.dataValues.interfaceCompositionId}, beeId=${cb.dataValues.beeId}, audioSceneId=${cb.dataValues.audioSceneId}, isLooping=${cb.dataValues.isLooping}`);
-    });
 
     const allBeeIds = [...new Set(compositionBees.map((cb) => cb.dataValues.beeId))];
     const audioSceneIds = [...new Set(compositionBees.map((cb) => cb.dataValues.audioSceneId))];
-    console.log(`[KWEENB SYNC DEBUG] Unique beeIds to query:`, allBeeIds);
-    console.log(`[KWEENB SYNC DEBUG] Unique audioSceneIds to query:`, audioSceneIds);
 
     const compositionBeesData = await Bee.findAll({ where: { id: { [Op.in]: allBeeIds } } });
-    console.log(`[KWEENB SYNC DEBUG] Found ${compositionBeesData.length} bees for compositions`);
-
-    // Check what audio scenes actually exist for these bees
-    const allAudioScenesForBees = await AudioScene.findAll({
-      where: { beeId: { [Op.in]: allBeeIds } },
-    });
-    console.log(`[KWEENB SYNC DEBUG] Total audio scenes in database for these bees: ${allAudioScenesForBees.length}`);
-    if (allAudioScenesForBees.length > 0 && allAudioScenesForBees.length <= 20) {
-      allAudioScenesForBees.forEach((s) => {
-        console.log(`[KWEENB SYNC DEBUG]   Available scene: id=${s.dataValues.id}, name="${s.dataValues.name}", beeId=${s.dataValues.beeId}, markedForDeletion=${s.dataValues.markedForDeletion}`);
-      });
-    }
 
     const compositionScenesData = await AudioScene.findAll({
       where: { id: { [Op.in]: audioSceneIds } },
-    });
-    console.log(`[KWEENB SYNC DEBUG] Found ${compositionScenesData.length} audio scenes for compositions (querying by IDs: ${audioSceneIds.join(', ')})`);
-    compositionScenesData.forEach((s) => {
-      console.log(`[KWEENB SYNC DEBUG]   Scene: id=${s.dataValues.id}, name="${s.dataValues.name}", localFolderPath="${s.dataValues.localFolderPath}", beeId=${s.dataValues.beeId}`);
     });
 
     const beesMap = {};
@@ -353,7 +330,6 @@ syncRouter.get("/all", async (req, res) => {
         pozyxTagId: b.dataValues.pozyxTagId,
       };
     });
-    console.log(`[KWEENB SYNC DEBUG] Built beesMap with ${Object.keys(beesMap).length} entries:`, Object.keys(beesMap));
 
     const scenesDbMap = {};
     compositionScenesData.forEach((s) => {
@@ -364,27 +340,19 @@ syncRouter.get("/all", async (req, res) => {
         localFolderPath: s.dataValues.localFolderPath,
       };
     });
-    console.log(`[KWEENB SYNC DEBUG] Built scenesDbMap with ${Object.keys(scenesDbMap).length} entries:`, Object.keys(scenesDbMap));
 
     const compositionsOutput = compositions.map((comp) => {
       const compositionRelations = compositionBees.filter(
         (cb) => cb.dataValues.interfaceCompositionId === comp.dataValues.id
       );
-      console.log(`[KWEENB SYNC DEBUG] Composition "${comp.dataValues.name}" (id=${comp.dataValues.id}) has ${compositionRelations.length} bee relations`);
 
       const composition = compositionRelations
         .map((rel) => {
           const bee = beesMap[rel.dataValues.beeId] || null;
           const audioScene = scenesDbMap[rel.dataValues.audioSceneId] || null;
-          console.log(`[KWEENB SYNC DEBUG]   Mapping relation: beeId=${rel.dataValues.beeId} => ${bee ? 'FOUND' : 'NULL'}, audioSceneId=${rel.dataValues.audioSceneId} => ${audioScene ? 'FOUND' : 'NULL'}`);
 
-          if (!audioScene) {
-            console.error(`[KWEENB SYNC DEBUG]   ✗ AudioScene ${rel.dataValues.audioSceneId} NOT FOUND in scenesDbMap! Skipping this composition item.`);
-            return null; // Mark for filtering
-          }
-          if (!bee) {
-            console.error(`[KWEENB SYNC DEBUG]   ✗ Bee ${rel.dataValues.beeId} NOT FOUND in beesMap! Skipping this composition item.`);
-            return null; // Mark for filtering
+          if (!audioScene || !bee) {
+            return null;
           }
 
           return {
@@ -393,9 +361,7 @@ syncRouter.get("/all", async (req, res) => {
             isLooping: rel.dataValues.isLooping,
           };
         })
-        .filter((item) => item !== null); // Remove invalid entries
-
-      console.log(`[KWEENB SYNC DEBUG]   Final composition has ${composition.length} valid items (${compositionRelations.length - composition.length} skipped)`);
+        .filter((item) => item !== null);
 
       return { id: comp.dataValues.id, name: comp.dataValues.name, composition };
     });
