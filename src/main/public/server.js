@@ -372,19 +372,31 @@ syncRouter.get("/all", async (req, res) => {
       );
       console.log(`[KWEENB SYNC DEBUG] Composition "${comp.dataValues.name}" (id=${comp.dataValues.id}) has ${compositionRelations.length} bee relations`);
 
-      const composition = compositionRelations.map((rel) => {
-        const bee = beesMap[rel.dataValues.beeId] || null;
-        const audioScene = scenesDbMap[rel.dataValues.audioSceneId] || null;
-        console.log(`[KWEENB SYNC DEBUG]   Mapping relation: beeId=${rel.dataValues.beeId} => ${bee ? 'FOUND' : 'NULL'}, audioSceneId=${rel.dataValues.audioSceneId} => ${audioScene ? 'FOUND' : 'NULL'}`);
-        if (!audioScene) {
-          console.error(`[KWEENB SYNC DEBUG]   ✗ AudioScene ${rel.dataValues.audioSceneId} NOT FOUND in scenesDbMap! Available IDs:`, Object.keys(scenesDbMap));
-        }
-        return {
-          bee,
-          audioScene,
-          isLooping: rel.dataValues.isLooping,
-        };
-      });
+      const composition = compositionRelations
+        .map((rel) => {
+          const bee = beesMap[rel.dataValues.beeId] || null;
+          const audioScene = scenesDbMap[rel.dataValues.audioSceneId] || null;
+          console.log(`[KWEENB SYNC DEBUG]   Mapping relation: beeId=${rel.dataValues.beeId} => ${bee ? 'FOUND' : 'NULL'}, audioSceneId=${rel.dataValues.audioSceneId} => ${audioScene ? 'FOUND' : 'NULL'}`);
+
+          if (!audioScene) {
+            console.error(`[KWEENB SYNC DEBUG]   ✗ AudioScene ${rel.dataValues.audioSceneId} NOT FOUND in scenesDbMap! Skipping this composition item.`);
+            return null; // Mark for filtering
+          }
+          if (!bee) {
+            console.error(`[KWEENB SYNC DEBUG]   ✗ Bee ${rel.dataValues.beeId} NOT FOUND in beesMap! Skipping this composition item.`);
+            return null; // Mark for filtering
+          }
+
+          return {
+            bee,
+            audioScene,
+            isLooping: rel.dataValues.isLooping,
+          };
+        })
+        .filter((item) => item !== null); // Remove invalid entries
+
+      console.log(`[KWEENB SYNC DEBUG]   Final composition has ${composition.length} valid items (${compositionRelations.length - composition.length} skipped)`);
+
       return { id: comp.dataValues.id, name: comp.dataValues.name, composition };
     });
 
