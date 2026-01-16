@@ -321,10 +321,21 @@ syncRouter.get("/all", async (req, res) => {
     const compositionBeesData = await Bee.findAll({ where: { id: { [Op.in]: allBeeIds } } });
     console.log(`[KWEENB SYNC DEBUG] Found ${compositionBeesData.length} bees for compositions`);
 
+    // Check what audio scenes actually exist for these bees
+    const allAudioScenesForBees = await AudioScene.findAll({
+      where: { beeId: { [Op.in]: allBeeIds } },
+    });
+    console.log(`[KWEENB SYNC DEBUG] Total audio scenes in database for these bees: ${allAudioScenesForBees.length}`);
+    if (allAudioScenesForBees.length > 0 && allAudioScenesForBees.length <= 20) {
+      allAudioScenesForBees.forEach((s) => {
+        console.log(`[KWEENB SYNC DEBUG]   Available scene: id=${s.dataValues.id}, name="${s.dataValues.name}", beeId=${s.dataValues.beeId}, markedForDeletion=${s.dataValues.markedForDeletion}`);
+      });
+    }
+
     const compositionScenesData = await AudioScene.findAll({
       where: { id: { [Op.in]: audioSceneIds } },
     });
-    console.log(`[KWEENB SYNC DEBUG] Found ${compositionScenesData.length} audio scenes for compositions`);
+    console.log(`[KWEENB SYNC DEBUG] Found ${compositionScenesData.length} audio scenes for compositions (querying by IDs: ${audioSceneIds.join(', ')})`);
     compositionScenesData.forEach((s) => {
       console.log(`[KWEENB SYNC DEBUG]   Scene: id=${s.dataValues.id}, name="${s.dataValues.name}", localFolderPath="${s.dataValues.localFolderPath}", beeId=${s.dataValues.beeId}`);
     });
