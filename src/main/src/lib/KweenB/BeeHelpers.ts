@@ -243,7 +243,9 @@ const getAudioScenes = async (ids: number[] = []): Promise<AudioScene[]> => {
   if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
     return ids.length === 0
       ? demoScenes
-      : demoScenes.filter((scene) => ids.includes(scene.id));
+      : demoScenes.filter((scene) =>
+          scene.allIds.some((id) => ids.includes(id))
+        );
   }
 
   // get all bees
@@ -254,7 +256,9 @@ const getAudioScenes = async (ids: number[] = []): Promise<AudioScene[]> => {
 
   // filter out the ids
   if (ids.length > 0) {
-    return audioScenes.filter((scene) => ids.includes(scene.id));
+    return audioScenes.filter((scene) =>
+      scene.allIds.some((id) => ids.includes(id))
+    );
   }
 
   return audioScenes;
@@ -309,16 +313,19 @@ const getAudioScenesForBees = async (
   const sceneMap: Record<string, AudioScene> = {};
   audioScenesDb.forEach((scene) => {
     const { id, name, beeId, oscAddress, localFolderPath } = scene.toJSON(); // Extract raw data
-
     if (!sceneMap[localFolderPath]) {
       // Initialize a new AudioScene object
       sceneMap[localFolderPath] = {
         id,
+        allIds: [id], // Initialize with the first ID
         name,
         foundOnBees: [],
         oscAddress,
         localFolderPath,
       };
+    } else {
+      // Add this ID to the allIds array
+      sceneMap[localFolderPath].allIds.push(id);
     }
 
     // Add the beeId to foundOnBees array

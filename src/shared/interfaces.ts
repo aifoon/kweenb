@@ -122,6 +122,7 @@ export interface AudioFile {
 
 export interface AudioScene {
   id: number;
+  allIds: number[]; // All database IDs for this scene across different bees
   name: string;
   foundOnBees: IBee[];
   oscAddress: string;

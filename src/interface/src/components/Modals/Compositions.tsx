@@ -108,6 +108,7 @@ export const Compositions = ({ open, onClose }: CompositionsAsProps) => {
   const fetchInterfaceCompositions = async () => {
     sendToServerAndExpectResponseAsync("fetchInterfaceCompositions")
       .then((data) => {
+        console.log("Fetched Interface Compositions:", data);
         setInterfaceCompositions(data as InterfaceComposition[]);
       })
       .finally(() => setLoading(false));

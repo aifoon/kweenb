@@ -181,7 +181,6 @@ export class SocketMessageHandler {
       // get the interface compositions
       const interfaceCompositions =
         await InterfaceHelpers.getInterfaceCompositions();
-
       // send to client that made the request
       SocketSingleton.getInstance().sendToClient(
         clientId,
@@ -326,10 +325,10 @@ export class SocketMessageHandler {
       .socketServer.of("/")
       .fetchSockets()
       .then((sockets) => {
-        console.log("Amount of connected clients:", sockets.length);
-        sockets.forEach((socket, index) => {
-          console.log(`Client ${index + 1}:`, socket.id);
-        });
+        // console.log("Amount of connected clients:", sockets.length);
+        // sockets.forEach((socket, index) => {
+        //   console.log(`Client ${index + 1}:`, socket.id);
+        // });
       });
   }
 

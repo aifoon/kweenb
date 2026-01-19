@@ -290,7 +290,10 @@ const getInterfaceCompositions = async () => {
 
   const audioScenesMap: { [key: string | number]: any } = {};
   allAudioScenes.forEach((scene) => {
-    audioScenesMap[scene.id] = scene;
+    // Map all database IDs to this scene so lookups work for any bee's audio scene ID
+    scene.allIds.forEach((id) => {
+      audioScenesMap[id] = scene;
+    });
   });
 
   // Step 3: Create a map for quick lookup
@@ -301,6 +304,7 @@ const getInterfaceCompositions = async () => {
       isLooping: boolean;
     }>;
   } = {};
+
   allInterfaceCompositionBees.forEach((icBee) => {
     const compositionId = icBee.dataValues.interfaceCompositionId;
     const beeId = icBee.dataValues.beeId;
@@ -327,6 +331,7 @@ const getInterfaceCompositions = async () => {
       composition: compositionBeesMap[compositionId] || [],
     };
   });
+
   return output;
 };
 
