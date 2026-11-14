@@ -23,8 +23,6 @@ import {
   StartJackWithJacktripP2PClientsOnKweenB,
   MakeP2PAudioConnectionsOnKweenB,
   StartJacktripHubServer,
-  StartPureDataOnActiveBees,
-  MakeBeeAudioConnections,
 } from "./Actions";
 import { FlushAudioScenes } from "./Actions/FlushAudioScenes";
 
@@ -64,18 +62,14 @@ export const Tools = () => {
               <>
                 <StartJacktripHubServer />
                 <StartJackWithJacktripHubClientOnActiveBees />
-                <StartPureDataOnActiveBees />
                 <StartJackWithJacktripHubClientOnKweenB />
-                <MakeBeeAudioConnections />
                 <MakeHubAudioConnections />
               </>
             )}
             {appMode === AppMode.P2P && (
               <>
                 <StartJackWithJacktripP2PServerOnActiveBees />
-                <StartPureDataOnActiveBees />
                 <StartJackWithJacktripP2PClientsOnKweenB />
-                <MakeBeeAudioConnections />
                 <MakeP2PAudioConnectionsOnKweenB />
               </>
             )}

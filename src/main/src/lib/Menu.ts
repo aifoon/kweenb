@@ -74,6 +74,145 @@ export default class MenuBuilder {
   }
 
   /**
+   * The File menu, the same on every platform
+   */
+  buildFileMenu(): CustomMenuItemConstructorOptions {
+    const jsonFile = [{ name: "JSON", extensions: ["json"] }];
+
+    return {
+      label: "File",
+      submenu: [
+        {
+          label: "Add Speaker",
+          submenu: [
+            {
+              label: "New Speaker…",
+              accelerator: "CmdOrCtrl+N",
+              click: () => {
+                this.mainWindow.webContents.send("new-speaker");
+              },
+            },
+            {
+              label: "By Hand…",
+              click: () => {
+                this.mainWindow.webContents.send("add-bee");
+              },
+            },
+          ],
+        },
+        {
+          label: "Save Sounds to This Computer…",
+          accelerator: "CmdOrCtrl+S",
+          click: () => {
+            this.mainWindow.webContents.send("save-sounds");
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Import",
+          submenu: [
+            {
+              label: "Bees…",
+              click: () => {
+                dialog
+                  .showOpenDialog(this.mainWindow, {
+                    properties: ["openFile"],
+                    filters: jsonFile,
+                  })
+                  .then((result) => {
+                    if (result.filePaths && result.filePaths.length > 0) {
+                      BeeHelpers.importBees(result.filePaths[0]);
+                      this.mainWindow.webContents.send("imported-bees");
+                    }
+                  });
+              },
+            },
+            {
+              label: "Settings…",
+              click: () => {
+                dialog
+                  .showOpenDialog(this.mainWindow, {
+                    properties: ["openFile"],
+                    filters: jsonFile,
+                  })
+                  .then((result) => {
+                    if (result.filePaths && result.filePaths.length > 0) {
+                      SettingsHelper.importSettings(result.filePaths[0]);
+                      this.mainWindow.webContents.send("imported-settings");
+                    }
+                  });
+              },
+            },
+          ],
+        },
+        {
+          label: "Export",
+          submenu: [
+            {
+              label: "Bees…",
+              click: () => {
+                dialog
+                  .showSaveDialog(this.mainWindow, {
+                    defaultPath: "kweenb-bees.json",
+                    filters: jsonFile,
+                  })
+                  .then((result) => {
+                    BeeHelpers.exportBees(result.filePath || "");
+                  });
+              },
+            },
+            {
+              label: "Settings…",
+              click: () => {
+                dialog
+                  .showSaveDialog(this.mainWindow, {
+                    defaultPath: "kweenb-settings.json",
+                    filters: jsonFile,
+                  })
+                  .then((result) => {
+                    SettingsHelper.exportSettings(result.filePath || "");
+                  });
+              },
+            },
+          ],
+        },
+        { type: "separator" },
+        {
+          label: "Open Presets Folder",
+          click: () => {
+            shell.openPath(PRESETS_FOLDER_PATH);
+          },
+        },
+        {
+          label: "Show App Logging",
+          click: () => {
+            // Get the path to the log file
+            const logPath = path.join(app.getPath("userData"), "app.log");
+
+            // Check if the log file exists
+            if (!fs.existsSync(logPath)) {
+              dialog.showErrorBox(
+                "Log File Not Found",
+                "The log file does not exist."
+              );
+              return;
+            }
+
+            // Open the log file in the default text editor
+            shell.openPath(logPath);
+          },
+        },
+        {
+          label: "Open QjackCtl",
+          click: () => {
+            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
+          },
+        },
+      ],
+    };
+  }
+
+  /**
    * Builds the Darwin Template
    *
    * @returns The MenuItems needed for the template
@@ -113,115 +252,7 @@ export default class MenuBuilder {
     };
 
     // The file menu
-    const subMenuFile: CustomMenuItemConstructorOptions = {
-      label: "File",
-      submenu: [
-        {
-          label: "Export Bees",
-          click: () => {
-            // Opens file dialog looking for bees data
-            dialog
-              .showSaveDialog(this.mainWindow, {
-                defaultPath: "kweenb-bees.json",
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                BeeHelpers.exportBees(result.filePath || "");
-              });
-          },
-        },
-        {
-          label: "Import Bees",
-          click: () => {
-            // Opens file dialog looking for the bees data
-            dialog
-              .showOpenDialog(this.mainWindow, {
-                properties: ["openFile"],
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                if (result.filePaths && result.filePaths.length > 0) {
-                  BeeHelpers.importBees(result.filePaths[0]);
-                  this.mainWindow.webContents.send("imported-bees");
-                }
-              });
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Export Settings",
-          click: () => {
-            // Opens file dialog looking for settings data
-            dialog
-              .showSaveDialog(this.mainWindow, {
-                defaultPath: "kweenb-settings.json",
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                SettingsHelper.exportSettings(result.filePath || "");
-              });
-          },
-        },
-        {
-          label: "Import Settings",
-          click: () => {
-            // Opens file dialog looking for the bees data
-            dialog
-              .showOpenDialog(this.mainWindow, {
-                properties: ["openFile"],
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                if (result.filePaths && result.filePaths.length > 0) {
-                  SettingsHelper.importSettings(result.filePaths[0]);
-                  this.mainWindow.webContents.send("imported-settings");
-                }
-              });
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Open Presets Folder",
-          click: () => {
-            // Opens file dialog looking for the bees data
-            shell.openPath(PRESETS_FOLDER_PATH);
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Show App Logging",
-          click: () => {
-            // Get the path to the log file
-            const logPath = path.join(app.getPath("userData"), "app.log");
-
-            // Check if the log file exists
-            if (!fs.existsSync(logPath)) {
-              dialog.showErrorBox(
-                "Log File Not Found",
-                "The log file does not exist."
-              );
-              return;
-            }
-
-            // Open the log file in the default text editor
-            shell.openPath(path.join(app.getPath("userData"), "app.log"));
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Open QjackCtl",
-          click: () => {
-            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
-          },
-        },
-        {
-          label: "Open JackTrip",
-          click: () => {
-            shell.openPath(`${USER_DATA}/jacktrip/JackTrip.app`);
-          },
-        },
-      ],
-    };
+    const subMenuFile = this.buildFileMenu();
 
     /**
      * The Edit menu
@@ -383,74 +414,7 @@ export default class MenuBuilder {
     };
 
     // The file menu
-    const subMenuFile: CustomMenuItemConstructorOptions = {
-      label: "File",
-      submenu: [
-        {
-          label: "Export bees",
-          click: () => {
-            // Opens file dialog looking for bees data
-            dialog
-              .showSaveDialog(this.mainWindow, {
-                defaultPath: "kweenb-bees.json",
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                BeeHelpers.exportBees(result.filePath || "");
-              });
-          },
-        },
-        {
-          label: "Import bees",
-          click: () => {
-            // Opens file dialog looking for the bees data
-            dialog
-              .showOpenDialog(this.mainWindow, {
-                properties: ["openFile"],
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                if (result.filePaths && result.filePaths.length > 0) {
-                  BeeHelpers.importBees(result.filePaths[0]);
-                  this.mainWindow.webContents.send("imported-bees");
-                }
-              });
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Export settings",
-          click: () => {
-            // Opens file dialog looking for settings data
-            dialog
-              .showSaveDialog(this.mainWindow, {
-                defaultPath: "kweenb-settings.json",
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                SettingsHelper.exportSettings(result.filePath || "");
-              });
-          },
-        },
-        {
-          label: "Import settings",
-          click: () => {
-            // Opens file dialog looking for the bees data
-            dialog
-              .showOpenDialog(this.mainWindow, {
-                properties: ["openFile"],
-                filters: [{ name: "JSON", extensions: ["json"] }],
-              })
-              .then((result) => {
-                if (result.filePaths && result.filePaths.length > 0) {
-                  SettingsHelper.importSettings(result.filePaths[0]);
-                  this.mainWindow.webContents.send("imported-settings");
-                }
-              });
-          },
-        },
-      ],
-    };
+    const subMenuFile = this.buildFileMenu();
 
     // The Mode Menu
     const subMenuMode: CustomMenuItemConstructorOptions = {

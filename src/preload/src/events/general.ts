@@ -4,6 +4,8 @@ type Callback = (event: any, ...args: any[]) => void;
 
 const handlers = {
   onAboutKweenB: { channel: "about-kweenb", cleanup: false },
+  onAddBee: { channel: "add-bee", cleanup: false },
+  onAdoptSpeakerProgress: { channel: "adopt-speaker-progress", cleanup: true },
   onAppMode: { channel: "app-mode", cleanup: false },
   onAppClosing: { channel: "app-closing", cleanup: false },
   onClosing: { channel: "closing", cleanup: false },
@@ -12,8 +14,11 @@ const handlers = {
   onImportedSettings: { channel: "imported-settings", cleanup: true },
   onInfo: { channel: "info", cleanup: false },
   onLoading: { channel: "loading", cleanup: false },
+  onNewSpeaker: { channel: "new-speaker", cleanup: false },
   onPozyxData: { channel: "pozyx-data", cleanup: true },
+  onSaveSounds: { channel: "save-sounds", cleanup: false },
   onShowView: { channel: "show-view", cleanup: false },
+  onSoundsProgress: { channel: "sounds-progress", cleanup: true },
   onStreamingConnectionStatus: {
     channel: "streaming-connection-status",
     cleanup: true,

@@ -47,7 +47,7 @@ export const BeeCardWithPolling = ({
       channel1={1}
       channel2={2}
       jackIsRunning={bee.status.isJackRunning}
-      networkPerformanceMs={bee.networkPerformanceMs}
+      monitoring={bee.monitoring}
       jackTripIsRunning={bee.status.isJacktripRunning}
       onDoubleClick={onDoubleClick}
       onChannelTypeChange={(channelType: ChannelType) =>

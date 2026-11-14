@@ -9,9 +9,13 @@ import { Z3PageCentered } from "@components/Layout";
 
 interface NoBeesProps {
   onAddBeeClicked: () => void;
+  onNewSpeakerClicked: () => void;
 }
 
-export const NoBees = ({ onAddBeeClicked }: NoBeesProps) => (
+export const NoBees = ({
+  onAddBeeClicked,
+  onNewSpeakerClicked,
+}: NoBeesProps) => (
   <Z3PageCentered>
     <div style={{ width: "500px", textAlign: "center" }}>
       <h2>Welcome to KweenB!</h2>
@@ -25,6 +29,16 @@ export const NoBees = ({ onAddBeeClicked }: NoBeesProps) => (
       >
         Start by adding your first bee
       </Button>
+      <p>
+        <Button
+          key="newSpeaker"
+          buttonSize={ButtonSize.Small}
+          buttonType={ButtonType.TertiaryWhite}
+          onClick={onNewSpeakerClicked}
+        >
+          Or set up a new speaker
+        </Button>
+      </p>
     </div>
   </Z3PageCentered>
 );

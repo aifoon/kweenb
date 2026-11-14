@@ -3,6 +3,7 @@ import kweenb from "./kweenb";
 import positioning from "./positioning";
 import presets from "./presets";
 import settings from "./settings";
+import speaker from "./speaker";
 import streaming from "./streaming";
 
 export default {
@@ -11,5 +12,6 @@ export default {
   ...positioning,
   ...presets,
   ...settings,
+  ...speaker,
   ...streaming,
 };

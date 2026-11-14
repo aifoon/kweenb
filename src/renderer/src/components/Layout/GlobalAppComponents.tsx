@@ -7,6 +7,11 @@ import { UploadAudioFilesSettings } from "../Modals/UploadAudioFilesSettings";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import { BeeDeviceManagerModal } from "../Modals/BeeDeviceManagerModal";
+import { SaveSoundsModal } from "../Modals/SaveSoundsModal";
+import { NewSpeakerModal } from "../ManageBees/NewSpeakerModal";
+import { AddBeeModal } from "../ManageBees/AddBeeModal";
+import { useBeeStore } from "@renderer/src/hooks";
+import { IBee, IBeeInput } from "@shared/interfaces";
 
 export const GlobalAppComponents = () => {
   const appMode = useAppStore((state) => state.appMode);
@@ -15,6 +20,17 @@ export const GlobalAppComponents = () => {
 
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
+  );
+  const openAddBeeModal = useAppStore((state) => state.openAddBeeModal);
+  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const createBee = useBeeStore((state) => state.createBee);
+  const openNewSpeakerModal = useAppStore((state) => state.openNewSpeakerModal);
+  const setOpenNewSpeakerModal = useAppStore(
+    (state) => state.setOpenNewSpeakerModal
+  );
+  const openSaveSoundsModal = useAppStore((state) => state.openSaveSoundsModal);
+  const setOpenSaveSoundsModal = useAppStore(
+    (state) => state.setOpenSaveSoundsModal
   );
   const openAboutKweenBModal = useAppStore(
     (state) => state.openAboutKweenBModal
@@ -76,6 +92,28 @@ export const GlobalAppComponents = () => {
       <AboutKweenBModal
         onClose={() => setOpenAboutKweenBModal(false)}
         open={openAboutKweenBModal}
+      />
+
+      {/* Adopting a new speaker (bees page and File menu) */}
+      <NewSpeakerModal
+        open={openNewSpeakerModal}
+        onClose={() => setOpenNewSpeakerModal(false)}
+      />
+
+      {/* Adding a bee by hand (File menu) */}
+      <AddBeeModal
+        open={openAddBeeModal}
+        onClose={() => setOpenAddBeeModal(false)}
+        onBeeSubmitted={async (beeInput: IBeeInput) => {
+          await createBee(beeInput as IBee);
+          setOpenAddBeeModal(false);
+        }}
+      />
+
+      {/* Saving the sounds of all bees (bees page and File menu) */}
+      <SaveSoundsModal
+        open={openSaveSoundsModal}
+        onClose={() => setOpenSaveSoundsModal(false)}
       />
 
       {/* The Toast messages for the whole app */}

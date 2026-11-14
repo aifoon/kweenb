@@ -3,8 +3,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IBee, IBeeConfig } from "@shared/interfaces";
-import { ChannelType } from "@shared/enums";
+import { IBee } from "@shared/interfaces";
+import { BeeDeviceManagerActions, ChannelType } from "@shared/enums";
 import { AppMode } from "@shared/enums";
 import { useAppStore } from "../hooks";
 import { useIntervalAsync } from "./useIntervalAsync";
@@ -49,67 +49,26 @@ export function useBee(id: number, syncWithInterval = true) {
   const reconnect = useCallback(async () => {
     try {
       setLoading({ loading: true });
+      // starting the bee replaces whatever was running on it; the bee
+      // starts Jack, Jacktrip and Pure Data and makes its own audio connection
       if (appMode === AppMode.Hub) {
-        await window.kweenb.methods.killJackAndJacktrip(bee);
         await window.kweenb.methods.startJackWithJacktripHubClientBee(bee);
-        await window.kweenb.methods.makeAudioConnectionBee(bee);
-        // @note: this is not implemented in the main process yet
-        // the problem is that when we need te reconnect in HUB mode
-        // we need to remember the connections of all the other bees as well
-        // the bees are not connected by bee1 --> channel1 --> send1
-        // the way we pick send1 is random
-        // e.g. swarm has bee3, bee7 and bee8
-        // bee3 --> channel3 --> send1
-        // bee7 --> channel7 --> send2
-        // bee8 --> channel8 --> send3
-        // if bee7 needs to reconnect, we need to remember that bee7 was connected to send2
-        // and that is not the case right now
-        // we hide the reconnect button in the UI for now
-        // await window.kweenb.methods.makeHubAudioConnectionKweenB(bee);
+        // @note: the connection on kweenb is not made here, the reconnect
+        // button is hidden in HUB mode for now (see BeeConfigActions)
       }
       if (appMode === AppMode.P2P) {
-        await window.kweenb.methods.killJackAndJacktrip(bee);
-        await window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
+        // the bee waits for the connection of kweenb, so both are started
+        // before the bee is awaited
+        const startOnBee =
+          window.kweenb.methods.startJackWithJacktripP2PServerBee(bee);
         await window.kweenb.methods.startJackWithJacktripP2PClientKweenB(bee);
+        await startOnBee;
         await window.kweenb.methods.makeP2PAudioConnectionKweenB(bee);
-        await window.kweenb.methods.makeAudioConnectionBee(bee);
       }
     } catch (e: any) {
       console.error(`reconnect: ${e.message}`);
     } finally {
       setLoading({ loading: false, text: "reconnect" });
-    }
-  }, [bee]);
-
-  /**
-   * Kill Jack
-   */
-  const killJack = useCallback(async () => {
-    try {
-      setLoading({ loading: true });
-      await window.kweenb.methods.killJack(bee);
-      bee.status.isJackRunning = false;
-      setBee(bee);
-    } catch (e: any) {
-      console.error(`killJack: ${e.message}`);
-    } finally {
-      setLoading({ loading: false, text: "killJack" });
-    }
-  }, [bee]);
-
-  /**
-   * Kill Jacktrip
-   */
-  const killJacktrip = useCallback(async () => {
-    try {
-      setLoading({ loading: true });
-      await window.kweenb.methods.killJacktrip(bee);
-      bee.status.isJacktripRunning = false;
-      setBee(bee);
-    } catch (e: any) {
-      console.error(`killJacktrip: ${e.message}`);
-    } finally {
-      setLoading({ loading: false, text: "killJacktrip" });
     }
   }, [bee]);
 
@@ -131,20 +90,21 @@ export function useBee(id: number, syncWithInterval = true) {
   }, [bee]);
 
   /**
-   * Start Jack
+   * Restart or switch off the bee
    */
-  const startJack = useCallback(async () => {
-    try {
-      setLoading({ loading: true });
-      await window.kweenb.methods.startJack(bee);
-      bee.status.isJackRunning = true;
-      setBee(bee);
-    } catch (e: any) {
-      console.error(`startJack: ${e.message}`);
-    } finally {
-      setLoading({ loading: false, text: "startJack" });
-    }
-  }, [bee]);
+  const manageDevice = useCallback(
+    async (action: BeeDeviceManagerActions) => {
+      try {
+        setLoading({ loading: true });
+        await window.kweenb.methods.manageBeeDevice(bee, action);
+      } catch (e: any) {
+        console.error(`manageDevice: ${e.message}`);
+      } finally {
+        setLoading({ loading: false, text: "manageDevice" });
+      }
+    },
+    [bee]
+  );
 
   /**
    * Updating a bee
@@ -152,16 +112,6 @@ export function useBee(id: number, syncWithInterval = true) {
   const updateBeeSetting = useCallback(
     (updatedBee: Partial<IBee>) => {
       window.kweenb.methods.updateBee({ id, ...updatedBee });
-    },
-    [bee]
-  );
-
-  /**
-   * Save the config in zwerm3api
-   */
-  const saveConfig = useCallback(
-    (config: Partial<IBeeConfig>) => {
-      window.kweenb.methods.saveConfig(bee, config);
     },
     [bee]
   );
@@ -190,11 +140,8 @@ export function useBee(id: number, syncWithInterval = true) {
   return {
     bee,
     reconnect,
-    killJack,
-    killJacktrip,
     killJackAndJacktrip,
-    saveConfig,
-    startJack,
+    manageDevice,
     updateBeeSetting,
   };
 }

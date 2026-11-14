@@ -1,7 +1,6 @@
 import { IpcMessageEvent } from "electron";
 import {
   IBee,
-  IBeeConfig,
   IBeeInput,
   IError,
   ISetting,
@@ -14,6 +13,14 @@ import {
   AudioScene,
   StreamingConnectionStatus,
   AudioUploadStatusInfo,
+  IAdoptSpeakerProgress,
+  IAdoptSpeakerRequest,
+  IAdoptSpeakerResult,
+  IFoundSpeaker,
+  IRestoreSoundsResult,
+  ISaveSoundsResult,
+  ISoundBackup,
+  ISoundsProgress,
 } from "@shared/interfaces";
 import { AppMode, AppViews, BeeDeviceManagerActions } from "@shared/enums";
 import { DEFAULT_APP_MODE } from "@shared/consts";
@@ -30,7 +37,6 @@ declare global {
         ): Promise<void>;
         getAudioFiles(bee: IBee): Promise<AudioFile[]>;
         getAudioScenes(): Promise<AudioScene[]>;
-        killPureData(bee: IBee): Promise<void>;
         setAudioParam(
           bees: IBee[] | IBee,
           pdAudioParam: PDAudioParam,
@@ -41,7 +47,6 @@ declare global {
           value: number | boolean
         ): Promise<void>;
         startAudio(bees: IBee[] | IBee, value: string): Promise<void>;
-        startPureData(bees: IBee[] | IBee): Promise<void>;
         stopAudio(bees: IBee[] | IBee): Promise<void>;
         uploadAudioFiles(
           name: string,
@@ -63,18 +68,9 @@ declare global {
 
         // JACK/JACKTRIP
         killJackAndJacktrip(bee: IBee): Promise<void>;
-        killJack(bee: IBee);
-        killJacktrip(bee: IBee): void;
         hookBeeOnCurrentHive(bee: IBee): void;
-        makeAudioConnectionBee(bees: IBee[] | IBee): Promise<void>;
-        startJack(bee: IBee, triggerOnly: boolean = false): void;
         startJackWithJacktripHubClientBee(bee: IBee): Promise<void>;
         startJackWithJacktripP2PServerBee(bee: IBee): Promise<void>;
-        startJacktripP2PServerBee(bee: IBee): Promise<void>;
-
-        // CONFIG
-        getBeeConfig(bee: IBee | number): Promise<IBeeConfig>;
-        saveConfig(bee: IBee, config: Partial<IBeeConfig>);
 
         // CONFIG
         manageBeeDevice(
@@ -109,6 +105,24 @@ declare global {
         // CRUD
         fetchSettings(): Promise<ISettings>;
         updateSetting(setting: ISetting): Promise<void>;
+
+        /**
+         * Speakers
+         */
+
+        // NEW SPEAKERS
+        adoptSpeaker(
+          request: IAdoptSpeakerRequest
+        ): Promise<IAdoptSpeakerResult>;
+        findNewSpeakers(): Promise<IFoundSpeaker[]>;
+
+        // SOUNDS ON THIS COMPUTER
+        getSoundBackups(): Promise<ISoundBackup[]>;
+        restoreSounds(
+          beeId: number,
+          backupName: string
+        ): Promise<IRestoreSoundsResult>;
+        saveSounds(beeIds?: number[]): Promise<ISaveSoundsResult>;
 
         /**
          * Presets
@@ -147,6 +161,7 @@ declare global {
       readonly actions: {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        cancelSounds: () => void;
         cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
         disconnectPozyxMqttBroker(): void;
@@ -156,6 +171,7 @@ declare global {
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;
         setJackFolderPath(jackFolderPath: string);
         setJacktripBinPath(jacktripBinPath: string);
+        stopLookingForSpeakers: () => void;
 
         positioning: {
           enablePositioningControllerAlgorithm: (
@@ -174,6 +190,15 @@ declare global {
       };
       readonly events: {
         onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;
+        onAddBee(callback: (event: IpcMessageEvent) => void): () => void;
+        onNewSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
+        onSaveSounds(callback: (event: IpcMessageEvent) => void): () => void;
+        onAdoptSpeakerProgress(
+          callback: (
+            event: IpcMessageEvent,
+            progress: IAdoptSpeakerProgress
+          ) => void
+        ): () => void;
         onAppMode(
           callback: (event: IpcMessageEvent, appMode: AppMode) => void
         ): () => void;
@@ -212,6 +237,9 @@ declare global {
             appView: AppViews,
             show: boolean
           ) => void
+        ): () => void;
+        onSoundsProgress(
+          callback: (event: IpcMessageEvent, progress: ISoundsProgress) => void
         ): () => void;
         onStreamingConnectionStatus(
           callback: (

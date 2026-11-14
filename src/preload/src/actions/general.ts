@@ -8,6 +8,9 @@ export default {
   beesPoller: (action: "start" | "stop" | "pause"): void => {
     ipcRenderer.send("bee:beesPoller", action);
   },
+  cancelSounds: (): void => {
+    ipcRenderer.send("speaker:cancelSounds");
+  },
   cancelUploadAudioFiles: (): void => {
     ipcRenderer.send("bee:cancelUploadAudioFiles");
   },
@@ -31,4 +34,7 @@ export default {
     ipcRenderer.send("kweenb:setJackFolderPath", jackFolderPath),
   setJacktripBinPath: (jacktripBinPath: string) =>
     ipcRenderer.send("kweenb:setJacktripBinPath", jacktripBinPath),
+  stopLookingForSpeakers: (): void => {
+    ipcRenderer.send("speaker:stopLookingForSpeakers");
+  },
 };

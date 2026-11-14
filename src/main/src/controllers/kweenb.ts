@@ -4,16 +4,14 @@
 
 import { app, dialog } from "electron";
 import { IBee } from "@shared/interfaces";
-import { START_PORT_JACKTRIP } from "../consts";
+import { PD_AUDIO_BUFFER_MS, START_PORT_JACKTRIP } from "../consts";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import kweenBHelpers from "../lib/KweenB/KweenBHelpers";
 import { KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
-import { HubStreaming } from "../lib/Streaming";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
-import { BeeActiveState } from "@shared/enums";
 
 /**
  * Calculate the current latency
@@ -21,17 +19,11 @@ import { BeeActiveState } from "@shared/enums";
 export const calculateCurrentLatency = async () => {
   try {
     const settings = await SettingHelpers.getAllSettings();
-    const latencyBee = Utils.calculateLatency(
-      settings.beeAudioSettings.jack.sampleRate,
-      settings.beeAudioSettings.jack.bufferSize,
-      settings.beeAudioSettings.jack.periods
+    return Utils.estimateStreamingLatency(
+      settings.beeAudioSettings,
+      settings.kweenBAudioSettings,
+      PD_AUDIO_BUFFER_MS
     );
-    const latencyKweenb = Utils.calculateLatency(
-      settings.kweenBAudioSettings.jack.sampleRate,
-      settings.kweenBAudioSettings.jack.bufferSize,
-      settings.kweenBAudioSettings.jack.periods
-    );
-    return Utils.roundToDecimals(latencyBee + latencyKweenb, 2);
   } catch (e: any) {
     throw new KweenBException(
       { where: "calculateCurrentLatency()", message: e.message },
@@ -245,28 +237,9 @@ export const startJacktripHubServer = async () => {
  */
 export const startJackWithJacktripHubClient = async () => {
   try {
-    // Get the cluster size from the settings
-    const hubModeClusterSize = (await SettingHelpers.getAllSettings())
-      .kweenBSettings.hubModeClusterSize;
-
-    // Get the active bees (data only is enough for this case)
-    const activeBees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
-
-    // Start Jack
+    // The bees are connected straight to the hub server, so kweenb itself
+    // only needs Jack.
     await kweenBHelpers.startJack();
-
-    // Distribute the bees into clusters
-    const distributedBeesIntoClusters = HubStreaming.distributeBeesIntoClusters(
-      activeBees,
-      hubModeClusterSize
-    );
-
-    // Start Jacktrip client
-    const startJacktripHubClientOnKweenBPromises =
-      distributedBeesIntoClusters.map((cluster, i) => {
-        kweenBHelpers.startJacktripHubClient(i, cluster.length);
-      });
-    await Promise.all(startJacktripHubClientOnKweenBPromises);
   } catch (e: any) {
     throw new KweenBException(
       { where: "startJackWithJacktripHubClient()", message: e.message },
@@ -289,7 +262,7 @@ export const startJackWithJacktripP2PClient = async (
     await kweenBHelpers.startJackWithJacktripP2PClient(
       bee.ipAddress,
       localPort,
-      bee.name
+      kweenBHelpers.getJackClientName(bee)
     );
   } catch (e: any) {
     throw new KweenBException(

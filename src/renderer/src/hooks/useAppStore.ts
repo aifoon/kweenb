@@ -11,9 +11,12 @@ type AppState = {
   currentLatency: number;
   loading: LoadingState;
   openAboutKweenBModal: boolean;
+  openAddBeeModal: boolean;
   openBeeDeviceManagerModal: boolean;
   openConnectBeesModal: boolean;
   openDisconnectBeesModal: boolean;
+  openNewSpeakerModal: boolean;
+  openSaveSoundsModal: boolean;
   openTriggerOnlyModal: boolean;
   openUploadAudioFilesSettings: boolean;
   toast: ToastMessage;
@@ -28,9 +31,12 @@ type AppAction = {
   setAudioScenes: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
+  setOpenAddBeeModal: (open: boolean) => void;
   setOpenBeeDeviceManagerModal: (open: boolean) => void;
   setOpenConnectBeesModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
+  setOpenNewSpeakerModal: (open: boolean) => void;
+  setOpenSaveSoundsModal: (open: boolean) => void;
   setOpenTriggerOnlyModal: (open: boolean) => void;
   setOpenUploadAudioFilesSettings: (open: boolean) => void;
   setLoading: (loading: LoadingState) => void;
@@ -54,9 +60,12 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   },
   manageBeesCollapsed: true,
   openAboutKweenBModal: false,
+  openAddBeeModal: false,
   openBeeDeviceManagerModal: false,
   openConnectBeesModal: false,
   openDisconnectBeesModal: false,
+  openNewSpeakerModal: false,
+  openSaveSoundsModal: false,
   openTriggerOnlyModal: false,
   openToastState: false,
   openUploadAudioFilesSettings: false,
@@ -76,6 +85,11 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   setManageBeesCollapsed: (collapsed) =>
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
+  setOpenAddBeeModal: (open: boolean) => set({ openAddBeeModal: open }),
+  setOpenNewSpeakerModal: (open: boolean) =>
+    set({ openNewSpeakerModal: open }),
+  setOpenSaveSoundsModal: (open: boolean) =>
+    set({ openSaveSoundsModal: open }),
   setOpenBeeDeviceManagerModal: (open: boolean) =>
     set({ openBeeDeviceManagerModal: open }),
   setOpenConnectBeesModal: (open: boolean) =>

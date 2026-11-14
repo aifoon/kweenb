@@ -1,6 +1,24 @@
-import { IBee, IBeeState } from "@shared/interfaces";
-import { Utils } from "@shared/utils";
-import { BEE_CONSIDERED_OFFLINE_SECONDS } from "../../consts";
+import { IBee, IBeeMonitoring, IBeeState } from "@shared/interfaces";
+import { SpeakerStatus } from "../KweenB/SpeakerApi";
+
+/**
+ * What we know about a bee that did not report itself (yet)
+ */
+const unknownMonitoring = (): IBeeMonitoring => ({
+  apiVersion: null,
+  identityName: null,
+  stream: {
+    state: "idle",
+    mode: null,
+    error: null,
+    restarts: 0,
+    xruns: 0,
+    glitches: 0,
+  },
+  battery: { present: false, percentage: null, level: null, voltage: null },
+  wifiSignalDbm: null,
+  storage: null,
+});
 
 class BeeStates {
   private beeStates: IBeeState[];
@@ -23,8 +41,19 @@ class BeeStates {
         isJacktripRunning: false,
         networkPerformanceMs: 0,
         isOnline: false,
+        ...unknownMonitoring(),
       });
     });
+  }
+
+  /**
+   * Take over the data of a bee that was changed in the database
+   * (e.g. its ip address)
+   * @param bee The changed fields, with the id of the bee
+   */
+  public updateBeeData(bee: Partial<IBee>) {
+    const beeState = this.beeStates.find((b) => b.bee.id === bee.id);
+    if (beeState) beeState.bee = { ...beeState.bee, ...bee };
   }
 
   /**
@@ -201,6 +230,84 @@ class BeeStates {
   public getNetworkPerformanceMs(bee: IBee | number) {
     const validBeeState = this.validBeeState(bee);
     return validBeeState ? validBeeState.networkPerformanceMs : 0;
+  }
+
+  /**
+   * Get what the bee reported about itself
+   * @param bee The bee (as a number or an IBee object)
+   * @returns The monitoring data, undefined when the bee is offline
+   */
+  public getMonitoring(bee: IBee | number): IBeeMonitoring | undefined {
+    const validBeeState = this.validBeeState(bee);
+    if (!validBeeState) return undefined;
+    const {
+      apiVersion,
+      identityName,
+      stream,
+      battery,
+      wifiSignalDbm,
+      storage,
+    } = validBeeState;
+    return {
+      apiVersion,
+      identityName,
+      stream,
+      battery,
+      wifiSignalDbm,
+      storage,
+    };
+  }
+
+  /**
+   * Take over the status a bee sent
+   * @param bee The bee
+   * @param status The status of the zwerm3 API on the bee
+   */
+  public updateFromStatus(bee: IBee, status: SpeakerStatus) {
+    const beeState = this.getBeeState(bee);
+    if (!beeState) return;
+
+    beeState.lastPingResponse = new Date();
+    beeState.isOnline = true;
+    beeState.isApiOn = true;
+    beeState.isJackRunning = Boolean(status.stream?.jack);
+    beeState.isJacktripRunning = Boolean(status.stream?.jacktrip);
+    beeState.apiVersion = status.apiVersion ?? null;
+    beeState.identityName = status.identity?.name ?? null;
+    beeState.stream = {
+      state: status.stream?.state ?? "idle",
+      mode: status.stream?.mode ?? null,
+      error: status.stream?.error ?? null,
+      restarts: status.stream?.restarts ?? 0,
+      xruns: status.stream?.xruns ?? 0,
+      glitches: status.stream?.glitches ?? 0,
+    };
+    beeState.battery = {
+      present: Boolean(status.battery?.present),
+      percentage: status.battery?.percentage ?? null,
+      level: status.battery?.level ?? null,
+      voltage: status.battery?.voltage ?? null,
+    };
+    beeState.wifiSignalDbm = status.wifiSignalDbm ?? null;
+    beeState.storage = status.storage
+      ? { freeMb: status.storage.freeMb, totalMb: status.storage.totalMb }
+      : null;
+  }
+
+  /**
+   * Mark a bee as offline: nothing it reported is valid any more
+   * (the time of its last status is kept)
+   * @param bee The bee
+   */
+  public setOffline(bee: IBee) {
+    const beeState = this.getBeeState(bee);
+    if (!beeState) return;
+
+    beeState.isOnline = false;
+    beeState.isApiOn = false;
+    beeState.isJackRunning = false;
+    beeState.isJacktripRunning = false;
+    Object.assign(beeState, unknownMonitoring());
   }
 
   /**

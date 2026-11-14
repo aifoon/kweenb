@@ -9,7 +9,6 @@ import { CurrentUploadOperation, IError } from "@shared/interfaces";
 import { BrowserWindow, app } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
-import { BeeSshConnections } from "./lib/Dictionaries";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
 import { resourcesPath } from "@shared/resources";
@@ -35,8 +34,6 @@ class KweenB {
   private _appMode: AppMode;
 
   private _beeStatesWorker: BeeStatesWorker;
-
-  private _beeSshConnections: BeeSshConnections;
 
   private _currentUploadOperation: CurrentUploadOperation | null;
 
@@ -66,10 +63,6 @@ class KweenB {
 
   public get beeStatesWorker() {
     return this._beeStatesWorker;
-  }
-
-  public get beeSshConnections() {
-    return this._beeSshConnections;
   }
 
   public set mainWindow(mainWindow: BrowserWindow) {
@@ -124,6 +117,9 @@ class KweenB {
     // sync the database
     await Database.sync();
 
+    // bring the settings of an earlier version up to date
+    await SettingHelpers.migrateSettings();
+
     // init the jack folder path
     await this.initJackFolderPath();
 
@@ -138,9 +134,6 @@ class KweenB {
 
     // init Socket IO
     initSocketIo();
-
-    // init the bee ssh connections
-    this._beeSshConnections = new BeeSshConnections();
   }
 
   /**
@@ -174,7 +167,7 @@ class KweenB {
   private async initJackAndJacktrip() {
     // check if we need to setup Jack or Jacktrip
     const jacktripPath = `${USER_DATA}/jacktrip`;
-    const jacktripAppPath = `${jacktripPath}/JackTrip.app`;
+    const jacktripAppPath = `${jacktripPath}/jacktrip`;
     const jackPath = `${USER_DATA}/jack`;
     const jackdPath = `${jackPath}/jackd`;
     const qjackCtlAppPath = `${jackPath}/QjackCtl.app`;
@@ -250,7 +243,7 @@ class KweenB {
     const settings = await SettingHelpers.getAllSettings();
     Zwerm3Jack.default.jacktripBinPath =
       settings.kweenBSettings.jacktripBinPath ||
-      `${USER_DATA}/jacktrip/JackTrip.app/Contents/MacOs/jacktrip`;
+      `${USER_DATA}/jacktrip/jacktrip`;
   }
 
   /**

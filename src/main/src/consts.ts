@@ -3,7 +3,6 @@
  */
 
 import path from "path";
-import { PingConfig } from "ping";
 import { resourcesPath } from "@shared/resources";
 import { app } from "electron";
 
@@ -27,19 +26,9 @@ export const MAIN_PATH = `${
     : path.join(__dirname)
 }`;
 
-// the path to the private key we use for SSH connections
-export const SSH_PRIVATE_KEY_PATH = `${resourcesPath}/kweenb.key`;
-
 // the path to the SSL keys
 export const SSL_KEY = `${resourcesPath}/ssl/key.pem`;
 export const SSL_CERT = `${resourcesPath}/ssl/cert.pem`;
-
-/**
- * SSH Configuration
- */
-
-// the username we use for SSH connections
-export const SSH_USERNAME_BEE = "pi";
 
 /**
  * Sezqualize Configuration
@@ -52,14 +41,9 @@ export const SEQUELIZE_LOGGING = false;
  * Polling Configurations
  */
 
-// the interval we use to poll a bee for its status
-export const BEE_POLLING_SECONDS = 5;
-
-// the amount of seconds a bee is considered to be offline
-export const BEE_CONSIDERED_OFFLINE_SECONDS = 10;
-
-// the interval we use to poll a bee for its network performance (check each x seconds)
-export const NETWORK_PERFORMANCE_POLLING_SECONDS = 5;
+// a bee sends its status every 2 seconds; when nothing arrived for this
+// amount of seconds the bee is considered to be offline
+export const BEE_CONSIDERED_OFFLINE_SECONDS = 6;
 
 // the interval we use to poll the audio scenes (check each x seconds)
 export const AUDIOSCENES_POLLING_SECONDS = 5;
@@ -78,29 +62,39 @@ export const AUDIOSCENES_REMOVING_SECONDS = 5 * 60 + 30;
 export const ZWERM3API_PORT = 3000;
 
 /**
+ * Bee Network Configuration
+ */
+
+// a bee with a number lives on a fixed address: <prefix>.<offset + number>
+// (bee 7 is found on 192.168.50.107)
+export const BEE_ADDRESS_PREFIX = "192.168.50";
+export const BEE_ADDRESS_OFFSET = 100;
+
+/**
  * Audio File Management
  */
 
-// the audio file path root directory on the pi
+// the path under which the database knows the audio scenes of a bee
+// (<root>/<legal name of the scene>). The bee itself only needs the legal
+// name, the root is kept so the scenes that are already in the database match.
 export const AUDIO_FILES_ROOT_DIRECTORY = "/home/pi/pd-bee/files";
 
 /**
  * Default Configurations
  */
 
-// the default configuration of a bee
-export const DEFAULT_BEE_CONFIG = {
-  useMqtt: false,
-  mqttBroker: "mqtt://localhost:1883",
-  mqttChannel: "beeworker",
-  device: "",
-};
-
 // the user data path
 export const USER_DATA =
   process.env.NODE_ENV === "development"
     ? `${resourcesPath}`
     : path.join(app.getPath("userData"));
+
+// the folder on this computer where the sounds of the bees are saved,
+// as long as the user did not choose another one
+export const DEFAULT_BACKUP_FOLDER = path.join(
+  app.getPath("documents"),
+  "KweenB Backups"
+);
 
 // the path to the presets folder
 export const PRESETS_FOLDER_PATH = path.join(USER_DATA, "presets");
@@ -119,15 +113,6 @@ export const DEFAULT_BEE_STATUS = {
 export const DISK_REMAINING_ON_BEE_TRESHOLD_MB = 4000;
 
 /**
- * Ping Configuration
- */
-
-export const PING_CONFIG: PingConfig = {
-  timeout: 1,
-  deadline: 1,
-};
-
-/**
  * Jacktrip Configuration
  */
 
@@ -138,7 +123,20 @@ export const START_PORT_JACKTRIP = 4464;
 export const START_PORT_JACKTRIP_HUB_SERVER = 4495;
 
 // the jacktrip download version
-export const JACKTRIP_DOWNLOAD_VERSION = "2.5.1";
+export const JACKTRIP_DOWNLOAD_VERSION = "3.0.1";
+
+// the audio buffer of Pure Data on the bees (in milliseconds)
+export const PD_AUDIO_BUFFER_MS = 20;
+
+// the version of the stored settings, raised when their meaning changes
+export const SETTINGS_VERSION = "2";
+
+// the sound card of the bees
+export const BEE_JACK_DEVICE = "hw:sndrpihifiberry";
+
+// Jacktrip conceals late packets with this buffer strategy;
+// the queue buffer is then a tolerance in milliseconds
+export const JACKTRIP_BUFFER_STRATEGY = 3;
 
 // the jack download version
 export const JACK_DOWNLOAD_VERSION = "1.9.22";

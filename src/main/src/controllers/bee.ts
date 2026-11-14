@@ -7,7 +7,6 @@ import {
   AudioFile,
   AudioUploadStatusInfo,
   IBee,
-  IBeeConfig,
   IBeeInput,
   IBeeState,
 } from "@shared/interfaces";
@@ -20,13 +19,15 @@ import {
 } from "@shared/enums";
 import { KweenBGlobal } from "../kweenb";
 import zwerm3ApiHelpers from "../lib/KweenB/Zwerm3ApiHelpers";
-import BeeSsh from "../lib/KweenB/BeeSsh";
+import SpeakerApi, { SpeakerApiError } from "../lib/KweenB/SpeakerApi";
 import { KweenBException } from "../lib/Exceptions/KweenBException";
 import BeeHelpers from "../lib/KweenB/BeeHelpers";
-import { SSH_PRIVATE_KEY_PATH, AUDIO_FILES_ROOT_DIRECTORY } from "../consts";
-import Ssh2SftpClient from "ssh2-sftp-client";
-import BeeSshScriptExecutor from "../lib/KweenB/BeeSshScriptExecutor";
-import SettingHelpers from "../lib/KweenB/SettingHelpers";
+import {
+  AUDIO_FILES_ROOT_DIRECTORY,
+  DISK_REMAINING_ON_BEE_TRESHOLD_MB,
+} from "../consts";
+import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
+import { demoAudioFiles } from "@seeds/demoAudioFiles";
 import AudioSceneDb from "../models/AudioScene";
 
 // Import models
@@ -40,15 +41,16 @@ export const cancelUploadAudioFiles = async (
   event: Electron.IpcMainInvokeEvent
 ): Promise<void> => {
   if (KweenBGlobal.kweenb.currentUploadOperation) {
-    // Close any active SFTP connections
-    if (KweenBGlobal.kweenb.currentUploadOperation.sftp) {
+    KweenBGlobal.kweenb.currentUploadOperation.cancelled = true;
+
+    // Stop the upload that is on its way
+    if (KweenBGlobal.kweenb.currentUploadOperation.abort) {
       try {
-        KweenBGlobal.kweenb.currentUploadOperation.sftp.end();
+        KweenBGlobal.kweenb.currentUploadOperation.abort();
       } catch (e) {
-        // Ignore errors when closing
+        // Ignore errors when stopping
       }
     }
-    KweenBGlobal.kweenb.currentUploadOperation.cancelled = true;
   }
 };
 
@@ -135,35 +137,36 @@ export const deleteAudio = async (
   try {
     if (!path.startsWith(AUDIO_FILES_ROOT_DIRECTORY)) return;
 
-    // if we need to delete on all bees, delete the file on all bees
-    if (deleteOnAllBees) {
-      const onlineBees = (
-        await BeeHelpers.getAllBees(BeeActiveState.ALL)
-      ).filter((bee) => bee.isOnline);
+    // the bee knows the scene by the last part of the path (its legal name)
+    const legalName = path.substring(path.lastIndexOf("/") + 1);
+    if (!legalName) return;
 
-      // remove the folders on all bees
-      await new BeeSshScriptExecutor().executeWithNoOutput(
-        "remove_folders_on_bees.sh",
-        onlineBees,
-        [{ flag: "-d", value: path }]
-      );
+    // delete on all online bees or only on the given bee
+    const bees = deleteOnAllBees
+      ? (await BeeHelpers.getAllBees(BeeActiveState.ALL)).filter(
+          (onlineBee) => onlineBee.isOnline
+        )
+      : [bee];
 
-      // remove the folders in the database
-      await Promise.all(
-        onlineBees.map(async (bee) => {
-          await AudioScene.update(
-            { markedForDeletion: true },
-            { where: { localFolderPath: path, beeId: bee.id } }
-          );
-        })
-      );
-    } else {
-      await BeeSsh.deletePath(bee.ipAddress, path);
+    // remove the scene on the bees
+    const failures = await zwerm3ApiHelpers.onBees(bees, async (currentBee) => {
+      try {
+        await SpeakerApi.deleteScene(currentBee.ipAddress, legalName);
+      } catch (e: any) {
+        // a scene that is not on this bee is as good as removed
+        if (!(e instanceof SpeakerApiError && e.statusCode === 404)) throw e;
+      }
+
+      // remove the scene in the database
       await AudioScene.update(
         { markedForDeletion: true },
-        { where: { localFolderPath: path, beeId: bee.id } }
+        { where: { localFolderPath: path, beeId: currentBee.id } }
       );
-    }
+    });
+
+    // name the bees on which the scene could not be removed
+    if (failures.length > 0)
+      throw new Error(zwerm3ApiHelpers.describeFailures(failures));
   } catch (e: any) {
     throw new KweenBException(
       { where: "deleteFile()", message: e.message },
@@ -306,7 +309,24 @@ export const getAudioFiles = async (
   bee: IBee
 ): Promise<AudioFile[]> => {
   try {
-    return await BeeSsh.getAudioFiles(bee.ipAddress);
+    // @note: this condition is only used for development purpose
+    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+      return demoAudioFiles;
+    }
+
+    // every scene on the bee is a folder with the audio and its data
+    const scenes = await SpeakerApi.getScenes(bee.ipAddress);
+    return scenes.map((scene) => {
+      const fullPath = `${AUDIO_FILES_ROOT_DIRECTORY}/${scene.legalName}`;
+      return {
+        name: scene.legalName,
+        fullPath,
+        files: ["audio.wav", "data.json"].map((name) => ({
+          name,
+          fullPath: `${fullPath}/${name}`,
+        })),
+      };
+    });
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioFiles()", message: e.message },
@@ -324,30 +344,6 @@ export const getAudioScenes = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioScenes()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Get the bee config
- * @param event
- * @param id The ID of the bee
- * @returns
- */
-export const getBeeConfig = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee | number
-): Promise<IBeeConfig> => {
-  try {
-    if (typeof bee === "number") {
-      return await BeeHelpers.getBeeConfig(bee);
-    } else {
-      return await BeeHelpers.getBeeConfig(bee.id);
-    }
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "getBeeConfig()", message: e.message },
       true
     );
   }
@@ -374,7 +370,7 @@ export const getCurrentBeeStates = async (
 };
 
 /**
- * Kill Jack And Jacktrip processes on the client
+ * Stop the audio chain (Jack, Jacktrip and Pure Data) on the client
  * @param event
  * @param bee
  */
@@ -383,67 +379,10 @@ export const killJackAndJacktrip = async (
   bee: IBee
 ) => {
   try {
-    await BeeSsh.killJackAndJacktrip(bee.ipAddress);
+    await SpeakerApi.stopStream(bee.ipAddress);
   } catch (e: any) {
     throw new KweenBException(
       { where: "killJackAndJacktrip()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Kill Jack processes on the client
- * @param event
- * @param bee
- */
-export const killJack = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee
-) => {
-  try {
-    await BeeSsh.killJack(bee.ipAddress);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "killJack()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Kill Jacktrip processes on the client
- * @param event
- * @param bee
- */
-export const killJacktrip = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee
-) => {
-  try {
-    await BeeSsh.killJacktrip(bee.ipAddress);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "killJacktrip()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Kill Pure Data processes on the client
- * @param event
- * @param bee
- */
-export const killPureData = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee
-) => {
-  try {
-    await BeeSsh.killPureData(bee.ipAddress);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "killPureData()", message: e.message },
       true
     );
   }
@@ -465,25 +404,6 @@ export const manageBeeDevice = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "manageBeeDevice()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Make an audio connection on the bee
- * @param event
- * @param bee
- */
-export const makeAudioConnection = async (
-  event: Electron.IpcMainInvokeEvent,
-  bees: IBee[] | IBee
-) => {
-  try {
-    await BeeHelpers.makeAudioConnection(bees);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "makeAudioConnection()", message: e.message },
       true
     );
   }
@@ -625,49 +545,7 @@ export const startAudio = async (
 };
 
 /**
- * Start Jack on a specific bee
- * @param event The Invoke event
- * @param bee
- */
-export const startJack = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee,
-  triggerOnly: boolean = false
-) => {
-  try {
-    await zwerm3ApiHelpers.startJack(bee.ipAddress, triggerOnly);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startJack()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Start Pure Data on a specific bee
- * @param event The Invoke event
- * @param bee
- */
-export const startPureData = async (
-  event: Electron.IpcMainInvokeEvent,
-  bees: IBee | IBee[]
-) => {
-  try {
-    if (!Array.isArray(bees)) bees = [bees];
-    for (const bee of bees) {
-      await BeeSsh.startPureData(bee.ipAddress);
-    }
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startPureData()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Start Jack and connect to the kween
+ * Start the audio chain on a bee and connect to the hub server on kweenb
  * @param event
  * @param bee
  */
@@ -676,20 +554,23 @@ export const startJackWithJacktripHubClient = async (
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.startJackWithJacktripHubClient(
+    await SpeakerApi.startStream(
       bee.ipAddress,
-      bee.name
+      await zwerm3ApiHelpers.createHubStreamRequest()
     );
   } catch (e: any) {
     throw new KweenBException(
-      { where: "startJackWithJacktripHubClient()", message: e.message },
+      {
+        where: "startJackWithJacktripHubClient()",
+        message: `${bee.name}: ${e.message}`,
+      },
       true
     );
   }
 };
 
 /**
- * Start the P2P server on a bee
+ * Start the audio chain on a bee and wait for the P2P connection of kweenb
  * @param event
  * @param bee
  */
@@ -698,53 +579,16 @@ export const startJackWithJacktripP2PServer = async (
   bee: IBee
 ) => {
   try {
-    await zwerm3ApiHelpers.startJackWithJacktripP2PServer(
+    await SpeakerApi.startStream(
       bee.ipAddress,
-      bee.name
+      await zwerm3ApiHelpers.createP2PStreamRequest()
     );
   } catch (e: any) {
     throw new KweenBException(
-      { where: "startJackWithJacktripP2PServer()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Start the Jacktrip P2P server on a bee
- * @param event
- * @param bee
- */
-export const startJacktripP2PServer = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee
-) => {
-  try {
-    await zwerm3ApiHelpers.startJacktripP2PServer(bee.ipAddress, bee.name);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startJacktripP2PServer()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Saves in the internal configuration
- * @param event
- * @param bee
- */
-export const saveConfig = async (
-  event: Electron.IpcMainInvokeEvent,
-  bee: IBee,
-  config: Partial<IBeeConfig>
-) => {
-  try {
-    if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
-    await zwerm3ApiHelpers.saveConfig(bee.ipAddress, config);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "saveConfig()", message: e.message },
+      {
+        where: "startJackWithJacktripP2PServer()",
+        message: `${bee.name}: ${e.message}`,
+      },
       true
     );
   }
@@ -783,6 +627,14 @@ export const updateBee = async (
   try {
     if (!bee.id) throw new Error("Please provide an id for the requested Bee.");
     Bee.update(bee, { where: { id: bee.id } });
+
+    // the worker follows the bee on its (new) address
+    const { id, name, ipAddress } = bee;
+    KweenBGlobal.kweenb.beeStates.updateBeeData({
+      id,
+      ...(name !== undefined && { name }),
+      ...(ipAddress !== undefined && { ipAddress }),
+    });
   } catch (e: any) {
     throw new KweenBException(
       { where: "updateBee()", message: e.message },
@@ -815,29 +667,28 @@ export const uploadAudioFiles = async (
     // create legal name for directory
     const legalName = Utils.convertToLegalDirectoryName(name);
 
-    // the remote directory and path
+    // the path under which the database knows the scene
     const remoteDirectory = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}`;
 
     // get all current bees
     const bees = await fetchAllBees();
 
-    // get the bees disk spaces (online bees only)
-    const beesDiskSpaces = await BeeHelpers.getBeesDiskSpace(
-      bees.filter((b) => b.isOnline)
-    );
-
-    // filter out the bees that have no space left
-    const beesWithoutSpaceLeft = beesDiskSpaces.filter(
-      (beeDiskSpace) => !beeDiskSpace.hasSpaceLeft
-    );
+    // the bees that have (almost) no space left, as they reported it
+    // themselves (online bees only)
+    const beesWithoutSpaceLeft = bees.filter((bee) => {
+      if (!bee.isOnline) return false;
+      const storage = KweenBGlobal.kweenb.beeStates.getMonitoring(
+        bee.id
+      )?.storage;
+      return storage
+        ? storage.freeMb <= DISK_REMAINING_ON_BEE_TRESHOLD_MB
+        : false;
+    });
 
     if (beesWithoutSpaceLeft.length > 0) {
       // get all the bees that have no space left
       const beesWithoutSpaceLeftList = beesWithoutSpaceLeft
-        .map((beeDiskSpace) => {
-          return bees.find((bee) => bee.ipAddress === beeDiskSpace.ipAddress);
-        })
-        .map((b) => b?.name)
+        .map((b) => b.name)
         .join(", ");
 
       // let the renderer know that there is no space left
@@ -860,11 +711,6 @@ export const uploadAudioFiles = async (
       }
     );
 
-    // get the location of the ssh private key
-    const sshPrivateKey =
-      (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
-      SSH_PRIVATE_KEY_PATH;
-
     // get all the wav files
     const files = await fs.readdirSync(path);
     const wavFiles = files.filter((file) => /^\d+\.wav$/.test(file));
@@ -876,7 +722,7 @@ export const uploadAudioFiles = async (
       )
       .sort((a, b) => parseInt(a) - parseInt(b));
 
-    // loop over filteredWavFiles and create the directory with legal name on the bee
+    // loop over filteredWavFiles and upload each file to its bee
     for (const wavFile of filteredWavFiles) {
       if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
         return {
@@ -893,89 +739,62 @@ export const uploadAudioFiles = async (
         // create the full path
         const fullPath = `${path}/${wavFile}`;
 
-        // the remote path of the audio file
-        const remotePath = `${AUDIO_FILES_ROOT_DIRECTORY}/${legalName}/audio.wav`;
-
-        // upload the file to the bee
-        const sftp = new Ssh2SftpClient();
-
         // set the current upload operation
-        KweenBGlobal.kweenb.currentUploadOperation.sftp = sftp;
         KweenBGlobal.kweenb.currentUploadOperation.beeId = bee.id;
 
         try {
-          await sftp.connect({
-            host: bee.ipAddress,
-            username: "pi",
-            privateKey: fs.readFileSync(sshPrivateKey),
-          });
-
-          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
-            return {
-              status: AudioUploadStatus.CANCELLED,
-              message: `Audio upload was cancelled.`,
-            };
-          }
-
-          await sftp.mkdir(remoteDirectory);
-
-          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
-            return {
-              status: AudioUploadStatus.CANCELLED,
-              message: `Audio upload was cancelled.`,
-            };
-          }
-
-          await sftp.fastPut(fullPath, remotePath, {
-            step: function (total_transferred, chunk, total) {
-              // calculate the percentage
-              const percentage = (total_transferred / total) * 100;
-
-              // let the renderer know that we have upload data
-              KweenBGlobal.kweenb.mainWindow.webContents.send(
-                "upload-audio-progress",
-                bee,
-                percentage
-              );
-            },
-          });
-
-          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
-            return {
-              status: AudioUploadStatus.CANCELLED,
-              message: `Audio upload was cancelled.`,
-            };
-          }
-
-          // write the data to the local data file
-          await BeeSsh.writeDataToFile(
+          // upload the file to the bee: the bee stores it as the audio of
+          // the scene together with its name, and only when it arrived complete
+          await SpeakerApi.uploadScene(
             bee.ipAddress,
-            `${remoteDirectory}/data.json`,
-            JSON.stringify({ name, oscAddress: `${legalName}/audio.wav` })
+            legalName,
+            name,
+            fullPath,
+            {
+              onAbortable: (abort) => {
+                if (KweenBGlobal.kweenb.currentUploadOperation)
+                  KweenBGlobal.kweenb.currentUploadOperation.abort = abort;
+              },
+              onProgress: (percentage) => {
+                // let the renderer know that we have upload data
+                KweenBGlobal.kweenb.mainWindow.webContents.send(
+                  "upload-audio-progress",
+                  bee,
+                  percentage
+                );
+              },
+            }
           );
-
-          // close the connection
-          sftp.end();
-
-          // Check for cancellation before database update
-          if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+        } catch (e: any) {
+          // a cancelled upload is not an error
+          if (KweenBGlobal.kweenb.currentUploadOperation?.cancelled) {
             return {
               status: AudioUploadStatus.CANCELLED,
               message: `Audio upload was cancelled.`,
             };
           }
-
-          // add the audio scene to the database
-          await AudioScene.upsert({
-            name,
-            oscAddress: `${legalName}/audio.wav`,
-            localFolderPath: remoteDirectory,
-            beeId: bee.id,
-            manuallyAdded: true,
-          });
-        } catch (e: any) {
-          throw new Error(e.message);
+          throw new Error(`${bee.name}: ${e.message}`);
+        } finally {
+          if (KweenBGlobal.kweenb.currentUploadOperation)
+            KweenBGlobal.kweenb.currentUploadOperation.abort = undefined;
         }
+
+        // Check for cancellation before database update
+        if (KweenBGlobal.kweenb.currentUploadOperation.cancelled) {
+          return {
+            status: AudioUploadStatus.CANCELLED,
+            message: `Audio upload was cancelled.`,
+          };
+        }
+
+        // add the audio scene to the database
+        await AudioScene.upsert({
+          name,
+          oscAddress: `${legalName}/audio.wav`,
+          localFolderPath: remoteDirectory,
+          beeId: bee.id,
+          manuallyAdded: true,
+        });
       }
     }
 

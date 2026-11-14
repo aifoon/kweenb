@@ -39,6 +39,45 @@ export const Utils = {
   },
 
   /**
+   * Estimate the delay between sound entering kweenb and leaving a bee.
+   * This is a calculation from the settings, not a measurement.
+   * @param bee The audio settings of the bees
+   * @param kweenb The audio settings of kweenb
+   * @param pdAudioBufferMs The audio buffer of Pure Data on the bee
+   * @returns The estimated latency in milliseconds
+   */
+  estimateStreamingLatency: (
+    bee: {
+      jack: { sampleRate: number; bufferSize: number; periods: number };
+      jacktrip: { queueBufferLength: number; bufferStrategy: number };
+    },
+    kweenb: { jack: { sampleRate: number; bufferSize: number } },
+    pdAudioBufferMs: number
+  ) => {
+    const beePeriodMs = (bee.jack.bufferSize / bee.jack.sampleRate) * 1000;
+    const kweenbPeriodMs =
+      (kweenb.jack.bufferSize / kweenb.jack.sampleRate) * 1000;
+
+    // one block is collected on kweenb before it can be sent
+    const capture = kweenbPeriodMs;
+
+    // the Jacktrip buffer on the bee: milliseconds (plus the block being
+    // played) when late packets are concealed, a number of packets otherwise
+    const jacktrip =
+      bee.jacktrip.bufferStrategy >= 3
+        ? bee.jacktrip.queueBufferLength + beePeriodMs
+        : bee.jacktrip.queueBufferLength * beePeriodMs;
+
+    // the sound card buffer on the bee
+    const playback = beePeriodMs * bee.jack.periods;
+
+    return Utils.roundToDecimals(
+      capture + jacktrip + pdAudioBufferMs + playback,
+      0
+    );
+  },
+
+  /**
    * A function that will compare two arrays
    */
   compareArrays: (a: any, b: any) => {

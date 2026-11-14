@@ -1,6 +1,5 @@
 import Streaming from "./Streaming";
 import Zwerm3ApiHelpers from "../KweenB/Zwerm3ApiHelpers";
-import { Utils } from "@shared/utils";
 
 export default class TriggerOnlyStreaming extends Streaming {
   /**
@@ -15,26 +14,14 @@ export default class TriggerOnlyStreaming extends Streaming {
       const activeBees = await this.preConnectionCheck();
 
       /**
-       * Step 2: Start Jack on every bee
+       * Step 2: Start Jack & Pure Data on every bee (no stream)
        */
 
-      try {
-        const startJackOnBeePromises = activeBees.map((bee) => {
-          Zwerm3ApiHelpers.startJack(bee.ipAddress, true);
-        });
-        await Promise.all(startJackOnBeePromises);
-        await Utils.delay(2000);
-      } catch (e: any) {
-        throw new Error(
-          `Error while starting Jack on active bees: ${e.message}`
-        );
-      }
-
-      /**
-       * Step 3: Start Pure Data on active bees
-       */
-
-      await this.startPureData(activeBees);
+      await this.startStreamOnBees(
+        activeBees,
+        await Zwerm3ApiHelpers.createTriggerStreamRequest(),
+        "Jack & Pure Data"
+      );
 
       /**
        * Exit the process by sending success

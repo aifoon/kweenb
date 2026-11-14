@@ -1,23 +1,19 @@
 import React from "react";
 import { PageHeader } from "@components/PageHeader";
 import {
+  Box,
   Grid,
   ToggleButton,
   ToggleButtonGroup,
-  ButtonGroup,
   Button,
+  Typography,
 } from "@mui/material";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import DnsIcon from "@mui/icons-material/Dns";
 import { useNavigate } from "react-router-dom";
-import {
-  useShowState,
-  useConfirmation,
-  useBeeStore,
-} from "@renderer/src/hooks";
+import { useConfirmation, useBeeStore } from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
-import { IBee, IBeeInput } from "@shared/interfaces";
 import { ChannelType } from "@shared/enums";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
@@ -26,16 +22,26 @@ import {
   InActiveBeeDropzone,
 } from "@components/InActiveBees";
 import { Z3Page } from "@components/Layout";
-import { AddBeeModal } from "./AddBeeModal";
 import { NoBees } from "./NoBees";
 import { BeeCardWithPolling } from "./BeeCardWithPolling";
 import { useAppStore } from "@renderer/src/hooks/useAppStore";
 
+/**
+ * How many bees to use, from 1 up to this number
+ */
+const BEE_SELECTIONS = [4, 8, 12, 16];
+
 export const ManageBees = () => {
   const navigate = useNavigate();
 
+
   // Control the confirmation modal
-  const { open, handleOpen, handleClose } = useShowState(false);
+  // these two dialogs live at app level, so the File menu can open them too
+  const setOpenNewSpeakerModal = useAppStore(
+    (state) => state.setOpenNewSpeakerModal
+  );
+  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const handleOpenNewSpeakerModal = () => setOpenNewSpeakerModal(true);
   const {
     open: openConfirmModal,
     confirmationData,
@@ -46,7 +52,6 @@ export const ManageBees = () => {
   // The bees store is used to get the bees and manage them
   const initializing = useBeeStore((state) => state.initializing);
   const activeBees = useBeeStore((state) => state.activeBees);
-  const createBee = useBeeStore((state) => state.createBee);
   const deleteBee = useBeeStore((state) => state.deleteBee);
   const inActiveBees = useBeeStore((state) => state.inActiveBees);
   const setActive = useBeeStore((state) => state.setActive);
@@ -60,15 +65,6 @@ export const ManageBees = () => {
 
   // When the bees are initializing, show a loader
   if (initializing) return <Loader />;
-
-  /**
-   * When a bee is submitted, create the bee and close the modal
-   * @param beeInput
-   */
-  const onBeeSubmitted = async (beeInput: IBeeInput) => {
-    await createBee(beeInput as IBee);
-    handleClose();
-  };
 
   /**
    * When an inactive bee is dropped, set the bee to active
@@ -110,11 +106,6 @@ export const ManageBees = () => {
 
   return (
     <>
-      <AddBeeModal
-        open={open}
-        onClose={handleClose}
-        onBeeSubmitted={onBeeSubmitted}
-      />
       <ConfirmModal
         message="Know what you're doing, you're about to kill a bee. Are you sure?"
         open={openConfirmModal}
@@ -124,130 +115,99 @@ export const ManageBees = () => {
         }}
       />
       {activeBees.length === 0 && inActiveBees.length === 0 && (
-        <NoBees onAddBeeClicked={handleOpen} />
+        <NoBees
+          onAddBeeClicked={() => setOpenAddBeeModal(true)}
+          onNewSpeakerClicked={handleOpenNewSpeakerModal}
+        />
       )}
       {(activeBees.length > 0 || inActiveBees.length > 0) && (
         <Z3Page
           pageHeader={
             <PageHeader
               title="Swarm"
-              buttons={
-                <>
-                  <ToggleButtonGroup
-                    style={{ fontSize: "1rem" }}
-                    size="small"
-                    aria-label="Small sizes"
-                  >
-                    <ToggleButton
-                      selected={manageBeesCollapsed}
-                      value="collapsed"
-                      aria-label="left aligned"
-                      onClick={() =>
-                        setManageBeesCollapsed(!manageBeesCollapsed)
-                      }
-                    >
-                      <ViewListIcon fontSize="small" />
-                    </ToggleButton>
-                    <ToggleButton
-                      selected={!manageBeesCollapsed}
-                      value="full"
-                      aria-label="left aligned"
-                      onClick={() =>
-                        setManageBeesCollapsed(!manageBeesCollapsed)
-                      }
-                    >
-                      <DnsIcon fontSize="small" />
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                  <ButtonGroup aria-label="Action Button Group">
-                    <Button
-                      key="beesClear"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => moveBees([])}
-                    >
-                      Clear
-                    </Button>
-                    <Button
-                      key="bees14"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => moveBees([1, 2, 3, 4])}
-                    >
-                      1-4
-                    </Button>
-                    <Button
-                      key="bees18"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => moveBees([1, 2, 3, 4, 5, 6, 7, 8])}
-                    >
-                      1-8
-                    </Button>
-                    <Button
-                      key="bees112"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() =>
-                        moveBees([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-                      }
-                    >
-                      1-12
-                    </Button>
-                    <Button
-                      key="bees116"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() =>
-                        moveBees([
-                          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                        ])
-                      }
-                    >
-                      1-16
-                    </Button>
-                    <Button
-                      key="beesAll"
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() =>
-                        moveBees([
-                          ...activeBees.map((bee) => bee.id),
-                          ...inActiveBees.map((bee) => bee.id),
-                        ])
-                      }
-                    >
-                      All
-                    </Button>
-                  </ButtonGroup>
-                  <ButtonGroup aria-label="Action Button Group">
-                    <Button
-                      key="addNewBee"
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      onClick={handleOpen}
-                    >
-                      Add New Bee
-                    </Button>
-                  </ButtonGroup>
-                </>
-              }
             />
           }
         >
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={2}
+            mb={3}
+          >
+            <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+              <Typography variant="small" style={{ marginRight: 4 }}>
+                Use bees
+              </Typography>
+              {BEE_SELECTIONS.map((count) => (
+                <Button
+                  key={`bees1to${count}`}
+                  size="small"
+                  variant="contained"
+                  color="secondary"
+                  style={{ whiteSpace: "nowrap", minWidth: 0 }}
+                  onClick={() =>
+                    moveBees(Array.from({ length: count }, (_, i) => i + 1))
+                  }
+                >
+                  {`1–${count}`}
+                </Button>
+              ))}
+              <Button
+                key="beesAll"
+                size="small"
+                variant="contained"
+                color="secondary"
+                style={{ minWidth: 0 }}
+                onClick={() =>
+                  moveBees([
+                    ...activeBees.map((bee) => bee.id),
+                    ...inActiveBees.map((bee) => bee.id),
+                  ])
+                }
+              >
+                All
+              </Button>
+              <Button
+                key="beesClear"
+                size="small"
+                variant="text"
+                color="secondary"
+                style={{ minWidth: 0 }}
+                onClick={() => moveBees([])}
+              >
+                None
+              </Button>
+            </Box>
+            <ToggleButtonGroup size="small" aria-label="How the bees are shown">
+              <ToggleButton
+                selected={manageBeesCollapsed}
+                value="collapsed"
+                aria-label="Compact"
+                onClick={() => setManageBeesCollapsed(true)}
+              >
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton
+                selected={!manageBeesCollapsed}
+                value="full"
+                aria-label="Detailed"
+                onClick={() => setManageBeesCollapsed(false)}
+              >
+                <DnsIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
           <Grid container spacing={5}>
             <Grid item sm={12} md={8} lg={9}>
-              <Grid container spacing={3}>
+              <Box
+                display="grid"
+                gap={2}
+                gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+              >
                 {activeBees.map(
                   ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
-                    <Grid key={id} item lg={4} xl={3} xs={12} sm={12} md={4}>
+                    <Box key={id} minWidth={0}>
                       <BeeCardWithPolling
                         key={id}
                         number={id}
@@ -265,24 +225,16 @@ export const ManageBees = () => {
                         collapsed={manageBeesCollapsed}
                         onDoubleClick={() => setInActive(id)}
                       />
-                    </Grid>
+                    </Box>
                   )
                 )}
-                <Grid
-                  key="beeCardDropzone"
-                  item
-                  lg={4}
-                  xl={3}
-                  xs={12}
-                  sm={12}
-                  md={4}
-                >
+                <Box key="beeCardDropzone" minWidth={0}>
                   <BeeCardDropzone
                     collapsed={manageBeesCollapsed}
                     onInActiveBeeDropped={onInActiveBeeDropped}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Grid>
             <Grid item sm={12} md={4} lg={3}>
               <InActiveBees>

@@ -56,10 +56,9 @@ const config = {
         "node-osc",
         "mathjs",
         "tween-functions",
-        "node-ssh",
-        "ssh2-sftp-client",
         "express",
         "socket.io",
+        "bonjour-service",
         ...builtinModules,
       ],
       output: {

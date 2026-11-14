@@ -3,7 +3,6 @@ import {
   AudioFile,
   AudioScene,
   IBee,
-  IBeeConfig,
   IBeeInput,
   IBeeState,
 } from "@shared/interfaces";
@@ -23,7 +22,6 @@ const audio = {
     ipcRenderer.invoke("bee:getAudioFiles", bee),
   getAudioScenes: (): Promise<AudioScene[]> =>
     ipcRenderer.invoke("bee:getAudioScenes"),
-  killPureData: (bee: IBee) => ipcRenderer.invoke("bee:killPureData", bee),
   setAudioParam: (
     bees: IBee[] | IBee,
     pdAudioParam: PDAudioParam,
@@ -35,8 +33,6 @@ const audio = {
   ) => ipcRenderer.invoke("bee:setAudioParamForAllBees", pdAudioParam, value),
   startAudio: (bees: IBee[] | IBee, value: string) =>
     ipcRenderer.invoke("bee:startAudio", bees, value),
-  startPureData: (bees: IBee[] | IBee) =>
-    ipcRenderer.invoke("bee:startPureData", bees),
   stopAudio: (bees: IBee[] | IBee) => ipcRenderer.invoke("bee:stopAudio", bees),
   uploadAudioFiles: (name: string, path: string) =>
     ipcRenderer.invoke("bee:uploadAudioFiles", name, path),
@@ -75,28 +71,10 @@ const crudBee = {
 const jackJacktripBee = {
   killJackAndJacktrip: (bee: IBee) =>
     ipcRenderer.invoke("bee:killJackAndJacktrip", bee),
-  killJack: (bee: IBee) => ipcRenderer.invoke("bee:killJack", bee),
-  killJacktrip: (bee: IBee) => ipcRenderer.invoke("bee:killJacktrip", bee),
-  makeAudioConnectionBee: (bees: IBee[] | IBee) =>
-    ipcRenderer.invoke("bee:makeAudioConnection", bees),
-  startJack: (bee: IBee, triggerOnly: boolean = false) =>
-    ipcRenderer.invoke("bee:startJack", bee, triggerOnly),
   startJackWithJacktripHubClientBee: (bee: IBee) =>
     ipcRenderer.invoke("bee:startJackWithJacktripHubClient", bee),
   startJackWithJacktripP2PServerBee: (bee: IBee) =>
     ipcRenderer.invoke("bee:startJackWithJacktripP2PServer", bee),
-  startJacktripP2PServerBee: (bee: IBee) =>
-    ipcRenderer.invoke("bee:startJacktripP2PServer", bee),
-};
-
-/**
- * Configuration methods for the bee
- */
-const configBee = {
-  getBeeConfig: (bee: IBee | number): Promise<IBeeConfig> =>
-    ipcRenderer.invoke("bee:getBeeConfig", bee),
-  saveConfig: (bee: IBee, config: Partial<IBeeConfig>) =>
-    ipcRenderer.invoke("bee:saveConfig", bee, config),
 };
 
 /**
@@ -113,7 +91,6 @@ const manageBeeDevice = {
  */
 export default {
   ...audio,
-  ...configBee,
   ...crudBee,
   ...jackJacktripBee,
   ...manageBeeDevice,

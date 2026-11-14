@@ -1,22 +1,18 @@
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { BeeConfigActionsRunJack } from "./BeeConfigActionsRunJack";
-import { BeeConfigActionsRunJacktrip } from "./BeeConfigActionsRunJacktrip";
 import { BeeConfigActionsSection } from "./BeeConfigActionsSection";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 
 interface BeeConfigActionsProps {
-  isJackRunning?: boolean;
-  isJacktripRunning?: boolean;
-  onStartJack?: () => void;
-  onStartJacktrip?: () => void;
-  onStopJack?: () => void;
-  onStopJacktrip?: () => void;
   onKillJackAndJacktrip?: () => void;
   onReconnect?: () => void;
+  onReboot?: () => void;
+  onShutdown?: () => void;
+  onSaveSounds?: () => void;
+  onRestoreSounds?: () => void;
 }
 
 const CardActions = styled(Card)`
@@ -26,67 +22,20 @@ const CardActions = styled(Card)`
 `;
 
 export const BeeConfigActions = ({
-  isJackRunning = false,
-  isJacktripRunning = false,
-  onStartJack,
-  onStartJacktrip,
-  onStopJack,
-  onStopJacktrip,
   onKillJackAndJacktrip,
   onReconnect,
+  onReboot,
+  onShutdown,
+  onSaveSounds,
+  onRestoreSounds,
 }: BeeConfigActionsProps) => {
-  const [currentIsJackRunning, setCurrentIsJackRunning] =
-    useState(isJackRunning);
-  const [currentIsJacktripRunning, setCurrentIsJacktripRunning] =
-    useState(isJacktripRunning);
   const appMode = useAppStore((state) => state.appMode);
-
-  useEffect(() => setCurrentIsJackRunning(isJackRunning), [isJackRunning]);
-  useEffect(
-    () => setCurrentIsJacktripRunning(isJacktripRunning),
-    [isJacktripRunning]
-  );
 
   return (
     <CardActions title="Actions">
-      {/* Jack */}
-
-      <BeeConfigActionsSection title="Jack">
-        <BeeConfigActionsRunJack
-          onStart={() => {
-            if (onStartJack) onStartJack();
-          }}
-          onStop={() => {
-            if (onStopJack) onStopJack();
-          }}
-          isRunning={currentIsJackRunning}
-        />
-      </BeeConfigActionsSection>
-
-      {/* Jacktrip */}
-
-      {/* Only the running jacktrip whenever a Jacktrip instance
-          is started. We don't know the configuration of all the bees/kweenb.
-          Only when we started the whole connection flow, we know what params
-          we can add to Jacktrip.
-      */}
-      {isJacktripRunning && (
-        <BeeConfigActionsSection title="Jacktrip">
-          <BeeConfigActionsRunJacktrip
-            onStart={() => {
-              if (onStartJacktrip) onStartJacktrip();
-            }}
-            onStop={() => {
-              if (onStopJacktrip) onStopJacktrip();
-            }}
-            isRunning={currentIsJacktripRunning}
-          />
-        </BeeConfigActionsSection>
-      )}
-
       {/* Killing processes */}
 
-      <BeeConfigActionsSection title="Kill all Jack and Jacktrip processes">
+      <BeeConfigActionsSection title="Stop the sound on this bee">
         <Button
           buttonSize={ButtonSize.Small}
           buttonType={ButtonType.Primary}
@@ -96,7 +45,7 @@ export const BeeConfigActions = ({
           }}
           style={{ width: "100%", height: "100%" }}
         >
-          Run
+          Stop
         </Button>
       </BeeConfigActionsSection>
 
@@ -106,7 +55,7 @@ export const BeeConfigActions = ({
       */}
 
       {appMode !== AppMode.Hub && (
-        <BeeConfigActionsSection title="Reconnect">
+        <BeeConfigActionsSection title="Connect this bee again">
           <Button
             buttonSize={ButtonSize.Small}
             buttonType={ButtonType.Primary}
@@ -120,6 +69,68 @@ export const BeeConfigActions = ({
           </Button>
         </BeeConfigActionsSection>
       )}
+
+      {/* Restart or switch off the bee */}
+
+      <BeeConfigActionsSection title="Restart this bee">
+        <Button
+          buttonSize={ButtonSize.Small}
+          buttonType={ButtonType.Primary}
+          buttonUse={ButtonUse.Dark}
+          onClick={() => {
+            if (onReboot) onReboot();
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          Restart
+        </Button>
+      </BeeConfigActionsSection>
+
+      <BeeConfigActionsSection title="Switch this bee off">
+        <Button
+          buttonSize={ButtonSize.Small}
+          buttonType={ButtonType.Primary}
+          buttonUse={ButtonUse.Dark}
+          onClick={() => {
+            if (onShutdown) onShutdown();
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          Switch off
+        </Button>
+      </BeeConfigActionsSection>
+
+      {/* Keep a copy of the sounds of the bee on this computer */}
+
+      <BeeConfigActionsSection title="Save sounds to this computer">
+        <Button
+          buttonSize={ButtonSize.Small}
+          buttonType={ButtonType.Primary}
+          buttonUse={ButtonUse.Dark}
+          onClick={() => {
+            if (onSaveSounds) onSaveSounds();
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          Save
+        </Button>
+      </BeeConfigActionsSection>
+
+      {/* Put the saved copy of the sounds back on the bee */}
+
+      <BeeConfigActionsSection title="Put saved sounds back on this bee">
+        <Button
+          buttonSize={ButtonSize.Small}
+          buttonType={ButtonType.Primary}
+          buttonUse={ButtonUse.Dark}
+          onClick={() => {
+            if (onRestoreSounds) onRestoreSounds();
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          Put back
+        </Button>
+      </BeeConfigActionsSection>
     </CardActions>
   );
 };

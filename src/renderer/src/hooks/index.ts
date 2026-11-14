@@ -2,7 +2,6 @@ import { useApp } from "./useApp";
 import { useAppStore } from "./useAppStore";
 import { useAudioMixerStore } from "./useAudioMixerStore";
 import { useBee } from "./useBee";
-import { useBeeConfig } from "./useBeeConfig";
 import { useBeeStore } from "./useBeeStore";
 import { useConfirmation } from "./useConfirmation";
 import { useInterval } from "./useInterval";
@@ -20,7 +19,6 @@ export {
   useAppStore,
   useAudioMixerStore,
   useBee,
-  useBeeConfig,
   useBeeStore,
   useConfirmation,
   useInterval,

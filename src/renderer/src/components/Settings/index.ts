@@ -1,6 +1,5 @@
 import { Settings } from "./Settings";
-import { SettingsBees } from "./SettingsBees";
-import { SettingsKweenB } from "./SettingsKweenB";
+import { SettingsAudio } from "./SettingsAudio";
 import { SettingsPositioning } from "./SettingsPositioning";
 
-export { Settings, SettingsBees, SettingsKweenB, SettingsPositioning };
+export { Settings, SettingsAudio, SettingsPositioning };

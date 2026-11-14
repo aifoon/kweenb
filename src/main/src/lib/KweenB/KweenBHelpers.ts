@@ -6,7 +6,6 @@ import {
   killAllProcesses,
   startJackDmpAsync,
   startJacktripHubServerAsync,
-  startJacktripHubClientAsync,
   startJacktripP2PClientAsync,
   connectChannel,
   disconnectChannel,
@@ -23,6 +22,7 @@ import {
 import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
+import SpeakerApi from "./SpeakerApi";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
@@ -33,7 +33,6 @@ import {
   JacktripHubServerParams,
   RunningCommand,
 } from "@zwerm3/jack/dist/interfaces";
-import cluster from "cluster";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -42,15 +41,18 @@ const closeApplication = async (appMode: AppMode) => {
   // Kill the express server
   killExpress();
 
+  // the active bees that are online right now
+  const bees = (await BeeHelpers.getAllBees(BeeActiveState.ACTIVE)).filter(
+    (bee) => bee.isOnline
+  );
+
   // kill the workers
   KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
 
-  // close all the bees
-  const bees = await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
-  const beeKillPromises = bees.map(async (bee) => {
-    if (bee.isOnline) Zwerm3ApiHelpers.killJackAndJacktrip(bee.ipAddress);
-  });
-  await Promise.all(beeKillPromises);
+  // close all the bees (a bee that fails to stop does not keep kweenb open)
+  await Zwerm3ApiHelpers.onBees(bees, (bee) =>
+    SpeakerApi.stopStream(bee.ipAddress)
+  );
 
   // close mqtt broker
   PozyxMqttBroker.disconnectPozyxMqttBroker();
@@ -85,7 +87,7 @@ const isJackAndJacktripInstalled = () => {
   // jacktrip
   const jacktripFolderExists = fs.existsSync(jacktripFolder);
   const jacktripBinExists = fs.existsSync(
-    join(jacktripFolder, "JackTrip.app", "Contents", "MacOs", "jacktrip")
+    join(jacktripFolder, "jacktrip")
   );
 
   // do the validation
@@ -141,10 +143,12 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
     debug: false,
     localPort: START_PORT_JACKTRIP_HUB_SERVER,
     queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
+    bufferStrategy: settings.kweenBAudioSettings.jacktrip.bufferStrategy,
     realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
     connectDefaultAudioPorts: false,
     hubPatchMode: HubPatchMode.NoConnections,
     bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
+    redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
   };
 
   /**
@@ -165,52 +169,6 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
     jacktripHubServerParams: jacktrip,
     runningCommand,
   };
-};
-
-/**
- * Start Jack With Jacktrip Hub client
- */
-const startJacktripHubClient = async (
-  clusterNumber: number,
-  sendChannels: number
-) => {
-  /**
-   * Get and set the settings
-   */
-
-  // get the settings
-  const settings = await SettingHelpers.getAllSettings();
-
-  // create the jackktrip hub client params
-  const jacktrip = {
-    channels: settings.kweenBAudioSettings.jacktrip.channels,
-    debug: false,
-    killAllJacktripBeforeStart: false,
-    localPort: settings.kweenBAudioSettings.jacktrip.localPort + clusterNumber,
-    queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
-    realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
-    bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
-    clientName: `kweenb${clusterNumber}`,
-    host: "localhost",
-    receiveChannels: settings.kweenBAudioSettings.jacktrip.receiveChannels,
-    // if in the settings the sendChannels is higher than the active bees, use the active bees
-    // it's not necessary to have more send channels than active bees
-    sendChannels,
-    redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
-    remotePort: START_PORT_JACKTRIP_HUB_SERVER,
-    connectDefaultAudioPorts: false,
-    compression: true,
-  };
-
-  /**
-   * Start Jacktrip
-   */
-
-  await startJacktripHubClientAsync(jacktrip, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
 };
 
 /**
@@ -245,6 +203,7 @@ const startJackWithJacktripP2PClient = async (
     killAllJacktripBeforeStart: false,
     localPort,
     queueBuffer: settings.kweenBAudioSettings.jacktrip.queueBufferLength,
+    bufferStrategy: settings.kweenBAudioSettings.jacktrip.bufferStrategy,
     realtimePriority: settings.kweenBAudioSettings.jacktrip.realtimePriority,
     bitRate: settings.kweenBAudioSettings.jacktrip.bitRate,
     clientName,
@@ -278,13 +237,21 @@ const startJackWithJacktripP2PClient = async (
 };
 
 /**
+ * The name a bee has in Jack on kweenb: the name the bee itself reports,
+ * the name in the database as long as the bee did not report one
+ * @param bee IBee
+ */
+const getJackClientName = (bee: IBee): string =>
+  KweenBGlobal.kweenb.beeStates.getMonitoring(bee.id)?.identityName || bee.name;
+
+/**
  * Disconnect all P2P audio connections
  */
 const disconnectAllP2PAudioConnections = async () => {
   const activeBees = await BeeHelpers.getAllBeesData();
   activeBees.forEach(async (bee) => {
     const captureChannel = `system:capture_${bee.id}`;
-    const sendChannel = `${bee.name}:send_1`;
+    const sendChannel = `${getJackClientName(bee)}:send_1`;
     await disconnectChannel({
       source: captureChannel,
       destination: sendChannel,
@@ -293,43 +260,22 @@ const disconnectAllP2PAudioConnections = async () => {
 };
 
 /**
- * Make all the audio hub connections on kweenb and the hub
- * @param sendChannels
+ * Make all the audio hub connections on kweenb.
+ * The hub server shows every connected bee as a Jack client with the name the
+ * bee reports, so each capture channel is connected straight to its bee.
+ * @param bees The bees to connect, all bees if left out
  */
-const makeHubAudioConnections = async (
-  bees: IBee[] | null = null,
-  clusterNumber: number = -1
-) => {
-  // get all bees if no bees are given
-  let currentBees = bees;
-  if (!currentBees) {
-    currentBees = await BeeHelpers.getAllBeesData();
-  }
+const makeHubAudioConnections = async (bees: IBee[] | null = null) => {
+  const currentBees = bees || (await BeeHelpers.getAllBeesData());
 
-  // create the cluster name
-  let clusterName = "kweenb";
-  if (clusterNumber >= 0) clusterName = `kweenb${clusterNumber}`;
-
-  // Connect the active bees in the hub
-  currentBees.forEach(async (bee, index) => {
-    // Connect the capture channel to the open send channels on kweenb
-    const captureChannelToBee = `system:capture_${bee.id}`;
-    const sendChannelToKweenBRemote = `${clusterName}:send_${index + 1}`;
-    await connectChannel({
-      source: captureChannelToBee,
-      destination: sendChannelToKweenBRemote,
-    });
-
-    // Connect the receive channel from kweenb-remote to the bee
-    const receiveChannelFromKweenBRemote = `${clusterName}-remote:receive_${
-      index + 1
-    }`;
-    const sendChannelOfBee = `${bee.name}:send_1`;
-    await connectChannel({
-      source: receiveChannelFromKweenBRemote,
-      destination: sendChannelOfBee,
-    });
-  });
+  await Promise.all(
+    currentBees.map((bee) =>
+      connectChannel({
+        source: `system:capture_${bee.id}`,
+        destination: `${getJackClientName(bee)}:send_1`,
+      })
+    )
+  );
 };
 
 /**
@@ -338,7 +284,7 @@ const makeHubAudioConnections = async (
  */
 const makeP2PAudioConnection = async (bee: IBee) => {
   const captureChannel = `system:capture_${bee.id}`;
-  const sendChannel = `${bee.name}:send_1`;
+  const sendChannel = `${getJackClientName(bee)}:send_1`;
   await connectChannel({
     source: captureChannel,
     destination: sendChannel,
@@ -347,12 +293,11 @@ const makeP2PAudioConnection = async (bee: IBee) => {
 
 /**
  * Make all the P2P audio connection on kweenb
+ * @param bees The bees to connect, all active bees if left out
  */
-const makeP2PAudioConnections = async () => {
-  const activeBees = await BeeHelpers.getAllBeesData();
-  activeBees.forEach(async (bee) => {
-    await makeP2PAudioConnection(bee);
-  });
+const makeP2PAudioConnections = async (bees: IBee[] | null = null) => {
+  const activeBees = bees || (await BeeHelpers.getAllBeesData());
+  await Promise.all(activeBees.map((bee) => makeP2PAudioConnection(bee)));
 };
 
 /**
@@ -382,6 +327,7 @@ const setJacktripBinPath = (jacktripBinPath: string) => {
 export default {
   closeApplication,
   disconnectAllP2PAudioConnections,
+  getJackClientName,
   isJackAndJacktripInstalled,
   killJackAndJacktrip,
   makeHubAudioConnections,
@@ -389,7 +335,6 @@ export default {
   makeP2PAudioConnections,
   startJack,
   startJacktripHubServer,
-  startJacktripHubClient,
   startJackWithJacktripP2PClient,
   setJackFolderPath,
   setJacktripBinPath,

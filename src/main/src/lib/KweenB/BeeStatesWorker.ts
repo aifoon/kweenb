@@ -1,17 +1,14 @@
 import BeeHelpers from "./BeeHelpers";
-import { exec } from "node:child_process";
 import { BeeActiveState } from "@shared/enums";
 import {
+  AUDIO_FILES_ROOT_DIRECTORY,
   AUDIOSCENES_POLLING_SECONDS,
   AUDIOSCENES_REMOVING_SECONDS,
-  BEE_POLLING_SECONDS,
-  NETWORK_PERFORMANCE_POLLING_SECONDS,
+  BEE_CONSIDERED_OFFLINE_SECONDS,
 } from "../../consts";
 import { BeeStates } from "../Dictionaries";
-import BeeSsh from "./BeeSsh";
-import { resourcesPath } from "@shared/resources";
-import { IBee, AudioSceneDbRecord, SshOutputState } from "@shared/interfaces";
-import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
+import { IBee, AudioSceneDbRecord } from "@shared/interfaces";
+import SpeakerApi from "./SpeakerApi";
 import { logger, debug } from "../../logger";
 
 // Import the audio scene model
@@ -19,21 +16,29 @@ import AudioSceneDb from "../../models/AudioScene";
 import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
 import { Op } from "sequelize";
 
+// how often we look if every bee is still followed and still talking
+const BEE_WATCH_INTERVAL_MS = 1000;
+
+/**
+ * A bee we follow: the bee sends its status over a connection that stays open
+ */
+interface FollowedBee {
+  ipAddress: string;
+  stop: () => void;
+}
+
 class BeeStatesWorker {
   private _beeStates: BeeStates;
-  private _allBees: IBee[];
-  private _updateBeeStatesInterval: NodeJS.Timeout;
-  private _updateBeeNetworkPerformanceInterval: NodeJS.Timeout;
+  private _followedBees: Map<number, FollowedBee>;
+  private _watchBeesInterval: NodeJS.Timeout;
   private _updateAudioScenesInterval: NodeJS.Timeout;
   private _pauseUpdateAudioScenes: boolean;
   private _removingAudioScenesInterval: NodeJS.Timeout;
-  private _beeSshScriptExecutor: BeeSshScriptExecutor;
-  private _isUpdatingBeeStates = false;
+  private _isUpdatingAudioScenes = false;
 
   constructor() {
-    this._allBees = [];
     this._beeStates = new BeeStates();
-    this._beeSshScriptExecutor = new BeeSshScriptExecutor();
+    this._followedBees = new Map();
     this._pauseUpdateAudioScenes = true;
   }
 
@@ -63,25 +68,19 @@ class BeeStatesWorker {
    */
   public async init() {
     // get all the bees
-    this._allBees = await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
+    const allBees = await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
 
     // loop through the bees
-    this._beeStates.addBees(this._allBees);
+    this._beeStates.addBees(allBees);
 
-    // start doing this in the background
-    this.updateBeeStates();
+    // start following the bees right away
+    this.watchBees();
 
-    // do interval for fetching bee states
-    if (!this._updateBeeStatesInterval)
-      this._updateBeeStatesInterval = setInterval(() => {
-        this.updateBeeStates();
-      }, BEE_POLLING_SECONDS * 1000);
-
-    // do interval for fetching bee network performance
-    if (!this._updateBeeNetworkPerformanceInterval)
-      this._updateBeeNetworkPerformanceInterval = setInterval(() => {
-        this.updateBeeNetworkPerformance();
-      }, NETWORK_PERFORMANCE_POLLING_SECONDS * 1000);
+    // keep following the bees that are known and notice the ones that went silent
+    if (!this._watchBeesInterval)
+      this._watchBeesInterval = setInterval(() => {
+        this.watchBees();
+      }, BEE_WATCH_INTERVAL_MS);
 
     // do interval for fetching audio scenes on the bees
     if (!this._updateAudioScenesInterval)
@@ -100,10 +99,11 @@ class BeeStatesWorker {
    * Stop the workers
    */
   public stopWorkers() {
-    clearInterval(this._updateBeeStatesInterval);
-    clearInterval(this._updateBeeNetworkPerformanceInterval);
+    clearInterval(this._watchBeesInterval);
     clearInterval(this._updateAudioScenesInterval);
     clearInterval(this._removingAudioScenesInterval);
+    this._followedBees.forEach((followedBee) => followedBee.stop());
+    this._followedBees.clear();
   }
 
   /**
@@ -242,262 +242,113 @@ class BeeStatesWorker {
   }
 
   /**
-   * Update the bee network performance in the internal table
+   * Follow every known bee and mark the bees that went silent as offline.
+   * A bee tells its status itself (see SpeakerApi.followStatus), so there is
+   * nothing to ask: a bee is online as long as its messages arrive.
    */
-  private updateBeeNetworkPerformance() {
-    try {
-      // Get only the online bees
-      const beesWithOnlineState = this._beeStates.getBeesWithOnlineState();
+  private watchBees() {
+    const bees = this._beeStates.bees;
 
-      // If no online bees, return early
-      if (beesWithOnlineState.length === 0) return;
-
-      /**
-       * @debug - This is spoofing the connection status
-       */
-      if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-        // Generate random network performance for all online bees
-        beesWithOnlineState.forEach((state) => {
-          const bee = this.beeStates.bees.find(
-            (bee) => bee.ipAddress === state.bee.ipAddress
-          );
-          if (!bee) return;
-
-          // Generate random network performance value between 1 and 5
-          const randomNetworkPerformance = Math.random() * 4 + 1;
-          this._beeStates.update(
-            "networkPerformanceMs",
-            bee,
-            parseFloat(randomNetworkPerformance.toFixed(2))
-          );
-        });
-
-        return;
-      }
-
-      // Get only the IP addresses of online bees
-      const onlineIpAddresses = beesWithOnlineState.map(
-        (bee) => bee.bee.ipAddress
-      );
-
-      // Run parallel network performance check on all online bees
-      exec(
-        `${resourcesPath}/scripts/network_performance_multiple.sh ${onlineIpAddresses.join(
-          " "
-        )}`,
-        (error, performanceData, stderr) => {
-          if (error) {
-            console.error("Network performance check error:", error);
-            return;
-          }
-
-          try {
-            // Parse the performance data
-            const performanceResults = JSON.parse(
-              performanceData.toString().trim()
-            );
-
-            // Update the network performance for each bee
-            performanceResults.forEach((result: any) => {
-              const bee = this.beeStates.bees.find(
-                (bee) => bee.ipAddress === result.ipAddress
-              );
-
-              if (!bee) return;
-
-              // Update with the latency value (999.99 means failed check)
-              const latency =
-                result.latency >= 999 ? result.latency : result.latency;
-              this._beeStates.update("networkPerformanceMs", bee, latency);
-            });
-          } catch (e) {
-            console.error("Error processing network performance data:", e);
-          }
-        }
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  /**
-   * Refresh the bee states
-   */
-  private updateBeeStates() {
-    if (this._isUpdatingBeeStates) {
-      console.log("Previous updateBeeStates still running, skipping...");
+    /**
+     * @debug - This is spoofing the connection status
+     */
+    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
+      bees.forEach((bee) => {
+        this._beeStates.update("lastPingResponse", bee, new Date());
+        this._beeStates.update("isApiOn", bee, true);
+        this._beeStates.update("isJackRunning", bee, true);
+        this._beeStates.update("isJacktripRunning", bee, true);
+        this._beeStates.update("isOnline", bee, true);
+      });
       return;
     }
 
-    this._isUpdatingBeeStates = true;
+    // stop following the bees that were removed or that changed address
+    this._followedBees.forEach((followedBee, beeId) => {
+      const bee = bees.find((b) => b.id === beeId);
+      if (!bee || bee.ipAddress !== followedBee.ipAddress) {
+        followedBee.stop();
+        this._followedBees.delete(beeId);
+        if (bee) this._beeStates.setOffline(bee);
+      }
+    });
 
-    // map the ip addresses
-    const ipAddresses = this._beeStates.bees.map((bee) => bee.ipAddress);
+    bees.forEach((bee) => {
+      // start following the bees we do not follow yet
+      if (!this._followedBees.has(bee.id)) {
+        const beeId = bee.id;
+        this._followedBees.set(beeId, {
+          ipAddress: bee.ipAddress,
+          stop: SpeakerApi.followStatus(bee.ipAddress, (status) => {
+            // look the bee up again: it could be changed or removed meanwhile
+            const currentBee = this._beeStates.bees.find((b) => b.id === beeId);
+            if (currentBee)
+              this._beeStates.updateFromStatus(currentBee, status);
+          }),
+        });
+      }
 
-    // do an ssh check on the bees
-    try {
-      // spawn a child process to check if the bees are online
-      exec(
-        `${resourcesPath}/scripts/is_online_multiple.sh ${ipAddresses.join(
-          " "
-        )}`,
-        (error, onlineStatus, stderr) => {
-          try {
-            // convert the json
-            const json = JSON.parse(onlineStatus.toString().trim());
+      // a bee that is silent for too long is offline
+      const beeState = this._beeStates.getBeeState(bee);
+      if (
+        beeState?.isOnline &&
+        (!beeState.lastPingResponse ||
+          Date.now() - beeState.lastPingResponse.getTime() >
+            BEE_CONSIDERED_OFFLINE_SECONDS * 1000)
+      ) {
+        this._beeStates.setOffline(bee);
+      }
+    });
 
-            // get the output states
-            let states: SshOutputState[] = json.map((state: SshOutputState) => {
-              return {
-                ipAddress: state.ipAddress,
-                responseTime: new Date(state.responseTime),
-                isOnline: state.isOnline,
-              };
-            });
-
-            // loop over the states that are online
-            states.forEach((state) => {
-              // get the bee
-              const bee = this.beeStates.bees.find(
-                (bee) => bee.ipAddress === state.ipAddress
-              );
-
-              // validate
-              if (!bee) return;
-
-              /**
-               * Update the last ping response
-               */
-              this._beeStates.update(
-                "lastPingResponse",
-                bee,
-                state.responseTime
-              );
-
-              /**
-               * @debug - This is spoofing the connection status
-               */
-              if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-                this._beeStates.update("isApiOn", bee, true);
-                this._beeStates.update("isJackRunning", bee, true);
-                this._beeStates.update("isJacktripRunning", bee, true);
-                this._beeStates.update("isOnline", bee, true);
-                return;
-              }
-
-              /**
-               * Update the isOnline state
-               */
-              this._beeStates.update("isOnline", bee, state.isOnline);
-
-              /**
-               * Check if the bee is online
-               */
-              if (!state.isOnline) {
-                // If the bee is not online, we can skip the rest of the checks
-                this._beeStates.update("isApiOn", bee, false);
-                this._beeStates.update("isJackRunning", bee, false);
-                this._beeStates.update("isJacktripRunning", bee, false);
-                return;
-              }
-
-              /**
-               * Check if the bee is online and check the services
-               */
-              BeeSsh.checkAllServicesStatus(state.ipAddress).then(
-                (serviceStatus) => {
-                  this._beeStates.update(
-                    "isApiOn",
-                    bee,
-                    serviceStatus.zwerm3ApiRunning
-                  );
-                  this._beeStates.update(
-                    "isJackRunning",
-                    bee,
-                    serviceStatus.jackRunning
-                  );
-                  this._beeStates.update(
-                    "isJacktripRunning",
-                    bee,
-                    serviceStatus.jacktripRunning
-                  );
-                }
-              );
-            });
-
-            // @debug Uncomment if you want to see the debug info
-            // this._beeStates.printDebugInfo();
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      this._isUpdatingBeeStates = false;
-    }
+    // @debug Uncomment if you want to see the debug info
+    // this._beeStates.printDebugInfo();
   }
 
   /**
    * Update the audio scenes
    */
   private async updateAudioScenes() {
+    // if paused, skip
+    if (this._pauseUpdateAudioScenes) return;
+
+    // the scenes only exist on real bees
+    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) return;
+
+    // the previous round is still busy
+    if (this._isUpdatingAudioScenes) return;
+    this._isUpdatingAudioScenes = true;
+
     try {
-      // if paused, skip
-      if (this._pauseUpdateAudioScenes) {
-        return;
-      }
+      // only the online bees can tell which scenes they have
+      const onlineBees = this._beeStates
+        .getBeesWithOnlineState()
+        .map((beeState) => beeState.bee);
 
-      // validate
-      if (!this._allBees) return;
+      // Process scenes for each bee in parallel
+      const syncPromises = onlineBees.map(async (bee: IBee) => {
+        try {
+          // ask the bee for its scenes
+          const scenes = await SpeakerApi.getScenes(bee.ipAddress);
 
-      try {
-        // execute the script
-        const output =
-          await this._beeSshScriptExecutor.executeWithOutput<string>(
-            "get_audio_scenes.sh",
-            this._allBees
-          );
-
-        // validate
-        if (!output) return;
-
-        interface AudioSceneOnBee {
-          id: number;
-          audioScenes: Omit<AudioSceneDbRecord, "id" | "beeId">[];
-        }
-
-        // parse the scenes
-        const audioScenesOnBees = JSON.parse(output) as AudioSceneOnBee[];
-
-        // Process scenes for each bee in parallel
-        const syncPromises = audioScenesOnBees.map(async (audioSceneOnBee) => {
-          // validate the audio scenes
-          if (
-            !audioSceneOnBee.audioScenes ||
-            audioSceneOnBee.audioScenes.length === 0
-          )
-            return;
+          // paused while we were waiting (an upload or delete started)
+          if (this._pauseUpdateAudioScenes) return;
 
           // create the records for the database
-          const audioScenesForDatabase: Omit<AudioSceneDbRecord, "id">[] = [];
-
-          // loop through the audio scenes and prepare them for the database
-          for (const audioScene of audioSceneOnBee.audioScenes) {
-            audioScenesForDatabase.push({
-              beeId: audioSceneOnBee.id,
-              oscAddress: audioScene.oscAddress,
-              name: audioScene.name,
-              localFolderPath: audioScene.localFolderPath,
+          const audioScenesForDatabase: Omit<AudioSceneDbRecord, "id">[] =
+            scenes.map((scene) => ({
+              beeId: bee.id,
+              oscAddress: scene.oscAddress,
+              name: scene.name,
+              // the database knows a scene by this path; on the bee only
+              // the last part (the legal name) has a meaning
+              localFolderPath: `${AUDIO_FILES_ROOT_DIRECTORY}/${scene.legalName}`,
               manuallyAdded: false,
-            });
-          }
+            }));
 
           // sync the audio scenes with the database
           const result = await this.syncAudioScenes(
             audioScenesForDatabase,
-            audioSceneOnBee.id
+            bee.id
           );
 
           // Log the result
@@ -505,7 +356,7 @@ class BeeStatesWorker {
             // log the result
             logger.group(
               "audioScenesSync",
-              `Bee ${audioSceneOnBee.id} - Created: ${result.created.length}, Updated: ${result.updated.length}, Deleted: ${result.deleted.length}`,
+              `Bee ${bee.id} - Created: ${result.created.length}, Updated: ${result.updated.length}, Deleted: ${result.deleted.length}`,
               () => {
                 // Log details of created records
                 if (result.created.length > 0) {
@@ -537,15 +388,22 @@ class BeeStatesWorker {
               }
             );
           }
-        });
+        } catch (error) {
+          // one bee that does not answer does not stop the others
+          logger.error(
+            "audioScenesSync",
+            `Error updating audio scenes of bee ${bee.id}:`,
+            error
+          );
+        }
+      });
 
-        // Wait for all sync operations to complete
-        await Promise.all(syncPromises);
-      } catch (error) {
-        logger.error("audioScenesSync", "Error updating audio scenes:", error);
-      }
+      // Wait for all sync operations to complete
+      await Promise.all(syncPromises);
     } catch (e) {
       logger.error("audioScenesSync", "Error updating audio scenes:", e);
+    } finally {
+      this._isUpdatingAudioScenes = false;
     }
   }
 

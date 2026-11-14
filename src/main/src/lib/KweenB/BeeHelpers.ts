@@ -7,44 +7,25 @@ import {
   BeeDeviceManagerActions,
   PDAudioParam,
 } from "@shared/enums";
-import {
-  AudioScene,
-  IBee,
-  IBeeConfig,
-  IBeeInput,
-  IBeeState,
-  SshOutputDiskSpace,
-  SshOutputState,
-} from "@shared/interfaces";
+import { AudioScene, IBee, IBeeInput, IBeeState } from "@shared/interfaces";
 import fs from "fs";
-import {
-  BEE_IS_UNDEFINED,
-  NO_BEE_FOUND_WITH_ID,
-} from "../Exceptions/ExceptionMessages";
+import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
-import {
-  DEFAULT_BEE_CONFIG,
-  DEFAULT_BEE_STATUS,
-  DISK_REMAINING_ON_BEE_TRESHOLD_MB,
-  SSH_PRIVATE_KEY_PATH,
-} from "../../consts";
+import SpeakerApi from "./SpeakerApi";
+import { BeeStates } from "../Dictionaries";
+import { DEFAULT_BEE_STATUS } from "../../consts";
 import {
   HAS_CONNECTION_WITH_PHYSICAL_SWARM,
   PD_PORT_BEE,
 } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
-import { exec, spawn } from "child_process";
-import BeeSsh from "./BeeSsh";
-import { resourcesPath } from "@shared/resources";
 import { PDBeeOsc } from "../OSC";
 import { demoScenes } from "@seeds/demoScenes";
-import BeeSshScriptExecutor from "./BeeSshScriptExecutor";
 import { Op } from "sequelize";
 
 // Import models
 import AudioSceneDb from "../../models/AudioScene";
 import Bee from "../../models/Bee";
-import SettingHelpers from "./SettingHelpers";
 
 /**
  * Creates a new bee
@@ -167,6 +148,7 @@ const getAllBees = async (
         isJackRunning: KweenBGlobal.kweenb.beeStates.isJackRunning(id),
         isJacktripRunning: KweenBGlobal.kweenb.beeStates.isJacktripRunning(id),
       },
+      monitoring: KweenBGlobal.kweenb.beeStates.getMonitoring(id),
     };
   });
 
@@ -223,7 +205,6 @@ const getAllBeesData = async (
         channel1,
         channel2,
         pozyxTagId,
-        config: DEFAULT_BEE_CONFIG,
         status: DEFAULT_BEE_STATUS,
       })
   );
@@ -367,65 +348,11 @@ const getBee = async (id: number): Promise<IBee> => {
       isJackRunning: KweenBGlobal.kweenb.beeStates.isJackRunning(id),
       isJacktripRunning: KweenBGlobal.kweenb.beeStates.isJacktripRunning(id),
     },
+    monitoring: KweenBGlobal.kweenb.beeStates.getMonitoring(id),
   };
 
   // return the bee data
   return beeData;
-};
-
-/**
- * Get the bee configuration
- * @param id
- * @returns
- */
-const getBeeConfig = async (id: number): Promise<IBeeConfig> => {
-  // get the bee behind the id
-  const bee = await Bee.findOne({ where: { id } });
-
-  // validate
-  if (!bee) throw new Error(NO_BEE_FOUND_WITH_ID(id));
-
-  // get the bee config
-  const beeConfig = await Zwerm3ApiHelpers.getAllConfig(bee.ipAddress);
-
-  // return the configuration
-  return beeConfig;
-};
-
-/**
- * Get the remaining disk space of the given bees
- * @param bees
- */
-const getBeesDiskSpace = async (
-  bees: IBee[]
-): Promise<SshOutputDiskSpace[]> => {
-  // get the location of the ssh private key
-  const sshPrivateKey =
-    (await SettingHelpers.getAllSettings()).kweenBSettings.sshKeyPath ||
-    SSH_PRIVATE_KEY_PATH;
-
-  return new Promise<SshOutputDiskSpace[]>((resolve, reject) => {
-    exec(
-      `${resourcesPath}/scripts/disk_space_monitor.sh -k ${sshPrivateKey} ${bees
-        .map((b) => b.ipAddress)
-        .join(" ")}`,
-      (error, beeDisksSpace, stderr) => {
-        const json = JSON.parse(beeDisksSpace.toString().trim()) as Omit<
-          SshOutputDiskSpace,
-          "hasSpaceLeft"
-        >[];
-        const beesDiskSpace = json.map((diskSpace) => {
-          diskSpace.remainingDiskSpace = Number(diskSpace.remainingDiskSpace);
-          return {
-            ...diskSpace,
-            hasSpaceLeft:
-              diskSpace.remainingDiskSpace > DISK_REMAINING_ON_BEE_TRESHOLD_MB,
-          };
-        });
-        resolve(beesDiskSpace);
-      }
-    );
-  });
 };
 
 /**
@@ -434,93 +361,25 @@ const getBeesDiskSpace = async (
  * @returns
  */
 const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
-  // initiate promises
-  const beeStatesPromises: Promise<IBeeState>[] = [];
+  // a dictionary that only lives for this request
+  const beeStates = new BeeStates();
+  beeStates.addBees(bees);
 
-  // loop through the bees
-  for (const bee of bees) {
-    beeStatesPromises.push(
-      new Promise(async (resolve) => {
-        // create a new bee state
-        const iBeeState: IBeeState = {
+  // ask every bee for its status, a bee that does not answer stays offline
+  await Promise.all(
+    bees.map(async (bee) => {
+      try {
+        beeStates.updateFromStatus(
           bee,
-          lastPingResponse: null,
-          isApiOn: false,
-          isJackRunning: false,
-          isJacktripRunning: false,
-          networkPerformanceMs: 0,
-          isOnline: false,
-        };
-
-        // check if the bee is online
-        const child = spawn(`${resourcesPath}/scripts/is_online.sh`, [
-          bee.ipAddress,
-        ]);
-
-        // listen for the response
-        child.stdout.on("data", async (isOnline) => {
-          if (isOnline.toString().trim() === "true") {
-            iBeeState.lastPingResponse = new Date();
-            iBeeState.isApiOn = await BeeSsh.isZwerm3ApiRunning(bee.ipAddress);
-            iBeeState.isJackRunning = await BeeSsh.isJackRunning(bee.ipAddress);
-            iBeeState.isJacktripRunning = await BeeSsh.isJacktripRunning(
-              bee.ipAddress
-            );
-            iBeeState.isOnline = true;
-          }
-          resolve(iBeeState);
-        });
-      })
-    );
-  }
-
-  return await Promise.all(beeStatesPromises);
-};
-
-/**
- * Check if the bees are online
- * @param bees
- * @returns
- */
-const isOnlineMultiple = async (bees: IBee[]) => {
-  // spawn a child process to check if the bees are online
-  const allBeesOnline = new Promise<SshOutputState[]>((resolve, reject) => {
-    exec(
-      `${resourcesPath}/scripts/is_online_multiple.sh ${bees
-        .map((bee) => bee.ipAddress)
-        .join(" ")}`,
-      (error, onlineStatus, stderr) => {
-        try {
-          // convert the json
-          const json = JSON.parse(onlineStatus.toString().trim());
-
-          // get the output states
-          let states: SshOutputState[] = json.map((state: SshOutputState) => {
-            return {
-              ipAddress: state.ipAddress,
-              responseTime: new Date(state.responseTime),
-              isOnline: state.isOnline,
-            };
-          });
-
-          // Check if all bees are online
-          const allBeesOnline = states.every((state) => state.isOnline);
-          if (!allBeesOnline) {
-            const offlineBees = states
-              .filter((state) => !state.isOnline)
-              .map((state) => state.ipAddress)
-              .join(", ");
-            throw new Error(`Some bees are offline: ${offlineBees}`);
-          }
-          resolve(states);
-        } catch (e: any) {
-          reject(e);
-        }
+          await SpeakerApi.getStatus(bee.ipAddress)
+        );
+      } catch (e) {
+        // the bee is offline
       }
-    );
-  });
+    })
+  );
 
-  return await allBeesOnline;
+  return bees.map((bee) => beeStates.getBeeState(bee) as IBeeState);
 };
 
 /**
@@ -600,35 +459,16 @@ const manageBeeDevice = async (
     return;
   }
 
-  try {
-    // Execute the script
-    await new BeeSshScriptExecutor().executeWithNoOutput(
-      "device_manager.sh",
-      internalBees,
-      [{ flag: "-t", value: action.toString() }]
-    );
-  } catch (error) {
-    console.log("error!!!");
-  }
-};
-
-/**
- * Make audio connection on bee
- * @param event
- * @param bee
- */
-const makeAudioConnection = async (bees: IBee[] | IBee): Promise<void> => {
-  // validate
-  if (!bees) throw new Error(BEE_IS_UNDEFINED());
-
-  // check if bees is an array or a single bee
-  const beeArray = Array.isArray(bees) ? bees : [bees];
-
-  // execute the script
-  await new BeeSshScriptExecutor().executeWithNoOutput(
-    "create_jack_connection_on_bee.sh",
-    beeArray
+  // ask every bee to switch off or restart
+  const failures = await Zwerm3ApiHelpers.onBees(internalBees, (bee) =>
+    action === BeeDeviceManagerActions.REBOOT
+      ? SpeakerApi.reboot(bee.ipAddress)
+      : SpeakerApi.shutdown(bee.ipAddress)
   );
+
+  // name the bees that did not accept it
+  if (failures.length > 0)
+    throw new Error(Zwerm3ApiHelpers.describeFailures(failures));
 };
 
 /**
@@ -770,12 +610,8 @@ export default {
   getAudioScenesForBee,
   getAudioScenesForBees,
   getBee,
-  getBeeConfig,
-  getBeesDiskSpace,
   getCurrentBeeStates,
-  isOnlineMultiple,
   manageBeeDevice,
-  makeAudioConnection,
   setAudioParam,
   setBeeActive,
   setBeePozyxTagId,

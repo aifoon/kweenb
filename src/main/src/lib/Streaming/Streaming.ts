@@ -1,16 +1,10 @@
-import {
-  IBee,
-  StreamingConnectionStatus,
-  SshOutputState,
-} from "@shared/interfaces";
+import { IBee, StreamingConnectionStatus } from "@shared/interfaces";
 import { StreamingConnectionStatusType } from "@shared/enums";
 import KweenBHelpers from "../KweenB/KweenBHelpers";
 import BeeHelpers from "../KweenB/BeeHelpers";
+import Zwerm3ApiHelpers from "../KweenB/Zwerm3ApiHelpers";
+import { SpeakerStreamRequest } from "../KweenB/SpeakerApi";
 import { BeeActiveState } from "@shared/enums";
-import BeeSsh from "../KweenB/BeeSsh";
-import { Utils } from "@shared/utils";
-import { exec } from "child_process";
-import { resourcesPath } from "@shared/resources";
 
 /**
  * Abstract class for streaming operations
@@ -50,43 +44,62 @@ export default abstract class Streaming {
     });
   }
 
-  protected async makeAudioConnection(bees: IBee[]) {
+  /**
+   * Start the audio chain (Jack, Jacktrip and Pure Data) on the bees.
+   * One call per bee: the bee starts everything, makes its own audio
+   * connection and answers when sound can pass. A start replaces whatever
+   * was running on the bee.
+   * @param bees The bees
+   * @param streamRequest What to start
+   * @param what What is started, for the messages
+   */
+  protected async startStreamOnBees(
+    bees: IBee[],
+    streamRequest: SpeakerStreamRequest,
+    what: string
+  ) {
     try {
-      this.sendInfo("Make audio connection on active bees");
-      await BeeHelpers.makeAudioConnection(bees);
+      this.sendInfo(`Start ${what} on active bees`);
+      await Zwerm3ApiHelpers.startStreamOnBees(bees, streamRequest);
     } catch (e: any) {
-      throw new Error(
-        `Error while making audio connection on active bees: ${e.message}`
-      );
+      // the message names every bee that failed, with its own reason
+      throw new Error(`Error while starting ${what} on bees. ${e.message}`);
     }
   }
 
-  protected async startPureData(bees: IBee[]) {
+  /**
+   * Get the active bees, an error when there are none
+   */
+  protected async fetchActiveBees(): Promise<IBee[]> {
     try {
-      this.sendInfo("Start Pure Data on active bees");
-      const startPureDataPromises = bees.map((bee) => {
-        BeeSsh.startPureData(bee.ipAddress);
-      });
+      this.sendInfo("Fetching active bees");
+      const activeBees = await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
+      if (!activeBees || activeBees.length === 0) {
+        throw new Error(
+          "No active bees found. Please make sure you have at least one active bee."
+        );
+      }
+      return activeBees;
+    } catch (e: any) {
+      throw new Error(`Error while fetching active bees: ${e.message}`);
+    }
+  }
 
-      // start pure data on active bees
-      await Promise.all(startPureDataPromises);
-
-      // an artificial delay to let Pure Data start
-      await Utils.delay(2000);
+  /**
+   * Kill the Jack & Jacktrip processes on kweenb
+   */
+  protected async killJackAndJacktripOnKweenB() {
+    try {
+      this.sendInfo("Killing Jack & Jacktrip processes on kweenb");
+      await KweenBHelpers.killJackAndJacktrip();
     } catch (e: any) {
       throw new Error(
-        `Error while starting Jack & Jacktrip clients on bees: ${e.message}`
+        `Error while killing Jack & Jacktrip processes on kweenb: ${e.message}`
       );
     }
   }
 
   protected async preConnectionCheck(): Promise<IBee[]> {
-    /**
-     * Init variables
-     */
-
-    let activeBees: IBee[] = [];
-
     /**
      * Step 1: Check if Jack & Jacktrip is installed on kweenb
      */
@@ -110,26 +123,24 @@ export default abstract class Streaming {
      * Step 2: Fetch active bees
      */
 
-    try {
-      this.sendInfo("Fetching active bees");
-      activeBees = await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
-      if (!activeBees || activeBees.length === 0) {
-        throw new Error(
-          "No active bees found. Please make sure you have at least one active bee."
-        );
-      }
-    } catch (e: any) {
-      throw new Error(`Error while fetching active bees: ${e.message}`);
-    }
+    const activeBees = await this.fetchActiveBees();
 
     /**
-     * Step 3: Realtime check to see if every active bee is alive
+     * Step 3: Check if every active bee is alive. A bee tells its status
+     * itself (see BeeStatesWorker), so what we know is at most seconds old.
      */
 
     try {
-      this.sendInfo("Realtime check to see if every active bee is alive");
-      if (!(await BeeHelpers.isOnlineMultiple(activeBees))) {
-        throw new Error("Some bees are offline, please check your network");
+      this.sendInfo("Check if every active bee is alive");
+      const offlineBees = activeBees.filter(
+        (bee) => !bee.isOnline || !bee.isApiOn
+      );
+      if (offlineBees.length > 0) {
+        throw new Error(
+          `Some bees are offline, please check your network: ${offlineBees
+            .map((bee) => bee.name)
+            .join(", ")}`
+        );
       }
     } catch (e: any) {
       throw new Error(
@@ -138,52 +149,11 @@ export default abstract class Streaming {
     }
 
     /**
-     * Step 4: Check if zwerm3 API is running on active bees
+     * Step 4: Kill Jack & Jacktrip processes on kweenb (the bees replace
+     * what is running themselves when they are started)
      */
 
-    try {
-      this.sendInfo("Check if zwerm3 API is running on active bees");
-      const hasBeesWithoutZwerm3ApiRunning =
-        activeBees.filter((bee) => !bee.isApiOn).length > 0;
-      if (hasBeesWithoutZwerm3ApiRunning) {
-        throw new Error(
-          "One or more active bees are not responding. Please check your network connection."
-        );
-      }
-    } catch (e: any) {
-      throw new Error(
-        `Error while checking if zwerm3 API is running on active bees: ${e.message}`
-      );
-    }
-
-    /**
-     * Step 5: Kill Jack & Jacktrip processes on active bees
-     */
-
-    try {
-      this.sendInfo("Killing Jack & Jacktrip processes on active bees");
-      const killAllProcessesPromises = activeBees.map((bee) =>
-        BeeSsh.killJackAndJacktrip(bee.ipAddress)
-      );
-      await Promise.all(killAllProcessesPromises);
-    } catch (e: any) {
-      throw new Error(
-        `Error while killing Jack & Jacktrip processes on active bees: ${e.message}`
-      );
-    }
-
-    /**
-     * Step 6: Kill Jack & Jacktrip processes on kweenb
-     */
-
-    try {
-      this.sendInfo("Killing Jack & Jacktrip processes on kweenb");
-      await KweenBHelpers.killJackAndJacktrip();
-    } catch (e: any) {
-      throw new Error(
-        `Error while killing Jack & Jacktrip processes on active bees: ${e.message}`
-      );
-    }
+    await this.killJackAndJacktripOnKweenB();
 
     /**
      * Return the result

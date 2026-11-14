@@ -1,138 +1,57 @@
 /**
- * A file with default settings
+ * A file with default settings.
+ * Only the settings that change how kweenb and the bees behave are stored;
+ * everything else is a fixed value in lib/KweenB/SettingHelpers.ts
  */
 
+import { SETTINGS_VERSION } from "../consts";
+
 export default [
+  // the audio format of the stream, the same on kweenb and on every bee
   {
-    key: "beeJackDevice",
-    value: "hw:sndrpihifiberry",
-  },
-  {
-    key: "beeJackInputChannels",
-    value: "-1",
-  },
-  {
-    key: "beeJackOutputChannels",
-    value: "-1",
-  },
-  {
-    key: "beeJacktripBitRate",
-    value: "16",
-  },
-  {
-    key: "beeJackBufferSize",
-    value: "256",
-  },
-  {
-    key: "beeJackSampleRate",
+    key: "audioSampleRate",
     value: "44100",
   },
   {
-    key: "beeJackPeriods",
-    value: "24",
+    key: "audioBufferSize",
+    value: "512",
   },
   {
-    key: "beeJacktripLocalPort",
-    value: "4464",
+    key: "audioBitRate",
+    value: "16",
   },
+  // the buffer on the bee that waits for late network packets (milliseconds)
   {
     key: "beeJacktripQueueBufferLength",
-    value: "32",
+    value: "30",
   },
+  // the number of blocks in the sound card buffer of the bee
   {
-    key: "beeJacktripRedundancy",
-    value: "1",
+    key: "beeJackPeriods",
+    value: "3",
   },
-  {
-    key: "beeJacktripChannels",
-    value: "1",
-  },
-  {
-    key: "beeJacktripSendChannels",
-    value: "1",
-  },
-  {
-    key: "beeJacktripReceiveChannels",
-    value: "1",
-  },
-  {
-    key: "beeJacktripRealtimePriority",
-    value: "true",
-  },
+  // the audio device Jack opens on kweenb (empty = system default)
   {
     key: "kweenbJackDevice",
     value: "",
   },
-  {
-    key: "kweenbJackInputChannels",
-    value: "-1",
-  },
-  {
-    key: "kweenbJackOutputChannels",
-    value: "-1",
-  },
-  {
-    key: "kweenbJackBufferSize",
-    value: "256",
-  },
-  {
-    key: "kweenbJacktripLocalPort",
-    value: "4464",
-  },
-  {
-    key: "kweenbJackSampleRate",
-    value: "44100",
-  },
-  {
-    key: "kweenbJackPeriods",
-    value: "24",
-  },
-  {
-    key: "kweenbJacktripBitRate",
-    value: "16",
-  },
-  {
-    key: "kweenbJacktripChannels",
-    value: "1",
-  },
-  {
-    key: "kweenbJacktripQueueBufferLength",
-    value: "32",
-  },
+  // how many times kweenb sends each audio packet
   {
     key: "kweenbJacktripRedundancy",
-    value: "5",
-  },
-  {
-    key: "kweenbJacktripSendChannels",
     value: "1",
   },
+  // the folder where the sounds of the bees are saved
+  // (empty = "KweenB Backups" in the Documents folder)
   {
-    key: "kweenbJacktripReceiveChannels",
-    value: "1",
-  },
-  {
-    key: "kweenbJacktripRealtimePriority",
-    value: "true",
-  },
-  {
-    key: "kweenbJackFolderPath",
+    key: "kweenbBackupFolder",
     value: "",
-  },
-  {
-    key: "kweenbJacktripBinPath",
-    value: "",
-  },
-  {
-    key: "kweenbSshKeyPath",
-    value: "~/.ssh/kweenb",
-  },
-  {
-    key: "kweenbHubModeClusterSize",
-    value: "4",
   },
   {
     key: "positioningUpdateRate",
     value: "500",
+  },
+  {
+    key: "settingsVersion",
+    value: SETTINGS_VERSION,
   },
 ];

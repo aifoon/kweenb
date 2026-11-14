@@ -12,32 +12,23 @@ import {
   setBeeActive,
   fetchInActiveBees,
   fetchActiveBees,
-  startJack,
   killJackAndJacktrip,
-  killJack,
-  killJacktrip,
   fetchAllBeesData,
   fetchActiveBeesData,
   fetchInActiveBeesData,
   flushAudioScenes,
-  saveConfig,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
   manageBeeDevice,
-  makeAudioConnection,
   setBeePozyxTagId,
-  getBeeConfig,
   getCurrentBeeStates,
   setAudioParam,
   setAudioParamForAllBees,
   startAudio,
   stopAudio,
-  startPureData,
-  killPureData,
   getAudioFiles,
   deleteAudio,
   uploadAudioFiles,
-  startJacktripP2PServer as startJacktripP2PServerBee,
   getAudioScenes,
   cancelUploadAudioFiles,
   pauseUpdateAudioScenes,
@@ -71,6 +62,15 @@ import {
 } from "./controllers/positioning";
 import { activatePreset, getAudioPresets } from "./controllers/presets";
 import {
+  adoptSpeaker,
+  cancelSounds,
+  findNewSpeakers,
+  getSoundBackups,
+  restoreSounds,
+  saveSounds,
+  stopLookingForSpeakers,
+} from "./controllers/speaker";
+import {
   startDisconnectStreaming,
   startHubStreaming,
   startP2PStreaming,
@@ -90,6 +90,11 @@ const actionListeners = [
   { name: "kweenb:closeKweenB", listener: closeKweenB },
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
+  { name: "speaker:cancelSounds", listener: cancelSounds },
+  {
+    name: "speaker:stopLookingForSpeakers",
+    listener: stopLookingForSpeakers,
+  },
   {
     name: "positioning:disconnectPozyxMqttBroker",
     listener: disconnectPozyxMqttBroker,
@@ -146,10 +151,6 @@ const methodHandlers = [
   // JACK/JACKTRIP
 
   { name: "bee:killJackAndJacktrip", handler: killJackAndJacktrip },
-  { name: "bee:killJack", handler: killJack },
-  { name: "bee:killJacktrip", handler: killJacktrip },
-  { name: "bee:makeAudioConnection", handler: makeAudioConnection },
-  { name: "bee:startJack", handler: startJack },
   {
     name: "bee:startJackWithJacktripHubClient",
     handler: startJackWithJacktripHubClientBee,
@@ -158,24 +159,16 @@ const methodHandlers = [
     name: "bee:startJackWithJacktripP2PServer",
     handler: startJackWithJacktripP2PServerBee,
   },
-  { name: "bee:startJacktripP2PServer", handler: startJacktripP2PServerBee },
-
-  // CONFIG
-
-  { name: "bee:getBeeConfig", handler: getBeeConfig },
-  { name: "bee:saveConfig", handler: saveConfig },
 
   // AUDIO
 
   { name: "bee:deleteAudio", handler: deleteAudio },
   { name: "bee:getAudioFiles", handler: getAudioFiles },
   { name: "bee:getAudioScenes", handler: getAudioScenes },
-  { name: "bee:killPureData", handler: killPureData },
   { name: "bee:setAudioParam", handler: setAudioParam },
   { name: "bee:setAudioParamForAllBees", handler: setAudioParamForAllBees },
   { name: "bee:startAudio", handler: startAudio },
   { name: "bee:stopAudio", handler: stopAudio },
-  { name: "bee:startPureData", handler: startPureData },
   { name: "bee:uploadAudioFiles", handler: uploadAudioFiles },
 
   // DEVICES
@@ -223,7 +216,7 @@ const methodHandlers = [
     handler: disconnectAllP2PAudioConnections,
   },
   {
-    name: "kweenb:makeAudioConnection",
+    name: "kweenb:makeP2PAudioConnection",
     handler: makeP2PAudioConnectionKweenB,
   },
 
@@ -256,6 +249,21 @@ const methodHandlers = [
     name: "positioning:getTargetsAndOptionsForAlgorithm",
     handler: getTargetsAndOptionsForAlgorithm,
   },
+
+  /**
+   * Speakers
+   */
+
+  // NEW SPEAKERS
+
+  { name: "speaker:findNewSpeakers", handler: findNewSpeakers },
+  { name: "speaker:adoptSpeaker", handler: adoptSpeaker },
+
+  // SOUNDS ON THIS COMPUTER
+
+  { name: "speaker:getSoundBackups", handler: getSoundBackups },
+  { name: "speaker:saveSounds", handler: saveSounds },
+  { name: "speaker:restoreSounds", handler: restoreSounds },
 
   /**
    * Streaming

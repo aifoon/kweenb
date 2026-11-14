@@ -10,12 +10,30 @@ export const useApp = () => {
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );
+  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const setOpenNewSpeakerModal = useAppStore(
+    (state) => state.setOpenNewSpeakerModal
+  );
+  const setOpenSaveSoundsModal = useAppStore(
+    (state) => state.setOpenSaveSoundsModal
+  );
   const showToast = useAppStore((state) => state.showToast);
 
   useEffect(() => {
     // When we need to show the about kweenb window
     window.kweenb.events.onAboutKweenB(() => {
       setOpenAboutKweenBModal(true);
+    });
+
+    // File menu: adopt a new speaker, save the sounds of the bees
+    window.kweenb.events.onNewSpeaker(() => {
+      setOpenNewSpeakerModal(true);
+    });
+    window.kweenb.events.onAddBee(() => {
+      setOpenAddBeeModal(true);
+    });
+    window.kweenb.events.onSaveSounds(() => {
+      setOpenSaveSoundsModal(true);
     });
 
     // Handle an error

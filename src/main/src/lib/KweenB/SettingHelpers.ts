@@ -7,6 +7,50 @@ import fs from "fs";
 
 // import the setting model
 import Setting from "../../models/Setting";
+import {
+  BEE_JACK_DEVICE,
+  DEFAULT_BACKUP_FOLDER,
+  JACKTRIP_BUFFER_STRATEGY,
+  SETTINGS_VERSION,
+  START_PORT_JACKTRIP,
+} from "../../consts";
+
+/**
+ * The settings that are no longer stored: they were either without effect
+ * or the same for every installation.
+ */
+const OBSOLETE_SETTING_KEYS = [
+  "beeJackDevice",
+  "beeJackInputChannels",
+  "beeJackOutputChannels",
+  "beeJackBufferSize",
+  "beeJackSampleRate",
+  "beeJacktripBitRate",
+  "beeJacktripBufferStrategy",
+  "beeJacktripChannels",
+  "beeJacktripLocalPort",
+  "beeJacktripRealtimePriority",
+  "beeJacktripReceiveChannels",
+  "beeJacktripRedundancy",
+  "beeJacktripSendChannels",
+  "kweenbJackBufferSize",
+  "kweenbJackInputChannels",
+  "kweenbJackOutputChannels",
+  "kweenbJackPeriods",
+  "kweenbJackSampleRate",
+  "kweenbJacktripBitRate",
+  "kweenbJacktripBufferStrategy",
+  "kweenbJacktripChannels",
+  "kweenbJacktripLocalPort",
+  "kweenbJacktripQueueBufferLength",
+  "kweenbJacktripRealtimePriority",
+  "kweenbJacktripReceiveChannels",
+  "kweenbJacktripSendChannels",
+  "kweenbHubModeClusterSize",
+  // the bees are no longer reached over SSH
+  "kweenbSshKeyPath",
+  "thekweenIpAddress",
+];
 
 /**
  * Get the settings
@@ -19,74 +63,103 @@ const getAllSettings = async (): Promise<ISettings> => {
   // create an inner function to find a setting easy
   const findKey = (key: string) => settings.find((s) => s.key === key);
 
-  // we need to create IBeeAudioSettings, ITheKweenSettings, IKweenBAudioSettings & IKweenBSettings
+  // the audio format of the stream is the same on kweenb and on every bee
+  const sampleRate = Number(findKey("audioSampleRate")?.value || 44100);
+  const bufferSize = Number(findKey("audioBufferSize")?.value || 512);
+  const bitRate = Number(findKey("audioBitRate")?.value || 16);
+
+  // the buffer that waits for late network packets, in milliseconds
+  const queueBufferLength = Number(
+    findKey("beeJacktripQueueBufferLength")?.value || 30
+  );
+
+  // every bee receives (and sends back) exactly one channel
+  const jacktripFixedSettings = {
+    bitRate,
+    bufferStrategy: JACKTRIP_BUFFER_STRATEGY,
+    channels: 1,
+    localPort: START_PORT_JACKTRIP,
+    queueBufferLength,
+    realtimePriority: true,
+    receiveChannels: 1,
+    sendChannels: 1,
+  };
+
   return {
     beeAudioSettings: {
       jack: {
-        device: findKey("beeJackDevice")?.value || "",
-        bufferSize: Number(findKey("beeJackBufferSize")?.value || 16),
-        sampleRate: Number(findKey("beeJackSampleRate")?.value || 48000),
-        inputChannels: Number(findKey("beeJackInputChannels")?.value || 2),
-        outputChannels: Number(findKey("beeJackOutputChannels")?.value || 2),
-        periods: Number(findKey("beeJackPeriods")?.value || 2),
+        device: BEE_JACK_DEVICE,
+        bufferSize,
+        sampleRate,
+        inputChannels: -1,
+        outputChannels: -1,
+        periods: Number(findKey("beeJackPeriods")?.value || 3),
       },
       jacktrip: {
-        bitRate: Number(findKey("beeJacktripBitRate")?.value || 16),
-        localPort: Number(findKey("beeJacktripLocalPort")?.value || 4464),
-        channels: Number(findKey("beeJacktripChannels")?.value || 2),
-        queueBufferLength: Number(
-          findKey("beeJacktripQueueBufferLength")?.value || 4
-        ),
-        redundancy: Number(findKey("beeJacktripRedundancy")?.value || 1),
-        realtimePriority: Boolean(
-          findKey("beeJacktripRealtimePriority")?.value === "true"
-        ),
-        sendChannels: Number(findKey("beeJacktripSendChannels")?.value || 2),
-        receiveChannels: Number(
-          findKey("beeJacktripReceiveChannels")?.value || 2
-        ),
+        ...jacktripFixedSettings,
+        // what a bee sends back is silence, so sending it once is enough
+        redundancy: 1,
       },
     },
     kweenBAudioSettings: {
       jack: {
         device: findKey("kweenbJackDevice")?.value || "",
-        bufferSize: Number(findKey("kweenbJackBufferSize")?.value || 16),
-        sampleRate: Number(findKey("kweenbJackSampleRate")?.value || 48000),
-        inputChannels: Number(findKey("kweenbJackInputChannels")?.value || 2),
-        outputChannels: Number(findKey("kweenbJackOutputChannels")?.value || 2),
-        periods: Number(findKey("kweenbJackPeriods")?.value || 2),
+        bufferSize,
+        sampleRate,
+        inputChannels: -1,
+        outputChannels: -1,
+        // periods only exist for the sound card of a bee
+        periods: -1,
       },
       jacktrip: {
-        bitRate: Number(findKey("kweenbJacktripBitRate")?.value || 16),
-        localPort: Number(findKey("kweenbJacktripLocalPort")?.value || 4464),
-        queueBufferLength: Number(
-          findKey("kweenbJacktripQueueBufferLength")?.value || 4
-        ),
-        channels: Number(findKey("kweenbJacktripChannels")?.value || 2),
+        ...jacktripFixedSettings,
         redundancy: Number(findKey("kweenbJacktripRedundancy")?.value || 1),
-        realtimePriority: Boolean(
-          findKey("kweenbJacktripRealtimePriority")?.value === "true"
-        ),
-        sendChannels: Number(
-          findKey("kweenbJacktripSendChannels")?.value || 16
-        ),
-        receiveChannels: Number(
-          findKey("kweenbJacktripReceiveChannels")?.value || 16
-        ),
       },
     },
     kweenBSettings: {
       jackFolderPath: String(findKey("kweenbJackFolderPath")?.value || ""),
       jacktripBinPath: String(findKey("kweenbJacktripBinPath")?.value || ""),
-      sshKeyPath: String(findKey("kweenbSshKeyPath")?.value || ""),
-      hubModeClusterSize: Number(
-        findKey("kweenbHubModeClusterSize")?.value || 4
+      backupFolder: String(
+        findKey("kweenbBackupFolder")?.value || DEFAULT_BACKUP_FOLDER
       ),
     },
     positioningSettings: {
       updateRate: Number(findKey("positioningUpdateRate")?.value) || 200,
     },
   };
+};
+
+/**
+ * Bring the stored settings of an earlier kweenb version up to date.
+ * Runs once: afterwards the settings carry the current version.
+ */
+const migrateSettings = async () => {
+  const version = await Setting.findOne({ where: { key: "settingsVersion" } });
+  if (version?.value === SETTINGS_VERSION) return;
+
+  const valueOf = async (key: string) =>
+    (await Setting.findOne({ where: { key } }))?.value;
+  const set = async (key: string, value: string) => {
+    if (await Setting.findOne({ where: { key } }))
+      await Setting.update({ value }, { where: { key } });
+    else await Setting.create({ key, value });
+  };
+
+  // the audio format used to be stored twice (bees and kweenb)
+  await set("audioSampleRate", (await valueOf("beeJackSampleRate")) || "44100");
+  await set("audioBufferSize", (await valueOf("beeJackBufferSize")) || "512");
+  await set("audioBitRate", (await valueOf("beeJacktripBitRate")) || "16");
+
+  // the queue buffer changed from a number of packets to milliseconds, and
+  // the old defaults (32 packets, 24 periods) added more than half a second
+  await set("beeJacktripQueueBufferLength", "30");
+  await set("beeJackPeriods", "3");
+
+  // redundancy on kweenb had no effect in hub mode before
+  await set("kweenbJacktripRedundancy", "1");
+
+  await Setting.destroy({ where: { key: OBSOLETE_SETTING_KEYS } });
+  await set("settingsVersion", SETTINGS_VERSION);
 };
 
 /**
@@ -159,5 +232,6 @@ export default {
   exportSettings,
   importSettings,
   getAllSettings,
+  migrateSettings,
   updateSetting,
 };

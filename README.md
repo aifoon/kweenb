@@ -45,9 +45,13 @@ Publishing a new release is done by [the core maintainer](https://github.com/tim
 
 ## License
 
-Copyright (c) aifoon. All rights reserved.
+Copyright (c) 2024 aifoon
 
-Licensed under the [MIT license](LICENSE).
+KweenB is free software: you can redistribute it and/or modify it under the
+terms of the [GNU General Public License](LICENSE) as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. It is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY.
 
 ## Big Thanks
 

@@ -12,7 +12,6 @@ import {
   ChannelType,
   StreamingConnectionStatusType,
 } from "./enums";
-import Ssh2SftpClient from "ssh2-sftp-client";
 
 export interface IError {
   message: string;
@@ -29,16 +28,6 @@ export interface LoadingState {
 /**
  * For Hub Mode
  */
-
-export interface IHubClients {
-  sendChannels: string[];
-  receiveChannels: string[];
-}
-
-export interface IHubClientsResponse {
-  message: string;
-  hubClients: IHubClients;
-}
 
 export interface IHubServerInfo {
   jacktripHubServerParams: JacktripHubServerParams;
@@ -70,7 +59,10 @@ export interface IBee {
   channel1: number;
   channel2?: number;
   pozyxTagId?: string;
+  // no longer measured: always 0 (kept until the cards stop showing it)
   networkPerformanceMs: number;
+  // what the speaker reports about itself (only for a bee that is online)
+  monitoring?: IBeeMonitoring;
 }
 
 export interface IBeeInput {
@@ -82,36 +74,66 @@ export interface IBeeInput {
   channel1: number;
 }
 
-export interface IBeeConfig {
-  useMqtt: boolean;
-  mqttBroker: string;
-  mqttChannel: string;
-  device: string;
-}
-
 export interface IBeeStatus {
   isJackRunning: boolean;
   isJacktripRunning: boolean;
 }
 
-export interface IBeeState {
+export type BeeStreamState = "idle" | "starting" | "running" | "error";
+
+export type BeeStreamMode = "hub" | "p2p" | "trigger";
+
+export type BeeBatteryLevel = "safe" | "warning" | "low";
+
+export interface IBeeStreamInfo {
+  state: BeeStreamState;
+  mode: BeeStreamMode | null;
+  // what went wrong, in words, when the state is error
+  error: string | null;
+  // how often the audio chain restarted itself since the last start
+  restarts: number;
+  // dropouts of the sound card since the last start
+  xruns: number;
+  // late or lost network packets since the last start
+  glitches: number;
+}
+
+export interface IBeeBattery {
+  // false when the bee has no battery sensor
+  present: boolean;
+  percentage: number | null;
+  level: BeeBatteryLevel | null;
+  voltage: number | null;
+}
+
+export interface IBeeStorage {
+  freeMb: number;
+  totalMb: number;
+}
+
+/**
+ * What a bee reports about itself (the status of the zwerm3 API)
+ */
+export interface IBeeMonitoring {
+  apiVersion: string | null;
+  // the name the bee has in Jack (e.g. bee21)
+  identityName: string | null;
+  stream: IBeeStreamInfo;
+  battery: IBeeBattery;
+  wifiSignalDbm: number | null;
+  storage: IBeeStorage | null;
+}
+
+export interface IBeeState extends IBeeMonitoring {
   bee: IBee;
+  // the last time the bee sent its status
   lastPingResponse: Date | null;
   isApiOn: boolean;
   isJackRunning: boolean;
   isJacktripRunning: boolean;
+  // no longer measured: always 0
   networkPerformanceMs: number;
   isOnline: boolean;
-}
-
-export interface ISystemClients {
-  captureChannels: string[];
-  playbackChannels: string[];
-}
-
-export interface ISystemClientsResponse {
-  message: string;
-  systemClients: ISystemClients;
 }
 
 export interface AudioFile {
@@ -146,7 +168,93 @@ export interface AudioUploadStatusInfo {
 export interface CurrentUploadOperation {
   cancelled: boolean;
   beeId?: number;
-  sftp?: Ssh2SftpClient;
+  // stops the upload that is on its way
+  abort?: () => void;
+}
+
+/**
+ * For new speakers and the sounds that are saved on this computer
+ */
+
+// a speaker that was found on the network
+export interface IFoundSpeaker {
+  hostname: string;
+  ipAddress: string;
+  // null for a speaker that has no number yet
+  id: number | null;
+  softwareVersion: string;
+  sounds: number;
+  freeMb: number;
+  // when the speaker was seen for the first time (ISO date)
+  foundAt: string;
+}
+
+// the sounds of one bee, saved on this computer
+export interface ISoundBackup {
+  // the name of the bee the sounds came from (e.g. bee07)
+  name: string;
+  // when the sounds were saved (ISO date)
+  date: string;
+  sounds: number;
+  sizeBytes: number;
+}
+
+// sent while sounds are saved or put back
+export interface ISoundsProgress {
+  action: "save" | "restore";
+  // the bee the sounds are saved from or put back on
+  name: string;
+  // the sound that is handled now, counted from 1
+  current: number;
+  total: number;
+  sound: string;
+}
+
+export interface ISaveSoundsResult {
+  // the folder the sounds were saved in
+  folder: string;
+  saved: { name: string; sounds: number }[];
+  // the bees that could not be saved, with the reason in plain words
+  failed: { name: string; message: string }[];
+  cancelled: boolean;
+  // why nothing could be saved at all, in plain words
+  message?: string;
+}
+
+export interface IRestoreSoundsResult {
+  success: boolean;
+  sounds: number;
+  cancelled: boolean;
+  // what went wrong and what to try, in plain words
+  message?: string;
+}
+
+export interface IAdoptSpeakerRequest {
+  // where the new speaker is now
+  ipAddress: string;
+  // the number it gets (1 - 99)
+  id: number;
+  // the saved sounds to put on it (the name of a backup), null for none
+  backupName: string | null;
+}
+
+// sent while a new speaker is set up
+export interface IAdoptSpeakerProgress {
+  step: "number" | "waiting" | "sounds";
+  // only for the sounds
+  current?: number;
+  total?: number;
+}
+
+export interface IAdoptSpeakerResult {
+  // how far it got
+  numberGiven: boolean;
+  cameBack: boolean;
+  soundsRestored: boolean;
+  // the number of sounds that are on the speaker now (when they were put back)
+  sounds: number;
+  // what went wrong and what to try, in plain words
+  message?: string;
 }
 
 /**
@@ -261,6 +369,8 @@ export interface IAudioSettingsJack {
 
 export interface IAudioSettingsJackTrip {
   bitRate: number;
+  // 3 or 4 = conceal late packets (queueBufferLength in milliseconds)
+  bufferStrategy: number;
   channels: number;
   redundancy: number;
   queueBufferLength: number;
@@ -287,8 +397,8 @@ export interface IKweenBAudioSettings {
 export interface IKweenBSettings {
   jackFolderPath: string;
   jacktripBinPath: string;
-  sshKeyPath: string;
-  hubModeClusterSize: number;
+  // the folder on this computer where the sounds of the bees are saved
+  backupFolder: string;
 }
 
 // Socket
@@ -311,17 +421,4 @@ export interface InterfaceComposition {
   id: number;
   name: string;
   composition: BeeAudioScene[];
-}
-
-// SSH/Scripts
-export interface SshOutputState {
-  ipAddress: string;
-  responseTime: Date;
-  isOnline: boolean;
-}
-
-export interface SshOutputDiskSpace {
-  ipAddress: string;
-  remainingDiskSpace: number; // in MB
-  hasSpaceLeft: boolean; // true if disk space is above 1000 MB
 }

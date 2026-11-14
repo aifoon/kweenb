@@ -7,7 +7,7 @@ export class JacktripInstaller extends Installer {
       version,
       "jacktrip",
       "jacktrip",
-      /^JackTrip-v(\d+\.\d+\.\d+)-macOS-x64-application\.zip$/,
+      /^JackTrip-v(\d+\.\d+\.\d+)-macOS-x64-nogui-binary\.zip$/,
       targetPath
     );
   }
@@ -17,12 +17,13 @@ export class JacktripInstaller extends Installer {
    */
   async afterInstall() {
     fs.readdirSync(this._targetPath).forEach((file) => {
-      if (file !== "JackTrip.app") {
+      if (file !== "jacktrip") {
         fs.rmSync(this._targetPath + "/" + file, {
           recursive: true,
           force: true,
         });
       }
     });
+    fs.chmodSync(this._targetPath + "/jacktrip", 0o755);
   }
 }

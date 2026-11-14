@@ -1,17 +1,19 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Box, CircularProgress, Grid, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { Utils } from "../../shared/utils";
 import { useDrag } from "react-dnd";
 import { ChannelType } from "../../shared/enums";
 import { StatusBullet, StatusBulletType } from "../StatusBullet";
-import { Label, LabelType } from "../Label";
+import { IBeeMonitoring } from "../../shared/interfaces";
 import {
-  NetworkPerformance,
-  NetworkPerformancePresentationType,
-} from "./NetworkPerformance";
+  BatteryIndicator,
+  BeeActivity,
+  WifiIndicator,
+  beeActivityText,
+  getBeeActivity,
+} from "./BeeIndicators";
 
 /**
  * Types & Enums
@@ -32,6 +34,8 @@ export interface BeeCardProps {
   loading?: boolean;
   draggable?: boolean;
   networkPerformanceMs?: number;
+  // what the bee reports about itself: stream, battery, wifi
+  monitoring?: IBeeMonitoring;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onChannelTypeChange?: (channelType: ChannelType) => void;
@@ -65,10 +69,6 @@ export const BeeCardContainer = styled(Box)`
   div:last-child {
     margin-bottom: 0;
   }
-`;
-
-const BeeCardSection = styled.div`
-  margin-bottom: var(--smallText);
 `;
 
 const BeeCardLoader = styled.div`
@@ -116,7 +116,7 @@ export const BeeCard = ({
   channelType = ChannelType.MONO,
   channel1 = 0,
   channel2 = 0,
-  networkPerformanceMs = 0,
+  monitoring,
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
@@ -129,8 +129,6 @@ export const BeeCard = ({
   const [isJackTripIsRunning, setIsJackTripIsRunning] =
     useState(jackTripIsRunning);
   const [isApiOn, setIsApiOn] = useState(apiOn);
-  const [currentNetworkPerformanceMs, setCurrentNetworkPerformanceMs] =
-    useState(networkPerformanceMs);
   const [isLoading, setIsLoading] = useState(loading);
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
 
@@ -140,10 +138,6 @@ export const BeeCard = ({
 
   useEffect(() => setIsOnline(online), [online]);
   useEffect(() => setIsCollapsed(collapsed), [collapsed]);
-  useEffect(
-    () => setCurrentNetworkPerformanceMs(currentNetworkPerformanceMs),
-    [currentNetworkPerformanceMs]
-  );
   useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
   useEffect(() => setIsApiOn(apiOn), [apiOn]);
   useEffect(
@@ -151,6 +145,20 @@ export const BeeCard = ({
     [jackTripIsRunning]
   );
   useEffect(() => setIsLoading(loading), [loading]);
+
+  /**
+   * What the bee is doing, in plain words
+   */
+
+  const activity = getBeeActivity(isOnline, monitoring);
+  const bulletType =
+    activity === BeeActivity.Offline
+      ? StatusBulletType.NotActive
+      : activity === BeeActivity.Problem || activity === BeeActivity.Starting
+      ? StatusBulletType.Idle
+      : StatusBulletType.Active;
+  const problem =
+    activity === BeeActivity.Problem ? monitoring?.stream.error : null;
 
   /**
    * Dragging behaviour
@@ -181,81 +189,61 @@ export const BeeCard = ({
       <>
         {isCollapsed && (
           <Box
-            display={"grid"}
-            gridTemplateColumns={"1fr 0.6fr"}
+            display={"flex"}
             alignItems={"center"}
+            justifyContent={"space-between"}
+            gap={1.5}
           >
-            <Box
-              display={"grid"}
-              alignItems={"center"}
-              gridTemplateColumns={"1fr"}
-            >
-              <Box display={"flex"} alignItems={"center"} gap={1}>
-                <StatusBullet
-                  type={
-                    isOnline
-                      ? StatusBulletType.Active
-                      : StatusBulletType.NotActive
-                  }
-                  size={8}
-                />
-                <Typography variant="small">{name}</Typography>
-              </Box>
-              <Box display={"flex"} alignItems={"center"}>
-                <NetworkPerformance
-                  networkPresentationType={
-                    NetworkPerformancePresentationType.DETAILED
-                  }
-                  networkPerformanceMs={networkPerformanceMs}
-                />
-              </Box>
+            <Box display={"flex"} alignItems={"center"} gap={1} minWidth={0}>
+              <StatusBullet
+                type={bulletType}
+                size={8}
+                style={{ flexShrink: 0 }}
+              />
+              <Typography variant="small" noWrap>
+                {name}
+              </Typography>
+              <Typography
+                variant="extraSmall"
+                noWrap
+                title={problem || undefined}
+                style={{ opacity: 0.7 }}
+              >
+                {beeActivityText(activity)}
+              </Typography>
             </Box>
             <Box
-              display={"grid"}
+              display={"flex"}
               alignItems={"center"}
-              gap={1}
-              gridTemplateColumns={"1fr 1fr"}
-              width={"100%"}
+              gap={1.5}
+              flexShrink={0}
             >
-              <Label
-                type={isApiOn ? LabelType.Primary : LabelType.Secondary}
-                style={{ gridColumn: "1 / span 2" }}
-              >
-                Z3
-              </Label>
-              <Label
-                type={isJackIsRunning ? LabelType.Primary : LabelType.Secondary}
-              >
-                JA
-              </Label>
-              <Label
-                type={
-                  isJackTripIsRunning ? LabelType.Primary : LabelType.Secondary
-                }
-              >
-                JT
-              </Label>
+              {isOnline && (
+                <WifiIndicator signalDbm={monitoring?.wifiSignalDbm} />
+              )}
+              <BatteryIndicator battery={monitoring?.battery} />
             </Box>
-            <div></div>
           </Box>
         )}
         {!isCollapsed && (
-          <>
-            <Grid container>
-              <Grid item xs={6}>
-                <Box display={"flex"} alignItems={"center"} gap={1}>
-                  <StatusBullet
-                    type={
-                      isOnline
-                        ? StatusBulletType.Active
-                        : StatusBulletType.NotActive
-                    }
-                    size={16}
-                  />
-                </Box>
-              </Grid>
-              <Grid style={{ display: "hidden" }} item xs={6}>
-                <ToolButtonGroup>
+          <Box
+            display={"flex"}
+            flexDirection={"column"}
+            justifyContent={"space-between"}
+            height={"100%"}
+            gap={1.5}
+          >
+            <Box>
+              <Box
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"space-between"}
+                gap={1}
+              >
+                <Typography variant="h6" noWrap>
+                  {name}
+                </Typography>
+                <ToolButtonGroup style={{ flexShrink: 0 }}>
                   <ToolButton onClick={onBeeDeleteClick}>
                     <DeleteForeverIcon fontSize="small" />
                   </ToolButton>
@@ -265,62 +253,47 @@ export const BeeCard = ({
                     </ToolButton>
                   )}
                 </ToolButtonGroup>
-              </Grid>
-            </Grid>
-
-            <BeeCardSection>
-              <Box
-                display={"grid"}
-                gridTemplateColumns={"1fr"}
-                alignItems={"center"}
-              >
-                <Typography display="block" variant="h6">
-                  {`${Utils.addLeadingZero(number)} - ${name}`}
-                </Typography>
-                <Typography variant="small">{ipAddress}</Typography>
               </Box>
-            </BeeCardSection>
+              <Box display={"flex"} alignItems={"center"} gap={1} mt={0.5}>
+                <StatusBullet
+                  type={bulletType}
+                  size={8}
+                  style={{ flexShrink: 0 }}
+                />
+                <Typography variant="small">
+                  {beeActivityText(activity)}
+                </Typography>
+              </Box>
+              {problem && (
+                <Typography
+                  display="block"
+                  variant="extraSmall"
+                  style={{ marginTop: 6 }}
+                >
+                  {problem}
+                </Typography>
+              )}
+            </Box>
 
-            <BeeCardSection>
-              <Grid container spacing={1}>
-                <Grid item xs={4}>
-                  <Label
-                    type={isApiOn ? LabelType.Primary : LabelType.Secondary}
-                  >
-                    API
-                  </Label>
-                </Grid>
-                <Grid item xs={8}>
-                  <NetworkPerformance
-                    networkPresentationType={
-                      NetworkPerformancePresentationType.DETAILED
-                    }
-                    networkPerformanceMs={networkPerformanceMs}
+            <Box>
+              <Box display={"flex"} alignItems={"center"} gap={2}>
+                {isOnline && (
+                  <WifiIndicator
+                    signalDbm={monitoring?.wifiSignalDbm}
+                    detailed
                   />
-                </Grid>
-                <Grid item xs={5}>
-                  <Label
-                    type={
-                      isJackIsRunning ? LabelType.Primary : LabelType.Secondary
-                    }
-                  >
-                    Jack
-                  </Label>
-                </Grid>
-                <Grid item xs={7}>
-                  <Label
-                    type={
-                      isJackTripIsRunning
-                        ? LabelType.Primary
-                        : LabelType.Secondary
-                    }
-                  >
-                    JackTrip
-                  </Label>
-                </Grid>
-              </Grid>
-            </BeeCardSection>
-          </>
+                )}
+                <BatteryIndicator battery={monitoring?.battery} detailed />
+              </Box>
+              <Typography
+                display="block"
+                variant="extraSmall"
+                style={{ opacity: 0.6, marginTop: 6 }}
+              >
+                {ipAddress}
+              </Typography>
+            </Box>
+          </Box>
         )}
       </>
     </BeeCardContainer>
