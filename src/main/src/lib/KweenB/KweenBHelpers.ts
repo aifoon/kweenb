@@ -8,7 +8,6 @@ import {
   startJacktripHubServerAsync,
   startJacktripP2PClientAsync,
   connectChannel,
-  disconnectChannel,
   killProcessByPid,
   Zwerm3Jack,
 } from "@zwerm3/jack";
@@ -16,7 +15,6 @@ import { AppMode, BeeActiveState, ChannelType } from "@shared/enums";
 import { IBee, IHubServerInfo } from "@shared/interfaces";
 import fs from "fs";
 import {
-  DEBUG_JACK_JACKTRIP,
   START_PORT_JACKTRIP,
   START_PORT_JACKTRIP_HUB_SERVER,
   USER_DATA,
@@ -30,12 +28,9 @@ import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
 import { killExpress } from "../../express";
-import { BitRate, HubPatchMode } from "@zwerm3/jack/dist/enums";
+import { HubPatchMode } from "@zwerm3/jack/dist/enums";
 import { SocketSingleton } from "../socket/SocketSingleton";
-import {
-  JacktripHubServerParams,
-  RunningCommand,
-} from "@zwerm3/jack/dist/interfaces";
+import { RunningCommand } from "@zwerm3/jack/dist/interfaces";
 
 /**
  * This will kill all processes (on bees/kweenb/hive)
@@ -127,11 +122,7 @@ const startJack = async () => {
     periods: settings.kweenBAudioSettings.jack.periods,
   };
 
-  await startJackDmpAsync(jack, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
+  await startJackDmpAsync(jack, {});
 };
 
 /**
@@ -166,11 +157,7 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
    * Start Jacktrip
    */
 
-  const runningCommand = await startJacktripHubServerAsync(jacktrip, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
+  const runningCommand = await startJacktripHubServerAsync(jacktrip, {});
 
   /**
    * Add the output to the array
@@ -237,21 +224,13 @@ const startJackWithJacktripP2PClient = async (
    * Start Jack
    */
 
-  await startJackDmpAsync(jack, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
+  await startJackDmpAsync(jack, {});
 
   /**
    * Start Jacktrip
    */
 
-  const client = await startJacktripP2PClientAsync(jacktrip, {
-    onLog: async (message) => {
-      if (DEBUG_JACK_JACKTRIP) console.log(message);
-    },
-  });
+  const client = await startJacktripP2PClientAsync(jacktrip, {});
   // remembered, so the client of one bee can be started again
   p2pClients.set(clientName, client);
 };
@@ -375,20 +354,6 @@ const getAudioConnections = (
 };
 
 /**
- * Disconnect all P2P audio connections
- */
-const disconnectAllP2PAudioConnections = async () => {
-  const activeBees = await BeeHelpers.getAllBeesData();
-  await Promise.all(
-    activeBees.flatMap((bee) =>
-      getAudioConnections(bee).map((connection) =>
-        disconnectChannel(connection)
-      )
-    )
-  );
-};
-
-/**
  * Make all the audio hub connections on kweenb.
  * The hub server shows every connected bee as a Jack client with the name the
  * bee reports, so each capture channel is connected straight to its bee.
@@ -448,7 +413,6 @@ const setJacktripBinPath = (jacktripBinPath: string) => {
 
 export default {
   closeApplication,
-  disconnectAllP2PAudioConnections,
   getAudioConnections,
   getJackClientName,
   restartStreamOfBee,

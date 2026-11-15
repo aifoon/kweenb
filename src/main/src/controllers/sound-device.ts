@@ -263,15 +263,6 @@ export const setBeeChannels = async (
 };
 
 /**
- * Send another channel to one bee
- */
-export const setBeeChannel = async (
-  event: Electron.IpcMainInvokeEvent,
-  beeId: number,
-  channel: number | null
-): Promise<IRouting> => setBeeChannels(event, [{ beeId, channel }]);
-
-/**
  * How loud the channels are: a small tool listens to the sound device and
  * its numbers go to the Routing page as long as that is open
  */

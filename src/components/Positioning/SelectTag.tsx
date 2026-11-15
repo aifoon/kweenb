@@ -1,5 +1,5 @@
 import { Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type SelectTagProps = {
   tags: string[];

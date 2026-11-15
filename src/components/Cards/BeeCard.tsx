@@ -4,7 +4,6 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useDrag } from "react-dnd";
-import { ChannelType } from "../../shared/enums";
 import { IBeeMonitoring } from "../../shared/interfaces";
 import {
   BatteryIndicator,
@@ -25,23 +24,16 @@ export interface BeeCardProps {
   name?: string;
   online?: boolean;
   collapsed?: boolean;
-  jackIsRunning?: boolean;
-  jackTripIsRunning?: boolean;
-  channelType: ChannelType;
-  channel1: number;
-  channel2: number;
   apiOn?: boolean;
   ipAddress?: string;
   loading?: boolean;
   draggable?: boolean;
-  networkPerformanceMs?: number;
   // what the bee reports about itself: stream, battery, wifi
   monitoring?: IBeeMonitoring;
   // a live meter, shown under the status when it is given
   liveMeter?: ReactElement | null;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-  onChannelTypeChange?: (channelType: ChannelType) => void;
   onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -123,14 +115,8 @@ export const BeeCard = ({
   number = 0,
   online = true,
   collapsed = true,
-  jackIsRunning = false,
-  jackTripIsRunning = false,
   apiOn = false,
   loading = false,
-  onChannelTypeChange,
-  channelType = ChannelType.MONO,
-  channel1 = 0,
-  channel2 = 0,
   monitoring,
   liveMeter = null,
   name = "No name available",
@@ -141,9 +127,6 @@ export const BeeCard = ({
   draggable = false,
 }: BeeCardProps): ReactElement => {
   const [isOnline, setIsOnline] = useState(online);
-  const [isJackIsRunning, setIsJackIsRunning] = useState(jackIsRunning);
-  const [isJackTripIsRunning, setIsJackTripIsRunning] =
-    useState(jackTripIsRunning);
   const [isApiOn, setIsApiOn] = useState(apiOn);
   const [isLoading, setIsLoading] = useState(loading);
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
@@ -154,12 +137,7 @@ export const BeeCard = ({
 
   useEffect(() => setIsOnline(online), [online]);
   useEffect(() => setIsCollapsed(collapsed), [collapsed]);
-  useEffect(() => setIsJackIsRunning(jackIsRunning), [jackIsRunning]);
   useEffect(() => setIsApiOn(apiOn), [apiOn]);
-  useEffect(
-    () => setIsJackTripIsRunning(jackTripIsRunning),
-    [jackTripIsRunning]
-  );
   useEffect(() => setIsLoading(loading), [loading]);
 
   /**

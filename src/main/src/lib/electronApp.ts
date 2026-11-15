@@ -4,7 +4,7 @@
 
 import path from "path";
 import { URL } from "url";
-import { app, BrowserWindow, globalShortcut, ipcMain } from "electron";
+import { app, BrowserWindow } from "electron";
 
 import MenuBuilder from "./Menu";
 import { KweenBGlobal } from "../kweenb";
@@ -18,8 +18,6 @@ interface ElectronAppOptions {
 
 export default class ElectronApp {
   private isDevelopment: boolean;
-
-  private isProduction: boolean;
 
   private port: string | number | undefined;
 
@@ -37,7 +35,6 @@ export default class ElectronApp {
     this.isDevelopment =
       process.env.NODE_ENV === "development" ||
       process.env.DEBUG_PROD === "true";
-    this.isProduction = process.env.NODE_ENV === "production";
     this.port = process.env.VITE_DEV_SERVER_PORT || 3000;
   }
 

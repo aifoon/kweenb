@@ -1,7 +1,6 @@
 import { Button, ButtonSize, ButtonType } from "@components/Buttons";
 import { PageSidebar } from "@components/Sidebar";
 import { Z3PageContentSidebar } from "@components/Layout";
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { VolumeControl } from "./VolumeControl";
 import { SwarmGroups } from "./SwarmGroups";

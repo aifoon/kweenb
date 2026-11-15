@@ -1,5 +1,5 @@
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Box, Typography, LinearProgress } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";

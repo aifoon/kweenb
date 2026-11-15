@@ -7,10 +7,10 @@ import {
   dialog,
   shell,
 } from "electron";
-import { KweenB, KweenBGlobal } from "../kweenb";
+import { KweenBGlobal } from "../kweenb";
 import BeeHelpers from "./KweenB/BeeHelpers";
 import SettingsHelper from "./KweenB/SettingHelpers";
-import { PRESETS_FOLDER_PATH, USER_DATA } from "../consts";
+import { ASSETS_URL, USER_DATA } from "../consts";
 import { removeActionListeners, removeMethodHandlers } from "../register";
 import { DEFAULT_APP_MODE, DEFAULT_APP_VIEWS } from "@shared/consts";
 import path from "node:path";
@@ -37,7 +37,7 @@ export default class MenuBuilder {
    * @returns
    */
   buildMenu(): Menu {
-    if (this.isDevelopment || !this.isDevelopment) {
+    if (this.isDevelopment) {
       this.setupDevelopmentEnvironment();
     }
 
@@ -76,47 +76,82 @@ export default class MenuBuilder {
   /**
    * The File menu, the same on every platform
    */
+  /**
+   * The Help menu: for whoever looks into a problem
+   */
+  buildHelpMenu(): CustomMenuItemConstructorOptions {
+    return {
+      label: "Help",
+      role: "help",
+      submenu: [
+        {
+          label: "Show App Logging",
+          click: () => {
+            // Get the path to the log file
+            const logPath = path.join(app.getPath("userData"), "app.log");
+
+            // Check if the log file exists
+            if (!fs.existsSync(logPath)) {
+              dialog.showErrorBox(
+                "Log File Not Found",
+                "The log file does not exist."
+              );
+              return;
+            }
+
+            // Open the log file in the default text editor
+            shell.openPath(logPath);
+          },
+        },
+        {
+          label: "Open QjackCtl",
+          click: () => {
+            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
+          },
+        },
+      ],
+    };
+  }
+
   buildFileMenu(): CustomMenuItemConstructorOptions {
     const jsonFile = [{ name: "JSON", extensions: ["json"] }];
 
     return {
       label: "File",
       submenu: [
+        // speakers: into the swarm
         {
-          label: "Add Speaker",
-          submenu: [
-            {
-              label: "New Speaker…",
-              accelerator: "CmdOrCtrl+N",
-              click: () => {
-                this.mainWindow.webContents.send("new-speaker");
-              },
-            },
-            {
-              label: "Flash a Speaker…",
-              click: () => {
-                // for now flashing only works on a Mac
-                if (process.platform !== "darwin") {
-                  dialog.showMessageBox(this.mainWindow, {
-                    type: "info",
-                    message:
-                      "Flashing a speaker with KweenB only works on a Mac for now.",
-                    detail:
-                      "On this computer a speaker is flashed with Raspberry Pi Imager. When that is done, choose Add Speaker → New Speaker… to set it up.",
-                  });
-                  return;
-                }
-                this.mainWindow.webContents.send("flash-speaker");
-              },
-            },
-            {
-              label: "By Hand…",
-              click: () => {
-                this.mainWindow.webContents.send("add-bee");
-              },
-            },
-          ],
+          label: "New Speaker…",
+          accelerator: "CmdOrCtrl+N",
+          click: () => {
+            this.mainWindow.webContents.send("new-speaker");
+          },
         },
+        {
+          label: "Adopt from Network…",
+          click: () => {
+            this.mainWindow.webContents.send("adopt-from-network");
+          },
+        },
+        {
+          label: "Flash a Speaker…",
+          click: () => {
+            // for now flashing only works on a Mac
+            if (process.platform !== "darwin") {
+              dialog.showMessageBox(this.mainWindow, {
+                type: "info",
+                message:
+                  "Flashing a speaker with KweenB only works on a Mac for now.",
+                detail:
+                  "On this computer a speaker is flashed with Raspberry Pi Imager. When that is done, choose New Speaker… to set it up.",
+              });
+              return;
+            }
+            this.mainWindow.webContents.send("flash-speaker");
+          },
+        },
+        { type: "separator" },
+        // the sounds of the bees
         // the two things with the cloud need a backup key: without one they
         // are greyed out and "Install a Backup Key…" shows (see
         // showBackupMenu in controllers/cloud-backup.ts)
@@ -132,7 +167,7 @@ export default class MenuBuilder {
               },
             },
             {
-              label: "Back Up to This Computer…",
+              label: "Back Up to this Computer…",
               accelerator: "CmdOrCtrl+S",
               click: () => {
                 this.mainWindow.webContents.send("save-sounds");
@@ -152,12 +187,21 @@ export default class MenuBuilder {
               },
             },
             {
-              label: "Restore from This Computer…",
+              label: "Restore from this Computer…",
               click: () => {
                 this.mainWindow.webContents.send("restore-sounds", "computer");
               },
             },
           ],
+        },
+        { type: "separator" },
+        // what goes with KweenB: the image for the speakers and the backup key
+        {
+          label: "Download Assets…",
+          click: () => {
+            // the image for the speakers and the backup key, in the browser
+            shell.openExternal(ASSETS_URL);
+          },
         },
         {
           id: "cloud-key",
@@ -234,38 +278,6 @@ export default class MenuBuilder {
               },
             },
           ],
-        },
-        { type: "separator" },
-        {
-          label: "Open Presets Folder",
-          click: () => {
-            shell.openPath(PRESETS_FOLDER_PATH);
-          },
-        },
-        {
-          label: "Show App Logging",
-          click: () => {
-            // Get the path to the log file
-            const logPath = path.join(app.getPath("userData"), "app.log");
-
-            // Check if the log file exists
-            if (!fs.existsSync(logPath)) {
-              dialog.showErrorBox(
-                "Log File Not Found",
-                "The log file does not exist."
-              );
-              return;
-            }
-
-            // Open the log file in the default text editor
-            shell.openPath(logPath);
-          },
-        },
-        {
-          label: "Open QjackCtl",
-          click: () => {
-            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
-          },
         },
       ],
     };
@@ -442,6 +454,7 @@ export default class MenuBuilder {
       subMenuMode,
       this.isDevelopment ? subMenuViewDev : subMenuViewProd,
       subMenuWindow,
+      this.buildHelpMenu(),
     ];
   }
 
@@ -499,74 +512,6 @@ export default class MenuBuilder {
       ],
     };
 
-    return [subMenuAbout, subMenuFile, subMenuMode];
-  }
-
-  /**
-   * Build The Default Template
-   *
-   * @returns
-   */
-  buildDefaultTemplate() {
-    const templateDefault = [
-      {
-        label: "&File",
-        submenu: [
-          {
-            label: "&Open",
-            accelerator: "Ctrl+O",
-          },
-          {
-            label: "&Close",
-            accelerator: "Ctrl+W",
-            click: () => {
-              this.mainWindow.close();
-            },
-          },
-        ],
-      },
-      {
-        label: "&View",
-        submenu: this.isDevelopment
-          ? [
-              {
-                label: "&Reload",
-                accelerator: "Ctrl+R",
-                click: () => {
-                  this.mainWindow.webContents.reload();
-                },
-              },
-              {
-                label: "Toggle &Full Screen",
-                accelerator: "F11",
-                click: () => {
-                  this.mainWindow.setFullScreen(
-                    !this.mainWindow.isFullScreen()
-                  );
-                },
-              },
-              {
-                label: "Toggle &Developer Tools",
-                accelerator: "Alt+Ctrl+I",
-                click: () => {
-                  this.mainWindow.webContents.toggleDevTools();
-                },
-              },
-            ]
-          : [
-              {
-                label: "Toggle &Full Screen",
-                accelerator: "F11",
-                click: () => {
-                  this.mainWindow.setFullScreen(
-                    !this.mainWindow.isFullScreen()
-                  );
-                },
-              },
-            ],
-      },
-    ];
-
-    return templateDefault;
+    return [subMenuAbout, subMenuFile, subMenuMode, this.buildHelpMenu()];
   }
 }

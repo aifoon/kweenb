@@ -6,7 +6,7 @@ import {
   ToggleButtonGroup,
   ButtonGroup,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { useAppStore } from "../hooks/useAppStore";
 import styled from "styled-components";

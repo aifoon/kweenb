@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Grid, ToggleButton } from "@mui/material";
 // import { ToggleButton } from "./ToggleButton";
-import { ButtonSize, ButtonType, ButtonUse } from "./Button";
 
 export type ToggleButtonMatrixItem = {
   id: string;
@@ -28,8 +27,7 @@ export const ToggleButtonMatrix = ({
   onButtonSelected,
   onSelectionChanged,
 }: ToggleButtonMatrixProps) => {
-  const [currentItems, setCurrentItems] =
-    useState<ToggleButtonMatrixItem[]>(items);
+  const [currentItems] = useState<ToggleButtonMatrixItem[]>(items);
   const [selectedItems, setSelectedItems] = useState<string[]>(selected || []);
 
   const handleChange = (

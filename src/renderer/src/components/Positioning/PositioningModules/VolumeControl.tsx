@@ -1,5 +1,5 @@
 import { useBeeStore, usePositioningTargetSelector } from "@renderer/src/hooks";
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { PositioningTargetTypeSelector } from "@components/Positioning/PositioningTargetSelector";
 import {
   PositioningControllerAlgorithm,

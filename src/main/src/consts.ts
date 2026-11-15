@@ -7,16 +7,6 @@ import { resourcesPath } from "@shared/resources";
 import { app } from "electron";
 
 /**
- * Debug Flags
- */
-
-export const DEBUG_JACK_JACKTRIP = false;
-
-// the debug flag for the audio scenes. Options are
-// - audioScenesSync
-export const DEBUG_MODULES = [];
-
-/**
  * Paths
  */
 
@@ -25,10 +15,6 @@ export const MAIN_PATH = `${
     ? path.join(__dirname, "..")
     : path.join(__dirname)
 }`;
-
-// the path to the SSL keys
-export const SSL_KEY = `${resourcesPath}/ssl/key.pem`;
-export const SSL_CERT = `${resourcesPath}/ssl/cert.pem`;
 
 /**
  * Sezqualize Configuration
@@ -96,9 +82,6 @@ export const DEFAULT_BACKUP_FOLDER = path.join(
   "KweenB Backups"
 );
 
-// the path to the presets folder
-export const PRESETS_FOLDER_PATH = path.join(USER_DATA, "presets");
-
 // the default status of a bee
 export const DEFAULT_BEE_STATUS = {
   isJackRunning: false,
@@ -155,3 +138,8 @@ export const REAPER_OSC_PORT = 8111;
  */
 
 export const SOCKET_PORT = 4444;
+
+// Where the files are that go with KweenB (the image for the speakers, the
+// backup key). The address forwards to a folder that asks for a password,
+// so it can move without a new version of KweenB.
+export const ASSETS_URL = "https://kweenb-assets.studiodeep.ai";

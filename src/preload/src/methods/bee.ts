@@ -1,11 +1,5 @@
 import { ipcRenderer } from "electron";
-import {
-  AudioFile,
-  AudioScene,
-  IBee,
-  IBeeInput,
-  IBeeState,
-} from "@shared/interfaces";
+import { AudioFile, AudioScene, IBee, IBeeInput } from "@shared/interfaces";
 import { BeeDeviceManagerActions, PDAudioParam } from "@shared/enums";
 
 /**
@@ -48,21 +42,9 @@ const crudBee = {
     ipcRenderer.invoke("bee:deleteBee", id);
   },
   updateBee: (bee: Partial<IBee>) => ipcRenderer.invoke("bee:updateBee", bee),
-  getCurrentBeeStates: (bees: IBee[]): Promise<IBeeState[]> =>
-    ipcRenderer.invoke("bee:getCurrentBeeStates", bees),
   fetchBee: (id: number): Promise<IBee> =>
     ipcRenderer.invoke("bee:fetchBee", id),
-  fetchActiveBees: (): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchActiveBees"),
-  fetchActiveBeesData: (): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchActiveBeesData"),
   fetchAllBees: (): Promise<IBee[]> => ipcRenderer.invoke("bee:fetchAllBees"),
-  fetchAllBeesData: (): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchAllBeesData"),
-  fetchInActiveBees: (): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchInActiveBees"),
-  fetchInActiveBeesData: (): Promise<IBee[]> =>
-    ipcRenderer.invoke("bee:fetchInActiveBeesData"),
 };
 
 /**

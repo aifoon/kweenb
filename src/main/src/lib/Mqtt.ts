@@ -133,17 +133,4 @@ export class MQTT {
     // subscribe to topic
     this._mqttClient.subscribe(topic);
   }
-
-  /**
-   * Unsubscribe topic
-   * @param topic
-   * @returns
-   */
-  public async unsubscribe(topic: string) {
-    // validate
-    if (!this._mqttClient || !this._mqttClient.connected) return;
-
-    // unsubscribe topic
-    await this._mqttClient.unsubscribe(topic);
-  }
 }

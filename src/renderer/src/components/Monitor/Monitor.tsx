@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Box, Tab, Tooltip, Typography } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
@@ -789,7 +789,12 @@ export const Monitor = () => {
     return () => clearInterval(interval);
   }, [refresh]);
 
-  const bees = snapshot ? snapshot.bees : [];
+  // the bees that are online come first, each group in order of number
+  const bees = snapshot
+    ? [...snapshot.bees].sort(
+        (a, b) => Number(b.online) - Number(a.online) || a.id - b.id
+      )
+    : [];
   const events = snapshot ? snapshot.events : [];
   const selectedBee = bees.find((bee) => bee.id === selectedBeeId) || null;
 

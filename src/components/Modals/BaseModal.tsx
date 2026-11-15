@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Modal from "@mui/material/Modal";
 import styled from "styled-components";
 import { CloseButton } from "./CloseButton";
-import { close } from "fs";
 import { Box } from "@mui/material";
 
 export interface BaseModalProps {

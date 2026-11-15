@@ -1,5 +1,5 @@
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { Utils } from "@shared/utils";
 import { BeeDeviceManagerActions } from "@shared/enums";

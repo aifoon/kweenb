@@ -1,12 +1,5 @@
-import {
-  TableCell,
-  TableRow,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
+import { TableCell, TableRow } from "@mui/material";
 import { IBee } from "@../../shared/interfaces";
-import React, { useState } from "react";
 import { SelectTag } from "./SelectTag";
 
 type BeeTagProps = {

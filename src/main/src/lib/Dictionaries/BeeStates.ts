@@ -65,40 +65,6 @@ class BeeStates {
   }
 
   /**
-   * Print debug info
-   */
-  public printDebugInfo(beeNumbers: number[] | null = null) {
-    const printBeeStateInfo = (beeState: IBeeState) => {
-      console.log(
-        `${beeState.bee.name} - ${
-          this.isOnline(beeState.bee) ? "Online" : "Offline"
-        } - ${this.isApiOn(beeState.bee) ? "Api ON" : "Api OFF"} - ${
-          this.isJackRunning(beeState.bee) ? "Jack ON" : "Jack OFF"
-        } - ${
-          this.isJacktripRunning(beeState.bee) ? "Jacktrip ON" : "Jacktrip OFF"
-        } - Network Perf.: ${
-          this.getNetworkPerformanceMs(beeState.bee) || 0
-        }ms - Last Ping Resp.: ${this.convertPingResponseIntoReadable(
-          beeState.lastPingResponse
-        )}`
-      );
-    };
-
-    if (beeNumbers && beeNumbers.length > 0) {
-      const filteredBeeStates = this.beeStates.filter((beeState) =>
-        beeNumbers.includes(beeState.bee.id)
-      );
-      filteredBeeStates.forEach((beeState) => {
-        printBeeStateInfo(beeState);
-      });
-    } else {
-      this.beeStates.forEach((beeState) => {
-        printBeeStateInfo(beeState);
-      });
-    }
-  }
-
-  /**
    * Get the bees array
    */
   public get bees() {
@@ -139,36 +105,6 @@ class BeeStates {
    */
   public getBeesWithOnlineState() {
     return this.beeStates.filter((b) => this.isOnline(b.bee));
-  }
-
-  /**
-   * Converts the ping response into a readable format
-   * @param date The date to convert
-   * @returns The readable date
-   */
-  public convertPingResponseIntoReadable(date: Date | null) {
-    try {
-      // Check if date is null
-      if (!date) {
-        return "No ping response";
-      }
-
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return "Invalid date format";
-      }
-
-      // Format to HH:mm:ss
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const seconds = String(date.getSeconds()).padStart(2, "0");
-
-      return `${hours}:${minutes}:${seconds}`;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      return `Error converting time: ${errorMessage}`;
-    }
   }
 
   /**
@@ -312,51 +248,6 @@ class BeeStates {
     beeState.isJackRunning = false;
     beeState.isJacktripRunning = false;
     Object.assign(beeState, unknownMonitoring());
-  }
-
-  /**
-   * Update the last ping response
-   * @param bee The bee
-   * @param pingResponse Boolean
-   */
-  public update(
-    type:
-      | "lastPingResponse"
-      | "isApiOn"
-      | "isJackRunning"
-      | "isJacktripRunning"
-      | "networkPerformanceMs"
-      | "isOnline",
-    bee: IBee,
-    value: Date | boolean | number = false
-  ) {
-    const beeState = this.getBeeState(bee);
-    if (beeState) {
-      switch (type) {
-        case "lastPingResponse":
-          beeState.lastPingResponse = value as Date;
-          break;
-        case "isApiOn":
-          beeState.isApiOn = value as boolean;
-          break;
-        case "isJackRunning":
-          beeState.isJackRunning = value as boolean;
-          break;
-        case "isJacktripRunning":
-          beeState.isJacktripRunning = value as boolean;
-          break;
-        case "isOnline":
-          beeState.isOnline = value as boolean;
-          break;
-        case "networkPerformanceMs":
-          beeState.networkPerformanceMs = (value as number)
-            ? (value as number)
-            : 0;
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   /**

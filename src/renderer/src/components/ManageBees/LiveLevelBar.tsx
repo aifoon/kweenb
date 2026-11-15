@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Tooltip } from "@mui/material";
 import { isSound, levelFill } from "@components/Cards/BeeIndicators";

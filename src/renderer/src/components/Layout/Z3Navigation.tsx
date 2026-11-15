@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";

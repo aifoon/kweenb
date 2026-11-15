@@ -14,6 +14,7 @@ import {
   StreamingConnectionStatus,
   AudioUploadStatusInfo,
   IAdoptSpeakerProgress,
+  IAdoptFromNetworkResult,
   IAdoptSpeakerRequest,
   IAdoptSpeakerResult,
   IFlashImage,
@@ -128,6 +129,7 @@ declare global {
          */
 
         // NEW SPEAKERS
+        adoptFromNetwork(): Promise<IAdoptFromNetworkResult>;
         adoptSpeaker(
           request: IAdoptSpeakerRequest
         ): Promise<IAdoptSpeakerResult>;
@@ -181,15 +183,6 @@ declare global {
           exact: boolean
         ): Promise<IRestoreSoundsResult>;
         saveSounds(beeIds?: number[]): Promise<ISaveSoundsResult>;
-
-        /**
-         * Presets
-         */
-
-        getAudioPresets(
-          appMode: AppMode = DEFAULT_APP_MODE
-        ): Promise<IAudioPreset[]>;
-        activatePreset(fileName: string): Promise<IError>;
 
         /**
          * Positioning
@@ -255,7 +248,9 @@ declare global {
       };
       readonly events: {
         onAboutKweenB(callback: (event: IpcMessageEvent) => void): () => void;
-        onAddBee(callback: (event: IpcMessageEvent) => void): () => void;
+        onAdoptFromNetwork(
+          callback: (event: IpcMessageEvent) => void
+        ): () => void;
         onNewSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
         onSaveSounds(callback: (event: IpcMessageEvent) => void): () => void;
         onFlashSpeaker(callback: (event: IpcMessageEvent) => void): () => void;

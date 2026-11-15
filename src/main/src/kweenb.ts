@@ -6,11 +6,10 @@
 
 import { AppMode } from "@shared/enums";
 import { CurrentUploadOperation, IError } from "@shared/interfaces";
-import { BrowserWindow, app } from "electron";
+import { BrowserWindow } from "electron";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
-import { initPresetsFolder } from "./lib/KweenB/PresetHelpers";
 import { resourcesPath } from "@shared/resources";
 import fs from "fs";
 import {
@@ -131,9 +130,6 @@ class KweenB {
 
     // init the jacktrip binary path
     await this.initJacktripBinPath();
-
-    // init the presets folder path (copy resources to presets folder)
-    initPresetsFolder();
 
     // init the express server
     initExpress();

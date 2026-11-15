@@ -1,5 +1,4 @@
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import React from "react";
 import styled from "styled-components";
 
 interface ILoaderProps {

@@ -1,7 +1,5 @@
 import fs from "fs";
-import { spawnSync } from "child_process";
 import { Installer } from "./Installer";
-import path from "path";
 
 export class JackInstaller extends Installer {
   private _keepJackFiles = [

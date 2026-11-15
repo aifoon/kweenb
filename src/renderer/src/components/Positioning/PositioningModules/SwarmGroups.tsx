@@ -1,5 +1,3 @@
-import React from "react";
-
 type SwarmGroupsProps = {};
 
 export const SwarmGroups = (props: SwarmGroupsProps) => (

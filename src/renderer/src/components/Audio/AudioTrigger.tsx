@@ -1,5 +1,4 @@
-import { PageSidebar } from "@components/Sidebar";
-import { ButtonGroup, Grid, Button, Box, Typography } from "@mui/material";
+import { ButtonGroup, Grid, Button, Typography } from "@mui/material";
 import { Z3PageContentSidebar } from "@components/Layout";
 import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";

@@ -1,5 +1,5 @@
 import { ButtonGroup } from "../Buttons";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Button, ButtonUse, ButtonType } from "../Buttons/Button";
 import { BaseModal, BaseModalProps } from "./BaseModal";

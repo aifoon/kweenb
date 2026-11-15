@@ -1,13 +1,6 @@
-import React from "react";
-import { StatusBulletType } from "@components/StatusBullet";
-import {
-  Sidebar,
-  SidebarStatusBadge,
-  SidebarButton,
-} from "@components/Sidebar";
+import { Sidebar, SidebarButton } from "@components/Sidebar";
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SettingsIcon from "@mui/icons-material/Settings";
-import HandymanIcon from "@mui/icons-material/Handyman";
 import SpeakerIcon from "@mui/icons-material/Speaker";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import CableIcon from "@mui/icons-material/Cable";
@@ -15,7 +8,6 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
 import { useAppStore } from "@renderer/src/hooks";
-import { app } from "electron";
 
 /**
  * List of Sidebar Buttons
@@ -56,12 +48,6 @@ const sidebarButtons = [
     title: "Settings",
     pathNames: ["/settings"],
     icon: <SettingsIcon />,
-  },
-  {
-    key: "tools",
-    title: "Tools",
-    pathNames: ["/tools"],
-    icon: <HandymanIcon />,
   },
 ];
 

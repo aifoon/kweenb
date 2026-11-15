@@ -2,12 +2,6 @@ import { ipcRenderer } from "electron";
 import { IBee } from "@shared/interfaces";
 
 export default {
-  beePoller: (action: "start" | "stop" | "pause", params: any[] = []): void => {
-    ipcRenderer.send("bee:beePoller", action, params);
-  },
-  beesPoller: (action: "start" | "stop" | "pause"): void => {
-    ipcRenderer.send("bee:beesPoller", action);
-  },
   followBeeLevels: (owner: "dashboard" | "swarm", beeIds: number[]): void => {
     ipcRenderer.send("monitor:followBeeLevels", owner, beeIds);
   },
@@ -33,9 +27,6 @@ export default {
   },
   disconnectPozyxMqttBroker: (): void => {
     ipcRenderer.send("positioning:disconnectPozyxMqttBroker");
-  },
-  flushAudioScenes: (): void => {
-    ipcRenderer.send("bee:flushAudioScenes");
   },
   pauseUpdateAudioScenes: (pause: boolean): void => {
     ipcRenderer.send("bee:pauseUpdateAudioScenes", pause);

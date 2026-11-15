@@ -1,6 +1,5 @@
 import { IBee } from "@shared/interfaces";
 import { create } from "zustand";
-import { useBeeStore } from "./useBeeStore";
 import { PDAudioParam } from "@shared/enums";
 
 type AudioMixerState = {

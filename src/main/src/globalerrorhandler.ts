@@ -155,31 +155,8 @@ export class GlobalErrorHandler {
     );
   }
 
-  // Public methods for manual error reporting
-  public reportError(error: Error, context?: string): void {
-    const message = context ? `${context}: ${error.message}` : error.message;
-    crashlogger.error(message, error);
-  }
-
-  public reportWarning(message: string): void {
-    crashlogger.warn(message);
-  }
-
   public reportInfo(message: string): void {
     crashlogger.info(message);
-  }
-
-  // Manual shutdown method (only if you explicitly want to shut down)
-  public shutdown(reason: string): void {
-    crashlogger.info(`Manual shutdown requested: ${reason}`);
-  }
-
-  // Get current error statistics
-  public getErrorStats(): { consecutiveErrors: number; lastErrorTime: number } {
-    return {
-      consecutiveErrors: this.consecutiveErrors,
-      lastErrorTime: this.lastErrorTime,
-    };
   }
 }
 

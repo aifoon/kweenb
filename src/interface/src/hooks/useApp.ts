@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  BeeAudioScene,
-  useAppPersistentStorage,
-} from "./useAppPersistentStorage";
+import { useEffect, useState } from "react";
+import { useAppPersistentStorage } from "./useAppPersistentStorage";
 import { useSocket } from "./useSocket";
-import { IBee } from "@shared/interfaces";
+import { BeeAudioScene, IBee } from "@shared/interfaces";
 import { useAppStore } from "./useAppStore";
 
 export const useApp = () => {

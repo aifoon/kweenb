@@ -1,6 +1,5 @@
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { Card } from "@components/Cards";
-import React from "react";
 import styled from "styled-components";
 import { BeeConfigActionsSection } from "./BeeConfigActionsSection";
 import { useAppStore } from "@renderer/src/hooks";

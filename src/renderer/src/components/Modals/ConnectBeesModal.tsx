@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { Box, Button, Typography } from "@mui/material";
 import { StreamingConnectionStatus } from "@shared/interfaces";

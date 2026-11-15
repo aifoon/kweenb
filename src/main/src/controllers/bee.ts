@@ -8,7 +8,6 @@ import {
   AudioUploadStatusInfo,
   IBee,
   IBeeInput,
-  IBeeState,
 } from "@shared/interfaces";
 import { Utils } from "@shared/utils";
 import {
@@ -26,9 +25,6 @@ import {
   AUDIO_FILES_ROOT_DIRECTORY,
   DISK_REMAINING_ON_BEE_TRESHOLD_MB,
 } from "../consts";
-import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
-import { demoAudioFiles } from "@seeds/demoAudioFiles";
-import AudioSceneDb from "../models/AudioScene";
 
 // Import models
 import AudioScene from "../models/AudioScene";
@@ -176,38 +172,6 @@ export const deleteAudio = async (
 };
 
 /**
- * Fetch the active bees
- * @param event
- * @returns
- */
-export const fetchActiveBees = async () => {
-  try {
-    return await BeeHelpers.getAllBees(BeeActiveState.ACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchActiveBees()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the active bees without status checks
- * @param event
- * @returns
- */
-export const fetchActiveBeesData = async () => {
-  try {
-    return await BeeHelpers.getAllBeesData(BeeActiveState.ACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchActiveBeesData()",
-      message: e.message,
-    });
-  }
-};
-
-/**
  * Fetch all the bees
  * @returns A Promise that will result an object of format IBee
  */
@@ -216,52 +180,6 @@ export const fetchAllBees = async (): Promise<IBee[]> => {
     return await BeeHelpers.getAllBees(BeeActiveState.ALL);
   } catch (e: any) {
     throw new KweenBException({ where: "fetchAllBees()", message: e.message });
-  }
-};
-
-/**
- * Fetch all the bees without extra status checks
- */
-export const fetchAllBeesData = async (): Promise<IBee[]> => {
-  try {
-    return await BeeHelpers.getAllBeesData(BeeActiveState.ALL);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchAllBeesData()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the inactive bees
- * @param event
- * @returns
- */
-export const fetchInActiveBees = async () => {
-  try {
-    return await BeeHelpers.getAllBees(BeeActiveState.INACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchInActiveBees()",
-      message: e.message,
-    });
-  }
-};
-
-/**
- * Fetch the inactive bees without extra status checks
- * @param event
- * @returns
- */
-export const fetchInActiveBeesData = async () => {
-  try {
-    return await BeeHelpers.getAllBeesData(BeeActiveState.INACTIVE);
-  } catch (e: any) {
-    throw new KweenBException({
-      where: "fetchInActiveBeesData()",
-      message: e.message,
-    });
   }
 };
 
@@ -285,21 +203,6 @@ export const fetchBee = async (
 };
 
 /**
- * Flush all audio scenes from the database
- * @param event
- */
-export const flushAudioScenes = async (event: Electron.IpcMainInvokeEvent) => {
-  try {
-    await AudioSceneDb.destroy({ where: {} });
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "flushAudioScenes()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
  * Get the audio files on the client
  * @param event
  * @param bee
@@ -309,11 +212,6 @@ export const getAudioFiles = async (
   bee: IBee
 ): Promise<AudioFile[]> => {
   try {
-    // @note: this condition is only used for development purpose
-    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-      return demoAudioFiles;
-    }
-
     // every scene on the bee is a folder with the audio and its data
     const scenes = await SpeakerApi.getScenes(bee.ipAddress);
     return scenes.map((scene) => {
@@ -344,26 +242,6 @@ export const getAudioScenes = async () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "getAudioScenes()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Get the current bee states
- * @param event
- * @param bees The list of bees
- * @returns
- */
-export const getCurrentBeeStates = async (
-  event: Electron.IpcMainInvokeEvent,
-  bees: IBee[]
-): Promise<IBeeState[]> => {
-  try {
-    return await BeeHelpers.getCurrentBeeStates(bees);
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "getCurrentBeeStates()", message: e.message },
       true
     );
   }

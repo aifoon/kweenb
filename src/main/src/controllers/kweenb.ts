@@ -11,7 +11,6 @@ import { KweenBGlobal } from "../kweenb";
 import SettingHelpers from "../lib/KweenB/SettingHelpers";
 import { Utils } from "@shared/utils";
 import { resourcesPath } from "@shared/resources";
-import BeeHelpers from "../lib/KweenB/BeeHelpers";
 
 /**
  * Calculate the current latency
@@ -50,20 +49,6 @@ export const closeKweenB = async () => {
 };
 
 /**
- * Disconnect all the P2P audio connections on kweenb
- */
-export const disconnectAllP2PAudioConnections = async () => {
-  try {
-    await kweenBHelpers.disconnectAllP2PAudioConnections();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "disconnectAllP2PAudioConnections()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
  * Get the KweenB Version
  * @returns
  */
@@ -73,48 +58,6 @@ export const getKweenBVersion = () => {
   } catch (e: any) {
     throw new KweenBException(
       { where: "getKweenBVersion()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Is Jack and Jacktrip installed on the system
- */
-export const isJackAndJacktripInstalled = (): boolean => {
-  try {
-    return kweenBHelpers.isJackAndJacktripInstalled();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "isJackAndJacktripInstalled()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Kill all jack and jacktrip processes
- */
-export const killJackAndJacktrip = async () => {
-  try {
-    await kweenBHelpers.killJackAndJacktrip();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "killJackAndJacktrip()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Make all the hub audio connection on kweenb and hub
- */
-export const makeHubAudioConnections = async () => {
-  try {
-    await kweenBHelpers.makeHubAudioConnections();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "makeP2PAudioConnections()", message: e.message },
       true
     );
   }
@@ -132,20 +75,6 @@ export const makeP2PAudioConnection = async (
   } catch (e: any) {
     throw new KweenBException(
       { where: "makeP2PAudioConnection()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Make all the P2P audio connection on kweenb
- */
-export const makeP2PAudioConnections = async () => {
-  try {
-    await kweenBHelpers.makeP2PAudioConnections();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "makeP2PAudioConnections()", message: e.message },
       true
     );
   }
@@ -211,40 +140,6 @@ export const setJacktripBinPath = (
       where: "setJacktripBinPath()",
       message: e.message,
     });
-  }
-};
-
-/**
- * Start the jacktrip hub server
- * @param event
- * @param bee
- */
-export const startJacktripHubServer = async () => {
-  try {
-    await kweenBHelpers.startJacktripHubServer();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startJacktripHubServer()", message: e.message },
-      true
-    );
-  }
-};
-
-/**
- * Start the client and connect to the kween
- * @param event
- * @param bee
- */
-export const startJackWithJacktripHubClient = async () => {
-  try {
-    // The bees are connected straight to the hub server, so kweenb itself
-    // only needs Jack.
-    await kweenBHelpers.startJack();
-  } catch (e: any) {
-    throw new KweenBException(
-      { where: "startJackWithJacktripHubClient()", message: e.message },
-      true
-    );
   }
 };
 

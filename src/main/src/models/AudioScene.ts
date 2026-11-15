@@ -1,4 +1,3 @@
-import { ChannelType } from "@shared/enums";
 import { DataTypes, Model, Sequelize } from "sequelize";
 
 /**

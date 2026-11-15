@@ -8,12 +8,6 @@ export const BeeCardWithPolling = ({
   number,
   onBeeConfigClick,
   onBeeDeleteClick,
-  name,
-  ipAddress,
-  apiOn,
-  online,
-  jackIsRunning,
-  jackTripIsRunning,
   collapsed,
   onDoubleClick,
 }: BeeCardProps) => {
@@ -46,19 +40,11 @@ export const BeeCardWithPolling = ({
       ipAddress={bee.ipAddress}
       apiOn={bee.isApiOn}
       online={bee.isOnline}
-      channelType={ChannelType.MONO}
-      channel1={1}
-      channel2={2}
-      jackIsRunning={bee.status.isJackRunning}
       monitoring={bee.monitoring}
       liveMeter={
         liveMeters && bee.isOnline ? <LiveLevelBar beeId={number} /> : null
       }
-      jackTripIsRunning={bee.status.isJacktripRunning}
       onDoubleClick={onDoubleClick}
-      onChannelTypeChange={(channelType: ChannelType) =>
-        console.log("ok", channelType)
-      }
       collapsed={collapsed}
     />
   );

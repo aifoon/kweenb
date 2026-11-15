@@ -1,6 +1,6 @@
 import { BaseModal } from "@components/Modals/BaseModal";
 import { Box, Grid, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AudioScene, IBee } from "@shared/interfaces";
 import { Button } from "@mui/material";
 import { useAppPersistentStorage } from "../../hooks/useAppPersistentStorage";

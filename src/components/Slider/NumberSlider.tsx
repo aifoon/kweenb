@@ -1,6 +1,6 @@
 import { LabelHorizontalProps } from "../Layout/LabelHorizontal";
 import { Box, Slider, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface NumberSliderProps extends LabelHorizontalProps {
   min?: number;

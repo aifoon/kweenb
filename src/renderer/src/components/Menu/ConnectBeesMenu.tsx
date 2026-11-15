@@ -1,101 +1,28 @@
-import { useState, MouseEvent, useCallback } from "react";
+import { useState, MouseEvent } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-// import { , ButtonSize, ButtonUse } from "@components/Buttons";
-import { Button, Box, Tooltip, Typography } from "@mui/material";
+import { Button, Tooltip, Typography } from "@mui/material";
 import { useAppStore } from "@renderer/src/hooks";
-import { IAudioPreset } from "@shared/interfaces";
-import Divider from "@mui/material/Divider";
-import { AppMode } from "@shared/enums";
-import { ToastMessage } from "../../interfaces";
 
+/**
+ * The Connect button: stream to the bees, or only let them play their own
+ * sounds when they are triggered
+ */
 export default function ConnectBeesMenu() {
-  // App Store
-  const updateCurrentLatency = useAppStore(
-    (state) => state.updateCurrentLatency
-  );
   const setOpenConnectBeesModal = useAppStore(
     (state) => state.setOpenConnectBeesModal
   );
   const setOpenTriggerOnlyModal = useAppStore(
     (state) => state.setOpenTriggerOnlyModal
   );
-  const appMode = useAppStore((state) => state.appMode);
-  const showToast = useAppStore((state) => state.showToast);
 
-  // Internal state
-  const [currentPresets, setCurrentPresets] = useState<IAudioPreset[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  /**
-   * Activate a preset (by setting settings) and start the connection
-   */
-  const activatePresetAndStart = async (fileName: string) => {
-    // activate the preset
-    const activatePresetError = await window.kweenb.methods.activatePreset(
-      fileName
-    );
-
-    // check if there was an error
-    if (activatePresetError.message !== "") {
-      showToast({ message: activatePresetError.message, severity: "error" });
-      return;
-    }
-
-    // because we changed the preset, we need to update the latency
-    updateCurrentLatency();
-
-    // hide the menu
+  const choose = (start: (open: boolean) => void) => {
     setAnchorEl(null);
-
-    // open the connections
-    startProcess();
+    start(true);
   };
-
-  /**
-   * Close the menu
-   */
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  /**
-   * Get current audio presets and show them in the menu
-   * @param event
-   */
-  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    // get the presets
-    window.kweenb.methods.getAudioPresets(appMode).then((presets) => {
-      setCurrentPresets(presets);
-    });
-
-    // set the anchor element
-    setAnchorEl(event.currentTarget);
-  };
-
-  /**
-   * Start the process
-   */
-  const startProcess = () => {
-    setOpenConnectBeesModal(true);
-  };
-
-  /**
-   * Start without a preset
-   */
-  const startWithoutPreset = () => {
-    setAnchorEl(null);
-    startProcess();
-  };
-
-  /**
-   * Trigger only
-   */
-  const startTriggerOnly = useCallback(() => {
-    setAnchorEl(null);
-    setOpenTriggerOnlyModal(true);
-  }, []);
 
   return (
     <>
@@ -104,67 +31,43 @@ export default function ConnectBeesMenu() {
         variant="contained"
         size="small"
         color="secondary"
-        onClick={openMenu}
+        onClick={(event: MouseEvent<HTMLButtonElement>) =>
+          setAnchorEl(event.currentTarget)
+        }
       >
         Connect
       </Button>
       <Menu
-        id="basic-menu"
+        id="connect-menu"
         anchorEl={anchorEl}
         sx={{ marginTop: "7px" }}
         open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Box padding={"0 16px"}>
-          <Typography
-            variant="extraSmall"
-            style={{ textTransform: "uppercase" }}
-            color={{ color: "var(--grey-400)" }}
+        <Tooltip
+          title="Send the sound of your audio software to the bees. They can still play their own sounds when triggered."
+          placement="left-start"
+        >
+          <MenuItem
+            key="stream"
+            onClick={() => choose(setOpenConnectBeesModal)}
           >
-            Triggering
-          </Typography>
-        </Box>
-        <MenuItem key="trigger_only" onClick={startTriggerOnly}>
-          <Typography variant="small">Trigger only</Typography>
-        </MenuItem>
-        <Divider />
-        <Box padding={"0 16px"}>
-          <Typography
-            variant="extraSmall"
-            style={{ textTransform: "uppercase" }}
-            color={{ color: "var(--grey-400)" }}
+            <Typography variant="small">Stream to the bees</Typography>
+          </MenuItem>
+        </Tooltip>
+        <Tooltip
+          title="No stream: the bees only play their own sounds when triggered."
+          placement="left-start"
+        >
+          <MenuItem
+            key="trigger_only"
+            onClick={() => choose(setOpenTriggerOnlyModal)}
           >
-            Streaming
-          </Typography>
-        </Box>
-        <MenuItem key="current_settings" onClick={startWithoutPreset}>
-          <Typography variant="small">Current settings</Typography>
-        </MenuItem>
-        {currentPresets.map((preset) => (
-          <Tooltip
-            key={`tooltip_${preset.name}`}
-            title={`${preset.description}. Latency: ${preset.latency}ms.`}
-            placement="left-start"
-          >
-            <MenuItem
-              key={preset.name}
-              onClick={() => activatePresetAndStart(preset.fileName)}
-            >
-              <Typography variant="small">{preset.name}</Typography>
-            </MenuItem>
-          </Tooltip>
-        ))}
+            <Typography variant="small">Trigger only</Typography>
+          </MenuItem>
+        </Tooltip>
       </Menu>
     </>
   );

@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron";
 import {
+  IAdoptFromNetworkResult,
   IAdoptSpeakerRequest,
   IAdoptSpeakerResult,
   IBackupKeyResult,
@@ -27,6 +28,8 @@ import {
  * All methods for new speakers
  */
 const newSpeakers = {
+  adoptFromNetwork: (): Promise<IAdoptFromNetworkResult> =>
+    ipcRenderer.invoke("speaker:adoptFromNetwork"),
   adoptSpeaker: (request: IAdoptSpeakerRequest): Promise<IAdoptSpeakerResult> =>
     ipcRenderer.invoke("speaker:adoptSpeaker", request),
   findNewSpeakers: (): Promise<IFoundSpeaker[]> =>
@@ -89,8 +92,6 @@ const routing = {
   > => ipcRenderer.invoke("soundDevice:install"),
   setBeeChannels: (changes: IRoutingChange[]): Promise<IRouting> =>
     ipcRenderer.invoke("routing:setBeeChannels", changes),
-  setBeeChannel: (beeId: number, channel: number | null): Promise<IRouting> =>
-    ipcRenderer.invoke("routing:setBeeChannel", beeId, channel),
 };
 
 /**

@@ -11,7 +11,7 @@ type AppState = {
   currentLatency: number;
   loading: LoadingState;
   openAboutKweenBModal: boolean;
-  openAddBeeModal: boolean;
+  openAdoptModal: boolean;
   openBeeDeviceManagerModal: boolean;
   openConnectBeesModal: boolean;
   openDisconnectBeesModal: boolean;
@@ -35,7 +35,7 @@ type AppAction = {
   setAudioScenes: (audioScenes: AudioScene[]) => void;
   setManageBeesCollapsed: (collapsed: boolean) => void;
   setOpenAboutKweenBModal: (open: boolean) => void;
-  setOpenAddBeeModal: (open: boolean) => void;
+  setOpenAdoptModal: (open: boolean) => void;
   setOpenBeeDeviceManagerModal: (open: boolean) => void;
   setOpenConnectBeesModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
@@ -67,7 +67,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   },
   manageBeesCollapsed: true,
   openAboutKweenBModal: false,
-  openAddBeeModal: false,
+  openAdoptModal: false,
   openBeeDeviceManagerModal: false,
   openConnectBeesModal: false,
   openDisconnectBeesModal: false,
@@ -95,13 +95,11 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   setManageBeesCollapsed: (collapsed) =>
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
-  setOpenAddBeeModal: (open: boolean) => set({ openAddBeeModal: open }),
+  setOpenAdoptModal: (open: boolean) => set({ openAdoptModal: open }),
   setOpenFlashSpeakerModal: (open: boolean) =>
     set({ openFlashSpeakerModal: open }),
-  setOpenNewSpeakerModal: (open: boolean) =>
-    set({ openNewSpeakerModal: open }),
-  setOpenSaveSoundsModal: (open: boolean) =>
-    set({ openSaveSoundsModal: open }),
+  setOpenNewSpeakerModal: (open: boolean) => set({ openNewSpeakerModal: open }),
+  setOpenSaveSoundsModal: (open: boolean) => set({ openSaveSoundsModal: open }),
   setOpenCloudBackupModal: (open: boolean) =>
     set({ openCloudBackupModal: open }),
   setRestoreSoundsFrom: (source: "cloud" | "computer" | null) =>

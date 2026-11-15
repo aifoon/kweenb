@@ -10,11 +10,9 @@ import { BeeStates } from "../Dictionaries";
 import { IBee, AudioSceneDbRecord } from "@shared/interfaces";
 import SpeakerApi, { isClockOff } from "./SpeakerApi";
 import SwarmMonitor from "./SwarmMonitor";
-import { logger, debug } from "../../logger";
 
 // Import the audio scene model
 import AudioSceneDb from "../../models/AudioScene";
-import { HAS_CONNECTION_WITH_PHYSICAL_SWARM } from "@shared/consts";
 import { Op } from "sequelize";
 
 // how often we look if every bee is still followed and still talking
@@ -276,20 +274,6 @@ class BeeStatesWorker {
   private watchBees() {
     const bees = this._beeStates.bees;
 
-    /**
-     * @debug - This is spoofing the connection status
-     */
-    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-      bees.forEach((bee) => {
-        this._beeStates.update("lastPingResponse", bee, new Date());
-        this._beeStates.update("isApiOn", bee, true);
-        this._beeStates.update("isJackRunning", bee, true);
-        this._beeStates.update("isJacktripRunning", bee, true);
-        this._beeStates.update("isOnline", bee, true);
-      });
-      return;
-    }
-
     // stop following the bees that were removed or that changed address
     this._followedBees.forEach((followedBee, beeId) => {
       const bee = bees.find((b) => b.id === beeId);
@@ -344,9 +328,6 @@ class BeeStatesWorker {
         this._monitor.reportOffline(bee.id, bee.name);
       }
     });
-
-    // @debug Uncomment if you want to see the debug info
-    // this._beeStates.printDebugInfo();
   }
 
   /**
@@ -355,9 +336,6 @@ class BeeStatesWorker {
   private async updateAudioScenes() {
     // if paused, skip
     if (this._pauseUpdateAudioScenes) return;
-
-    // the scenes only exist on real bees
-    if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) return;
 
     // the previous round is still busy
     if (this._isUpdatingAudioScenes) return;
@@ -391,62 +369,17 @@ class BeeStatesWorker {
             }));
 
           // sync the audio scenes with the database
-          const result = await this.syncAudioScenes(
-            audioScenesForDatabase,
-            bee.id
-          );
-
-          // Log the result
-          if (debug("audioScenesSync")) {
-            // log the result
-            logger.group(
-              "audioScenesSync",
-              `Bee ${bee.id} - Created: ${result.created.length}, Updated: ${result.updated.length}, Deleted: ${result.deleted.length}`,
-              () => {
-                // Log details of created records
-                if (result.created.length > 0) {
-                  logger.info("audioScenesSync", "  Created:");
-                  result.created.forEach((scene) => {
-                    logger.info(
-                      "audioScenesSync",
-                      `    - ${scene.name} (Path: ${scene.localFolderPath})`
-                    );
-                  });
-                }
-
-                // Log details of updated records
-                if (result.updated.length > 0) {
-                  logger.info("audioScenesSync", "  Updated:");
-                  result.updated.forEach((scene) => {
-                    logger.info("audioScenesSync", `    - ${scene.name}`);
-                  });
-                }
-
-                // Log details of deleted records
-                if (result.deleted.length > 0) {
-                  logger.info(
-                    "audioScenesSync",
-                    "  Deleted IDs:",
-                    result.deleted.join(", ")
-                  );
-                }
-              }
-            );
-          }
+          await this.syncAudioScenes(audioScenesForDatabase, bee.id);
         } catch (error) {
           // one bee that does not answer does not stop the others
-          logger.error(
-            "audioScenesSync",
-            `Error updating audio scenes of bee ${bee.id}:`,
-            error
-          );
+          console.error(`Error updating audio scenes of bee ${bee.id}:`, error);
         }
       });
 
       // Wait for all sync operations to complete
       await Promise.all(syncPromises);
     } catch (e) {
-      logger.error("audioScenesSync", "Error updating audio scenes:", e);
+      console.error("Error updating audio scenes:", e);
     } finally {
       this._isUpdatingAudioScenes = false;
     }

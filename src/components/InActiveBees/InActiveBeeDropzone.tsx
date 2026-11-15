@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import { useDrop } from "react-dnd";
 import { InActiveBeeNumber } from "./InActiveBee";

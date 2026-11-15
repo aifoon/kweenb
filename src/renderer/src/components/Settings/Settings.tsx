@@ -1,6 +1,6 @@
 import { Loader } from "@components/Loader";
 import { Tab } from "@mui/material";
-import { useSettings, useAppStore } from "@renderer/src/hooks";
+import { useSettings } from "@renderer/src/hooks";
 import React, { useState } from "react";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { PageHeader } from "@components/PageHeader";

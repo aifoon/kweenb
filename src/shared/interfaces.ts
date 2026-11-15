@@ -7,7 +7,6 @@ import {
   RunningCommand,
 } from "@zwerm3/jack/dist/interfaces";
 import {
-  AppMode,
   AudioUploadStatus,
   ChannelType,
   StreamingConnectionStatusType,
@@ -248,6 +247,18 @@ export interface IAdoptSpeakerRequest {
   backupSource?: "computer" | "cloud";
 }
 
+// what looking for bees on the network found
+export interface IAdoptFromNetworkResult {
+  // the bees that were added to KweenB (or got their address corrected)
+  added: { id: number; name: string }[];
+  // the bees that were found and were in KweenB already
+  known: { id: number; name: string }[];
+  // speakers that have no number yet: they need "New Speaker"
+  withoutNumber: number;
+  // numbers that more than one speaker claims
+  doubleNumbers: number[];
+}
+
 // sent while a new speaker is set up
 export interface IAdoptSpeakerProgress {
   step: "number" | "waiting" | "sounds";
@@ -314,12 +325,6 @@ export interface IPositioningData {
   z: number;
 }
 
-export interface IOrientationData {
-  yaw: number;
-  pitch: number;
-  roll: number;
-}
-
 export interface ITagData {
   coordinates: IPositioningData;
 }
@@ -367,27 +372,6 @@ export interface VolumeControlXYOptions {
 export interface ISetting {
   key: string;
   value: string;
-}
-
-/**
- * For Presets
- */
-
-export interface IAudioPreset {
-  fileName: string;
-  name: string;
-  description: string;
-  appMode: AppMode;
-  maxAllowedBees: number;
-  latency: number;
-  bee: {
-    jack: IAudioSettingsJack;
-    jacktrip: IAudioSettingsJackTrip;
-  };
-  kweenb: {
-    jack: IAudioSettingsJack;
-    jacktrip: IAudioSettingsJackTrip;
-  };
 }
 
 /**

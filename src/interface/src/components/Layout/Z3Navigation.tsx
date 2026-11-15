@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Navigation, NavigationButtons } from "@components/Navigation";
 import { useNavigate, useLocation } from "react-router-dom";

@@ -1,5 +1,4 @@
 import { FormControl, MenuItem, Select, SelectProps } from "@mui/material";
-import React from "react";
 import { useField, FieldHookConfig, useFormikContext } from "formik";
 import styled from "styled-components";
 import {

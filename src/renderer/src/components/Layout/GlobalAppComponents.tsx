@@ -1,5 +1,4 @@
 import { Loader } from "@components/Loader";
-import React from "react";
 import { AboutKweenBModal } from "../Modals/AboutKweenBModal";
 import { Alert, Snackbar } from "@mui/material";
 import { ConnectBeesModal } from "../Modals";
@@ -12,9 +11,7 @@ import { CloudBackupModal } from "../Modals/CloudBackupModal";
 import { RestoreSoundsModal } from "../Modals/RestoreSoundsModal";
 import { NewSpeakerModal } from "../ManageBees/NewSpeakerModal";
 import { FlashSpeakerModal } from "../ManageBees/FlashSpeakerModal";
-import { AddBeeModal } from "../ManageBees/AddBeeModal";
-import { useBeeStore } from "@renderer/src/hooks";
-import { IBee, IBeeInput } from "@shared/interfaces";
+import { AdoptFromNetworkModal } from "../ManageBees/AdoptFromNetworkModal";
 
 export const GlobalAppComponents = () => {
   const appMode = useAppStore((state) => state.appMode);
@@ -24,9 +21,8 @@ export const GlobalAppComponents = () => {
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );
-  const openAddBeeModal = useAppStore((state) => state.openAddBeeModal);
-  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
-  const createBee = useBeeStore((state) => state.createBee);
+  const openAdoptModal = useAppStore((state) => state.openAdoptModal);
+  const setOpenAdoptModal = useAppStore((state) => state.setOpenAdoptModal);
   const openFlashSpeakerModal = useAppStore(
     (state) => state.openFlashSpeakerModal
   );
@@ -129,14 +125,10 @@ export const GlobalAppComponents = () => {
         onClose={() => setOpenNewSpeakerModal(false)}
       />
 
-      {/* Adding a bee by hand (File menu) */}
-      <AddBeeModal
-        open={openAddBeeModal}
-        onClose={() => setOpenAddBeeModal(false)}
-        onBeeSubmitted={async (beeInput: IBeeInput) => {
-          await createBee(beeInput as IBee);
-          setOpenAddBeeModal(false);
-        }}
+      {/* Finding the bees on the network and adding them (File menu) */}
+      <AdoptFromNetworkModal
+        open={openAdoptModal}
+        onClose={() => setOpenAdoptModal(false)}
       />
 
       {/* Saving the sounds of all bees (bees page and File menu) */}

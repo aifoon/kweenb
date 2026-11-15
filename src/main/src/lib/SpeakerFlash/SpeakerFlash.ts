@@ -18,7 +18,6 @@ import {
   isWholeDiskId,
   parsePlist,
   selectSpeakerStorage,
-  wholeDiskIdsOf,
 } from "./DiskSelection";
 import { ImageError, feedImage, whyImageCannotBeUsed } from "./ImageFeeder";
 import {

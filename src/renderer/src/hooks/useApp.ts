@@ -10,7 +10,7 @@ export const useApp = () => {
   const setOpenAboutKweenBModal = useAppStore(
     (state) => state.setOpenAboutKweenBModal
   );
-  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const setOpenAdoptModal = useAppStore((state) => state.setOpenAdoptModal);
   const setOpenFlashSpeakerModal = useAppStore(
     (state) => state.setOpenFlashSpeakerModal
   );
@@ -41,8 +41,8 @@ export const useApp = () => {
     window.kweenb.events.onNewSpeaker(() => {
       setOpenNewSpeakerModal(true);
     });
-    window.kweenb.events.onAddBee(() => {
-      setOpenAddBeeModal(true);
+    window.kweenb.events.onAdoptFromNetwork(() => {
+      setOpenAdoptModal(true);
     });
     window.kweenb.events.onSaveSounds(() => {
       setOpenSaveSoundsModal(true);

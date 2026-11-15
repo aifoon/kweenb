@@ -5,6 +5,7 @@
 import {
   IAdoptSpeakerProgress,
   IAdoptSpeakerRequest,
+  IAdoptFromNetworkResult,
   IAdoptSpeakerResult,
   IBee,
   IFoundSpeaker,
@@ -305,6 +306,60 @@ export const cancelSounds = () => {
  */
 export const findNewSpeakers = (): IFoundSpeaker[] =>
   speakerDiscovery.find().filter((speaker) => speaker.id === null);
+
+// how long is looked for bees on the network
+const ADOPT_LOOK_MS = 6000;
+
+/**
+ * Look for the bees that are switched on in the network and add the ones
+ * KweenB does not know yet. A bee is a speaker that has its number; a
+ * speaker without a number needs "New Speaker" first.
+ */
+export const adoptFromNetwork = async (): Promise<IAdoptFromNetworkResult> => {
+  // looking goes on as long as it is asked for
+  const deadline = Date.now() + ADOPT_LOOK_MS;
+  let found: IFoundSpeaker[] = speakerDiscovery.find();
+  while (Date.now() < deadline) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
+    found = speakerDiscovery.find();
+  }
+  speakerDiscovery.stop();
+
+  const result: IAdoptFromNetworkResult = {
+    added: [],
+    known: [],
+    withoutNumber: found.filter((speaker) => speaker.id === null).length,
+    doubleNumbers: [],
+  };
+  const seen = new Set<number>();
+  for (const speaker of found) {
+    if (speaker.id === null) continue;
+    // two speakers with the same number: only the first is taken
+    if (seen.has(speaker.id)) {
+      if (!result.doubleNumbers.includes(speaker.id))
+        result.doubleNumbers.push(speaker.id);
+      continue;
+    }
+    seen.add(speaker.id);
+    const bee = { id: speaker.id, name: backupNameOfBee(speaker.id) };
+    // eslint-disable-next-line no-await-in-loop
+    const existing = await Bee.findOne({ where: { id: speaker.id } });
+    if (existing && existing.ipAddress === speaker.ipAddress) {
+      result.known.push(bee);
+      continue;
+    }
+    // eslint-disable-next-line no-await-in-loop
+    await saveAdoptedBee(speaker.id, speaker.ipAddress);
+    result.added.push(bee);
+  }
+  const byNumber = (a: { id: number }, b: { id: number }) => a.id - b.id;
+  result.added.sort(byNumber);
+  result.known.sort(byNumber);
+  return result;
+};
 
 /**
  * The sounds that are saved on this computer

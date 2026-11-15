@@ -1,6 +1,6 @@
 import { Card } from "../Cards";
 import { PositioningTargetType } from "../../shared/interfaces";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import { ToggleButton } from "../Buttons/ToggleButton";
 import { ButtonSize, ButtonType, ButtonUse } from "../Buttons";

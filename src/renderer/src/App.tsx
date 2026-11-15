@@ -3,15 +3,8 @@ import { Flex } from "@components/.";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { ThemeProvider } from "@mui/material/styles";
-import {
-  DesignSystem,
-  Settings,
-  ManageBees,
-  BeeConfig,
-  BeePoller,
-} from "./components";
+import { Settings, ManageBees, BeeConfig, BeePoller } from "./components";
 import { Z3Navigation, Z3Sidebar } from "./components/Layout";
-import { Tools } from "./components/Tools/Tools";
 import { Monitor } from "./components/Monitor/Monitor";
 import { Routing } from "./components/Routing/Routing";
 import theme from "@components/theme";
@@ -20,7 +13,6 @@ import { PositioningModules } from "./components/Positioning/PositioningModules/
 import { Audio } from "./components/Audio/Audio";
 import { useApp } from "./hooks";
 import { GlobalAppComponents } from "./components/Layout/GlobalAppComponents";
-import { startDesignSystem } from "./consts";
 
 export const App = () => {
   useApp();
@@ -28,36 +20,25 @@ export const App = () => {
     <Router>
       <ThemeProvider theme={theme}>
         <DndProvider backend={HTML5Backend}>
-          {startDesignSystem && (
-            <Routes>
-              <Route path="/" element={<DesignSystem />} />
-            </Routes>
-          )}
-          {!startDesignSystem && (
-            <BeePoller>
-              <Z3Navigation />
-              <Flex margin="var(--navigationHeight) 0 0 0">
-                <Z3Sidebar />
-                <Routes>
-                  <Route path="/" element={<ManageBees />} />
-                  <Route path="/manage-bees" element={<ManageBees />} />
-                  <Route path="/swarm/:id" element={<BeeConfig />} />
-                  <Route path="/audio" element={<Audio />} />
-                  <Route path="/positioning" element={<Positioning />}>
-                    <Route
-                      path="volumes/:tab"
-                      element={<PositioningModules />}
-                    />
-                  </Route>
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/routing" element={<Routing />} />
-                  <Route path="/monitor" element={<Monitor />} />
-                  <Route path="/tools" element={<Tools />} />
-                </Routes>
-              </Flex>
-              <GlobalAppComponents />
-            </BeePoller>
-          )}
+          <BeePoller>
+            <Z3Navigation />
+            <Flex margin="var(--navigationHeight) 0 0 0">
+              <Z3Sidebar />
+              <Routes>
+                <Route path="/" element={<ManageBees />} />
+                <Route path="/manage-bees" element={<ManageBees />} />
+                <Route path="/swarm/:id" element={<BeeConfig />} />
+                <Route path="/audio" element={<Audio />} />
+                <Route path="/positioning" element={<Positioning />}>
+                  <Route path="volumes/:tab" element={<PositioningModules />} />
+                </Route>
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/routing" element={<Routing />} />
+                <Route path="/monitor" element={<Monitor />} />
+              </Routes>
+            </Flex>
+            <GlobalAppComponents />
+          </BeePoller>
         </DndProvider>
       </ThemeProvider>
     </Router>

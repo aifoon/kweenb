@@ -3,8 +3,6 @@ import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { Z3PageContentSidebar } from "@components/Layout";
 import { PageSidebar } from "@components/Sidebar";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ButtonGroup } from "@components/Buttons";
 import { Card } from "@components/Cards";
 import { useAppStore, useBeeStore } from "@renderer/src/hooks";

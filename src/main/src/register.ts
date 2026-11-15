@@ -10,18 +10,11 @@ import {
   createBee,
   deleteBee,
   setBeeActive,
-  fetchInActiveBees,
-  fetchActiveBees,
   killJackAndJacktrip,
-  fetchAllBeesData,
-  fetchActiveBeesData,
-  fetchInActiveBeesData,
-  flushAudioScenes,
   startJackWithJacktripHubClient as startJackWithJacktripHubClientBee,
   startJackWithJacktripP2PServer as startJackWithJacktripP2PServerBee,
   manageBeeDevice,
   setBeePozyxTagId,
-  getCurrentBeeStates,
   setAudioParam,
   setAudioParamForAllBees,
   startAudio,
@@ -36,19 +29,12 @@ import {
 import {
   calculateCurrentLatency,
   closeKweenB,
-  disconnectAllP2PAudioConnections,
   getKweenBVersion,
-  isJackAndJacktripInstalled,
-  killJackAndJacktrip as killJackAndJacktripOnKweenB,
-  makeHubAudioConnections as makeHubAudioConnectionsKweenB,
   makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
-  makeP2PAudioConnections as makeP2PAudioConnectionsKweenB,
   openDialog,
   setJackFolderPath,
   setJacktripBinPath,
-  startJackWithJacktripHubClient as startJackWithJacktripHubClientKweenB,
   startJackWithJacktripP2PClient as startJackWithJacktripP2PClientKweenB,
-  startJacktripHubServer,
 } from "./controllers/kweenb";
 import { fetchSettings, updateSetting } from "./controllers/setting";
 import {
@@ -60,8 +46,8 @@ import {
   getTargetsAndOptionsForAlgorithm,
   updatePositioningControllerAlgorithmOptions,
 } from "./controllers/positioning";
-import { activatePreset, getAudioPresets } from "./controllers/presets";
 import {
+  adoptFromNetwork,
   adoptSpeaker,
   cancelSounds,
   findNewSpeakers,
@@ -102,7 +88,6 @@ import {
   getSoundDevice,
   getSoundDeviceChoices,
   installKweenBSoundDevice,
-  setBeeChannel,
   setBeeChannels,
   startLevels,
   stopLevels,
@@ -119,7 +104,6 @@ import {
  */
 
 const actionListeners = [
-  { name: "bee:flushAudioScenes", listener: flushAudioScenes },
   { name: "bee:pauseUpdateAudioScenes", listener: pauseUpdateAudioScenes },
   { name: "bee:setBeeActive", listener: setBeeActive },
   { name: "bee:setBeePozyxTagId", listener: setBeePozyxTagId },
@@ -181,14 +165,8 @@ const methodHandlers = [
   { name: "bee:createBee", handler: createBee },
   { name: "bee:deleteBee", handler: deleteBee },
   { name: "bee:updateBee", handler: updateBee },
-  { name: "bee:getCurrentBeeStates", handler: getCurrentBeeStates },
   { name: "bee:fetchBee", handler: fetchBee },
-  { name: "bee:fetchActiveBees", handler: fetchActiveBees },
-  { name: "bee:fetchActiveBeesData", handler: fetchActiveBeesData },
   { name: "bee:fetchAllBees", handler: fetchAllBees },
-  { name: "bee:fetchAllBeesData", handler: fetchAllBeesData },
-  { name: "bee:fetchInActiveBees", handler: fetchInActiveBees },
-  { name: "bee:fetchInActiveBeesData", handler: fetchInActiveBeesData },
 
   // JACK/JACKTRIP
 
@@ -229,33 +207,8 @@ const methodHandlers = [
 
   { name: "kweenb:calculateCurrentLatency", handler: calculateCurrentLatency },
   {
-    name: "kweenb:isJackAndJacktripInstalled",
-    handler: isJackAndJacktripInstalled,
-  },
-  { name: "kweenb:killJackAndJacktrip", handler: killJackAndJacktripOnKweenB },
-  {
-    name: "kweenb:startJacktripHubServer",
-    handler: startJacktripHubServer,
-  },
-  {
-    name: "kweenb:startJackWithJacktripHubClient",
-    handler: startJackWithJacktripHubClientKweenB,
-  },
-  {
     name: "kweenb:startJackWithJacktripP2PClient",
     handler: startJackWithJacktripP2PClientKweenB,
-  },
-  {
-    name: "kweenb:makeHubAudioConnections",
-    handler: makeHubAudioConnectionsKweenB,
-  },
-  {
-    name: "kweenb:makeP2PAudioConnections",
-    handler: makeP2PAudioConnectionsKweenB,
-  },
-  {
-    name: "kweenb:disconnectP2PAudioConnections",
-    handler: disconnectAllP2PAudioConnections,
   },
   {
     name: "kweenb:makeP2PAudioConnection",
@@ -270,13 +223,6 @@ const methodHandlers = [
 
   { name: "setting:fetchSettings", handler: fetchSettings },
   { name: "setting:updateSetting", handler: updateSetting },
-
-  /**
-   * Presets
-   */
-
-  { name: "presets:getAudioPresets", handler: getAudioPresets },
-  { name: "presets:activatePreset", handler: activatePreset },
 
   /**
    * Positioning
@@ -300,6 +246,7 @@ const methodHandlers = [
 
   { name: "speaker:findNewSpeakers", handler: findNewSpeakers },
   { name: "speaker:adoptSpeaker", handler: adoptSpeaker },
+  { name: "speaker:adoptFromNetwork", handler: adoptFromNetwork },
 
   // FLASHING A SPEAKER
 
@@ -311,7 +258,6 @@ const methodHandlers = [
   // SOUND DEVICE AND ROUTING
 
   { name: "routing:get", handler: getRouting },
-  { name: "routing:setBeeChannel", handler: setBeeChannel },
   { name: "routing:setBeeChannels", handler: setBeeChannels },
   { name: "soundDevice:get", handler: getSoundDevice },
   { name: "soundDevice:choices", handler: getSoundDeviceChoices },

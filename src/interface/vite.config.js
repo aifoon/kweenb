@@ -21,10 +21,6 @@ export default defineConfig({
         find: "@shared",
         replacement: resolve(PACKAGE_ROOT, "../shared"),
       },
-      {
-        find: "@seeds",
-        replacement: resolve(PACKAGE_ROOT, "../seeds"),
-      },
     ],
   },
   build: {

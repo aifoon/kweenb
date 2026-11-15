@@ -8,8 +8,6 @@ export class Socket {
 
   private _onMessage: ((message: SocketMessage) => void) | undefined;
 
-  private debug: boolean = false;
-
   constructor(port: number, onMessage?: (message: SocketMessage) => void) {
     this.port = port;
     this._onMessage = onMessage;
@@ -27,24 +25,14 @@ export class Socket {
         },
       });
       this.socketServer.on("connect", (socket) => {
-        if (this.debug) console.log(socket.id);
         socket.on("message", (data: any) => {
           if (this._onMessage)
             this._onMessage({ ...data, clientId: socket.id } as SocketMessage);
         });
       });
     } catch (error) {
-      if (this.debug) console.error(error);
+      console.error(error);
     }
-  }
-
-  /**
-   * Send data to the clients
-   * @param event The event to send
-   * @param data The data to send
-   */
-  public sendToClients(event: string, data: any) {
-    this.socketServer.emit(event, data);
   }
 
   /**
@@ -55,12 +43,5 @@ export class Socket {
    */
   public sendToClient(clientId: string, event: string, data: any) {
     this.socketServer.to(clientId).emit(event, data);
-  }
-
-  /**
-   * Close the server
-   */
-  public closeServer() {
-    this.socketServer.close();
   }
 }

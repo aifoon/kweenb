@@ -1,7 +1,6 @@
 import { fork, ChildProcess } from "child_process";
 import path from "path";
 import { app } from "electron";
-import { resourcesPath } from "@shared/resources";
 
 let expressProcess: ChildProcess | null = null;
 

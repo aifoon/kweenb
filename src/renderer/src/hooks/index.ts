@@ -12,7 +12,6 @@ import { usePositioningTargetSelector } from "./usePositioningTargetSelector";
 import { usePozyxData } from "./usePozyxData";
 import { useSetting } from "./useSetting";
 import { useSettings } from "./useSettings";
-import { useShowState } from "./useShowState";
 
 export {
   useApp,
@@ -29,5 +28,4 @@ export {
   usePozyxData,
   useSetting,
   useSettings,
-  useShowState,
 };

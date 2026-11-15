@@ -1,7 +1,6 @@
 import { TextField } from "@components/Forms";
 import { Formik, Form } from "formik";
 import Yup from "@renderer/src/yup-ext";
-import React from "react";
 import {
   InputFieldOrientation,
   InputFieldSize,

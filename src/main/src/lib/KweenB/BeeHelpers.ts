@@ -7,20 +7,15 @@ import {
   BeeDeviceManagerActions,
   PDAudioParam,
 } from "@shared/enums";
-import { AudioScene, IBee, IBeeInput, IBeeState } from "@shared/interfaces";
+import { AudioScene, IBee, IBeeInput } from "@shared/interfaces";
 import fs from "fs";
 import { NO_BEE_FOUND_WITH_ID } from "../Exceptions/ExceptionMessages";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import SpeakerApi from "./SpeakerApi";
-import { BeeStates } from "../Dictionaries";
 import { DEFAULT_BEE_STATUS } from "../../consts";
-import {
-  HAS_CONNECTION_WITH_PHYSICAL_SWARM,
-  PD_PORT_BEE,
-} from "@shared/consts";
+import { PD_PORT_BEE } from "@shared/consts";
 import { KweenBGlobal } from "../../kweenb";
 import { PDBeeOsc } from "../OSC";
-import { demoScenes } from "@seeds/demoScenes";
 import { Op } from "sequelize";
 
 // Import models
@@ -218,17 +213,6 @@ const getAllBeesData = async (
  * @returns AudioScene[]
  */
 const getAudioScenes = async (ids: number[] = []): Promise<AudioScene[]> => {
-  // @note: this condition is only used for development purpose
-  // whenever we are not connected to the physical swarm, we still
-  // get scenes, but we get them from a demo file
-  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-    return ids.length === 0
-      ? demoScenes
-      : demoScenes.filter((scene) =>
-          scene.allIds.some((id) => ids.includes(id))
-        );
-  }
-
   // get all bees
   const bees = await getAllBees(BeeActiveState.ACTIVE);
 
@@ -251,15 +235,6 @@ const getAudioScenes = async (ids: number[] = []): Promise<AudioScene[]> => {
  * @returns AudioScene[]
  */
 const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
-  // @note: this condition is only used for development purpose
-  // whenever we are not connected to the physical swarm, we still
-  // get scenes, but we get them from a demo file
-  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-    demoScenes.filter((scene) =>
-      scene.foundOnBees.some((currentBee) => currentBee.id === bee.id)
-    );
-  }
-
   return await getAudioScenesForBees(bee);
 };
 
@@ -270,13 +245,6 @@ const getAudioScenesForBee = async (bee: IBee): Promise<AudioScene[]> => {
 const getAudioScenesForBees = async (
   bees: IBee[] | IBee
 ): Promise<AudioScene[]> => {
-  // @note: this condition is only used for development purpose
-  // whenever we are not connected to the physical swarm, we still
-  // get scenes, but we get them from a demo file
-  if (!HAS_CONNECTION_WITH_PHYSICAL_SWARM) {
-    return demoScenes;
-  }
-
   // check if bees is an array or a single bee
   const beeArray = Array.isArray(bees) ? bees : [bees];
 
@@ -353,33 +321,6 @@ const getBee = async (id: number): Promise<IBee> => {
 
   // return the bee data
   return beeData;
-};
-
-/**
- * Get the current bee states (this is the realtime data, not the cached data in BeeStatesWorker)
- * @param bees
- * @returns
- */
-const getCurrentBeeStates = async (bees: IBee[]): Promise<IBeeState[]> => {
-  // a dictionary that only lives for this request
-  const beeStates = new BeeStates();
-  beeStates.addBees(bees);
-
-  // ask every bee for its status, a bee that does not answer stays offline
-  await Promise.all(
-    bees.map(async (bee) => {
-      try {
-        beeStates.updateFromStatus(
-          bee,
-          await SpeakerApi.getStatus(bee.ipAddress)
-        );
-      } catch (e) {
-        // the bee is offline
-      }
-    })
-  );
-
-  return bees.map((bee) => beeStates.getBeeState(bee) as IBeeState);
 };
 
 /**
@@ -610,7 +551,6 @@ export default {
   getAudioScenesForBee,
   getAudioScenesForBees,
   getBee,
-  getCurrentBeeStates,
   manageBeeDevice,
   setAudioParam,
   setBeeActive,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@components/Cards/Card";
 import { NumberSlider } from "@components/Slider";
 import { Box, Button, Typography } from "@mui/material";

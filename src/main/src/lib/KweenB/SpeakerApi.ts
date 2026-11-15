@@ -768,13 +768,6 @@ const shutdown = (ipAddress: string): Promise<void> =>
   request<void>(ipAddress, "POST", "system/shutdown", ACTION_TIMEOUT_MS);
 
 /**
- * Get the number and names of a bee
- * @param ipAddress
- */
-const getIdentity = (ipAddress: string): Promise<SpeakerIdentity> =>
-  request<SpeakerIdentity>(ipAddress, "GET", "identity", STATUS_TIMEOUT_MS);
-
-/**
  * Give a bee its number (1 - 99). About two seconds after the answer the bee
  * renames itself and moves to its fixed address.
  * @param ipAddress
@@ -791,7 +784,6 @@ export default {
   downloadScene,
   followLevel,
   followStatus,
-  getIdentity,
   getSceneChecksum,
   getScenes,
   getStatus,

@@ -17,10 +17,6 @@ const config = {
         find: "@shared",
         replacement: resolve(__dirname, "../shared"),
       },
-      {
-        find: "@seeds",
-        replacement: resolve(__dirname, "../seeds"),
-      },
     ],
   },
   build: {

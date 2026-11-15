@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { PageHeader } from "@components/PageHeader";
 import {
   Box,
@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { useConfirmation, useBeeStore } from "@renderer/src/hooks";
 import { BeeCardDropzone } from "@components/Cards";
 import { Loader } from "@components/Loader";
-import { ChannelType } from "@shared/enums";
 import { ConfirmModal } from "@components/Modals/ConfirmModal";
 import {
   InActiveBee,
@@ -45,7 +44,7 @@ export const ManageBees = () => {
   const setOpenNewSpeakerModal = useAppStore(
     (state) => state.setOpenNewSpeakerModal
   );
-  const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const setOpenAdoptModal = useAppStore((state) => state.setOpenAdoptModal);
   const handleOpenNewSpeakerModal = () => setOpenNewSpeakerModal(true);
   const {
     open: openConfirmModal,
@@ -135,7 +134,7 @@ export const ManageBees = () => {
       />
       {activeBees.length === 0 && inActiveBees.length === 0 && (
         <NoBees
-          onAddBeeClicked={() => setOpenAddBeeModal(true)}
+          onAdoptClicked={() => setOpenAdoptModal(true)}
           onNewSpeakerClicked={handleOpenNewSpeakerModal}
         />
       )}
@@ -235,7 +234,7 @@ export const ManageBees = () => {
                 gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
               >
                 {activeBees.map(
-                  ({ id, ipAddress, isOnline, isApiOn, name, status }) => (
+                  ({ id, ipAddress, isOnline, isApiOn, name }) => (
                     <Box key={id} minWidth={0}>
                       <BeeCardWithPolling
                         key={id}
@@ -246,11 +245,6 @@ export const ManageBees = () => {
                         ipAddress={ipAddress}
                         apiOn={isApiOn}
                         online={isOnline}
-                        channelType={ChannelType.MONO}
-                        channel1={id}
-                        channel2={id}
-                        jackIsRunning={status?.isJackRunning}
-                        jackTripIsRunning={status?.isJacktripRunning}
                         collapsed={manageBeesCollapsed}
                         onDoubleClick={() => setInActive(id)}
                       />

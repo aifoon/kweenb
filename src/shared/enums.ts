@@ -25,7 +25,6 @@ export enum AppViews {
   Settings = "settings",
   Routing = "routing",
   Monitor = "monitor",
-  Tools = "tools",
 }
 
 export enum PDAudioParam {

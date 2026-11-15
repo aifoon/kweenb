@@ -6,7 +6,7 @@ import {
 import Yup from "@renderer/src/yup-ext";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { Formik, Form } from "formik";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, LinearProgress } from "@mui/material";
 import {
   Button,

@@ -27,8 +27,7 @@
     "paths": {
       "@components/*": ["components/*"],
       "@renderer/*": ["renderer/*"],
-      "@shared/*": ["shared/*"],
-      "@seeds/*": ["seeds/*"]
+      "@shared/*": ["shared/*"]
     }
   },
   "exclude": [

@@ -2,12 +2,7 @@ import { PageSidebarProps } from "../Sidebar/PageSidebar";
 import { Grid } from "@mui/material";
 import { ReactElement } from "react";
 
-import {
-  SimpleTreeView,
-  SimpleTreeViewProps,
-} from "@mui/x-tree-view/SimpleTreeView";
-import { TreeItem } from "@mui/x-tree-view/TreeItem";
-import { TreeViewProps } from "@mui/x-tree-view";
+import { SimpleTreeViewProps } from "@mui/x-tree-view/SimpleTreeView";
 import { SimpleTreeviewSidebarProps } from "@components/Sidebar/SimpleTreeviewSidebar";
 
 export interface Z3PageSidebarProps {

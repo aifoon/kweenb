@@ -1,5 +1,4 @@
-import React, { ReactElement } from "react";
-import styled from "styled-components";
+import { ReactElement } from "react";
 import { ButtonProps } from "../Buttons/Button";
 import { Box } from "@mui/material";
 

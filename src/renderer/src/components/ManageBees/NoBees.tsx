@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Button,
   ButtonSize,
@@ -8,26 +7,29 @@ import {
 import { Z3PageCentered } from "@components/Layout";
 
 interface NoBeesProps {
-  onAddBeeClicked: () => void;
+  onAdoptClicked: () => void;
   onNewSpeakerClicked: () => void;
 }
 
 export const NoBees = ({
-  onAddBeeClicked,
+  onAdoptClicked,
   onNewSpeakerClicked,
 }: NoBeesProps) => (
   <Z3PageCentered>
     <div style={{ width: "500px", textAlign: "center" }}>
       <h2>Welcome to KweenB!</h2>
-      <p>With this application you&apos;ll be able to manage bees. Have fun!</p>
+      <p>
+        Switch your bees on and make sure this computer is on their network.
+        KweenB then finds them and adds them by itself.
+      </p>
       <Button
-        key="addNewBee"
+        key="adoptFromNetwork"
         buttonSize={ButtonSize.Medium}
         buttonUse={ButtonUse.Normal}
         buttonType={ButtonType.Primary}
-        onClick={onAddBeeClicked}
+        onClick={onAdoptClicked}
       >
-        Start by adding your first bee
+        Start adopting from the network
       </Button>
       <p>
         <Button
@@ -36,7 +38,7 @@ export const NoBees = ({
           buttonType={ButtonType.TertiaryWhite}
           onClick={onNewSpeakerClicked}
         >
-          Or set up a new speaker
+          Or set up a speaker that was just flashed
         </Button>
       </p>
     </div>

@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import { Box, Tooltip, Typography } from "@mui/material";
 import { IBeeMonitoring } from "../../shared/interfaces";

@@ -24,21 +24,6 @@ export const Utils = {
   capitalize: (s: string) => (s && s[0].toUpperCase() + s.slice(1)) || "",
 
   /**
-   * Calculate the latency of the audio system
-   * @param sampleRate The sample rate of the audio system
-   * @param bufferSize The buffer size of the audio system
-   * @param periods The number of periods
-   * @returns
-   */
-  calculateLatency: (
-    sampleRate: number,
-    bufferSize: number,
-    periods: number
-  ) => {
-    return Utils.roundToDecimals((bufferSize / sampleRate) * periods * 1000, 2);
-  },
-
-  /**
    * Estimate the delay between sound entering kweenb and leaving a bee.
    * This is a calculation from the settings, not a measurement.
    * @param bee The audio settings of the bees
@@ -74,16 +59,6 @@ export const Utils = {
     return Utils.roundToDecimals(
       capture + jacktrip + pdAudioBufferMs + playback,
       0
-    );
-  },
-
-  /**
-   * A function that will compare two arrays
-   */
-  compareArrays: (a: any, b: any) => {
-    return (
-      a.length === b.length &&
-      a.every((element: any, index: any) => element === b[index])
     );
   },
 
@@ -129,28 +104,6 @@ export const Utils = {
     const timestamp = Date.now().toString(36); // compact time
     const random = Math.random().toString(36).slice(2, 10); // 8 random characters
     return `${prefix}-${timestamp}-${random}`;
-  },
-  /**
-   * Get the time difference between two dates in seconds
-   * @param date1 The first date
-   * @param date2 The second date
-   * @returns The time difference in seconds
-   */
-  getTimeDifferenceInSeconds: (date1: Date, date2: Date): number => {
-    const differenceInMilliseconds = Math.abs(
-      date2.getTime() - date1.getTime()
-    );
-    const differenceInSeconds = Math.floor(differenceInMilliseconds / 1000);
-    return differenceInSeconds;
-  },
-
-  /**
-   * A function that checks if a number has decimals
-   * @param number The number to check
-   * @returns True if the number has decimals, false otherwise
-   */
-  hasDecimals: (number: number): boolean => {
-    return number % 1 !== 0;
   },
 
   /**

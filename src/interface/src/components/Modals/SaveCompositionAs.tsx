@@ -1,5 +1,5 @@
 import { BaseModal } from "@components/Modals/BaseModal";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 import { Box, Button, ButtonGroup, TextField } from "@mui/material";
 import { useAppPersistentStorage } from "../../hooks/useAppPersistentStorage";

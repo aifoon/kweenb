@@ -4,7 +4,6 @@ import { StatusBullet, StatusBulletType } from "@components/StatusBullet";
 import { Box } from "@mui/material";
 import { useAudioMixerStore } from "@renderer/src/hooks";
 import { IBee } from "@shared/interfaces";
-import React from "react";
 
 type BeeAudioMixerProps = {
   bee: IBee;

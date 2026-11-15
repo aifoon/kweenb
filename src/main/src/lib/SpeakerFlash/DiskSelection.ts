@@ -144,16 +144,6 @@ export const parsePlist = (xml: string): PlistValue => {
 };
 
 /**
- * The whole disks in the output of `diskutil list -plist`
- * @param list The parsed output
- */
-export const wholeDiskIdsOf = (list: PlistValue): string[] => {
-  if (typeof list !== "object" || Array.isArray(list)) return [];
-  const wholeDisks = list.WholeDisks;
-  return Array.isArray(wholeDisks) ? wholeDisks.filter(isWholeDiskId) : [];
-};
-
-/**
  * What we need to know about a disk
  * @param info The parsed output of `diskutil info -plist <disk>`
  * @returns null when this is not the description of a disk
