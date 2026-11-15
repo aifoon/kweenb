@@ -48,12 +48,28 @@ const ChosenImage = styled.div`
   border-radius: var(--radiusMedium);
 `;
 
+// numbered steps (the app switches the numbers of lists off, so they are
+// made here)
 const Instructions = styled.ol`
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
   display: flex;
   flex-direction: column;
   gap: 5px;
+
+  li {
+    counter-increment: step;
+    display: flex;
+    gap: 8px;
+  }
+
+  li::before {
+    content: counter(step) ".";
+    flex: none;
+    opacity: 0.7;
+  }
 `;
 
 /**
@@ -76,6 +92,8 @@ const progressInWords = (progress: IFlashProgress, stopping: boolean) => {
   if (progress.step === "writing")
     return `Writing the image… ${progress.percentage || 0}%`;
   if (progress.step === "checking") return "Checking…";
+  if (progress.step === "preparing")
+    return "Getting the speaker's storage ready…";
   return "Waiting for your password…";
 };
 

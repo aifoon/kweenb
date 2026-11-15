@@ -68,6 +68,39 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
         spawnProcess = null;
       }
 
+      // KWEENB_AS_APP=1: let the Mac start Electron as an app of its own,
+      // not as a child of this terminal. macOS gives permissions (like
+      // writing to an external disk when a speaker is flashed) per app, and
+      // a child of a terminal is judged as that terminal. What the app says
+      // goes to the file in KWEENB_APP_LOG.
+      if (process.env.KWEENB_AS_APP === "1" && process.platform === "darwin") {
+        const path = require("path");
+        const appPath = path.resolve(
+          path.dirname(String(electronPath)),
+          "..",
+          ".."
+        );
+        const log = process.env.KWEENB_APP_LOG || "/dev/null";
+        const env = ["MODE", "VITE_DEV_SERVER_PORT", "VITE_DEV_SERVER_HOST", "VITE_DEV_SERVER_URL", "PATH"]
+          .filter((name) => process.env[name] !== undefined)
+          .flatMap((name) => ["--env", `${name}=${process.env[name]}`]);
+        spawnProcess = spawn("open", [
+          "-n",
+          "-W",
+          "-a",
+          appPath,
+          "--stdout",
+          log,
+          "--stderr",
+          log,
+          ...env,
+          "--args",
+          process.cwd(),
+        ]);
+        spawnProcess.on("exit", process.exit);
+        return;
+      }
+
       spawnProcess = spawn(String(electronPath), ["."]);
 
       spawnProcess.stdout.on(

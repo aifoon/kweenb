@@ -292,7 +292,7 @@ export interface IFlashStorageResult {
 
 // sent while a speaker is looked for and flashed
 export interface IFlashProgress {
-  step: "looking" | "found" | "password" | "writing" | "checking";
+  step: "looking" | "found" | "password" | "preparing" | "writing" | "checking";
   // only while writing (0 - 100)
   percentage?: number;
 }

@@ -7,6 +7,7 @@ import {
   BatteryIndicator,
   BeeActivity,
   SoundIndicator,
+  isSound,
   WifiIndicator,
   beeActivityText,
 } from "@components/Cards/BeeIndicators";
@@ -405,7 +406,7 @@ const LiveMeter = ({ beeId }: { beeId: number }) => {
       <Box display="flex" justifyContent="space-between" mb={0.5}>
         <Typography variant="extraSmall">Sound coming out, live</Typography>
         <Typography variant="extraSmall">
-          {level !== null && level > -60 ? `${Math.round(level)} dB` : "Silent"}
+          {isSound(level) ? `${Math.round(level as number)} dB` : "Silent"}
         </Typography>
       </Box>
       <LiveLevelBar beeId={beeId} height={12} onLevel={setLevel} />
@@ -470,14 +471,14 @@ const BeeDashboard = ({
                 <StatValue>
                   {!bee.online || bee.outputLevelDb === null
                     ? "–"
-                    : bee.outputLevelDb > -60
+                    : isSound(bee.outputLevelDb)
                     ? `${bee.outputLevelDb} dB`
                     : "Silent"}
                 </StatValue>
                 <Typography variant="extraSmall">
                   {bee.online &&
                   bee.outputLevelDb !== null &&
-                  bee.outputLevelDb > -60
+                  isSound(bee.outputLevelDb)
                     ? "coming out of the bee"
                     : " "}
                 </Typography>

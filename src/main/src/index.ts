@@ -7,6 +7,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 
+import "./cwd";
 import path from "path";
 import { app } from "electron";
 import { ElectronApp } from "./lib";

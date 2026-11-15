@@ -208,6 +208,7 @@ export const flashSpeaker = async (
   currentOperation = operation;
   try {
     await flashSpeakerStorage(
+      USBBOOT_FOLDER,
       String(imagePath),
       storage,
       operation,

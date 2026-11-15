@@ -25,8 +25,11 @@ import {
   BYTES_FILE,
   PIPE_FILE,
   RESULT_FILE,
+  STARTED_FILE,
+  WRITE_LOG_FILE,
   WriteTarget,
   buildAdministratorAppleScript,
+  buildForceUnmountScript,
   buildWriteScript,
   parseWriteScriptResult,
 } from "./PrivilegedScript";
@@ -34,7 +37,7 @@ import {
 const DISKUTIL = "/usr/sbin/diskutil";
 
 // how long the storage of a speaker gets to show up once the speaker was found
-const STORAGE_TIMEOUT_MS = 30000;
+const STORAGE_TIMEOUT_MS = 120000;
 
 // the pause between two looks at the disks
 const STORAGE_POLL_MS = 1000;
@@ -74,7 +77,7 @@ export interface RunningScript {
   kill: () => void;
 }
 
-export type WriteStep = "password" | "writing" | "checking";
+export type WriteStep = "password" | "preparing" | "writing" | "checking";
 
 export interface WriteImageOptions {
   imagePath: string;
@@ -97,16 +100,22 @@ const sleep = (ms: number) =>
  */
 const askDiskutil = (args: string[]): Promise<string> =>
   new Promise((resolve, reject) => {
-    execFile(DISKUTIL, args, { maxBuffer: 16 * 1024 * 1024 }, (error, stdout) =>
-      error ? reject(error) : resolve(stdout)
+    // with a time limit: on some computers diskutil does not answer
+    execFile(
+      DISKUTIL,
+      args,
+      { maxBuffer: 16 * 1024 * 1024, timeout: 10000 },
+      (error, stdout) => (error ? reject(error) : resolve(stdout))
     );
   });
 
 /**
- * Every whole disk of this computer
+ * Every whole disk of this computer. They are read from /dev, not asked of
+ * `diskutil list`: that can hang (seen with a large backup disk connected),
+ * while asking about one disk at a time keeps working.
  */
 export const listAllDiskIds = async (): Promise<string[]> =>
-  wholeDiskIdsOf(parsePlist(await askDiskutil(["list", "-plist"])));
+  (await fs.promises.readdir("/dev")).filter(isWholeDiskId);
 
 /**
  * What a disk is, null when it is not there (any more)
@@ -126,13 +135,11 @@ export const describeDisk = async (
 };
 
 /**
- * The external disks that are connected right now
+ * The disks that are connected right now. Which of them could be a speaker
+ * is decided by selectSpeakerStorage, on what each disk says about itself.
  */
 export const listExternalDisks = async (): Promise<DiskInfo[]> => {
-  const diskIds = wholeDiskIdsOf(
-    parsePlist(await askDiskutil(["list", "-plist", "external", "physical"]))
-  );
-  const disks = await Promise.all(diskIds.map(describeDisk));
+  const disks = await Promise.all((await listAllDiskIds()).map(describeDisk));
   return disks.filter((disk): disk is DiskInfo => disk !== null);
 };
 
@@ -207,8 +214,9 @@ export const openSpeakerStorage = async (
     child.on("close", (code) => {
       // eslint-disable-next-line no-param-reassign
       operation.abort = undefined;
-      if (code !== 0 && !operation.cancelled)
-        console.error(`Opening the storage of a speaker failed:\n${output}`);
+      // what the tool said, for whoever looks into a flash that went wrong
+      if (!operation.cancelled)
+        console.log(`rpiboot ended with ${code}:\n${output}`);
       resolve(code);
     });
   });
@@ -228,10 +236,18 @@ export const openSpeakerStorage = async (
 
     let selection;
     try {
-      selection = selectSpeakerStorage(
-        diskIdsBefore,
-        await listExternalDisks()
-      );
+      const disksNow = await listExternalDisks();
+      const fresh = disksNow.filter((d) => !diskIdsBefore.includes(d.id));
+      if (fresh.length > 0)
+        console.log(
+          `New disks: ${fresh
+            .map(
+              (d) =>
+                `${d.id} "${d.mediaName}" ${d.sizeBytes} bytes, bus ${d.busProtocol}, internal ${d.internal}, external ${d.external}, physical ${d.physical}`
+            )
+            .join("; ")}`
+        );
+      selection = selectSpeakerStorage(diskIdsBefore, disksNow);
     } catch (e) {
       // look again in a moment
       continue;
@@ -277,6 +293,67 @@ export const runWithAdministratorRights = (script: string): RunningScript => {
 };
 
 /**
+ * Run a script as the user who is logged in
+ * @param script The shell script
+ */
+export const runAsUser = (script: string): RunningScript => {
+  const child = spawn("/bin/sh", ["-c", script], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let output = "";
+  child.stdout.on("data", (chunk) => (output += chunk.toString()));
+  child.stderr.on("data", (chunk) => (output += chunk.toString()));
+  return {
+    done: new Promise((resolve) => {
+      child.on("error", (e) => resolve({ code: null, output: e.message }));
+      child.on("close", (code) => resolve({ code, output }));
+    }),
+    kill: () => child.kill(),
+  };
+};
+
+/**
+ * The parts of a disk that are in use (/dev/disk5s1, ...)
+ */
+const mountedPartsOf = (diskId: string): Promise<string[]> =>
+  new Promise((resolve) => {
+    execFile("/sbin/mount", [], { timeout: 10000 }, (error, stdout) =>
+      resolve(
+        error
+          ? []
+          : stdout
+              .split("\n")
+              .map((line) => line.split(" ")[0])
+              .filter((part) => part.startsWith(`/dev/${diskId}s`))
+      )
+    );
+  });
+
+/**
+ * Take a disk out of use. The usual way first; on a computer where that
+ * does not come back, the direct way, which asks for the password of an
+ * administrator.
+ * @returns false when the disk is still in use
+ */
+const takeOutOfUse = async (
+  diskId: string,
+  operation: FlashOperation
+): Promise<boolean> => {
+  await askDiskutil(["unmountDisk", diskId]).catch(() => {});
+  let parts = await mountedPartsOf(diskId);
+  if (parts.length === 0) return true;
+  if (operation.cancelled) return false;
+  const forced = runWithAdministratorRights(buildForceUnmountScript(parts));
+  // eslint-disable-next-line no-param-reassign
+  operation.abort = () => forced.kill();
+  await forced.done;
+  // eslint-disable-next-line no-param-reassign
+  operation.abort = undefined;
+  parts = await mountedPartsOf(diskId);
+  return parts.length === 0;
+};
+
+/**
  * Write an image and check that it arrived
  * @param options
  */
@@ -306,6 +383,14 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
 
     if (onProgress) onProgress("password");
     const script = runScript(buildWriteScript(target, workDir));
+    // the script tells when it runs: the password was given and the storage
+    // is being taken out of use
+    const watchStart = setInterval(() => {
+      if (!fs.existsSync(path.join(workDir, STARTED_FILE))) return;
+      clearInterval(watchStart);
+      if (onProgress && !feeder.isOpen()) onProgress("preparing");
+    }, 500);
+    script.done.then(() => clearInterval(watchStart));
     const feeder = feedImage({
       imagePath,
       pipePath,
@@ -355,6 +440,16 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
         .catch(() => null)
     );
 
+    // for whoever looks into a flash that went wrong
+    const writeLog = await fs.promises
+      .readFile(path.join(workDir, WRITE_LOG_FILE), "utf8")
+      .catch(() => "");
+    console.log(
+      `Flash: the script ended with "${result.outcome}"; the writer said: ${
+        writeLog.trim() || "(nothing)"
+      }`
+    );
+
     switch (result.outcome) {
       case "ok":
         if (fed instanceof Error) break;
@@ -372,6 +467,11 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
           "The speaker's storage is in use by another app, so nothing was written. Close apps that may be using it (Raspberry Pi Imager for example) and try again."
         );
       case "write":
+        // the Mac did not hand the disk over: no password, or not allowed
+        if (/authopen/.test(writeLog))
+          throw new FlashError(
+            "The Mac did not let KweenB open the speaker's storage, so nothing was written. Try again and give your password when the Mac asks for it."
+          );
         throw new FlashError(
           "The image could not be written to the speaker. Check that the image is not larger than the speaker's storage and that the USB cable sits tight, then flash it again."
         );
@@ -418,6 +518,7 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
  * @param onProgress
  */
 export const flashSpeakerStorage = async (
+  usbbootFolder: string,
   imagePath: string,
   disk: DiskInfo,
   operation: FlashOperation,
@@ -440,10 +541,35 @@ export const flashSpeakerStorage = async (
       "The speaker is no longer connected the way it was, so nothing was written. Switch the speaker off and on, and start again."
     );
 
+  // macOS only lets an app write to an external disk when it asks as the
+  // user who is logged in, through Apple's own helper (authopen, used by
+  // the writer); with administrator rights it is refused. So the disk is
+  // taken out of use first, and the writing is done as the user. The Mac
+  // asks for the password when the writer opens the disk.
+  if (onProgress) onProgress("preparing");
+  if (!(await takeOutOfUse(disk.id, operation))) {
+    if (operation.cancelled)
+      throw new FlashError(
+        "Stopped. Nothing was changed on the speaker.",
+        true
+      );
+    throw new FlashError(
+      "The speaker's storage is in use by another app, so nothing was written. Close apps that may be using it (Raspberry Pi Imager for example) and try again."
+    );
+  }
+  if (operation.cancelled)
+    throw new FlashError("Stopped. Nothing was changed on the speaker.", true);
+
   await writeImage({
     imagePath,
-    target: { kind: "disk", diskId: disk.id, sizeBytes: disk.sizeBytes },
-    runScript: runWithAdministratorRights,
+    target: {
+      kind: "disk",
+      diskId: disk.id,
+      sizeBytes: disk.sizeBytes,
+      writerPath: path.join(usbbootFolder, "flash-writer"),
+      unmounted: true,
+    },
+    runScript: runAsUser,
     operation,
     onProgress,
   });

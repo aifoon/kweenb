@@ -20,6 +20,9 @@ import {
 export const MONITOR_STEP_MS = 30 * 1000;
 export const MONITOR_STEPS = 60;
 
+// a stream that just started is given this long before what it reports counts
+const SETTLE_SECONDS = 14;
+
 // events of the same kind on the same bee within a minute are counted together
 const MERGE_EVENTS_MS = 60 * 1000;
 
@@ -35,6 +38,8 @@ export interface MonitorStatus {
     restarts: number;
     xruns: number;
     glitches: number;
+    // how long the stream runs, when the bee tells
+    runningSeconds?: number;
   };
   battery: { percentage: number | null; level: BeeBatteryLevel | null };
   wifiSignalDbm: number | null;
@@ -275,7 +280,12 @@ class SwarmMonitor {
       // what was counted since the last status
       const sameRun =
         before.stream.state === "running" && stream.state === "running";
-      if (sameRun) {
+      // while a stream starts Jack and Jacktrip report late packets and
+      // dropouts that are part of settling in, not of a bad connection
+      const settling =
+        stream.runningSeconds !== undefined &&
+        stream.runningSeconds < SETTLE_SECONDS;
+      if (sameRun && !settling) {
         const latePackets = counterIncrease(
           before.stream.glitches,
           stream.glitches

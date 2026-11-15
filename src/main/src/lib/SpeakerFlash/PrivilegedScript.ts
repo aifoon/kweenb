@@ -14,10 +14,22 @@ import { isWholeDiskId } from "./DiskSelection";
 export const PIPE_FILE = "image.pipe";
 export const BYTES_FILE = "bytes";
 export const RESULT_FILE = "result";
+// made by the script as soon as it runs (the password was given)
+export const STARTED_FILE = "started";
+// what the program that writes said (how much it wrote, or why it failed)
+export const WRITE_LOG_FILE = "write.log";
 
 export type WriteTarget =
-  // the storage of a speaker, with the size it had when it was chosen
-  | { kind: "disk"; diskId: string; sizeBytes: number }
+  // the storage of a speaker, with the size it had when it was chosen and
+  // the tool that writes to it (see flash-writer/flash-writer.c)
+  | {
+      kind: "disk";
+      diskId: string;
+      sizeBytes: number;
+      writerPath: string;
+      // true when the disk was taken out of use already
+      unmounted?: boolean;
+    }
   // an ordinary file (tests only)
   | { kind: "file"; path: string };
 
@@ -68,6 +80,8 @@ export const buildWriteScript = (
       throw new Error(`"${target.diskId}" is not the name of a disk.`);
     if (!Number.isSafeInteger(target.sizeBytes) || target.sizeBytes <= 0)
       throw new Error("The size of the disk is not known.");
+    if (!path.isAbsolute(target.writerPath))
+      throw new Error("The tool that writes has to be given with a full path.");
 
     const info = (key: string) =>
       `"$(/usr/sbin/diskutil info -plist "$DISK" | /usr/bin/plutil -extract ${key} raw -o - -)"`;
@@ -76,13 +90,25 @@ export const buildWriteScript = (
       `DISK=${quoteForShell(target.diskId)}`,
       `TARGET="/dev/r$DISK"`,
       `EJECT=''`,
-      `finish() { /bin/echo "$1" > "$DIR/${RESULT_FILE}"; if [ -n "$EJECT" ]; then /usr/sbin/diskutil eject "$DISK" > /dev/null 2>&1; fi; exit 0; }`,
+      // run something with a time limit: on some computers diskutil does
+      // not come back from unmounting or ejecting
+      `limited() { "$@" > /dev/null 2>&1 & P=$!; N=0; while /bin/kill -0 $P 2> /dev/null && [ $N -lt 20 ]; do /bin/sleep 1; N=$((N+1)); done; if /bin/kill -0 $P 2> /dev/null; then /bin/kill -9 $P; return 124; fi; wait $P; }`,
+      // the parts of the disk that are in use
+      `mounted() { /sbin/mount | /usr/bin/awk -v d="/dev/$DISK" 'index($1, d "s") == 1 { print $1 }'; }`,
+      `finish() { /bin/echo "$1" > "$DIR/${RESULT_FILE}"; if [ -n "$EJECT" ]; then limited /usr/sbin/diskutil eject "$DISK"; fi; exit 0; }`,
+      // KweenB sees that the password was given
+      `/usr/bin/touch "$DIR/${STARTED_FILE}"`,
       // the disk has to be the one that was chosen: same size, not a disk of this computer
       `[ ${info("TotalSize")} = ${quoteForShell(
         String(target.sizeBytes)
       )} ] || finish changed`,
       `[ ${info("Internal")} = 'false' ] || finish changed`,
-      `/usr/sbin/diskutil unmountDisk "$DISK" > /dev/null 2>&1 || finish unmount`,
+      // take the disk out of use: the usual way first, the direct way when
+      // that does not come back
+      target.unmounted
+        ? ":"
+        : `limited /usr/sbin/diskutil unmountDisk "$DISK" || for PART in $(mounted); do /sbin/umount -f "$PART" > /dev/null 2>&1; done`,
+      `[ -z "$(mounted)" ] || finish unmount`,
       `EJECT=1`
     );
   } else {
@@ -94,20 +120,60 @@ export const buildWriteScript = (
     );
   }
 
-  lines.push(
-    // short reads from the pipe are gathered into full blocks
-    `/bin/dd if="$DIR/${PIPE_FILE}" of="$TARGET" ibs=1m obs=4m 2> /dev/null || finish write`,
-    `/bin/sync`,
-    // KweenB tells how long the image was once all of it went into the pipe
-    `[ -f "$DIR/${BYTES_FILE}" ] || finish stopped`,
-    `BYTES="$(/bin/cat "$DIR/${BYTES_FILE}")"`,
-    `case "$BYTES" in ''|*[!0-9]*) finish stopped ;; esac`,
-    // read the same number of bytes back
-    `HASH="$(/bin/dd if="$TARGET" bs=4m count=$(( (BYTES + 4194303) / 4194304 )) 2> /dev/null | /usr/bin/head -c "$BYTES" | /usr/bin/shasum -a 256 | /usr/bin/cut -c 1-64)"`,
-    `finish "ok:$HASH"`
-  );
+  if (target.kind === "disk") {
+    lines.push(
+      // macOS does not let a program open an external disk directly, not
+      // even with these rights: the writer goes through Apple's authopen.
+      // It writes what comes through the pipe, reads it back and tells the
+      // checksum and the number of bytes ("ok:<sha256>:<bytes>").
+      `WROTE="$(${quoteForShell(
+        target.writerPath
+      )} "$TARGET" < "$DIR/${PIPE_FILE}" 2> "$DIR/${WRITE_LOG_FILE}")" || finish write`,
+      `/bin/sync`,
+      // KweenB tells how long the image was once all of it went into the pipe
+      `[ -f "$DIR/${BYTES_FILE}" ] || finish stopped`,
+      `BYTES="$(/bin/cat "$DIR/${BYTES_FILE}")"`,
+      `case "$BYTES" in ''|*[!0-9]*) finish stopped ;; esac`,
+      // all of it has to be written
+      `case "$WROTE" in ok:*:"$BYTES") ;; *) finish stopped ;; esac`,
+      `HASH="\${WROTE#ok:}"`,
+      `finish "ok:\${HASH%%:*}"`
+    );
+  } else {
+    lines.push(
+      // short reads from the pipe are gathered into full blocks; what dd
+      // says is kept: it tells why writing failed
+      `/bin/dd if="$DIR/${PIPE_FILE}" of="$TARGET" ibs=1m obs=4m 2> "$DIR/${WRITE_LOG_FILE}" || finish write`,
+      `/bin/sync`,
+      // KweenB tells how long the image was once all of it went into the pipe
+      `[ -f "$DIR/${BYTES_FILE}" ] || finish stopped`,
+      `BYTES="$(/bin/cat "$DIR/${BYTES_FILE}")"`,
+      `case "$BYTES" in ''|*[!0-9]*) finish stopped ;; esac`,
+      // read the same number of bytes back
+      `HASH="$(/bin/dd if="$TARGET" bs=4m count=$(( (BYTES + 4194303) / 4194304 )) 2> /dev/null | /usr/bin/head -c "$BYTES" | /usr/bin/shasum -a 256 | /usr/bin/cut -c 1-64)"`,
+      `finish "ok:$HASH"`
+    );
+  }
 
   return lines.join("\n");
+};
+
+/**
+ * The script that takes parts of a disk out of use the direct way, for a
+ * computer where the usual way does not come back. It needs administrator
+ * rights.
+ * @param parts The parts that are in use (/dev/disk5s1, ...)
+ */
+export const buildForceUnmountScript = (parts: string[]): string => {
+  if (
+    parts.length === 0 ||
+    parts.some((part) => !/^\/dev\/disk[0-9]+s[0-9]+$/.test(part))
+  )
+    throw new Error("Only the parts of a disk can be taken out of use.");
+  return [
+    ...parts.map((part) => `/sbin/umount -f ${quoteForShell(part)}`),
+    "exit 0",
+  ].join("\n");
 };
 
 /**

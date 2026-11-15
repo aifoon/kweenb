@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Tooltip } from "@mui/material";
+import { isSound, levelFill } from "@components/Cards/BeeIndicators";
 import { useLiveLevel } from "@renderer/src/hooks/useLiveLevels";
 
 /**
@@ -31,9 +32,8 @@ const Peak = styled.div`
   opacity: 0.8;
 `;
 
-// the loudest 60 dB are shown
-const positionOf = (levelDb: number): number =>
-  Math.max(0, Math.min(100, ((levelDb + 60) / 60) * 100));
+// from silence to the loudest
+const positionOf = levelFill;
 
 // the bee tells the average level, not the peaks: a tone at full scale
 // reads -3 dB, music that clips reads lower still
@@ -82,8 +82,9 @@ export const LiveLevelBar = ({
   const shown = level === null ? -100 : level;
   let explanation = "This bee does not tell its level";
   if (level !== null)
-    explanation =
-      level > -60 ? `Sound is coming out (${Math.round(level)} dB)` : "Silent";
+    explanation = isSound(level)
+      ? `Sound is coming out (${Math.round(level)} dB)`
+      : "Silent";
 
   return (
     <Tooltip title={explanation}>
@@ -91,7 +92,7 @@ export const LiveLevelBar = ({
         <Fill
           style={{ width: `${positionOf(shown)}%`, background: colorOf(shown) }}
         />
-        {peak > -60 && (
+        {isSound(peak) && (
           <Peak style={{ left: `calc(${positionOf(peak)}% - 2px)` }} />
         )}
       </Track>

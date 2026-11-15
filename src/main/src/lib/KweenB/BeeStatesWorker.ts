@@ -317,7 +317,10 @@ class BeeStatesWorker {
               const beeState = this._beeStates.getBeeState(currentBee);
               if (beeState)
                 this._monitor.reportStatus(beeId, currentBee.name, {
-                  stream: beeState.stream,
+                  stream: {
+                    ...beeState.stream,
+                    runningSeconds: status.stream?.runningSeconds,
+                  },
                   battery: beeState.battery,
                   wifiSignalDbm: beeState.wifiSignalDbm,
                   outputLevelDb: beeState.outputLevelDb,

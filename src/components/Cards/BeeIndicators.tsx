@@ -225,8 +225,22 @@ export const WifiIndicator = ({
  * itself, so it is true for a stream, a triggered sound and both together.
  */
 
-// below this the bee is silent
-const SILENCE_DB = -60;
+// Below this the bee is silent. A bee that plays nothing tells exactly
+// -100 (no signal at all), so the line is drawn low: also sound that is
+// played softly has to show as sound.
+export const SILENCE_DB = -90;
+
+/**
+ * Is this level sound (and not silence)
+ */
+export const isSound = (levelDb: number | null | undefined): boolean =>
+  levelDb !== null && levelDb !== undefined && levelDb > SILENCE_DB;
+
+/**
+ * How far a level fills a meter (0 - 100): from silence to the loudest
+ */
+export const levelFill = (levelDb: number): number =>
+  Math.max(0, Math.min(100, ((levelDb - SILENCE_DB) / -SILENCE_DB) * 100));
 
 const SoundTrack = styled.div`
   width: 26px;
@@ -257,10 +271,8 @@ export const SoundIndicator = ({
 }: SoundIndicatorProps) => {
   // a bee that does not tell shows nothing
   if (levelDb === null || levelDb === undefined) return null;
-  const playing = levelDb > SILENCE_DB;
-  const fill = playing
-    ? Math.max(8, Math.min(100, ((levelDb - SILENCE_DB) / -SILENCE_DB) * 100))
-    : 0;
+  const playing = isSound(levelDb);
+  const fill = playing ? Math.max(8, levelFill(levelDb)) : 0;
   let color = "var(--green-status)";
   // the bee tells the average level, not the peaks: a tone at full scale
   // reads -3 dB, music that clips reads lower still

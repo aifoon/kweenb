@@ -281,7 +281,13 @@ export const BeeCard = ({
 
             <Box>
               {liveMeter && <Box mb={1.5}>{liveMeter}</Box>}
-              <Box display={"flex"} alignItems={"center"} gap={2}>
+              {/* one under the other: side by side their words wrap */}
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                alignItems={"flex-start"}
+                gap={0.75}
+              >
                 {isOnline && (
                   <WifiIndicator
                     signalDbm={monitoring?.wifiSignalDbm}
