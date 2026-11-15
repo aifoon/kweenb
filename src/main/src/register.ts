@@ -84,6 +84,20 @@ import {
   saveMonitoringLog,
 } from "./controllers/monitor";
 import {
+  activateBackupKey,
+  backUpSwarm,
+  chooseBackupKey,
+  saveBackupKey,
+  cancelCloud,
+  getCloudBackupState,
+  getCloudSettings,
+  getCloudSoundSets,
+  restoreSoundsFromCloud,
+  getSoundsFromCloud,
+  saveCloudSettings,
+  sendSoundsToCloud,
+} from "./controllers/cloud-backup";
+import {
   getRouting,
   getSoundDevice,
   getSoundDeviceChoices,
@@ -114,6 +128,7 @@ const actionListeners = [
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
   { name: "speaker:cancelFlash", listener: cancelFlash },
+  { name: "cloud:cancel", listener: cancelCloud },
   { name: "monitor:followBeeLevels", listener: followBeeLevels },
   { name: "routing:startLevels", listener: startLevels },
   { name: "routing:stopLevels", listener: stopLevels },
@@ -302,6 +317,20 @@ const methodHandlers = [
   { name: "soundDevice:choices", handler: getSoundDeviceChoices },
   { name: "soundDevice:install", handler: installKweenBSoundDevice },
 
+  // CLOUD BACKUP
+
+  { name: "cloud:getSettings", handler: getCloudSettings },
+  { name: "cloud:chooseKey", handler: chooseBackupKey },
+  { name: "cloud:activateKey", handler: activateBackupKey },
+  { name: "cloud:saveKey", handler: saveBackupKey },
+  { name: "cloud:saveSettings", handler: saveCloudSettings },
+  { name: "cloud:getState", handler: getCloudBackupState },
+  { name: "cloud:backUpSwarm", handler: backUpSwarm },
+  { name: "cloud:get", handler: getSoundsFromCloud },
+  { name: "cloud:send", handler: sendSoundsToCloud },
+  { name: "cloud:getSoundSets", handler: getCloudSoundSets },
+  { name: "cloud:restoreSounds", handler: restoreSoundsFromCloud },
+
   // MONITORING
 
   { name: "monitor:get", handler: getMonitoring },
@@ -312,7 +341,16 @@ const methodHandlers = [
 
   { name: "speaker:getSoundBackups", handler: getSoundBackups },
   { name: "speaker:saveSounds", handler: saveSounds },
-  { name: "speaker:restoreSounds", handler: restoreSounds },
+  {
+    name: "speaker:restoreSounds",
+    // only what the page may decide gets through
+    handler: (
+      event: Electron.IpcMainInvokeEvent,
+      beeId: number,
+      backupName: string,
+      exact: boolean
+    ) => restoreSounds(event, beeId, backupName, exact === true),
+  },
 
   /**
    * Streaming

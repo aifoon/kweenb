@@ -8,6 +8,8 @@ import { useAppStore } from "@renderer/src/hooks";
 import { AppMode } from "@shared/enums";
 import { BeeDeviceManagerModal } from "../Modals/BeeDeviceManagerModal";
 import { SaveSoundsModal } from "../Modals/SaveSoundsModal";
+import { CloudBackupModal } from "../Modals/CloudBackupModal";
+import { RestoreSoundsModal } from "../Modals/RestoreSoundsModal";
 import { NewSpeakerModal } from "../ManageBees/NewSpeakerModal";
 import { FlashSpeakerModal } from "../ManageBees/FlashSpeakerModal";
 import { AddBeeModal } from "../ManageBees/AddBeeModal";
@@ -36,6 +38,16 @@ export const GlobalAppComponents = () => {
     (state) => state.setOpenNewSpeakerModal
   );
   const openSaveSoundsModal = useAppStore((state) => state.openSaveSoundsModal);
+  const openCloudBackupModal = useAppStore(
+    (state) => state.openCloudBackupModal
+  );
+  const setOpenCloudBackupModal = useAppStore(
+    (state) => state.setOpenCloudBackupModal
+  );
+  const restoreSoundsFrom = useAppStore((state) => state.restoreSoundsFrom);
+  const setRestoreSoundsFrom = useAppStore(
+    (state) => state.setRestoreSoundsFrom
+  );
   const setOpenSaveSoundsModal = useAppStore(
     (state) => state.setOpenSaveSoundsModal
   );
@@ -131,6 +143,19 @@ export const GlobalAppComponents = () => {
       <SaveSoundsModal
         open={openSaveSoundsModal}
         onClose={() => setOpenSaveSoundsModal(false)}
+      />
+
+      {/* The copy of the saved sounds in the cloud (File menu) */}
+      <CloudBackupModal
+        open={openCloudBackupModal}
+        onClose={() => setOpenCloudBackupModal(false)}
+      />
+
+      {/* Restoring several bees, from the cloud or this computer (File menu) */}
+      <RestoreSoundsModal
+        open={restoreSoundsFrom !== null}
+        source={restoreSoundsFrom || "computer"}
+        onClose={() => setRestoreSoundsFrom(null)}
       />
 
       {/* The Toast messages for the whole app */}

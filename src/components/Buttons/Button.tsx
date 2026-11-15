@@ -84,11 +84,14 @@ export const Button = styled.button.attrs(({ key }) => ({
       return `border: 1px solid ${colorByButtonUse};
               color: ${colorByButtonUse};`;
     }
+    // a button without an outline is as high as one with an outline
     if (buttonType === ButtonType.Tertiary) {
-      return `color: ${colorByButtonUse};`;
+      return `border: 1px solid transparent;
+              color: ${colorByButtonUse};`;
     }
     if (buttonType === ButtonType.TertiaryWhite) {
-      return `color: var(--white);`;
+      return `border: 1px solid transparent;
+              color: var(--white);`;
     }
     if (buttonType === ButtonType.SecondaryWhite) {
       return `border: 1px solid var(--white);

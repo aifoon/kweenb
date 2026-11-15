@@ -135,11 +135,17 @@ const saveAdoptedBee = async (id: number, ipAddress: string) => {
  * @param backupName The saved sounds
  * @param onProgress
  */
-const restoreSoundsToSpeaker = async (
+export const restoreSoundsToSpeaker = async (
   ipAddress: string,
   speakerName: string,
   backupName: string,
-  onProgress: (current: number, total: number, sound: string) => void
+  onProgress: (current: number, total: number, sound: string) => void,
+  options: {
+    // another folder than the backup folder (sounds fetched from the cloud)
+    folder?: string;
+    // also take the sounds off the speaker that are not in the saved sounds
+    exact?: boolean;
+  } = {}
 ): Promise<IRestoreSoundsResult> => {
   if (currentOperation)
     return {
@@ -151,7 +157,7 @@ const restoreSoundsToSpeaker = async (
 
   currentOperation = { cancelled: false };
   try {
-    const backupFolder = await getBackupFolder();
+    const backupFolder = options.folder || (await getBackupFolder());
     const backup = await SoundBackup.describeBackup(backupFolder, backupName);
     if (!backup || backup.sounds === 0)
       return {
@@ -161,15 +167,16 @@ const restoreSoundsToSpeaker = async (
         message: `The saved sounds of ${backupName} are no longer in ${backupFolder}. Choose other sounds or start without sounds.`,
       };
 
-    const { sounds, cancelled } = await SoundBackup.restoreToSpeaker(
+    const { sounds, removed, cancelled } = await SoundBackup.restoreToSpeaker(
       ipAddress,
       backupFolder,
       backupName,
-      { operation: currentOperation, onProgress }
+      { operation: currentOperation, onProgress, exact: options.exact }
     );
     return {
       success: !cancelled,
       sounds,
+      removed,
       cancelled,
       message: cancelled
         ? `Stopped. Not all sounds are on ${speakerName} yet.`
@@ -246,12 +253,27 @@ export const adoptSpeaker = async (
     if (backupName) {
       const speakerName = backupNameOfBee(id);
       sendAdoptSpeakerProgress({ step: "sounds", current: 0, total: 0 });
+      // a backup in the cloud is fetched first (that controller is loaded
+      // here, because it needs this one itself)
+      let folder: string | undefined;
+      if (request.backupSource === "cloud") {
+        const { fetchBackupOfBee } = await import("./cloud-backup");
+        const fetched = await fetchBackupOfBee(backupName);
+        if (!fetched.folder) {
+          result.message = `The speaker has its number, but its sounds could not be fetched from the cloud. ${
+            fetched.message || ""
+          }`;
+          return result;
+        }
+        folder = fetched.folder;
+      }
       const restored = await restoreSoundsToSpeaker(
         fixedAddress,
         speakerName,
         backupName,
         (current, total) =>
-          sendAdoptSpeakerProgress({ step: "sounds", current, total })
+          sendAdoptSpeakerProgress({ step: "sounds", current, total }),
+        { folder }
       );
       result.soundsRestored = restored.success;
       result.sounds = restored.sounds;
@@ -306,7 +328,11 @@ export const getSoundBackups = async (): Promise<ISoundBackup[]> => {
 export const restoreSounds = async (
   event: Electron.IpcMainInvokeEvent,
   beeId: number,
-  backupName: string
+  backupName: string,
+  // also take the sounds off the bee that are not in the saved sounds
+  exact: boolean = false,
+  // another folder than the backup folder (sounds fetched from the cloud)
+  folder?: string
 ): Promise<IRestoreSoundsResult> => {
   let bee: IBee;
   try {
@@ -330,7 +356,8 @@ export const restoreSounds = async (
         current,
         total,
         sound,
-      })
+      }),
+    { exact: exact === true, folder }
   );
 };
 
@@ -364,7 +391,7 @@ export const saveSounds = async (
       return {
         ...result,
         message:
-          "No speaker is switched on right now. Switch on the speakers you want to save and try again.",
+          "No bee is switched on right now. Switch on the bees you want to back up and try again.",
       };
 
     // one bee after the other: together they would only share the same network

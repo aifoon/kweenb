@@ -18,6 +18,9 @@ type AppState = {
   openFlashSpeakerModal: boolean;
   openNewSpeakerModal: boolean;
   openSaveSoundsModal: boolean;
+  openCloudBackupModal: boolean;
+  // where bees are restored from, null when that dialog is closed
+  restoreSoundsFrom: "cloud" | "computer" | null;
   openTriggerOnlyModal: boolean;
   openUploadAudioFilesSettings: boolean;
   toast: ToastMessage;
@@ -39,6 +42,8 @@ type AppAction = {
   setOpenFlashSpeakerModal: (open: boolean) => void;
   setOpenNewSpeakerModal: (open: boolean) => void;
   setOpenSaveSoundsModal: (open: boolean) => void;
+  setOpenCloudBackupModal: (open: boolean) => void;
+  setRestoreSoundsFrom: (source: "cloud" | "computer" | null) => void;
   setOpenTriggerOnlyModal: (open: boolean) => void;
   setOpenUploadAudioFilesSettings: (open: boolean) => void;
   setLoading: (loading: LoadingState) => void;
@@ -69,6 +74,8 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openFlashSpeakerModal: false,
   openNewSpeakerModal: false,
   openSaveSoundsModal: false,
+  openCloudBackupModal: false,
+  restoreSoundsFrom: null,
   openTriggerOnlyModal: false,
   openToastState: false,
   openUploadAudioFilesSettings: false,
@@ -95,6 +102,10 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
     set({ openNewSpeakerModal: open }),
   setOpenSaveSoundsModal: (open: boolean) =>
     set({ openSaveSoundsModal: open }),
+  setOpenCloudBackupModal: (open: boolean) =>
+    set({ openCloudBackupModal: open }),
+  setRestoreSoundsFrom: (source: "cloud" | "computer" | null) =>
+    set({ restoreSoundsFrom: source }),
   setOpenBeeDeviceManagerModal: (open: boolean) =>
     set({ openBeeDeviceManagerModal: open }),
   setOpenConnectBeesModal: (open: boolean) =>

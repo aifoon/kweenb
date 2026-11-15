@@ -30,6 +30,9 @@ export interface SoundTransferOptions {
   onProgress?: (current: number, total: number, sound: string) => void;
   // set cancelled to stop after (or during) the current sound
   operation?: SoundTransferOperation;
+  // putting back only: also take the sounds off the speaker that are not
+  // in the saved sounds, so the speaker ends up exactly like them
+  exact?: boolean;
 }
 
 export interface SoundBackupResult {
@@ -48,6 +51,8 @@ export interface SoundRestoreResult {
   // the number of sounds in the backup
   sounds: number;
   uploaded: number;
+  // the sounds that were taken off the speaker (an exact copy only)
+  removed: number;
   cancelled: boolean;
 }
 
@@ -393,6 +398,7 @@ const restoreToSpeaker = async (
   const result: SoundRestoreResult = {
     sounds: saved.length,
     uploaded: 0,
+    removed: 0,
     cancelled: false,
   };
 
@@ -434,6 +440,19 @@ const restoreToSpeaker = async (
       throw e;
     } finally {
       operation.abort = undefined;
+    }
+  }
+
+  // an exact copy: what is on the speaker but not in the saved sounds goes.
+  // Only after everything arrived, and never with nothing to put back: that
+  // would empty the speaker.
+  if (options.exact && !operation.cancelled && saved.length > 0) {
+    for (const legalName of onSpeaker.keys()) {
+      if (operation.cancelled) break;
+      if (saved.includes(legalName)) continue;
+      // eslint-disable-next-line no-await-in-loop
+      await SpeakerApi.deleteScene(ipAddress, legalName);
+      result.removed += 1;
     }
   }
 

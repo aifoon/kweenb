@@ -120,6 +120,12 @@ class KweenB {
     // bring the settings of an earlier version up to date
     await SettingHelpers.migrateSettings();
 
+    // the File menu shows whether a backup key is installed (loaded here,
+    // because that controller needs this module itself)
+    import("./controllers/cloud-backup")
+      .then(({ showBackupMenu }) => showBackupMenu())
+      .catch(() => {});
+
     // init the jack folder path
     await this.initJackFolderPath();
 

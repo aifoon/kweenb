@@ -13,6 +13,10 @@ interface ConfirmModalProps extends Pick<BaseModalProps, "open" | "onClose"> {
 export const ConfirmModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
+  /* buttons of every kind stand on one line, with the same room between */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--grey-300);

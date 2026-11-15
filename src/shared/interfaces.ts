@@ -194,6 +194,9 @@ export interface IFoundSpeaker {
 
 // the sounds of one bee, saved on this computer
 export interface ISoundBackup {
+  // where the saved sounds are: on this computer (when left out) or only
+  // in the cloud
+  source?: "computer" | "cloud";
   // the name of the bee the sounds came from (e.g. bee07)
   name: string;
   // when the sounds were saved (ISO date)
@@ -227,6 +230,8 @@ export interface ISaveSoundsResult {
 export interface IRestoreSoundsResult {
   success: boolean;
   sounds: number;
+  // the sounds that were taken off the bee (an exact copy only)
+  removed?: number;
   cancelled: boolean;
   // what went wrong and what to try, in plain words
   message?: string;
@@ -239,6 +244,8 @@ export interface IAdoptSpeakerRequest {
   id: number;
   // the saved sounds to put on it (the name of a backup), null for none
   backupName: string | null;
+  // where that backup is: on this computer (when left out) or in the cloud
+  backupSource?: "computer" | "cloud";
 }
 
 // sent while a new speaker is set up
@@ -589,3 +596,92 @@ export interface IRoutingChange {
 }
 
 export type SoundDeviceInstallOutcome = "installed" | "cancelled" | "failed";
+
+/**
+ * A copy of the saved sounds in the cloud (Cloudflare R2)
+ */
+
+export interface ICloudSettings {
+  accountId: string;
+  bucket: string;
+  accessKeyId: string;
+  // the secret itself never leaves the main process
+  hasSecret: boolean;
+}
+
+export interface ICloudSettingsInput {
+  accountId: string;
+  bucket: string;
+  accessKeyId: string;
+  // empty keeps the secret that was filled in before
+  secretAccessKey: string;
+}
+
+// what happened to a backup key (a file with the details of the bucket)
+export interface IBackupKeyResult {
+  // true when the key was activated or saved
+  done: boolean;
+  // the bucket of the key
+  bucket?: string;
+  // the key is encrypted: its (right) passphrase is needed
+  needsPassphrase?: boolean;
+  // what went wrong, in plain words
+  message?: string;
+}
+
+export interface ICloudBee {
+  // bee07
+  name: string;
+  // the sounds saved on this computer, and when they were read from the bee
+  here: number;
+  hereSavedAt: string | null;
+  // the sounds of the bee in the cloud, and when those were read from the bee
+  inCloud: number;
+  cloudSavedAt: string | null;
+  // is the cloud the same as what is saved on this computer
+  cloudIsCurrent: boolean;
+}
+
+export interface ICloudBackupState {
+  // false as long as the bucket and the key are not filled in
+  configured: boolean;
+  // why the cloud could not be looked at, in plain words
+  message?: string;
+  // the bees that are switched on: the ones a backup can read
+  beesOnline?: number;
+  // what the cloud does not have yet, and what only the cloud has
+  toSend?: { files: number; bytes: number };
+  toGet?: { files: number; bytes: number };
+  bees?: ICloudBee[];
+}
+
+// what backing up the swarm did
+export interface ISwarmBackupResult {
+  // the bees whose sounds were read, and the ones that could not be read
+  saved: { name: string; sounds: number }[];
+  notSaved: { name: string; message: string }[];
+  // why no bee was read at all (e.g. none is switched on), in plain words
+  swarmMessage?: string;
+  // the files that went to the cloud
+  sentFiles: number;
+  cancelled: boolean;
+  // why the cloud was not brought up to date, in plain words
+  cloudMessage?: string;
+}
+
+export interface ICloudProgress {
+  direction: "send" | "get";
+  // the file that is on its way, counted from 1
+  current: number;
+  total: number;
+  key: string;
+  doneBytes: number;
+  totalBytes: number;
+}
+
+export interface ICloudTransferResult {
+  files: number;
+  cancelled: boolean;
+  // why it did not work, in plain words
+  message?: string;
+}

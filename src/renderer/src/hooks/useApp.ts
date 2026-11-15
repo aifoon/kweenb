@@ -20,6 +20,12 @@ export const useApp = () => {
   const setOpenSaveSoundsModal = useAppStore(
     (state) => state.setOpenSaveSoundsModal
   );
+  const setOpenCloudBackupModal = useAppStore(
+    (state) => state.setOpenCloudBackupModal
+  );
+  const setRestoreSoundsFrom = useAppStore(
+    (state) => state.setRestoreSoundsFrom
+  );
   const showToast = useAppStore((state) => state.showToast);
 
   useEffect(() => {
@@ -40,6 +46,12 @@ export const useApp = () => {
     });
     window.kweenb.events.onSaveSounds(() => {
       setOpenSaveSoundsModal(true);
+    });
+    window.kweenb.events.onCloudBackup(() => {
+      setOpenCloudBackupModal(true);
+    });
+    window.kweenb.events.onRestoreSounds((event, source) => {
+      setRestoreSoundsFrom(source === "cloud" ? "cloud" : "computer");
     });
 
     // Handle an error

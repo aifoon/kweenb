@@ -1,9 +1,11 @@
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography, LinearProgress } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
 import {
+  IBee,
+  ICloudProgress,
   IRestoreSoundsResult,
   ISoundBackup,
   ISoundsProgress,
@@ -12,48 +14,104 @@ import { beeNameInWords } from "./SaveSoundsModal";
 
 interface RestoreSoundsModalProps
   extends Pick<BaseModalProps, "open" | "onClose"> {
-  // the bee that gets its saved sounds back
-  beeId: number;
-  beeName: string;
+  // where the sounds come from: the backup in the cloud or on this computer
+  source: "cloud" | "computer";
 }
 
 /**
- * Puts the sounds that were saved on this computer back on a bee, for
- * example after it was flashed or when the putting back was interrupted.
+ * A moment in words (15 Nov 14:10)
+ */
+const momentInWords = (iso: string): string => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime()) || date.getTime() === 0)
+    return "an unknown moment";
+  const two = (n: number) => String(n).padStart(2, "0");
+  const months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+  return `${date.getDate()} ${months[date.getMonth()]} ${two(
+    date.getHours()
+  )}:${two(date.getMinutes())}`;
+};
+
+const keyOf = (set: ISoundBackup) => `${set.source || "computer"}:${set.name}`;
+
+const setInWords = (set: ISoundBackup): string =>
+  `${beeNameInWords(set.name)}, ${set.sounds} sound${
+    set.sounds === 1 ? "" : "s"
+  }, backed up on ${momentInWords(set.date)}`;
+
+// what happened to a bee
+interface Outcome {
+  beeId: number;
+  name: string;
+  result: IRestoreSoundsResult;
+}
+
+/**
+ * Restores several bees at once from a backup, in the cloud or on this
+ * computer: every bee gets its own sounds back, or those of another bee.
  */
 export const RestoreSoundsModal = ({
   open,
   onClose,
-  beeId,
-  beeName,
+  source,
 }: RestoreSoundsModalProps) => {
-  // undefined while looking, null when this bee has no saved sounds
-  const [backup, setBackup] = useState<ISoundBackup | null | undefined>();
+  const fromCloud = source === "cloud";
+  // undefined while looking
+  const [bees, setBees] = useState<IBee[] | undefined>();
+  const [sets, setSets] = useState<ISoundBackup[]>([]);
+  // the bees that are ticked, and the sounds chosen per bee
+  const [ticked, setTicked] = useState<number[]>([]);
+  const [chosen, setChosen] = useState<Record<number, string>>({});
+  // also take the sounds off the bees that are not in the saved sounds
+  const [exact, setExact] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [stopping, setStopping] = useState(false);
+  const [current, setCurrent] = useState("");
   const [progress, setProgress] = useState<ISoundsProgress | null>(null);
-  const [result, setResult] = useState<IRestoreSoundsResult | null>(null);
+  const [cloudProgress, setCloudProgress] = useState<ICloudProgress | null>(
+    null
+  );
+  const [outcomes, setOutcomes] = useState<Outcome[] | null>(null);
+  const stopped = useRef(false);
+  const [stopping, setStopping] = useState(false);
 
   useEffect(() => {
     if (!open) return undefined;
 
     // start with a clean sheet
     let closed = false;
-    setBackup(undefined);
+    setBees(undefined);
+    setSets([]);
+    setTicked([]);
+    setChosen({});
+    setExact(false);
     setBusy(false);
-    setStopping(false);
+    setCurrent("");
     setProgress(null);
-    setResult(null);
+    setCloudProgress(null);
+    setOutcomes(null);
+    setStopping(false);
+    stopped.current = false;
 
-    window.kweenb.methods
-      .getSoundBackups()
-      .then((backups) => {
-        if (!closed)
-          setBackup(backups.find(({ name }) => name === beeName) || null);
-      })
-      .catch(() => {
-        if (!closed) setBackup(null);
+    Promise.all([
+      window.kweenb.methods.fetchAllBees().catch(() => [] as IBee[]),
+      (source === "cloud"
+        ? window.kweenb.methods.getCloudSoundSets()
+        : window.kweenb.methods.getSoundBackups()
+      ).catch(() => [] as ISoundBackup[]),
+    ]).then(([allBees, found]) => {
+      if (closed) return;
+      const all = [...found].sort((a, b) => a.name.localeCompare(b.name));
+      const sorted = [...allBees].sort((a, b) => a.id - b.id);
+      // every bee starts with its own sounds, when there are any
+      const own: Record<number, string> = {};
+      sorted.forEach((bee) => {
+        const set = all.find(({ name }) => name === bee.name);
+        if (set) own[bee.id] = keyOf(set);
       });
+      setSets(all);
+      setChosen(own);
+      setBees(sorted);
+    });
 
     const removeListener = window.kweenb.events.onSoundsProgress(
       (event, soundsProgress) => {
@@ -61,112 +119,286 @@ export const RestoreSoundsModal = ({
           setProgress(soundsProgress);
       }
     );
+    const removeCloudListener = window.kweenb.events.onCloudProgress(
+      (event, progressOfCloud) => {
+        if (!closed) setCloudProgress(progressOfCloud);
+      }
+    );
 
     return () => {
       closed = true;
       removeListener();
+      removeCloudListener();
     };
-  }, [open, beeName]);
+  }, [open, source]);
 
-  const handleStart = () => {
+  const setOf = (bee: IBee) =>
+    sets.find((set) => keyOf(set) === chosen[bee.id]);
+  // a bee can get sounds when it is switched on and sounds are chosen for it
+  const ready = (bee: IBee) => bee.isOnline && setOf(bee) !== undefined;
+  const todo = (bees || []).filter(
+    (bee) => ticked.includes(bee.id) && ready(bee)
+  );
+  const selectable = (bees || []).filter(ready);
+
+  const tick = (beeId: number) =>
+    setTicked((before) =>
+      before.includes(beeId)
+        ? before.filter((id) => id !== beeId)
+        : [...before, beeId]
+    );
+
+  /**
+   * One bee after the other: together they would only share the network
+   */
+  const handleStart = async () => {
     setBusy(true);
-    window.kweenb.methods
-      .restoreSounds(beeId, beeName)
-      .then(setResult)
-      .catch(() =>
-        setResult({
+    const done: Outcome[] = [];
+    for (const bee of todo) {
+      if (stopped.current) break;
+      const set = setOf(bee) as ISoundBackup;
+      setCurrent(bee.name);
+      setProgress(null);
+      setCloudProgress(null);
+      let result: IRestoreSoundsResult;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        result = await (set.source === "cloud"
+          ? window.kweenb.methods.restoreSoundsFromCloud(
+              bee.id,
+              set.name,
+              exact
+            )
+          : window.kweenb.methods.restoreSounds(bee.id, set.name, exact));
+      } catch (e) {
+        result = {
           success: false,
           sounds: 0,
           cancelled: false,
-          message:
-            "The sounds could not be put back. Check that the speaker is switched on and try again.",
-        })
-      );
+          message: "It could not be reached. Check that it is switched on.",
+        };
+      }
+      done.push({ beeId: bee.id, name: bee.name, result });
+      if (result.cancelled) break;
+    }
+    setOutcomes(done);
   };
 
   const handleStop = () => {
+    stopped.current = true;
     setStopping(true);
+    window.kweenb.actions.cancelCloud();
     window.kweenb.actions.cancelSounds();
   };
 
-  const bee = beeNameInWords(beeName);
-
   return (
     <BaseModal
-      title="Put saved sounds back"
+      title={
+        fromCloud ? "Restore from the cloud" : "Restore from this computer"
+      }
       disableBackdropClick
       showCloseButton={false}
       open={open}
       onClose={onClose}
     >
-      <Box display={"flex"} flexDirection={"column"} gap={1}>
-        {backup === undefined && (
-          <Typography variant="small">Looking for saved sounds…</Typography>
-        )}
-        {backup === null && (
-          <Typography>
-            There are no saved sounds of {bee} on this computer.
+      <Box display={"flex"} flexDirection={"column"} gap={1.5}>
+        {bees === undefined && (
+          <Typography variant="small">
+            {fromCloud
+              ? "Looking at the backup in the cloud…"
+              : "Looking at the backup on this computer…"}
           </Typography>
         )}
-        {backup && !busy && (
+        {bees && sets.length === 0 && (
+          <Typography>
+            {fromCloud
+              ? "The cloud holds no backup, or it can not be reached. Check that this computer has internet."
+              : "There is no backup on this computer. Use File → Back Up → Back Up to This Computer first."}
+          </Typography>
+        )}
+        {bees && sets.length > 0 && !busy && (
           <>
-            <Typography>
-              Put the sounds of {bee} back on the speaker?
-            </Typography>
-            <Typography variant="small">
-              {`${backup.sounds} sounds, saved on ${new Date(
-                backup.date
-              ).toLocaleString()}. Sounds that are already on the speaker are left as they are.`}
-            </Typography>
+            <Box display={"flex"} alignItems={"center"} gap={2}>
+              <Typography variant="small" style={{ flex: 1 }}>
+                Tick the bees to restore.
+              </Typography>
+              <Typography
+                variant="small"
+                style={{ cursor: "pointer", opacity: 0.8 }}
+                onClick={() =>
+                  setTicked(
+                    ticked.length === selectable.length
+                      ? []
+                      : selectable.map((bee) => bee.id)
+                  )
+                }
+              >
+                {ticked.length === selectable.length && selectable.length > 0
+                  ? "none"
+                  : "all"}
+              </Typography>
+            </Box>
+            <Box
+              display={"flex"}
+              flexDirection={"column"}
+              gap={0.75}
+              style={{ maxHeight: 280, overflowY: "auto" }}
+            >
+              {bees.map((bee) => (
+                <Box
+                  key={bee.id}
+                  display={"flex"}
+                  alignItems={"center"}
+                  gap={1}
+                  style={{ opacity: bee.isOnline ? 1 : 0.5 }}
+                >
+                  <input
+                    type="checkbox"
+                    disabled={!ready(bee)}
+                    checked={ticked.includes(bee.id) && ready(bee)}
+                    onChange={() => tick(bee.id)}
+                    style={{ flex: "none", width: "auto", margin: 0 }}
+                  />
+                  <Typography
+                    variant="small"
+                    style={{ width: 62, flex: "none" }}
+                  >
+                    {beeNameInWords(bee.name)}
+                  </Typography>
+                  {!bee.isOnline ? (
+                    <Typography variant="extraSmall">switched off</Typography>
+                  ) : (
+                    <select
+                      value={chosen[bee.id] || ""}
+                      onChange={(event) =>
+                        setChosen({ ...chosen, [bee.id]: event.target.value })
+                      }
+                      style={{ flex: 1, minWidth: 0 }}
+                    >
+                      {!chosen[bee.id] && (
+                        <option value="">no backup of this bee</option>
+                      )}
+                      {sets.map((set) => (
+                        <option key={keyOf(set)} value={keyOf(set)}>
+                          {setInWords(set)}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </Box>
+              ))}
+            </Box>
+            <Box
+              display={"flex"}
+              alignItems={"flex-start"}
+              gap={1}
+              style={{ cursor: "pointer" }}
+              onClick={() => setExact(!exact)}
+            >
+              <input
+                type="checkbox"
+                checked={exact}
+                onChange={() => setExact(!exact)}
+                style={{ flex: "none", width: "auto", margin: "4px 0 0" }}
+              />
+              <Box>
+                <Typography variant="small">
+                  Make the bees exactly like their backup
+                </Typography>
+                <Typography
+                  variant="extraSmall"
+                  display="block"
+                  style={
+                    exact ? { color: "var(--orange-status)" } : { opacity: 0.7 }
+                  }
+                >
+                  {exact
+                    ? "Sounds that are on a bee now but not in its backup are removed from it."
+                    : "Off: sounds that are already on a bee stay there."}
+                </Typography>
+              </Box>
+            </Box>
+            {fromCloud && (
+              <Typography variant="extraSmall">
+                This computer has to reach the bees and the internet at the same
+                time.
+              </Typography>
+            )}
           </>
         )}
-        {busy && !result && (
+        {busy && !outcomes && (
           <>
             <Typography variant="small">
               {stopping && "Stopping…"}
-              {!stopping && !progress && "Comparing with the speaker…"}
+              {!stopping &&
+                !progress &&
+                cloudProgress &&
+                `${beeNameInWords(
+                  current
+                )}: getting its sounds from the cloud (file ${
+                  cloudProgress.current
+                } of ${cloudProgress.total})…`}
+              {!stopping &&
+                !progress &&
+                !cloudProgress &&
+                `${beeNameInWords(current)}: comparing…`}
               {!stopping &&
                 progress &&
-                `Putting sounds back (${progress.current} of ${progress.total})…`}
+                `${beeNameInWords(current)}: putting sounds on it (${
+                  progress.current
+                } of ${progress.total})…`}
             </Typography>
             <LinearProgress
-              variant={progress && !stopping ? "determinate" : "indeterminate"}
+              variant={
+                !stopping && (progress || cloudProgress)
+                  ? "determinate"
+                  : "indeterminate"
+              }
               value={
                 progress && progress.total > 0
                   ? (progress.current / progress.total) * 100
+                  : cloudProgress && cloudProgress.totalBytes > 0
+                  ? (cloudProgress.doneBytes / cloudProgress.totalBytes) * 100
                   : 0
               }
             />
+            <Typography variant="extraSmall">
+              {`Bee ${todo.findIndex((bee) => bee.name === current) + 1} of ${
+                todo.length
+              }`}
+            </Typography>
           </>
         )}
-        {result && (
-          <>
-            {result.success && !result.cancelled && (
+        {outcomes && (
+          <Box display={"flex"} flexDirection={"column"} gap={0.5}>
+            {outcomes.length < todo.length && (
               <Typography>
-                Done. {bee} has its sounds back ({result.sounds} sounds).
+                Stopped. The bees that were not done yet can be done the next
+                time.
               </Typography>
             )}
-            {result.cancelled && (
-              <Typography>
-                Stopped. The sounds that are not on the speaker yet are put
-                back the next time.
-              </Typography>
-            )}
-            {result.message && (
+            {outcomes.map(({ beeId, name, result }) => (
               <Typography
+                key={beeId}
                 variant="small"
                 style={
                   result.success ? undefined : { color: "var(--red-status)" }
                 }
               >
-                {result.message}
+                {result.success
+                  ? `${beeNameInWords(name)} has its sounds (${
+                      result.sounds
+                    } sounds)${
+                      result.removed ? `, ${result.removed} removed` : ""
+                    }.`
+                  : `${beeNameInWords(name)}: ${result.message || "Stopped."}`}
               </Typography>
-            )}
-          </>
+            ))}
+          </Box>
         )}
       </Box>
       <ConfirmModalFooter>
-        {(!busy || result) && (
+        {(!busy || outcomes) && (
           <Button
             type="button"
             onClick={onClose}
@@ -176,18 +408,21 @@ export const RestoreSoundsModal = ({
             Close
           </Button>
         )}
-        {backup && !busy && (
+        {bees && sets.length > 0 && !busy && (
           <Button
             type="button"
+            disabled={todo.length === 0}
             onClick={handleStart}
             buttonUse={ButtonUse.Normal}
             buttonSize={ButtonSize.Small}
             buttonType={ButtonType.Primary}
           >
-            Put back
+            {todo.length === 1
+              ? "Restore 1 bee"
+              : `Restore ${todo.length} bees`}
           </Button>
         )}
-        {busy && !result && (
+        {busy && !outcomes && (
           <Button
             type="button"
             onClick={handleStop}

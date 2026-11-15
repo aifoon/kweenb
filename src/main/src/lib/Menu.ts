@@ -117,11 +117,53 @@ export default class MenuBuilder {
             },
           ],
         },
+        // the two things with the cloud need a backup key: without one they
+        // are greyed out and "Install a Backup Key…" shows (see
+        // showBackupMenu in controllers/cloud-backup.ts)
         {
-          label: "Save Sounds to This Computer…",
-          accelerator: "CmdOrCtrl+S",
+          label: "Back Up",
+          submenu: [
+            {
+              id: "cloud-backup",
+              label: "Back Up to the Cloud…",
+              enabled: false,
+              click: () => {
+                this.mainWindow.webContents.send("cloud-backup");
+              },
+            },
+            {
+              label: "Back Up to This Computer…",
+              accelerator: "CmdOrCtrl+S",
+              click: () => {
+                this.mainWindow.webContents.send("save-sounds");
+              },
+            },
+          ],
+        },
+        {
+          label: "Restore",
+          submenu: [
+            {
+              id: "cloud-restore",
+              label: "Restore from the Cloud…",
+              enabled: false,
+              click: () => {
+                this.mainWindow.webContents.send("restore-sounds", "cloud");
+              },
+            },
+            {
+              label: "Restore from This Computer…",
+              click: () => {
+                this.mainWindow.webContents.send("restore-sounds", "computer");
+              },
+            },
+          ],
+        },
+        {
+          id: "cloud-key",
+          label: "Install a Backup Key…",
           click: () => {
-            this.mainWindow.webContents.send("save-sounds");
+            this.mainWindow.webContents.send("cloud-backup");
           },
         },
         { type: "separator" },

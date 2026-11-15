@@ -86,7 +86,7 @@ export const SaveSoundsModal = ({
 
   return (
     <BaseModal
-      title="Save sounds to this computer"
+      title="Back up to this computer"
       disableBackdropClick
       showCloseButton={false}
       open={open}

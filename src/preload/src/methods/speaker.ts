@@ -2,6 +2,11 @@ import { ipcRenderer } from "electron";
 import {
   IAdoptSpeakerRequest,
   IAdoptSpeakerResult,
+  IBackupKeyResult,
+  ICloudBackupState,
+  ICloudSettings,
+  ICloudSettingsInput,
+  ICloudTransferResult,
   IFlashImage,
   IFlashSpeakerResult,
   IFlashStorageResult,
@@ -15,6 +20,7 @@ import {
   IRestoreSoundsResult,
   ISaveSoundsResult,
   ISoundBackup,
+  ISwarmBackupResult,
 } from "@shared/interfaces";
 
 /**
@@ -49,9 +55,10 @@ const sounds = {
     ipcRenderer.invoke("speaker:getSoundBackups"),
   restoreSounds: (
     beeId: number,
-    backupName: string
+    backupName: string,
+    exact: boolean = false
   ): Promise<IRestoreSoundsResult> =>
-    ipcRenderer.invoke("speaker:restoreSounds", beeId, backupName),
+    ipcRenderer.invoke("speaker:restoreSounds", beeId, backupName, exact),
   saveSounds: (beeIds?: number[]): Promise<ISaveSoundsResult> =>
     ipcRenderer.invoke("speaker:saveSounds", beeIds),
 };
@@ -86,7 +93,42 @@ const routing = {
     ipcRenderer.invoke("routing:setBeeChannel", beeId, channel),
 };
 
+/**
+ * All methods for the copy of the saved sounds in the cloud
+ */
+const cloud = {
+  activateBackupKey: (passphrase: string): Promise<IBackupKeyResult> =>
+    ipcRenderer.invoke("cloud:activateKey", passphrase),
+  chooseBackupKey: (): Promise<IBackupKeyResult | null> =>
+    ipcRenderer.invoke("cloud:chooseKey"),
+  saveBackupKey: (passphrase: string): Promise<IBackupKeyResult> =>
+    ipcRenderer.invoke("cloud:saveKey", passphrase),
+  getCloudBackupState: (): Promise<ICloudBackupState> =>
+    ipcRenderer.invoke("cloud:getState"),
+  getCloudSettings: (): Promise<ICloudSettings> =>
+    ipcRenderer.invoke("cloud:getSettings"),
+  getCloudSoundSets: (): Promise<ISoundBackup[]> =>
+    ipcRenderer.invoke("cloud:getSoundSets"),
+  restoreSoundsFromCloud: (
+    beeId: number,
+    backupName: string,
+    exact: boolean
+  ): Promise<IRestoreSoundsResult> =>
+    ipcRenderer.invoke("cloud:restoreSounds", beeId, backupName, exact),
+  sendSoundsToCloud: (): Promise<ICloudTransferResult> =>
+    ipcRenderer.invoke("cloud:send"),
+  getSoundsFromCloud: (): Promise<ICloudTransferResult> =>
+    ipcRenderer.invoke("cloud:get"),
+  saveCloudSettings: (
+    input: ICloudSettingsInput
+  ): Promise<ICloudSettings & { message?: string }> =>
+    ipcRenderer.invoke("cloud:saveSettings", input),
+  backUpSwarmToCloud: (): Promise<ISwarmBackupResult> =>
+    ipcRenderer.invoke("cloud:backUpSwarm"),
+};
+
 export default {
+  ...cloud,
   ...flashing,
   ...routing,
   ...monitoring,

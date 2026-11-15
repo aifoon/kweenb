@@ -86,10 +86,14 @@ const savedOnInWords = (date: string) =>
 /**
  * Describe saved sounds
  */
-const backupInWords = ({ name, date, sounds }: ISoundBackup) =>
-  `Sounds of ${beeNameInWords(name)}, saved on ${savedOnInWords(
+const backupInWords = ({ name, date, sounds, source }: ISoundBackup) =>
+  `Sounds of ${beeNameInWords(name)}, backed up on ${savedOnInWords(
     date
-  )}, ${sounds} sounds`;
+  )}, ${sounds} sounds${source === "cloud" ? " (in the cloud)" : ""}`;
+
+// a backup is known by where it is and whose it is
+const backupKey = (backup: ISoundBackup) =>
+  `${backup.source || "computer"}:${backup.name}`;
 
 /**
  * What is happening, in words
@@ -116,7 +120,7 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
   const [number, setNumber] = useState(1);
   const [backups, setBackups] = useState<ISoundBackup[]>([]);
   const [soundsChoice, setSoundsChoice] = useState<SoundsChoice>("none");
-  const [otherBackupName, setOtherBackupName] = useState("");
+  const [otherBackupKey, setOtherBackupKey] = useState("");
   const [progress, setProgress] = useState<IAdoptSpeakerProgress>({
     step: "number",
   });
@@ -129,15 +133,22 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
   const numberIsValid = Number.isInteger(number) && number >= 1 && number <= 99;
   const beeWithNumber = bees.find((bee) => bee.id === number);
   const backupName = `bee${Utils.addLeadingZero(number)}`;
+  // the backup of this bee itself: the one in the cloud when there is one,
+  // as that is the newest
   const ownBackup = backups.find((backup) => backup.name === backupName);
-  const otherBackups = backups.filter((backup) => backup.name !== backupName);
+  const otherBackups = backups.filter((backup) => backup !== ownBackup);
 
-  // the saved sounds that were chosen (the name of the bee they came from)
-  const chosenBackupName = () => {
-    if (soundsChoice === "own" && ownBackup) return ownBackup.name;
-    if (soundsChoice === "other" && otherBackupName) return otherBackupName;
+  // the backup that was chosen
+  const chosenBackup = (): ISoundBackup | null => {
+    if (soundsChoice === "own" && ownBackup) return ownBackup;
+    if (soundsChoice === "other")
+      return (
+        otherBackups.find((backup) => backupKey(backup) === otherBackupKey) ||
+        null
+      );
     return null;
   };
+  const chosenBackupName = () => chosenBackup()?.name || null;
 
   /**
    * Start over whenever the modal opens, stop looking when it closes
@@ -219,16 +230,18 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
    * Step 2 -> 3: the number was chosen, look which sounds were saved
    */
   const handleNumberChosen = async () => {
-    let savedSounds: ISoundBackup[] = [];
-    try {
-      savedSounds = await window.kweenb.methods.getSoundBackups();
-    } catch (e) {
-      // without saved sounds the speaker starts without
-    }
-    const others = savedSounds.filter((backup) => backup.name !== backupName);
+    // the backups in the cloud (when a backup key is installed) come
+    // first: they are the newest
+    const [inCloud, onComputer] = await Promise.all([
+      window.kweenb.methods.getCloudSoundSets().catch(() => []),
+      window.kweenb.methods.getSoundBackups().catch(() => []),
+    ]);
+    const savedSounds: ISoundBackup[] = [...inCloud, ...onComputer];
+    const own = savedSounds.find((backup) => backup.name === backupName);
+    const others = savedSounds.filter((backup) => backup !== own);
     setBackups(savedSounds);
-    setSoundsChoice(others.length < savedSounds.length ? "own" : "none");
-    setOtherBackupName(others.length > 0 ? others[0].name : "");
+    setSoundsChoice(own ? "own" : "none");
+    setOtherBackupKey(others.length > 0 ? backupKey(others[0]) : "");
     setStep("sounds");
   };
 
@@ -245,6 +258,7 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
         ipAddress: speaker.ipAddress,
         id: number,
         backupName: chosenBackupName(),
+        backupSource: chosenBackup()?.source || "computer",
       });
     } catch (e) {
       adoptSpeakerResult = {
@@ -268,7 +282,9 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
     setProgress({ step: "sounds" });
     setStep("working");
     try {
-      const restored = await window.kweenb.methods.restoreSounds(number, name);
+      const restored = await (chosenBackup()?.source === "cloud"
+        ? window.kweenb.methods.restoreSoundsFromCloud(number, name, false)
+        : window.kweenb.methods.restoreSounds(number, name));
       setResult({
         ...result,
         soundsRestored: restored.success,
@@ -414,8 +430,8 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
             <Typography>Put its sounds back?</Typography>
             {backups.length === 0 && (
               <Typography variant="small">
-                No sounds were saved on this computer yet, so this speaker
-                starts without sounds.
+                There is no backup, on this computer or in the cloud, so this
+                speaker starts without sounds.
               </Typography>
             )}
             {backups.length > 0 && (
@@ -450,12 +466,12 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
                     variant="filled"
                     label="Saved sounds"
                     SelectProps={{ native: true }}
-                    value={otherBackupName}
-                    onChange={(e) => setOtherBackupName(e.target.value)}
+                    value={otherBackupKey}
+                    onChange={(e) => setOtherBackupKey(e.target.value)}
                     style={{ margin: "5px 0 10px 30px" }}
                   >
                     {otherBackups.map((backup) => (
-                      <option key={backup.name} value={backup.name}>
+                      <option key={backupKey(backup)} value={backupKey(backup)}>
                         {backupInWords(backup)}
                       </option>
                     ))}

@@ -16,6 +16,9 @@ export default {
       action === "start" ? "routing:startLevels" : "routing:stopLevels"
     );
   },
+  cancelCloud: (): void => {
+    ipcRenderer.send("cloud:cancel");
+  },
   cancelFlash: (): void => {
     ipcRenderer.send("speaker:cancelFlash");
   },

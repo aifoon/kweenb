@@ -11,8 +11,6 @@ interface BeeConfigActionsProps {
   onReconnect?: () => void;
   onReboot?: () => void;
   onShutdown?: () => void;
-  onSaveSounds?: () => void;
-  onRestoreSounds?: () => void;
 }
 
 const CardActions = styled(Card)`
@@ -26,8 +24,6 @@ export const BeeConfigActions = ({
   onReconnect,
   onReboot,
   onShutdown,
-  onSaveSounds,
-  onRestoreSounds,
 }: BeeConfigActionsProps) => {
   const appMode = useAppStore((state) => state.appMode);
 
@@ -97,38 +93,6 @@ export const BeeConfigActions = ({
           style={{ width: "100%", height: "100%" }}
         >
           Switch off
-        </Button>
-      </BeeConfigActionsSection>
-
-      {/* Keep a copy of the sounds of the bee on this computer */}
-
-      <BeeConfigActionsSection title="Save sounds to this computer">
-        <Button
-          buttonSize={ButtonSize.Small}
-          buttonType={ButtonType.Primary}
-          buttonUse={ButtonUse.Dark}
-          onClick={() => {
-            if (onSaveSounds) onSaveSounds();
-          }}
-          style={{ width: "100%", height: "100%" }}
-        >
-          Save
-        </Button>
-      </BeeConfigActionsSection>
-
-      {/* Put the saved copy of the sounds back on the bee */}
-
-      <BeeConfigActionsSection title="Put saved sounds back on this bee">
-        <Button
-          buttonSize={ButtonSize.Small}
-          buttonType={ButtonType.Primary}
-          buttonUse={ButtonUse.Dark}
-          onClick={() => {
-            if (onRestoreSounds) onRestoreSounds();
-          }}
-          style={{ width: "100%", height: "100%" }}
-        >
-          Put back
         </Button>
       </BeeConfigActionsSection>
     </CardActions>

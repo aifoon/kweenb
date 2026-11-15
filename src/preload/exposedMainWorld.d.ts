@@ -22,6 +22,12 @@ import {
   IFlashStorageResult,
   IFoundSpeaker,
   IRestoreSoundsResult,
+  IBackupKeyResult,
+  ICloudBackupState,
+  ICloudProgress,
+  ICloudSettings,
+  ICloudSettingsInput,
+  ICloudTransferResult,
   IMonitorSnapshot,
   IRouting,
   IRoutingChange,
@@ -30,6 +36,7 @@ import {
   SoundDeviceInstallOutcome,
   ISaveSoundsResult,
   ISoundBackup,
+  ISwarmBackupResult,
   ISoundsProgress,
 } from "@shared/interfaces";
 import { AppMode, AppViews, BeeDeviceManagerActions } from "@shared/enums";
@@ -145,13 +152,33 @@ declare global {
         setBeeChannels(changes: IRoutingChange[]): Promise<IRouting>;
         setBeeChannel(beeId: number, channel: number | null): Promise<IRouting>;
 
+        // CLOUD BACKUP
+        activateBackupKey(passphrase: string): Promise<IBackupKeyResult>;
+        chooseBackupKey(): Promise<IBackupKeyResult | null>;
+        saveBackupKey(passphrase: string): Promise<IBackupKeyResult>;
+        getCloudBackupState(): Promise<ICloudBackupState>;
+        getCloudSettings(): Promise<ICloudSettings>;
+        getSoundsFromCloud(): Promise<ICloudTransferResult>;
+        sendSoundsToCloud(): Promise<ICloudTransferResult>;
+        saveCloudSettings(
+          input: ICloudSettingsInput
+        ): Promise<ICloudSettings & { message?: string }>;
+        backUpSwarmToCloud(): Promise<ISwarmBackupResult>;
+
         // MONITORING
         clearMonitoring(): Promise<IMonitorSnapshot>;
         getMonitoring(): Promise<IMonitorSnapshot>;
         saveMonitoringLog(): Promise<boolean>;
         restoreSounds(
           beeId: number,
-          backupName: string
+          backupName: string,
+          exact?: boolean
+        ): Promise<IRestoreSoundsResult>;
+        getCloudSoundSets(): Promise<ISoundBackup[]>;
+        restoreSoundsFromCloud(
+          beeId: number,
+          backupName: string,
+          exact: boolean
         ): Promise<IRestoreSoundsResult>;
         saveSounds(beeIds?: number[]): Promise<ISaveSoundsResult>;
 
@@ -193,6 +220,7 @@ declare global {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         cancelFlash: () => void;
+        cancelCloud: () => void;
         routingLevels: (action: "start" | "stop") => void;
         followBeeLevels: (
           owner: "dashboard" | "swarm",
@@ -237,6 +265,16 @@ declare global {
             levels: Record<number, number>
           ) => void
         ): void;
+        onCloudBackup(callback: (event: IpcMessageEvent) => void): () => void;
+        onRestoreSounds(
+          callback: (
+            event: IpcMessageEvent,
+            source: "cloud" | "computer"
+          ) => void
+        ): () => void;
+        onCloudProgress(
+          callback: (event: IpcMessageEvent, progress: ICloudProgress) => void
+        ): () => void;
         onRoutingLevels(
           callback: (event: IpcMessageEvent, levels: number[]) => void
         ): () => void;
