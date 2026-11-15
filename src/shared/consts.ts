@@ -13,6 +13,7 @@ export const DEFAULT_APP_MODE = AppMode.Hub;
 export const DEFAULT_APP_VIEWS = [
   AppViews.Swarm,
   AppViews.Audio,
+  AppViews.Routing,
   AppViews.Monitor,
   AppViews.Settings,
 ];

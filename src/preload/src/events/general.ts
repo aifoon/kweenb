@@ -17,6 +17,8 @@ const handlers = {
   onInfo: { channel: "info", cleanup: false },
   onLoading: { channel: "loading", cleanup: false },
   onNewSpeaker: { channel: "new-speaker", cleanup: false },
+  onBeeLevels: { channel: "bee-levels", cleanup: false },
+  onRoutingLevels: { channel: "routing-levels", cleanup: true },
   onPozyxData: { channel: "pozyx-data", cleanup: true },
   onSaveSounds: { channel: "save-sounds", cleanup: false },
   onShowView: { channel: "show-view", cleanup: false },

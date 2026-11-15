@@ -4,6 +4,7 @@
  */
 
 import { IBee, IHubServerInfo } from "@shared/interfaces";
+import { ChannelType } from "@shared/enums";
 import ip from "ip";
 import { START_PORT_JACKTRIP_HUB_SERVER } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
@@ -109,8 +110,15 @@ const startStreamOnBees = async (
   bees: IBee[],
   streamRequest: SpeakerStreamRequest
 ) => {
+  // a stereo bee gets two channels, a mono bee one
   const failures = await onBees(bees, (bee) =>
-    SpeakerApi.startStream(bee.ipAddress, streamRequest)
+    SpeakerApi.startStream(bee.ipAddress, {
+      ...streamRequest,
+      audio: {
+        ...streamRequest.audio,
+        channels: bee.channelType === ChannelType.STEREO ? 2 : 1,
+      },
+    })
   );
   if (failures.length > 0) throw new Error(describeFailures(failures));
 };

@@ -219,3 +219,63 @@ export const WifiIndicator = ({
     </Tooltip>
   );
 };
+
+/**
+ * Sound: is sound coming out of the bee, and how loud. The bee measures it
+ * itself, so it is true for a stream, a triggered sound and both together.
+ */
+
+// below this the bee is silent
+const SILENCE_DB = -60;
+
+const SoundTrack = styled.div`
+  width: 26px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+`;
+
+const SoundFill = styled.div<{ width: number; color: string }>`
+  height: 100%;
+  width: ${({ width }) => width}%;
+  background: ${({ color }) => color};
+  transition: width 0.4s;
+`;
+
+interface SoundIndicatorProps {
+  // the loudest of the last seconds in dB below full scale, null when the
+  // bee does not tell
+  levelDb?: number | null;
+  // show the words next to the bar
+  detailed?: boolean;
+}
+
+export const SoundIndicator = ({
+  levelDb,
+  detailed = false,
+}: SoundIndicatorProps) => {
+  // a bee that does not tell shows nothing
+  if (levelDb === null || levelDb === undefined) return null;
+  const playing = levelDb > SILENCE_DB;
+  const fill = playing
+    ? Math.max(8, Math.min(100, ((levelDb - SILENCE_DB) / -SILENCE_DB) * 100))
+    : 0;
+  let color = "var(--green-status)";
+  // the bee tells the average level, not the peaks: a tone at full scale
+  // reads -3 dB, music that clips reads lower still
+  if (levelDb >= -3) color = "var(--red-status)";
+  else if (levelDb >= -12) color = "var(--orange-status)";
+  const text = playing ? "Sound is coming out" : "Silent";
+
+  return (
+    <Tooltip title={playing ? `${text} (${levelDb} dB)` : text}>
+      <Box display="flex" alignItems="center" gap={0.75}>
+        <SoundTrack>
+          <SoundFill width={fill} color={color} />
+        </SoundTrack>
+        {detailed && <Typography variant="extraSmall">{text}</Typography>}
+      </Box>
+    </Tooltip>
+  );
+};

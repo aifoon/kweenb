@@ -17,6 +17,7 @@ const unknownMonitoring = (): IBeeMonitoring => ({
   },
   battery: { present: false, percentage: null, level: null, voltage: null },
   wifiSignalDbm: null,
+  outputLevelDb: null,
   storage: null,
 });
 
@@ -246,6 +247,7 @@ class BeeStates {
       stream,
       battery,
       wifiSignalDbm,
+      outputLevelDb,
       storage,
     } = validBeeState;
     return {
@@ -254,6 +256,7 @@ class BeeStates {
       stream,
       battery,
       wifiSignalDbm,
+      outputLevelDb,
       storage,
     };
   }
@@ -289,6 +292,7 @@ class BeeStates {
       voltage: status.battery?.voltage ?? null,
     };
     beeState.wifiSignalDbm = status.wifiSignalDbm ?? null;
+    beeState.outputLevelDb = status.outputLevelDb ?? null;
     beeState.storage = status.storage
       ? { freeMb: status.storage.freeMb, totalMb: status.storage.totalMb }
       : null;

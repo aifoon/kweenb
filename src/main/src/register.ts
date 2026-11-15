@@ -79,9 +79,20 @@ import {
 } from "./controllers/flash";
 import {
   clearMonitoring,
+  followBeeLevels,
   getMonitoring,
   saveMonitoringLog,
 } from "./controllers/monitor";
+import {
+  getRouting,
+  getSoundDevice,
+  getSoundDeviceChoices,
+  installKweenBSoundDevice,
+  setBeeChannel,
+  setBeeChannels,
+  startLevels,
+  stopLevels,
+} from "./controllers/sound-device";
 import {
   startDisconnectStreaming,
   startHubStreaming,
@@ -103,6 +114,9 @@ const actionListeners = [
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
   { name: "speaker:cancelFlash", listener: cancelFlash },
+  { name: "monitor:followBeeLevels", listener: followBeeLevels },
+  { name: "routing:startLevels", listener: startLevels },
+  { name: "routing:stopLevels", listener: stopLevels },
   { name: "speaker:cancelSounds", listener: cancelSounds },
   {
     name: "speaker:stopLookingForSpeakers",
@@ -278,6 +292,15 @@ const methodHandlers = [
   { name: "speaker:getLastFlashImage", handler: getLastFlashImage },
   { name: "speaker:findSpeakerToFlash", handler: findSpeakerToFlash },
   { name: "speaker:flashSpeaker", handler: flashSpeaker },
+
+  // SOUND DEVICE AND ROUTING
+
+  { name: "routing:get", handler: getRouting },
+  { name: "routing:setBeeChannel", handler: setBeeChannel },
+  { name: "routing:setBeeChannels", handler: setBeeChannels },
+  { name: "soundDevice:get", handler: getSoundDevice },
+  { name: "soundDevice:choices", handler: getSoundDeviceChoices },
+  { name: "soundDevice:install", handler: installKweenBSoundDevice },
 
   // MONITORING
 

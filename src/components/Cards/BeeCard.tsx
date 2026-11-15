@@ -9,6 +9,7 @@ import { IBeeMonitoring } from "../../shared/interfaces";
 import {
   BatteryIndicator,
   BeeActivity,
+  SoundIndicator,
   WifiIndicator,
   beeActivityText,
   beeHealthColor,
@@ -36,6 +37,8 @@ export interface BeeCardProps {
   networkPerformanceMs?: number;
   // what the bee reports about itself: stream, battery, wifi
   monitoring?: IBeeMonitoring;
+  // a live meter, shown under the status when it is given
+  liveMeter?: ReactElement | null;
   onBeeConfigClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onBeeDeleteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onChannelTypeChange?: (channelType: ChannelType) => void;
@@ -129,6 +132,7 @@ export const BeeCard = ({
   channel1 = 0,
   channel2 = 0,
   monitoring,
+  liveMeter = null,
   name = "No name available",
   ipAddress = "0.0.0.0",
   onBeeConfigClick,
@@ -212,6 +216,9 @@ export const BeeCard = ({
                 flexShrink={0}
               >
                 {isOnline && (
+                  <SoundIndicator levelDb={monitoring?.outputLevelDb} />
+                )}
+                {isOnline && (
                   <WifiIndicator signalDbm={monitoring?.wifiSignalDbm} />
                 )}
                 <BatteryIndicator battery={monitoring?.battery} />
@@ -223,6 +230,7 @@ export const BeeCard = ({
                 {beeActivityText(activity)}
               </Typography>
             </Box>
+            {liveMeter}
           </Box>
         )}
         {!isCollapsed && (
@@ -272,10 +280,17 @@ export const BeeCard = ({
             </Box>
 
             <Box>
+              {liveMeter && <Box mb={1.5}>{liveMeter}</Box>}
               <Box display={"flex"} alignItems={"center"} gap={2}>
                 {isOnline && (
                   <WifiIndicator
                     signalDbm={monitoring?.wifiSignalDbm}
+                    detailed
+                  />
+                )}
+                {isOnline && (
+                  <SoundIndicator
+                    levelDb={monitoring?.outputLevelDb}
                     detailed
                   />
                 )}

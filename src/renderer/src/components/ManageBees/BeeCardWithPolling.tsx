@@ -1,6 +1,8 @@
 import { BeeCard, BeeCardProps } from "@components/Cards/BeeCard";
 import { useBeeStore } from "@renderer/src/hooks";
 import { ChannelType } from "@shared/enums";
+import { useLiveMetersSwitch } from "@renderer/src/hooks/useLiveLevels";
+import { LiveLevelBar } from "./LiveLevelBar";
 
 export const BeeCardWithPolling = ({
   number,
@@ -33,6 +35,7 @@ export const BeeCardWithPolling = ({
       },
     },
   }));
+  const liveMeters = useLiveMetersSwitch((state) => state.on);
   return (
     <BeeCard
       key={number}
@@ -48,6 +51,9 @@ export const BeeCardWithPolling = ({
       channel2={2}
       jackIsRunning={bee.status.isJackRunning}
       monitoring={bee.monitoring}
+      liveMeter={
+        liveMeters && bee.isOnline ? <LiveLevelBar beeId={number} /> : null
+      }
       jackTripIsRunning={bee.status.isJacktripRunning}
       onDoubleClick={onDoubleClick}
       onChannelTypeChange={(channelType: ChannelType) =>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>KweenBSwarm</string>
+	<key>CFBundleIdentifier</key>
+	<string>be.aifoon.kweenb.sounddevice</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>KweenB Swarm</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.7.1</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>11.0</string>
+	<key>CFPlugInFactories</key>
+	<dict>
+		<key>10ba7018-c39f-4630-9aed-7d3272e12ab2</key>
+		<string>BlackHole_Create</string>
+	</dict>
+	<key>CFPlugInTypes</key>
+	<dict>
+		<key>443ABAB8-E7B3-491A-B985-BEB9187030DB</key>
+		<array>
+			<string>10ba7018-c39f-4630-9aed-7d3272e12ab2</string>
+		</array>
+	</dict>
+</dict>
+</plist>

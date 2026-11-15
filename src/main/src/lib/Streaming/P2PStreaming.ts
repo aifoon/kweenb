@@ -1,3 +1,4 @@
+import { ChannelType } from "@shared/enums";
 import KweenBHelpers from "../KweenB/KweenBHelpers";
 import Streaming from "./Streaming";
 import Zwerm3ApiHelpers from "../KweenB/Zwerm3ApiHelpers";
@@ -41,7 +42,8 @@ export default class P2PStreaming extends Streaming {
           return KweenBHelpers.startJackWithJacktripP2PClient(
             bee.ipAddress,
             localPort,
-            KweenBHelpers.getJackClientName(bee)
+            KweenBHelpers.getJackClientName(bee),
+            bee.channelType === ChannelType.STEREO ? 2 : 1
           );
         });
         await Promise.all(startJackWithJacktripP2PClientPromises);

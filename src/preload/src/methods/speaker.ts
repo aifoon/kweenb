@@ -7,6 +7,11 @@ import {
   IFlashStorageResult,
   IFoundSpeaker,
   IMonitorSnapshot,
+  IRouting,
+  IRoutingChange,
+  ISoundDeviceChoice,
+  ISoundDeviceInfo,
+  SoundDeviceInstallOutcome,
   IRestoreSoundsResult,
   ISaveSoundsResult,
   ISoundBackup,
@@ -63,8 +68,27 @@ const monitoring = {
     ipcRenderer.invoke("monitor:saveLog"),
 };
 
+/**
+ * All methods for KweenB's sound device and the routing of its channels
+ */
+const routing = {
+  getRouting: (): Promise<IRouting> => ipcRenderer.invoke("routing:get"),
+  getSoundDeviceChoices: (): Promise<ISoundDeviceChoice[]> =>
+    ipcRenderer.invoke("soundDevice:choices"),
+  getSoundDevice: (): Promise<ISoundDeviceInfo> =>
+    ipcRenderer.invoke("soundDevice:get"),
+  installSoundDevice: (): Promise<
+    ISoundDeviceInfo & { outcome: SoundDeviceInstallOutcome }
+  > => ipcRenderer.invoke("soundDevice:install"),
+  setBeeChannels: (changes: IRoutingChange[]): Promise<IRouting> =>
+    ipcRenderer.invoke("routing:setBeeChannels", changes),
+  setBeeChannel: (beeId: number, channel: number | null): Promise<IRouting> =>
+    ipcRenderer.invoke("routing:setBeeChannel", beeId, channel),
+};
+
 export default {
   ...flashing,
+  ...routing,
   ...monitoring,
   ...newSpeakers,
   ...sounds,

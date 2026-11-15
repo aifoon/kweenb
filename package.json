@@ -94,6 +94,7 @@
     "idb-keyval": "^6.2.1",
     "interface": "./src/interface",
     "ip": "^2.0.1",
+    "litegraph.js": "^0.7.18",
     "mathjs": "^11.8.0",
     "mqtt": "^4.3.7",
     "node-osc": "^8.0.11",

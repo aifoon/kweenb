@@ -52,6 +52,8 @@ export interface SpeakerStatus {
   };
   storage: { freeMb: number; totalMb: number; scenes: number };
   wifiSignalDbm: number | null;
+  // the loudest the speaker played in the last seconds, in dB below full scale
+  outputLevelDb?: number | null;
   // what went over the Wi-Fi since the speaker started
   network?: {
     receivedBytes: number;
@@ -86,6 +88,8 @@ export interface SpeakerAudioFormat {
   periods: number;
   // how long Jacktrip waits for late packets, in milliseconds
   networkBuffer: number;
+  // 1: mono (the default), 2: stereo
+  channels?: number;
 }
 
 export interface SpeakerStreamRequest {
@@ -656,6 +660,75 @@ const deleteScene = (ipAddress: string, legalName: string): Promise<void> =>
   );
 
 /**
+ * Follow the level of the sound that leaves a bee, about ten times a second
+ * (a live meter). Every message is a packet on the Wi-Fi, so this is only
+ * kept open for a bee someone is looking at.
+ * @param ipAddress
+ * @param onLevel Called with the level in dB below full scale
+ * @returns A function that stops following
+ */
+const followLevel = (
+  ipAddress: string,
+  onLevel: (levelDb: number) => void
+): (() => void) => {
+  let stopped = false;
+  let controller: AbortController | null = null;
+  let reconnectTimeout: NodeJS.Timeout | null = null;
+
+  const listen = async () => {
+    const connection = new AbortController();
+    controller = connection;
+    try {
+      const response = await fetch(createUrl(ipAddress, "level/events"), {
+        headers: { Accept: "text/event-stream" },
+        signal: connection.signal,
+      });
+      if (!response.ok || !response.body) {
+        await response.body?.cancel();
+        return;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const { messages, rest } = splitServerSentEvents(buffer);
+        buffer = rest;
+        messages.forEach((message) => {
+          const level = Number(message);
+          if (!stopped && message.trim() !== "" && Number.isFinite(level))
+            onLevel(level);
+        });
+      }
+    } catch (e) {
+      // the bee is gone, or it does not tell its level: try again later
+    } finally {
+      connection.abort();
+    }
+  };
+
+  const loop = async () => {
+    while (!stopped) {
+      await listen();
+      if (stopped) break;
+      await new Promise<void>((resolve) => {
+        reconnectTimeout = setTimeout(resolve, EVENTS_RECONNECT_MS);
+      });
+    }
+  };
+  loop();
+
+  return () => {
+    stopped = true;
+    if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    controller?.abort();
+  };
+};
+
+/**
  * Set the clock of a bee to the clock of this computer. A bee has no
  * internet and forgets the time when it is switched off.
  * @param ipAddress
@@ -716,6 +789,7 @@ export default {
   checksumOfFile,
   deleteScene,
   downloadScene,
+  followLevel,
   followStatus,
   getIdentity,
   getSceneChecksum,

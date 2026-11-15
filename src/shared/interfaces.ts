@@ -121,6 +121,9 @@ export interface IBeeMonitoring {
   stream: IBeeStreamInfo;
   battery: IBeeBattery;
   wifiSignalDbm: number | null;
+  // the loudest the bee played in the last seconds, in dB below full scale
+  // (0 is the loudest, -100 silence); null when the bee does not tell
+  outputLevelDb: number | null;
   storage: IBeeStorage | null;
 }
 
@@ -516,6 +519,8 @@ export interface IMonitorBee {
   // sent and received together in kbit/s, in steps of 30 seconds
   networkHistory: number[];
   wifiSignalDbm: number | null;
+  // the loudest the bee played in the last seconds (see IBeeMonitoring)
+  outputLevelDb: number | null;
   batteryPercentage: number | null;
   batteryLevel: BeeBatteryLevel | null;
 }
@@ -528,3 +533,59 @@ export interface IMonitorSnapshot {
   // the newest first
   events: IMonitorEvent[];
 }
+
+/**
+ * KweenB's own sound device and the routing of its channels to the bees
+ */
+
+export interface ISoundDeviceInfo {
+  // can this computer have the device at all
+  supported: boolean;
+  installed: boolean;
+  // false when this KweenB comes with a newer device than the installed one
+  upToDate: boolean;
+  name: string;
+  channels: number;
+  // does KweenB listen to its own device
+  inUse: boolean;
+  // the device that was chosen in the settings instead, null when none
+  otherDevice: string | null;
+  // how many channels that device has, null when not known
+  otherDeviceChannels: number | null;
+}
+
+// a sound device KweenB can listen to
+export interface ISoundDeviceChoice {
+  name: string;
+  // what is stored in the settings
+  uid: string;
+  channels: number;
+}
+
+export interface IRoutingBee {
+  id: number;
+  name: string;
+  // a stereo bee plays two channels (left and right), a mono bee one
+  stereo: boolean;
+  // the channel that goes to this bee (to its left side when it is stereo),
+  // null when it gets none
+  channel: number | null;
+  // the channel that goes to the right side of a stereo bee
+  channelRight: number | null;
+  online: boolean;
+}
+
+export interface IRouting {
+  soundDevice: ISoundDeviceInfo;
+  bees: IRoutingBee[];
+}
+
+// a change of the routing of a bee; what is left out stays as it is
+export interface IRoutingChange {
+  beeId: number;
+  stereo?: boolean;
+  channel?: number | null;
+  channelRight?: number | null;
+}
+
+export type SoundDeviceInstallOutcome = "installed" | "cancelled" | "failed";

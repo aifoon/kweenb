@@ -8,6 +8,14 @@ export default {
   beesPoller: (action: "start" | "stop" | "pause"): void => {
     ipcRenderer.send("bee:beesPoller", action);
   },
+  followBeeLevels: (owner: "dashboard" | "swarm", beeIds: number[]): void => {
+    ipcRenderer.send("monitor:followBeeLevels", owner, beeIds);
+  },
+  routingLevels: (action: "start" | "stop"): void => {
+    ipcRenderer.send(
+      action === "start" ? "routing:startLevels" : "routing:stopLevels"
+    );
+  },
   cancelFlash: (): void => {
     ipcRenderer.send("speaker:cancelFlash");
   },

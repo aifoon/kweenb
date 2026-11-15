@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { PageHeader } from "@components/PageHeader";
 import {
   Box,
@@ -6,6 +6,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Button,
+  Switch,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ViewListIcon from "@mui/icons-material/ViewList";
@@ -25,6 +27,10 @@ import { Z3Page } from "@components/Layout";
 import { NoBees } from "./NoBees";
 import { BeeCardWithPolling } from "./BeeCardWithPolling";
 import { useAppStore } from "@renderer/src/hooks/useAppStore";
+import {
+  followLiveLevels,
+  useLiveMetersSwitch,
+} from "@renderer/src/hooks/useLiveLevels";
 
 /**
  * How many bees to use, from 1 up to this number
@@ -33,7 +39,6 @@ const BEE_SELECTIONS = [4, 8, 12, 16];
 
 export const ManageBees = () => {
   const navigate = useNavigate();
-
 
   // Control the confirmation modal
   // these two dialogs live at app level, so the File menu can open them too
@@ -59,6 +64,20 @@ export const ManageBees = () => {
 
   // Control the appearance of the manage bees section
   const manageBeesCollapsed = useAppStore((state) => state.manageBeesCollapsed);
+
+  // live meters: every bee in use tells its level as long as the switch is
+  // on and this page is open
+  const liveMeters = useLiveMetersSwitch((state) => state.on);
+  const setLiveMeters = useLiveMetersSwitch((state) => state.set);
+  const activeBeeIds = activeBees.map((bee) => bee.id).join(",");
+  useEffect(() => {
+    if (!liveMeters) return undefined;
+    followLiveLevels(
+      "swarm",
+      activeBeeIds === "" ? [] : activeBeeIds.split(",").map(Number)
+    );
+    return () => followLiveLevels("swarm", []);
+  }, [liveMeters, activeBeeIds]);
   const setManageBeesCollapsed = useAppStore(
     (state) => state.setManageBeesCollapsed
   );
@@ -121,13 +140,7 @@ export const ManageBees = () => {
         />
       )}
       {(activeBees.length > 0 || inActiveBees.length > 0) && (
-        <Z3Page
-          pageHeader={
-            <PageHeader
-              title="Swarm"
-            />
-          }
-        >
+        <Z3Page pageHeader={<PageHeader title="Swarm" />}>
           <Box
             display="flex"
             alignItems="center"
@@ -179,24 +192,40 @@ export const ManageBees = () => {
                 None
               </Button>
             </Box>
-            <ToggleButtonGroup size="small" aria-label="How the bees are shown">
-              <ToggleButton
-                selected={manageBeesCollapsed}
-                value="collapsed"
-                aria-label="Compact"
-                onClick={() => setManageBeesCollapsed(true)}
+            <Box display="flex" alignItems="center" gap={2}>
+              <Tooltip title="Every bee tells how loud it plays, ten times a second. Meant for a check before the show: switch it off afterwards, it takes room on the Wi-Fi.">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setLiveMeters(!liveMeters)}
+                >
+                  <Switch size="small" checked={liveMeters} />
+                  <Typography variant="small">Live meters</Typography>
+                </Box>
+              </Tooltip>
+              <ToggleButtonGroup
+                size="small"
+                aria-label="How the bees are shown"
               >
-                <ViewListIcon fontSize="small" />
-              </ToggleButton>
-              <ToggleButton
-                selected={!manageBeesCollapsed}
-                value="full"
-                aria-label="Detailed"
-                onClick={() => setManageBeesCollapsed(false)}
-              >
-                <DnsIcon fontSize="small" />
-              </ToggleButton>
-            </ToggleButtonGroup>
+                <ToggleButton
+                  selected={manageBeesCollapsed}
+                  value="collapsed"
+                  aria-label="Compact"
+                  onClick={() => setManageBeesCollapsed(true)}
+                >
+                  <ViewListIcon fontSize="small" />
+                </ToggleButton>
+                <ToggleButton
+                  selected={!manageBeesCollapsed}
+                  value="full"
+                  aria-label="Detailed"
+                  onClick={() => setManageBeesCollapsed(false)}
+                >
+                  <DnsIcon fontSize="small" />
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Box>
           <Grid container spacing={5}>
             <Grid item sm={12} md={8} lg={9}>

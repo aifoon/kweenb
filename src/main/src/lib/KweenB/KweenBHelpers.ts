@@ -9,13 +9,15 @@ import {
   startJacktripP2PClientAsync,
   connectChannel,
   disconnectChannel,
+  killProcessByPid,
   Zwerm3Jack,
 } from "@zwerm3/jack";
-import { AppMode, BeeActiveState } from "@shared/enums";
+import { AppMode, BeeActiveState, ChannelType } from "@shared/enums";
 import { IBee, IHubServerInfo } from "@shared/interfaces";
 import fs from "fs";
 import {
   DEBUG_JACK_JACKTRIP,
+  START_PORT_JACKTRIP,
   START_PORT_JACKTRIP_HUB_SERVER,
   USER_DATA,
 } from "../../consts";
@@ -23,6 +25,7 @@ import SettingHelpers from "./SettingHelpers";
 import BeeHelpers from "./BeeHelpers";
 import Zwerm3ApiHelpers from "./Zwerm3ApiHelpers";
 import SpeakerApi from "./SpeakerApi";
+import { INSTALLED_DRIVER, SOUND_DEVICE_UID } from "../SoundDevice/SoundDevice";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
@@ -86,9 +89,7 @@ const isJackAndJacktripInstalled = () => {
 
   // jacktrip
   const jacktripFolderExists = fs.existsSync(jacktripFolder);
-  const jacktripBinExists = fs.existsSync(
-    join(jacktripFolder, "jacktrip")
-  );
+  const jacktripBinExists = fs.existsSync(join(jacktripFolder, "jacktrip"));
 
   // do the validation
   return (
@@ -101,6 +102,16 @@ const isJackAndJacktripInstalled = () => {
 };
 
 /**
+ * The sound device Jack listens to: the one that was chosen, KweenB's own
+ * device when nothing was chosen and it is installed, else the default
+ * device of the computer
+ */
+const jackDeviceOf = (chosenDevice: string): string => {
+  if (chosenDevice) return chosenDevice;
+  return fs.existsSync(INSTALLED_DRIVER) ? SOUND_DEVICE_UID : "";
+};
+
+/**
  * Start Jack
  */
 const startJack = async () => {
@@ -108,7 +119,7 @@ const startJack = async () => {
   const settings = await SettingHelpers.getAllSettings();
 
   const jack = {
-    device: settings.kweenBAudioSettings.jack.device,
+    device: jackDeviceOf(settings.kweenBAudioSettings.jack.device),
     inputChannels: settings.kweenBAudioSettings.jack.inputChannels,
     outputChannels: settings.kweenBAudioSettings.jack.outputChannels,
     bufferSize: settings.kweenBAudioSettings.jack.bufferSize,
@@ -165,11 +176,16 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
    * Add the output to the array
    */
 
-  return {
+  // remembered, so a single bee can connect to it again later
+  hubServer = {
     jacktripHubServerParams: jacktrip,
     runningCommand,
   };
+  return hubServer;
 };
+
+// the Jacktrip hub server on kweenb that was started last
+let hubServer: IHubServerInfo | null = null;
 
 /**
  * Start Jack With Jacktrip P2P Client
@@ -178,7 +194,9 @@ const startJacktripHubServer = async (): Promise<IHubServerInfo> => {
 const startJackWithJacktripP2PClient = async (
   ipAddress: string,
   localPort: number,
-  clientName: string
+  clientName: string,
+  // 1: a mono bee, 2: a stereo bee
+  channels: number = 1
 ) => {
   /**
    * Get and set the settings
@@ -189,7 +207,7 @@ const startJackWithJacktripP2PClient = async (
 
   // create the post body
   const jack = {
-    device: settings.kweenBAudioSettings.jack.device,
+    device: jackDeviceOf(settings.kweenBAudioSettings.jack.device),
     inputChannels: settings.kweenBAudioSettings.jack.inputChannels,
     outputChannels: settings.kweenBAudioSettings.jack.outputChannels,
     bufferSize: settings.kweenBAudioSettings.jack.bufferSize,
@@ -198,7 +216,7 @@ const startJackWithJacktripP2PClient = async (
   };
 
   const jacktrip = {
-    channels: settings.kweenBAudioSettings.jacktrip.channels,
+    channels,
     debug: false,
     killAllJacktripBeforeStart: false,
     localPort,
@@ -210,7 +228,7 @@ const startJackWithJacktripP2PClient = async (
     receiveChannels: 1,
     connectDefaultAudioPorts: false,
     redundancy: settings.kweenBAudioSettings.jacktrip.redundancy,
-    sendChannels: 1,
+    sendChannels: channels,
     host: ipAddress,
     remotePort: settings.beeAudioSettings.jacktrip.localPort,
   };
@@ -229,11 +247,99 @@ const startJackWithJacktripP2PClient = async (
    * Start Jacktrip
    */
 
-  await startJacktripP2PClientAsync(jacktrip, {
+  const client = await startJacktripP2PClientAsync(jacktrip, {
     onLog: async (message) => {
       if (DEBUG_JACK_JACKTRIP) console.log(message);
     },
   });
+  // remembered, so the client of one bee can be started again
+  p2pClients.set(clientName, client);
+};
+
+// the Jacktrip clients on kweenb in P2P mode, by the name of their bee
+const p2pClients = new Map<string, RunningCommand>();
+
+/**
+ * Plug the cords of a bee in, trying for a while: the inputs of a bee show
+ * up in Jack a moment after its stream started
+ * @param bee IBee
+ */
+const makeAudioConnectionsWhenReady = async (bee: IBee) => {
+  const connections = getAudioConnections(bee);
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const results = await Promise.all(
+      connections.map((connection) =>
+        connectChannel(connection).catch(() => false)
+      )
+    );
+    if (results.every(Boolean)) return;
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
+  }
+};
+
+/**
+ * Start the stream of one bee again while the swarm stays connected, e.g.
+ * after it was switched between mono and stereo. The bee is silent for a
+ * few seconds; the other bees are not touched.
+ * @param bee IBee, as it has to play from now on
+ */
+const restartStreamOfBee = (bee: IBee): Promise<void> => {
+  // one at a time per bee: two that run together would both replace the
+  // connection of the bee and leave one behind
+  const earlier = streamRestarts.get(bee.id) || Promise.resolve();
+  const restart = earlier.catch(() => {}).then(() => doRestartStreamOfBee(bee));
+  streamRestarts.set(bee.id, restart);
+  return restart.finally(() => {
+    if (streamRestarts.get(bee.id) === restart) streamRestarts.delete(bee.id);
+  });
+};
+
+// the restarts of a stream that are under way, per bee
+const streamRestarts = new Map<number, Promise<void>>();
+
+const doRestartStreamOfBee = async (bee: IBee) => {
+  const monitoring = KweenBGlobal.kweenb.beeStates.getMonitoring(bee.id);
+  // only a bee that is streaming has a stream to start again
+  if (!monitoring || monitoring.stream.state !== "running") return;
+  const channels = bee.channelType === ChannelType.STEREO ? 2 : 1;
+  const withChannels = <T extends { audio: object }>(request: T): T => ({
+    ...request,
+    audio: { ...request.audio, channels },
+  });
+
+  if (monitoring.stream.mode === "hub") {
+    // the bee connects to the hub server again, with one or two channels
+    await SpeakerApi.startStream(
+      bee.ipAddress,
+      withChannels(await Zwerm3ApiHelpers.createHubStreamRequest(hubServer))
+    );
+  } else if (monitoring.stream.mode === "p2p") {
+    const name = getJackClientName(bee);
+    // the bee waits for kweenb again
+    const started = SpeakerApi.startStream(
+      bee.ipAddress,
+      withChannels(await Zwerm3ApiHelpers.createP2PStreamRequest())
+    );
+    started.catch(() => {});
+    // the client of this bee on kweenb is replaced by one with the right
+    // number of channels
+    const client = p2pClients.get(name);
+    if (client?.pid) await killProcessByPid(client.pid).catch(() => {});
+    p2pClients.delete(name);
+    await startJackWithJacktripP2PClient(
+      bee.ipAddress,
+      START_PORT_JACKTRIP + (bee.id - 1),
+      name,
+      channels
+    );
+    await started;
+  } else return;
+
+  await makeAudioConnectionsWhenReady(bee);
 };
 
 /**
@@ -245,18 +351,41 @@ const getJackClientName = (bee: IBee): string =>
   KweenBGlobal.kweenb.beeStates.getMonitoring(bee.id)?.identityName || bee.name;
 
 /**
+ * The cords of a bee in Jack: which capture channel goes to which of its
+ * inputs. A mono bee has one (its channel plays on both sides), a stereo
+ * bee two (left and right). A bee without a channel has none and is silent.
+ * @param bee IBee
+ */
+const getAudioConnections = (
+  bee: IBee
+): { source: string; destination: string }[] => {
+  const name = getJackClientName(bee);
+  const connections = [];
+  if (bee.channel1 > 0)
+    connections.push({
+      source: `system:capture_${bee.channel1}`,
+      destination: `${name}:send_1`,
+    });
+  if (bee.channelType === ChannelType.STEREO && (bee.channel2 || 0) > 0)
+    connections.push({
+      source: `system:capture_${bee.channel2}`,
+      destination: `${name}:send_2`,
+    });
+  return connections;
+};
+
+/**
  * Disconnect all P2P audio connections
  */
 const disconnectAllP2PAudioConnections = async () => {
   const activeBees = await BeeHelpers.getAllBeesData();
-  activeBees.forEach(async (bee) => {
-    const captureChannel = `system:capture_${bee.id}`;
-    const sendChannel = `${getJackClientName(bee)}:send_1`;
-    await disconnectChannel({
-      source: captureChannel,
-      destination: sendChannel,
-    });
-  });
+  await Promise.all(
+    activeBees.flatMap((bee) =>
+      getAudioConnections(bee).map((connection) =>
+        disconnectChannel(connection)
+      )
+    )
+  );
 };
 
 /**
@@ -267,13 +396,9 @@ const disconnectAllP2PAudioConnections = async () => {
  */
 const makeHubAudioConnections = async (bees: IBee[] | null = null) => {
   const currentBees = bees || (await BeeHelpers.getAllBeesData());
-
   await Promise.all(
-    currentBees.map((bee) =>
-      connectChannel({
-        source: `system:capture_${bee.id}`,
-        destination: `${getJackClientName(bee)}:send_1`,
-      })
+    currentBees.flatMap((bee) =>
+      getAudioConnections(bee).map((connection) => connectChannel(connection))
     )
   );
 };
@@ -283,12 +408,9 @@ const makeHubAudioConnections = async (bees: IBee[] | null = null) => {
  * @param bee IBee
  */
 const makeP2PAudioConnection = async (bee: IBee) => {
-  const captureChannel = `system:capture_${bee.id}`;
-  const sendChannel = `${getJackClientName(bee)}:send_1`;
-  await connectChannel({
-    source: captureChannel,
-    destination: sendChannel,
-  });
+  await Promise.all(
+    getAudioConnections(bee).map((connection) => connectChannel(connection))
+  );
 };
 
 /**
@@ -327,7 +449,9 @@ const setJacktripBinPath = (jacktripBinPath: string) => {
 export default {
   closeApplication,
   disconnectAllP2PAudioConnections,
+  getAudioConnections,
   getJackClientName,
+  restartStreamOfBee,
   isJackAndJacktripInstalled,
   killJackAndJacktrip,
   makeHubAudioConnections,

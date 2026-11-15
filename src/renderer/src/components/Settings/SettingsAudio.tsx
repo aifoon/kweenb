@@ -1,5 +1,5 @@
 import { Card, CardVerticalStack } from "@components/Cards";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
 import { TextField, SelectField } from "@components/Forms";
 import {
@@ -47,6 +47,49 @@ export const SettingsAudio = ({ settings }: SettingsAudioProps) => {
   );
 
   const { beeAudioSettings, kweenBAudioSettings } = settings;
+
+  // the sound devices KweenB can listen to; null as long as (or when) they
+  // can not be listed: then the name is typed
+  const [soundDevices, setSoundDevices] = useState<
+    { label: string; value: string }[] | null
+  >(null);
+  useEffect(() => {
+    let gone = false;
+    (async () => {
+      try {
+        const [own, choices] = await Promise.all([
+          window.kweenb.methods.getSoundDevice(),
+          window.kweenb.methods.getSoundDeviceChoices(),
+        ]);
+        if (gone || (!own.supported && choices.length === 0)) return;
+        const items = [
+          {
+            // nothing chosen: KweenB's own device when it is there
+            label: own.installed
+              ? `${own.name} (${own.channels} channels)`
+              : "The default input of this computer",
+            value: "",
+          },
+          ...choices.map((choice) => ({
+            label: `${choice.name} (${choice.channels} channel${
+              choice.channels === 1 ? "" : "s"
+            })`,
+            value: choice.uid,
+          })),
+        ];
+        // a device that was chosen before and is not connected now
+        const chosen = kweenBAudioSettings.jack.device;
+        if (chosen && !items.some((item) => item.value === chosen))
+          items.push({ label: `${chosen} (not connected)`, value: chosen });
+        setSoundDevices(items);
+      } catch (e) {
+        // the name can still be typed
+      }
+    })();
+    return () => {
+      gone = true;
+    };
+  }, [kweenBAudioSettings.jack.device]);
 
   const handleOnValidatedBlurAndChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -160,14 +203,24 @@ export const SettingsAudio = ({ settings }: SettingsAudioProps) => {
             </Grid>
             <Grid item xs={12} md={6}>
               <Card title="KweenB">
-                <TextField
-                  {...fieldProps}
-                  onValidatedBlur={handleOnValidatedBlurAndChange}
-                  label="Audio device"
-                  type="text"
-                  name="device"
-                  placeholder="empty = system default"
-                />
+                {soundDevices === null ? (
+                  <TextField
+                    {...fieldProps}
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    label="Audio device"
+                    type="text"
+                    name="device"
+                    placeholder="empty = system default"
+                  />
+                ) : (
+                  <SelectField
+                    {...fieldProps}
+                    onValidatedBlur={handleOnValidatedBlurAndChange}
+                    label="Audio device"
+                    selectItems={soundDevices}
+                    name="device"
+                  />
+                )}
                 <TextField
                   {...fieldProps}
                   onValidatedBlur={handleOnValidatedBlurAndChange}

@@ -23,6 +23,11 @@ import {
   IFoundSpeaker,
   IRestoreSoundsResult,
   IMonitorSnapshot,
+  IRouting,
+  IRoutingChange,
+  ISoundDeviceChoice,
+  ISoundDeviceInfo,
+  SoundDeviceInstallOutcome,
   ISaveSoundsResult,
   ISoundBackup,
   ISoundsProgress,
@@ -130,6 +135,16 @@ declare global {
         // SOUNDS ON THIS COMPUTER
         getSoundBackups(): Promise<ISoundBackup[]>;
 
+        // SOUND DEVICE AND ROUTING
+        getRouting(): Promise<IRouting>;
+        getSoundDevice(): Promise<ISoundDeviceInfo>;
+        getSoundDeviceChoices(): Promise<ISoundDeviceChoice[]>;
+        installSoundDevice(): Promise<
+          ISoundDeviceInfo & { outcome: SoundDeviceInstallOutcome }
+        >;
+        setBeeChannels(changes: IRoutingChange[]): Promise<IRouting>;
+        setBeeChannel(beeId: number, channel: number | null): Promise<IRouting>;
+
         // MONITORING
         clearMonitoring(): Promise<IMonitorSnapshot>;
         getMonitoring(): Promise<IMonitorSnapshot>;
@@ -178,6 +193,11 @@ declare global {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         cancelFlash: () => void;
+        routingLevels: (action: "start" | "stop") => void;
+        followBeeLevels: (
+          owner: "dashboard" | "swarm",
+          beeIds: number[]
+        ) => void;
         cancelSounds: () => void;
         cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
@@ -211,6 +231,15 @@ declare global {
         onNewSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
         onSaveSounds(callback: (event: IpcMessageEvent) => void): () => void;
         onFlashSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
+        onBeeLevels(
+          callback: (
+            event: IpcMessageEvent,
+            levels: Record<number, number>
+          ) => void
+        ): void;
+        onRoutingLevels(
+          callback: (event: IpcMessageEvent, levels: number[]) => void
+        ): () => void;
         onFlashProgress(
           callback: (event: IpcMessageEvent, progress: IFlashProgress) => void
         ): () => void;

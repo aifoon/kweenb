@@ -320,6 +320,7 @@ class BeeStatesWorker {
                   stream: beeState.stream,
                   battery: beeState.battery,
                   wifiSignalDbm: beeState.wifiSignalDbm,
+                  outputLevelDb: beeState.outputLevelDb,
                   network: status.network,
                 });
             }

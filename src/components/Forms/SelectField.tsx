@@ -79,6 +79,8 @@ export const SelectField = (
         <CustomSelect
           className={meta.touched && meta.error ? "invalid" : ""}
           {...configSelect}
+          // an item with an empty value shows its label too
+          displayEmpty
           input={<MuiBootstrapInput />}
           size={size}
           MenuProps={{

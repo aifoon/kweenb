@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Box, Tab, Tooltip, Typography } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
@@ -6,12 +6,15 @@ import { Card } from "@components/Cards";
 import {
   BatteryIndicator,
   BeeActivity,
+  SoundIndicator,
   WifiIndicator,
   beeActivityText,
 } from "@components/Cards/BeeIndicators";
 import { PageHeader } from "@components/PageHeader";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { Z3Page } from "@components/Layout";
+import { followLiveLevels } from "@renderer/src/hooks/useLiveLevels";
+import { LiveLevelBar } from "../ManageBees/LiveLevelBar";
 import {
   IMonitorBee,
   IMonitorEvent,
@@ -362,6 +365,7 @@ const BeeTile = ({
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Typography style={{ fontWeight: 600 }}>{bee.name}</Typography>
         <Box display="flex" alignItems="center" gap={1.5}>
+          {bee.online && <SoundIndicator levelDb={bee.outputLevelDb} />}
           {bee.online && <WifiIndicator signalDbm={bee.wifiSignalDbm} />}
           {bee.online && bee.batteryPercentage !== null && (
             <BatteryIndicator
@@ -381,6 +385,31 @@ const BeeTile = ({
       </Box>
       <History history={bee.history} />
     </Tile>
+  );
+};
+
+/**
+ * The live meter of the bee whose dashboard is open
+ */
+const LiveMeter = ({ beeId }: { beeId: number }) => {
+  const [level, setLevel] = useState<number | null>(null);
+
+  // only this bee is followed, and only as long as its dashboard is open
+  useEffect(() => {
+    followLiveLevels("dashboard", [beeId]);
+    return () => followLiveLevels("dashboard", []);
+  }, [beeId]);
+
+  return (
+    <Box style={{ display: level === null ? "none" : "block" }}>
+      <Box display="flex" justifyContent="space-between" mb={0.5}>
+        <Typography variant="extraSmall">Sound coming out, live</Typography>
+        <Typography variant="extraSmall">
+          {level !== null && level > -60 ? `${Math.round(level)} dB` : "Silent"}
+        </Typography>
+      </Box>
+      <LiveLevelBar beeId={beeId} height={12} onLevel={setLevel} />
+    </Box>
   );
 };
 
@@ -416,6 +445,7 @@ const BeeDashboard = ({
               )}
             </Box>
           </Box>
+          <LiveMeter beeId={bee.id} />
           <Stats>
             <Tooltip title="Sound that arrived too late over the Wi-Fi in the last minute. A few are not heard; many give clicks.">
               <Stat>
@@ -432,6 +462,25 @@ const BeeDashboard = ({
                   {streaming ? bee.latePacketsLastMinute : "–"}
                 </StatValue>
                 <Typography variant="extraSmall">per minute</Typography>
+              </Stat>
+            </Tooltip>
+            <Tooltip title="Measured by the bee itself, right before its speaker: a stream, a triggered sound, or both together.">
+              <Stat>
+                <Typography variant="extraSmall">Sound</Typography>
+                <StatValue>
+                  {!bee.online || bee.outputLevelDb === null
+                    ? "–"
+                    : bee.outputLevelDb > -60
+                    ? `${bee.outputLevelDb} dB`
+                    : "Silent"}
+                </StatValue>
+                <Typography variant="extraSmall">
+                  {bee.online &&
+                  bee.outputLevelDb !== null &&
+                  bee.outputLevelDb > -60
+                    ? "coming out of the bee"
+                    : " "}
+                </Typography>
               </Stat>
             </Tooltip>
             <Stat>
