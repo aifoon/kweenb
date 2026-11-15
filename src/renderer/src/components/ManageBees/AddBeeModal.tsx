@@ -138,7 +138,7 @@ export const AddBeeModal = ({
       return true;
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
-        setErrors((prev) => ({ ...prev, [fieldName]: error.message }));
+        setErrors((prev) => ({ ...prev, [fieldName]: (error as Error).message }));
       } else {
         // Handle other error types
         setErrors((prev) => ({ ...prev, [fieldName]: "Validation failed" }));

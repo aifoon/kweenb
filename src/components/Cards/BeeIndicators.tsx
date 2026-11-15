@@ -35,6 +35,23 @@ export const getBeeActivity = (
   }
 };
 
+/**
+ * The colour that tells how a bee is doing: green is fine, orange asks for
+ * an eye on it, red needs you, grey is resting
+ */
+export const beeHealthColor = (
+  activity: BeeActivity,
+  batteryLevel?: string | null
+): string => {
+  if (activity === BeeActivity.Offline || activity === BeeActivity.Problem)
+    return "var(--red-status)";
+  if (batteryLevel === "low") return "var(--red-status)";
+  if (activity === BeeActivity.Starting || batteryLevel === "warning")
+    return "var(--orange-status)";
+  if (activity === BeeActivity.Standby) return "var(--grey-400)";
+  return "var(--green-status)";
+};
+
 export const beeActivityText = (activity: BeeActivity): string => {
   switch (activity) {
     case BeeActivity.Offline:

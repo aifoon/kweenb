@@ -8,7 +8,8 @@ import {
 } from "../../consts";
 import { BeeStates } from "../Dictionaries";
 import { IBee, AudioSceneDbRecord } from "@shared/interfaces";
-import SpeakerApi from "./SpeakerApi";
+import SpeakerApi, { isClockOff } from "./SpeakerApi";
+import SwarmMonitor from "./SwarmMonitor";
 import { logger, debug } from "../../logger";
 
 // Import the audio scene model
@@ -30,6 +31,10 @@ interface FollowedBee {
 class BeeStatesWorker {
   private _beeStates: BeeStates;
   private _followedBees: Map<number, FollowedBee>;
+  // when we last told a bee the time
+  private _clockSetAt = new Map<number, number>();
+  // what happened to the swarm while KweenB runs
+  private _monitor = new SwarmMonitor();
   private _watchBeesInterval: NodeJS.Timeout;
   private _updateAudioScenesInterval: NodeJS.Timeout;
   private _pauseUpdateAudioScenes: boolean;
@@ -40,6 +45,13 @@ class BeeStatesWorker {
     this._beeStates = new BeeStates();
     this._followedBees = new Map();
     this._pauseUpdateAudioScenes = true;
+  }
+
+  /**
+   * How the swarm is doing while KweenB runs
+   */
+  public get monitor() {
+    return this._monitor;
   }
 
   /**
@@ -242,6 +254,21 @@ class BeeStatesWorker {
   }
 
   /**
+   * Tell a bee the time when its clock is off: a bee has no internet and
+   * forgets the time when it is switched off.
+   */
+  private keepClockRight(beeId: number, ipAddress: string, time?: string) {
+    if (!isClockOff(time)) return;
+    // one try at a time, and not more often than every 30 seconds
+    const lastTry = this._clockSetAt.get(beeId) || 0;
+    if (Date.now() - lastTry < 30000) return;
+    this._clockSetAt.set(beeId, Date.now());
+    SpeakerApi.setTime(ipAddress).catch((e) =>
+      console.error(`Setting the clock of bee ${beeId} failed: ${e.message}`)
+    );
+  }
+
+  /**
    * Follow every known bee and mark the bees that went silent as offline.
    * A bee tells its status itself (see SpeakerApi.followStatus), so there is
    * nothing to ask: a bee is online as long as its messages arrive.
@@ -269,7 +296,10 @@ class BeeStatesWorker {
       if (!bee || bee.ipAddress !== followedBee.ipAddress) {
         followedBee.stop();
         this._followedBees.delete(beeId);
-        if (bee) this._beeStates.setOffline(bee);
+        if (bee) {
+          this._beeStates.setOffline(bee);
+          this._monitor.reportOffline(bee.id, bee.name);
+        } else this._monitor.forget(beeId);
       }
     });
 
@@ -282,8 +312,18 @@ class BeeStatesWorker {
           stop: SpeakerApi.followStatus(bee.ipAddress, (status) => {
             // look the bee up again: it could be changed or removed meanwhile
             const currentBee = this._beeStates.bees.find((b) => b.id === beeId);
-            if (currentBee)
+            if (currentBee) {
               this._beeStates.updateFromStatus(currentBee, status);
+              const beeState = this._beeStates.getBeeState(currentBee);
+              if (beeState)
+                this._monitor.reportStatus(beeId, currentBee.name, {
+                  stream: beeState.stream,
+                  battery: beeState.battery,
+                  wifiSignalDbm: beeState.wifiSignalDbm,
+                  network: status.network,
+                });
+            }
+            this.keepClockRight(beeId, bee.ipAddress, status.time);
           }),
         });
       }
@@ -297,6 +337,7 @@ class BeeStatesWorker {
             BEE_CONSIDERED_OFFLINE_SECONDS * 1000)
       ) {
         this._beeStates.setOffline(bee);
+        this._monitor.reportOffline(bee.id, bee.name);
       }
     });
 

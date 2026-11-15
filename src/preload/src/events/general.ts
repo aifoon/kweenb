@@ -10,6 +10,8 @@ const handlers = {
   onAppClosing: { channel: "app-closing", cleanup: false },
   onClosing: { channel: "closing", cleanup: false },
   onError: { channel: "error", cleanup: false },
+  onFlashProgress: { channel: "flash-progress", cleanup: true },
+  onFlashSpeaker: { channel: "flash-speaker", cleanup: false },
   onImportedBees: { channel: "imported-bees", cleanup: true },
   onImportedSettings: { channel: "imported-settings", cleanup: true },
   onInfo: { channel: "info", cleanup: false },

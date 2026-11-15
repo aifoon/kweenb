@@ -93,6 +93,23 @@ export default class MenuBuilder {
               },
             },
             {
+              label: "Flash a Speaker…",
+              click: () => {
+                // for now flashing only works on a Mac
+                if (process.platform !== "darwin") {
+                  dialog.showMessageBox(this.mainWindow, {
+                    type: "info",
+                    message:
+                      "Flashing a speaker with KweenB only works on a Mac for now.",
+                    detail:
+                      "On this computer a speaker is flashed with Raspberry Pi Imager. When that is done, choose Add Speaker → New Speaker… to set it up.",
+                  });
+                  return;
+                }
+                this.mainWindow.webContents.send("flash-speaker");
+              },
+            },
+            {
               label: "By Hand…",
               click: () => {
                 this.mainWindow.webContents.send("add-bee");

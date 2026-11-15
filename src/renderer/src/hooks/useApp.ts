@@ -11,6 +11,9 @@ export const useApp = () => {
     (state) => state.setOpenAboutKweenBModal
   );
   const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
+  const setOpenFlashSpeakerModal = useAppStore(
+    (state) => state.setOpenFlashSpeakerModal
+  );
   const setOpenNewSpeakerModal = useAppStore(
     (state) => state.setOpenNewSpeakerModal
   );
@@ -25,7 +28,10 @@ export const useApp = () => {
       setOpenAboutKweenBModal(true);
     });
 
-    // File menu: adopt a new speaker, save the sounds of the bees
+    // File menu: flash a speaker, adopt a new speaker, save the sounds of the bees
+    window.kweenb.events.onFlashSpeaker(() => {
+      setOpenFlashSpeakerModal(true);
+    });
     window.kweenb.events.onNewSpeaker(() => {
       setOpenNewSpeakerModal(true);
     });

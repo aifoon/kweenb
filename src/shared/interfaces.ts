@@ -258,6 +258,43 @@ export interface IAdoptSpeakerResult {
 }
 
 /**
+ * For flashing a speaker
+ */
+
+// an image that can be written to a speaker
+export interface IFlashImage {
+  path: string;
+  name: string;
+  sizeBytes: number;
+  // why this file cannot be used, in plain words
+  message?: string;
+}
+
+// how looking for the speaker to flash ended
+export interface IFlashStorageResult {
+  found: boolean;
+  cancelled: boolean;
+  // the size of the storage of the speaker (when it was found)
+  sizeBytes: number;
+  // what went wrong and what to try, in plain words
+  message?: string;
+}
+
+// sent while a speaker is looked for and flashed
+export interface IFlashProgress {
+  step: "looking" | "found" | "password" | "writing" | "checking";
+  // only while writing (0 - 100)
+  percentage?: number;
+}
+
+export interface IFlashSpeakerResult {
+  success: boolean;
+  cancelled: boolean;
+  // what went wrong and what to try, in plain words
+  message?: string;
+}
+
+/**
  * For Positioning
  */
 
@@ -399,6 +436,8 @@ export interface IKweenBSettings {
   jacktripBinPath: string;
   // the folder on this computer where the sounds of the bees are saved
   backupFolder: string;
+  // the image that was last used to flash a speaker
+  lastImagePath: string;
 }
 
 // Socket
@@ -421,4 +460,71 @@ export interface InterfaceComposition {
   id: number;
   name: string;
   composition: BeeAudioScene[];
+}
+
+/**
+ * Monitoring: how the swarm is doing while KweenB runs
+ */
+
+export type MonitorEventKind =
+  | "online"
+  | "offline"
+  | "stream-started"
+  | "stream-stopped"
+  | "restart"
+  | "problem"
+  | "late-packets"
+  | "dropouts"
+  | "battery";
+
+export interface IMonitorEvent {
+  id: number;
+  // when it happened (and until when, for events that are counted together)
+  time: number;
+  until: number;
+  beeId: number;
+  beeName: string;
+  kind: MonitorEventKind;
+  text: string;
+  // how many (late packets, dropouts)
+  amount: number;
+}
+
+export interface IMonitorBee {
+  id: number;
+  name: string;
+  online: boolean;
+  streamState: BeeStreamState | null;
+  streamMode: BeeStreamMode | null;
+  problem: string | null;
+  latePacketsLastMinute: number;
+  // counted since monitoring started
+  latePackets: number;
+  dropouts: number;
+  restarts: number;
+  timesOffline: number;
+  // the late packets of the last half hour, in steps of 30 seconds
+  history: number[];
+  // false for a bee that does not tell what goes over its Wi-Fi
+  measuresNetwork: boolean;
+  // what goes over the Wi-Fi of the bee right now (received = from KweenB)
+  receivedKbps: number;
+  sentKbps: number;
+  receivedPacketsPerSecond: number;
+  // the speed the Wi-Fi link of the bee runs at
+  linkMbps: number | null;
+  // sent and received together in kbit/s, in steps of 30 seconds
+  networkHistory: number[];
+  wifiSignalDbm: number | null;
+  batteryPercentage: number | null;
+  batteryLevel: BeeBatteryLevel | null;
+}
+
+export interface IMonitorSnapshot {
+  // since when is counted
+  since: number;
+  now: number;
+  bees: IMonitorBee[];
+  // the newest first
+  events: IMonitorEvent[];
 }

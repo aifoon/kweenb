@@ -12,6 +12,7 @@ import {
 } from "./components";
 import { Z3Navigation, Z3Sidebar } from "./components/Layout";
 import { Tools } from "./components/Tools/Tools";
+import { Monitor } from "./components/Monitor/Monitor";
 import theme from "@components/theme";
 import { Positioning } from "./components/Positioning/Positioning";
 import { PositioningModules } from "./components/Positioning/PositioningModules/PositioningModules";
@@ -48,6 +49,7 @@ export const App = () => {
                     />
                   </Route>
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/monitor" element={<Monitor />} />
                   <Route path="/tools" element={<Tools />} />
                 </Routes>
               </Flex>

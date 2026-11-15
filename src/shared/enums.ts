@@ -23,6 +23,7 @@ export enum AppViews {
   Audio = "audio",
   Positioning = "positioning",
   Settings = "settings",
+  Monitor = "monitor",
   Tools = "tools",
 }
 

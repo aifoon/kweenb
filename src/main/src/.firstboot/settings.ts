@@ -46,6 +46,11 @@ export default [
     key: "kweenbBackupFolder",
     value: "",
   },
+  // the image that was last used to flash a speaker (empty = none yet)
+  {
+    key: "kweenbLastImagePath",
+    value: "",
+  },
   {
     key: "positioningUpdateRate",
     value: "500",

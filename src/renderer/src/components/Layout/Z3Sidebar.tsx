@@ -10,6 +10,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import SpeakerIcon from "@mui/icons-material/Speaker";
 import NearMeIcon from "@mui/icons-material/NearMe";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import { useNavigate, useLocation } from "react-router-dom";
 import wcmatch from "wildcard-match";
 import { useAppStore } from "@renderer/src/hooks";
@@ -36,6 +37,12 @@ const sidebarButtons = [
     title: "Positioning",
     pathNames: ["/positioning"],
     icon: <NearMeIcon />,
+  },
+  {
+    key: "monitor",
+    title: "Monitor",
+    pathNames: ["/monitor"],
+    icon: <MonitorHeartIcon />,
   },
   {
     key: "settings",

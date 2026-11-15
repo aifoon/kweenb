@@ -16,8 +16,13 @@ import {
   IAdoptSpeakerProgress,
   IAdoptSpeakerRequest,
   IAdoptSpeakerResult,
+  IFlashImage,
+  IFlashProgress,
+  IFlashSpeakerResult,
+  IFlashStorageResult,
   IFoundSpeaker,
   IRestoreSoundsResult,
+  IMonitorSnapshot,
   ISaveSoundsResult,
   ISoundBackup,
   ISoundsProgress,
@@ -116,8 +121,19 @@ declare global {
         ): Promise<IAdoptSpeakerResult>;
         findNewSpeakers(): Promise<IFoundSpeaker[]>;
 
+        // FLASHING A SPEAKER
+        chooseFlashImage(): Promise<IFlashImage | null>;
+        findSpeakerToFlash(): Promise<IFlashStorageResult>;
+        flashSpeaker(imagePath: string): Promise<IFlashSpeakerResult>;
+        getLastFlashImage(): Promise<IFlashImage | null>;
+
         // SOUNDS ON THIS COMPUTER
         getSoundBackups(): Promise<ISoundBackup[]>;
+
+        // MONITORING
+        clearMonitoring(): Promise<IMonitorSnapshot>;
+        getMonitoring(): Promise<IMonitorSnapshot>;
+        saveMonitoringLog(): Promise<boolean>;
         restoreSounds(
           beeId: number,
           backupName: string
@@ -161,6 +177,7 @@ declare global {
       readonly actions: {
         beesPoller(action: "start" | "stop" | "pause"): void;
         beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
+        cancelFlash: () => void;
         cancelSounds: () => void;
         cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
@@ -193,6 +210,10 @@ declare global {
         onAddBee(callback: (event: IpcMessageEvent) => void): () => void;
         onNewSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
         onSaveSounds(callback: (event: IpcMessageEvent) => void): () => void;
+        onFlashSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
+        onFlashProgress(
+          callback: (event: IpcMessageEvent, progress: IFlashProgress) => void
+        ): () => void;
         onAdoptSpeakerProgress(
           callback: (
             event: IpcMessageEvent,

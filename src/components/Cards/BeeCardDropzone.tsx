@@ -19,7 +19,7 @@ const BeeCardDropzoneContainer = styled(BeeCardContainer)<{
   border: 1px dashed var(--grey-400);
   color: var(--grey-400);
   text-align: center;
-  min-height: ${(props) => (props.$collapsed ? "48px" : "176px")};
+  min-height: ${(props) => (props.$collapsed ? "72px" : "176px")};
 `;
 
 export const BeeCardDropzone = ({

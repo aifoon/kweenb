@@ -9,6 +9,7 @@ import { AppMode } from "@shared/enums";
 import { BeeDeviceManagerModal } from "../Modals/BeeDeviceManagerModal";
 import { SaveSoundsModal } from "../Modals/SaveSoundsModal";
 import { NewSpeakerModal } from "../ManageBees/NewSpeakerModal";
+import { FlashSpeakerModal } from "../ManageBees/FlashSpeakerModal";
 import { AddBeeModal } from "../ManageBees/AddBeeModal";
 import { useBeeStore } from "@renderer/src/hooks";
 import { IBee, IBeeInput } from "@shared/interfaces";
@@ -24,6 +25,12 @@ export const GlobalAppComponents = () => {
   const openAddBeeModal = useAppStore((state) => state.openAddBeeModal);
   const setOpenAddBeeModal = useAppStore((state) => state.setOpenAddBeeModal);
   const createBee = useBeeStore((state) => state.createBee);
+  const openFlashSpeakerModal = useAppStore(
+    (state) => state.openFlashSpeakerModal
+  );
+  const setOpenFlashSpeakerModal = useAppStore(
+    (state) => state.setOpenFlashSpeakerModal
+  );
   const openNewSpeakerModal = useAppStore((state) => state.openNewSpeakerModal);
   const setOpenNewSpeakerModal = useAppStore(
     (state) => state.setOpenNewSpeakerModal
@@ -92,6 +99,16 @@ export const GlobalAppComponents = () => {
       <AboutKweenBModal
         onClose={() => setOpenAboutKweenBModal(false)}
         open={openAboutKweenBModal}
+      />
+
+      {/* Flashing a speaker (File menu), followed by adopting it */}
+      <FlashSpeakerModal
+        open={openFlashSpeakerModal}
+        onClose={() => setOpenFlashSpeakerModal(false)}
+        onSetUpSpeaker={() => {
+          setOpenFlashSpeakerModal(false);
+          setOpenNewSpeakerModal(true);
+        }}
       />
 
       {/* Adopting a new speaker (bees page and File menu) */}

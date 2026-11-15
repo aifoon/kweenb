@@ -5,13 +5,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useDrag } from "react-dnd";
 import { ChannelType } from "../../shared/enums";
-import { StatusBullet, StatusBulletType } from "../StatusBullet";
 import { IBeeMonitoring } from "../../shared/interfaces";
 import {
   BatteryIndicator,
   BeeActivity,
   WifiIndicator,
   beeActivityText,
+  beeHealthColor,
   getBeeActivity,
 } from "./BeeIndicators";
 
@@ -47,7 +47,10 @@ export const BeeCardContainer = styled(Box)`
   border-radius: var(--radiusLarge);
   padding: 0.85rem;
   height: 100%; /* Fixed height of the BeeCard */
+  box-sizing: border-box;
   background-color: var(--beeCardBg);
+  /* the colour of this edge tells how the bee is doing */
+  border-left: 4px solid transparent;
 
   h2,
   h3,
@@ -82,6 +85,15 @@ const BeeCardLoader = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+`;
+
+const HealthDot = styled.span<{ color: string }>`
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: ${({ color }) => color};
 `;
 
 const ToolButtonGroup = styled.div`
@@ -151,12 +163,7 @@ export const BeeCard = ({
    */
 
   const activity = getBeeActivity(isOnline, monitoring);
-  const bulletType =
-    activity === BeeActivity.Offline
-      ? StatusBulletType.NotActive
-      : activity === BeeActivity.Problem || activity === BeeActivity.Starting
-      ? StatusBulletType.Idle
-      : StatusBulletType.Active;
+  const healthColor = beeHealthColor(activity, monitoring?.battery.level);
   const problem =
     activity === BeeActivity.Problem ? monitoring?.stream.error : null;
 
@@ -174,7 +181,7 @@ export const BeeCard = ({
 
   return (
     <BeeCardContainer
-      style={{ opacity: isDragging ? 0.4 : 1 }}
+      style={{ opacity: isDragging ? 0.4 : 1, borderLeftColor: healthColor }}
       ref={drag}
       draggable={draggable}
       onDoubleClick={(e) => {
@@ -188,40 +195,33 @@ export const BeeCard = ({
       )}
       <>
         {isCollapsed && (
-          <Box
-            display={"flex"}
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            gap={1.5}
-          >
-            <Box display={"flex"} alignItems={"center"} gap={1} minWidth={0}>
-              <StatusBullet
-                type={bulletType}
-                size={8}
-                style={{ flexShrink: 0 }}
-              />
-              <Typography variant="small" noWrap>
-                {name}
-              </Typography>
-              <Typography
-                variant="extraSmall"
-                noWrap
-                title={problem || undefined}
-                style={{ opacity: 0.7 }}
-              >
-                {beeActivityText(activity)}
-              </Typography>
-            </Box>
+          <Box display={"flex"} flexDirection={"column"} gap={1}>
             <Box
               display={"flex"}
               alignItems={"center"}
+              justifyContent={"space-between"}
               gap={1.5}
-              flexShrink={0}
             >
-              {isOnline && (
-                <WifiIndicator signalDbm={monitoring?.wifiSignalDbm} />
-              )}
-              <BatteryIndicator battery={monitoring?.battery} />
+              <Typography noWrap style={{ fontWeight: 600 }}>
+                {name}
+              </Typography>
+              <Box
+                display={"flex"}
+                alignItems={"center"}
+                gap={1.5}
+                flexShrink={0}
+              >
+                {isOnline && (
+                  <WifiIndicator signalDbm={monitoring?.wifiSignalDbm} />
+                )}
+                <BatteryIndicator battery={monitoring?.battery} />
+              </Box>
+            </Box>
+            <Box display={"flex"} alignItems={"center"} gap={1} minWidth={0}>
+              <HealthDot color={healthColor} />
+              <Typography variant="small" noWrap title={problem || undefined}>
+                {beeActivityText(activity)}
+              </Typography>
             </Box>
           </Box>
         )}
@@ -255,11 +255,7 @@ export const BeeCard = ({
                 </ToolButtonGroup>
               </Box>
               <Box display={"flex"} alignItems={"center"} gap={1} mt={0.5}>
-                <StatusBullet
-                  type={bulletType}
-                  size={8}
-                  style={{ flexShrink: 0 }}
-                />
+                <HealthDot color={healthColor} />
                 <Typography variant="small">
                   {beeActivityText(activity)}
                 </Typography>

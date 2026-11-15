@@ -122,6 +122,7 @@ const getAllSettings = async (): Promise<ISettings> => {
       backupFolder: String(
         findKey("kweenbBackupFolder")?.value || DEFAULT_BACKUP_FOLDER
       ),
+      lastImagePath: String(findKey("kweenbLastImagePath")?.value || ""),
     },
     positioningSettings: {
       updateRate: Number(findKey("positioningUpdateRate")?.value) || 200,

@@ -8,6 +8,9 @@ export default {
   beesPoller: (action: "start" | "stop" | "pause"): void => {
     ipcRenderer.send("bee:beesPoller", action);
   },
+  cancelFlash: (): void => {
+    ipcRenderer.send("speaker:cancelFlash");
+  },
   cancelSounds: (): void => {
     ipcRenderer.send("speaker:cancelSounds");
   },

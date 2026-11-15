@@ -71,6 +71,18 @@ import {
   stopLookingForSpeakers,
 } from "./controllers/speaker";
 import {
+  cancelFlash,
+  chooseFlashImage,
+  findSpeakerToFlash,
+  flashSpeaker,
+  getLastFlashImage,
+} from "./controllers/flash";
+import {
+  clearMonitoring,
+  getMonitoring,
+  saveMonitoringLog,
+} from "./controllers/monitor";
+import {
   startDisconnectStreaming,
   startHubStreaming,
   startP2PStreaming,
@@ -90,6 +102,7 @@ const actionListeners = [
   { name: "kweenb:closeKweenB", listener: closeKweenB },
   { name: "kweenb:setJackFolderPath", listener: setJackFolderPath },
   { name: "kweenb:setJacktripBinPath", listener: setJacktripBinPath },
+  { name: "speaker:cancelFlash", listener: cancelFlash },
   { name: "speaker:cancelSounds", listener: cancelSounds },
   {
     name: "speaker:stopLookingForSpeakers",
@@ -258,6 +271,19 @@ const methodHandlers = [
 
   { name: "speaker:findNewSpeakers", handler: findNewSpeakers },
   { name: "speaker:adoptSpeaker", handler: adoptSpeaker },
+
+  // FLASHING A SPEAKER
+
+  { name: "speaker:chooseFlashImage", handler: chooseFlashImage },
+  { name: "speaker:getLastFlashImage", handler: getLastFlashImage },
+  { name: "speaker:findSpeakerToFlash", handler: findSpeakerToFlash },
+  { name: "speaker:flashSpeaker", handler: flashSpeaker },
+
+  // MONITORING
+
+  { name: "monitor:get", handler: getMonitoring },
+  { name: "monitor:clear", handler: clearMonitoring },
+  { name: "monitor:saveLog", handler: saveMonitoringLog },
 
   // SOUNDS ON THIS COMPUTER
 

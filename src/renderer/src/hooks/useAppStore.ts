@@ -15,6 +15,7 @@ type AppState = {
   openBeeDeviceManagerModal: boolean;
   openConnectBeesModal: boolean;
   openDisconnectBeesModal: boolean;
+  openFlashSpeakerModal: boolean;
   openNewSpeakerModal: boolean;
   openSaveSoundsModal: boolean;
   openTriggerOnlyModal: boolean;
@@ -35,6 +36,7 @@ type AppAction = {
   setOpenBeeDeviceManagerModal: (open: boolean) => void;
   setOpenConnectBeesModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
+  setOpenFlashSpeakerModal: (open: boolean) => void;
   setOpenNewSpeakerModal: (open: boolean) => void;
   setOpenSaveSoundsModal: (open: boolean) => void;
   setOpenTriggerOnlyModal: (open: boolean) => void;
@@ -64,6 +66,7 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openBeeDeviceManagerModal: false,
   openConnectBeesModal: false,
   openDisconnectBeesModal: false,
+  openFlashSpeakerModal: false,
   openNewSpeakerModal: false,
   openSaveSoundsModal: false,
   openTriggerOnlyModal: false,
@@ -86,6 +89,8 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
   setOpenAddBeeModal: (open: boolean) => set({ openAddBeeModal: open }),
+  setOpenFlashSpeakerModal: (open: boolean) =>
+    set({ openFlashSpeakerModal: open }),
   setOpenNewSpeakerModal: (open: boolean) =>
     set({ openNewSpeakerModal: open }),
   setOpenSaveSoundsModal: (open: boolean) =>

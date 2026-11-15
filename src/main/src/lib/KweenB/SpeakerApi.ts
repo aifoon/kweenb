@@ -52,7 +52,17 @@ export interface SpeakerStatus {
   };
   storage: { freeMb: number; totalMb: number; scenes: number };
   wifiSignalDbm: number | null;
+  // what went over the Wi-Fi since the speaker started
+  network?: {
+    receivedBytes: number;
+    receivedPackets: number;
+    sentBytes: number;
+    sentPackets: number;
+    linkMbps: number | null;
+  } | null;
   uptimeSeconds: number;
+  // what the clock of the speaker says
+  time?: string;
 }
 
 export interface SpeakerScene {
@@ -646,6 +656,31 @@ const deleteScene = (ipAddress: string, legalName: string): Promise<void> =>
   );
 
 /**
+ * Set the clock of a bee to the clock of this computer. A bee has no
+ * internet and forgets the time when it is switched off.
+ * @param ipAddress
+ */
+const setTime = (ipAddress: string): Promise<void> =>
+  request<void>(ipAddress, "PUT", "system/time", STATUS_TIMEOUT_MS, {
+    time: new Date().toISOString(),
+  });
+
+/**
+ * Is the clock of a bee off by more than a few seconds
+ * @param speakerTime The time in the status of the bee
+ * @param now The time on this computer, in milliseconds
+ */
+export const isClockOff = (
+  speakerTime: string | undefined,
+  now: number = Date.now()
+): boolean => {
+  // a bee that does not tell its time can not be told the time either
+  if (!speakerTime) return false;
+  const time = Date.parse(speakerTime);
+  return !Number.isFinite(time) || Math.abs(time - now) > 5000;
+};
+
+/**
  * Restart a bee
  * @param ipAddress
  */
@@ -688,6 +723,7 @@ export default {
   getStatus,
   reboot,
   setIdentity,
+  setTime,
   shutdown,
   startStream,
   stopStream,
