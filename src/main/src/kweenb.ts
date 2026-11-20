@@ -6,20 +6,20 @@
 
 import { AppMode } from "@shared/enums";
 import { CurrentUploadOperation, IError } from "@shared/interfaces";
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
+import SatelliteSync from "./lib/Satellite/SatelliteSync";
 import { Zwerm3Jack } from "@zwerm3/jack";
 import SettingHelpers from "./lib/KweenB/SettingHelpers";
 import BeeStatesWorker from "./lib/KweenB/BeeStatesWorker";
 import { resourcesPath } from "@shared/resources";
 import fs from "fs";
+import path from "path";
+import { USER_DATA } from "./consts";
 import {
-  JACKTRIP_DOWNLOAD_VERSION,
-  JACK_DOWNLOAD_VERSION,
-  USER_DATA,
-} from "./consts";
-import { JacktripInstaller } from "./lib/Installers/JacktripInstaller";
-import { exec } from "child_process";
-import { JackInstaller } from "./lib/Installers/JackInstaller";
+  jackFolderFor,
+  jacktripBinFor,
+  useJackFolder,
+} from "./lib/KweenB/BundledJack";
 import { initExpress } from "./express";
 import { initSocketIo } from "./socket";
 import Database from "./database";
@@ -33,6 +33,9 @@ class KweenB {
   private _appMode: AppMode;
 
   private _beeStatesWorker: BeeStatesWorker;
+
+  // stops announcing KweenB on the network (for the satellite)
+  private _stopAnnouncing: (() => void) | null = null;
 
   private _currentUploadOperation: CurrentUploadOperation | null;
 
@@ -85,25 +88,6 @@ class KweenB {
   }
 
   /**
-   * Check if we have internet
-   * @returns boolean if we have internet
-   */
-  private async hasInternet(): Promise<boolean> {
-    return new Promise((resolve) => {
-      try {
-        exec(
-          `${resourcesPath}/scripts/is_online_web.sh`,
-          (error, onlineStatus, stderr) => {
-            resolve(onlineStatus.toString().trim() == "true");
-          }
-        );
-      } catch (e) {
-        resolve(false);
-      }
-    });
-  }
-
-  /**
    * Init KweenB functions
    */
 
@@ -125,6 +109,9 @@ class KweenB {
       .then(({ showBackupMenu }) => showBackupMenu())
       .catch(() => {});
 
+    // tidy up after an earlier version of KweenB
+    this.removeDownloadedJack();
+
     // init the jack folder path
     await this.initJackFolderPath();
 
@@ -133,9 +120,6 @@ class KweenB {
 
     // init the express server
     initExpress();
-
-    // init Socket IO
-    initSocketIo();
   }
 
   /**
@@ -147,105 +131,58 @@ class KweenB {
     this._beeStatesWorker = new BeeStatesWorker();
     await this._beeStatesWorker.init();
 
-    // send a message to the renderer
-    callback("Downloading and installing Jack and JackTrip...");
+    // Only now the remote interface may connect: its first question is
+    // about the bees, and a page that was left open asks it the moment
+    // KweenB is back
+    initSocketIo();
 
-    // init the jacktrip
-    await this.initJackAndJacktrip();
+    // let a satellite find this KweenB on the network
+    if (!this._stopAnnouncing) {
+      this._stopAnnouncing = SatelliteSync.announceKweenB();
+      app.on("before-quit", () => this._stopAnnouncing?.());
+    }
   }
 
   /**
-   * Inits the jack folder path
+   * Jack: the one inside KweenB, unless another one was chosen in the
+   * settings
    */
   private async initJackFolderPath() {
     const settings = await SettingHelpers.getAllSettings();
-    Zwerm3Jack.default.jacktripBinPath =
-      settings.kweenBSettings.jackFolderPath || `${USER_DATA}/jack/jackd`;
+    const chosen = settings.kweenBSettings.jackFolderPath;
+    useJackFolder(jackFolderFor(chosen && fs.existsSync(chosen) ? chosen : ""));
   }
 
   /**
-   * Setup Jack and Jacktrip
+   * Earlier versions of KweenB downloaded Jack and JackTrip to the user's
+   * data folder at the first start. They are inside KweenB now, so those
+   * copies only take up room.
    */
-  private async initJackAndJacktrip() {
-    // check if we need to setup Jack or Jacktrip
-    const jacktripPath = `${USER_DATA}/jacktrip`;
-    const jacktripAppPath = `${jacktripPath}/jacktrip`;
-    const jackPath = `${USER_DATA}/jack`;
-    const jackdPath = `${jackPath}/jackd`;
-    const qjackCtlAppPath = `${jackPath}/QjackCtl.app`;
-
-    if (
-      !fs.existsSync(jacktripPath) ||
-      !fs.existsSync(jacktripAppPath) ||
-      !fs.existsSync(jackPath) ||
-      !fs.existsSync(jackdPath) ||
-      !fs.existsSync(qjackCtlAppPath)
-    ) {
-      // check if we have internet
-      if (!(await this.hasInternet())) {
-        this.showInfo(
-          "No internet connection, please connect to the internet and restart kweenb to install Jack and JackTrip."
-        );
-      } else {
-        // download JackTrip if not already present
-        if (!fs.existsSync(jacktripAppPath)) {
-          await new JacktripInstaller(
-            JACKTRIP_DOWNLOAD_VERSION,
-            jacktripPath
-          ).install();
-        }
-
-        // download Jack if not already present
-        if (
-          !fs.existsSync(jackPath) ||
-          !fs.existsSync(jackdPath) ||
-          !fs.existsSync(qjackCtlAppPath)
-        ) {
-          await new JackInstaller(JACK_DOWNLOAD_VERSION, jackPath).install();
-        }
+  private removeDownloadedJack() {
+    // while developing, the data folder is resources/ itself: there these
+    // folders are the ones KweenB runs from
+    if (USER_DATA === resourcesPath) return;
+    ["jack", "jacktrip"].forEach((folder) => {
+      const downloaded = path.join(USER_DATA, folder);
+      if (!fs.existsSync(path.join(downloaded, "version.txt"))) return;
+      try {
+        fs.rmSync(downloaded, { recursive: true, force: true });
+      } catch (e) {
+        // not in the way when it stays
       }
-    }
-
-    // the folders are already present
-    else {
-      // set a flag to check if we need to reinstall
-      let reinstall = false;
-
-      // download JackTrip if not already present
-      if (fs.existsSync(jacktripPath)) {
-        // check if the installed version is the same as the one we want to install
-        const installedVersion = fs
-          .readFileSync(`${jacktripPath}/version.txt`, "utf8")
-          .trim();
-        if (installedVersion !== JACKTRIP_DOWNLOAD_VERSION) {
-          fs.rmSync(jacktripPath, { recursive: true });
-          reinstall = true;
-        }
-      }
-      if (fs.existsSync(jackdPath)) {
-        // check if the installed version is the same as the one we want to install
-        const installedVersion = fs
-          .readFileSync(`${jackPath}/version.txt`, "utf8")
-          .trim();
-        if (installedVersion !== JACK_DOWNLOAD_VERSION) {
-          fs.rmSync(jackPath, { recursive: true });
-          reinstall = true;
-        }
-      }
-
-      // reinstall if needed
-      if (reinstall) await this.initJackAndJacktrip();
-    }
+    });
   }
 
   /**
-   * Inits the jacktrip binary path
+   * JackTrip: the one inside KweenB, unless another one was chosen in the
+   * settings
    */
   private async initJacktripBinPath() {
     const settings = await SettingHelpers.getAllSettings();
-    Zwerm3Jack.default.jacktripBinPath =
-      settings.kweenBSettings.jacktripBinPath ||
-      `${USER_DATA}/jacktrip/jacktrip`;
+    const chosen = settings.kweenBSettings.jacktripBinPath;
+    Zwerm3Jack.default.jacktripBinPath = jacktripBinFor(
+      chosen && fs.existsSync(chosen) ? chosen : ""
+    );
   }
 
   /**

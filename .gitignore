@@ -56,3 +56,5 @@ resources/jack/*
 # Do not add compiled webserver folder
 */webserver/*
 public/*
+# Do not add downloaded firmware (a cache of the development version)
+resources/firmware/

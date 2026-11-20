@@ -43,7 +43,8 @@ export const SelectSceneModal = ({
    * Web socket
    */
 
-  const { sendToServerAndExpectResponseAsync } = useSocket();
+  const { sendToServerAndExpectResponseAsync, sendToServerWithoutResponse } =
+    useSocket();
 
   /**
    * Variables
@@ -90,6 +91,7 @@ export const SelectSceneModal = ({
       .then((data) => {
         setAudioScenes(data as AudioScene[]);
       })
+      .catch(() => undefined)
       .finally(() => setLoading(false));
   };
 
@@ -99,6 +101,7 @@ export const SelectSceneModal = ({
         setAudioScenes(data as AudioScene[]);
         setCachedAudioScenes(data as AudioScene[]);
       })
+      .catch(() => undefined)
       .finally(() => setLoading(false));
   };
 
@@ -107,7 +110,7 @@ export const SelectSceneModal = ({
     if (modalType === SelectSceneModalType.Bee && bee) {
       updateBeeAudioScene(bee, scene);
       if (selectedInterfaceComposition) {
-        sendToServerAndExpectResponseAsync("addInterfaceCompositionBee", {
+        sendToServerWithoutResponse("addInterfaceCompositionBee", {
           interfaceCompositionId: selectedInterfaceComposition.id,
           beeId: bee.id,
           audioSceneId: scene.id,

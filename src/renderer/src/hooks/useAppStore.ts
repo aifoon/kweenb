@@ -1,5 +1,5 @@
 import { AppMode, AppViews } from "@shared/enums";
-import { AudioScene, LoadingState } from "@shared/interfaces";
+import { AudioScene, FlashKind, LoadingState } from "@shared/interfaces";
 import { create } from "zustand";
 import { ToastMessage } from "../interfaces";
 import { DEFAULT_APP_MODE, DEFAULT_APP_VIEWS } from "@shared/consts";
@@ -16,9 +16,16 @@ type AppState = {
   openConnectBeesModal: boolean;
   openDisconnectBeesModal: boolean;
   openFlashSpeakerModal: boolean;
+  // what the flash dialog is for: a speaker or the card of a satellite
+  flashKind: FlashKind;
   openNewSpeakerModal: boolean;
   openSaveSoundsModal: boolean;
   openCloudBackupModal: boolean;
+  openRemoteInterfaceModal: boolean;
+  openSendToSatelliteModal: boolean;
+  openCheckForUpdatesModal: boolean;
+  // what KweenB found to update when it started; null when nothing
+  updatesNotice: string | null;
   // where bees are restored from, null when that dialog is closed
   restoreSoundsFrom: "cloud" | "computer" | null;
   openTriggerOnlyModal: boolean;
@@ -39,10 +46,14 @@ type AppAction = {
   setOpenBeeDeviceManagerModal: (open: boolean) => void;
   setOpenConnectBeesModal: (open: boolean) => void;
   setOpenDisconnectBeesModal: (open: boolean) => void;
-  setOpenFlashSpeakerModal: (open: boolean) => void;
+  setOpenFlashSpeakerModal: (open: boolean, kind?: FlashKind) => void;
   setOpenNewSpeakerModal: (open: boolean) => void;
   setOpenSaveSoundsModal: (open: boolean) => void;
   setOpenCloudBackupModal: (open: boolean) => void;
+  setOpenRemoteInterfaceModal: (open: boolean) => void;
+  setOpenSendToSatelliteModal: (open: boolean) => void;
+  setOpenCheckForUpdatesModal: (open: boolean) => void;
+  setUpdatesNotice: (notice: string | null) => void;
   setRestoreSoundsFrom: (source: "cloud" | "computer" | null) => void;
   setOpenTriggerOnlyModal: (open: boolean) => void;
   setOpenUploadAudioFilesSettings: (open: boolean) => void;
@@ -72,9 +83,14 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
   openConnectBeesModal: false,
   openDisconnectBeesModal: false,
   openFlashSpeakerModal: false,
+  flashKind: "speaker",
   openNewSpeakerModal: false,
   openSaveSoundsModal: false,
   openCloudBackupModal: false,
+  openRemoteInterfaceModal: false,
+  openSendToSatelliteModal: false,
+  openCheckForUpdatesModal: false,
+  updatesNotice: null,
   restoreSoundsFrom: null,
   openTriggerOnlyModal: false,
   openToastState: false,
@@ -96,12 +112,23 @@ export const useAppStore = create<AppState & AppAction>((set) => ({
     set({ manageBeesCollapsed: collapsed }),
   setOpenAboutKweenBModal: (open) => set({ openAboutKweenBModal: open }),
   setOpenAdoptModal: (open: boolean) => set({ openAdoptModal: open }),
-  setOpenFlashSpeakerModal: (open: boolean) =>
-    set({ openFlashSpeakerModal: open }),
+  setOpenFlashSpeakerModal: (open: boolean, kind?: FlashKind) =>
+    set(
+      open
+        ? { openFlashSpeakerModal: true, flashKind: kind || "speaker" }
+        : { openFlashSpeakerModal: false }
+    ),
   setOpenNewSpeakerModal: (open: boolean) => set({ openNewSpeakerModal: open }),
   setOpenSaveSoundsModal: (open: boolean) => set({ openSaveSoundsModal: open }),
   setOpenCloudBackupModal: (open: boolean) =>
     set({ openCloudBackupModal: open }),
+  setOpenRemoteInterfaceModal: (open: boolean) =>
+    set({ openRemoteInterfaceModal: open }),
+  setOpenSendToSatelliteModal: (open: boolean) =>
+    set({ openSendToSatelliteModal: open }),
+  setOpenCheckForUpdatesModal: (open: boolean) =>
+    set({ openCheckForUpdatesModal: open }),
+  setUpdatesNotice: (notice: string | null) => set({ updatesNotice: notice }),
   setRestoreSoundsFrom: (source: "cloud" | "computer" | null) =>
     set({ restoreSoundsFrom: source }),
   setOpenBeeDeviceManagerModal: (open: boolean) =>

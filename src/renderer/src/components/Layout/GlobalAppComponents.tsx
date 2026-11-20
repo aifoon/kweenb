@@ -8,6 +8,9 @@ import { AppMode } from "@shared/enums";
 import { BeeDeviceManagerModal } from "../Modals/BeeDeviceManagerModal";
 import { SaveSoundsModal } from "../Modals/SaveSoundsModal";
 import { CloudBackupModal } from "../Modals/CloudBackupModal";
+import { RemoteInterfaceModal } from "../Modals/RemoteInterfaceModal";
+import { SendToSatelliteModal } from "../Modals/SendToSatelliteModal";
+import { CheckForUpdatesModal } from "../Modals/CheckForUpdatesModal";
 import { RestoreSoundsModal } from "../Modals/RestoreSoundsModal";
 import { NewSpeakerModal } from "../ManageBees/NewSpeakerModal";
 import { FlashSpeakerModal } from "../ManageBees/FlashSpeakerModal";
@@ -26,6 +29,7 @@ export const GlobalAppComponents = () => {
   const openFlashSpeakerModal = useAppStore(
     (state) => state.openFlashSpeakerModal
   );
+  const flashKind = useAppStore((state) => state.flashKind);
   const setOpenFlashSpeakerModal = useAppStore(
     (state) => state.setOpenFlashSpeakerModal
   );
@@ -34,6 +38,24 @@ export const GlobalAppComponents = () => {
     (state) => state.setOpenNewSpeakerModal
   );
   const openSaveSoundsModal = useAppStore((state) => state.openSaveSoundsModal);
+  const openSendToSatelliteModal = useAppStore(
+    (state) => state.openSendToSatelliteModal
+  );
+  const setOpenSendToSatelliteModal = useAppStore(
+    (state) => state.setOpenSendToSatelliteModal
+  );
+  const openCheckForUpdatesModal = useAppStore(
+    (state) => state.openCheckForUpdatesModal
+  );
+  const setOpenCheckForUpdatesModal = useAppStore(
+    (state) => state.setOpenCheckForUpdatesModal
+  );
+  const openRemoteInterfaceModal = useAppStore(
+    (state) => state.openRemoteInterfaceModal
+  );
+  const setOpenRemoteInterfaceModal = useAppStore(
+    (state) => state.setOpenRemoteInterfaceModal
+  );
   const openCloudBackupModal = useAppStore(
     (state) => state.openCloudBackupModal
   );
@@ -112,10 +134,15 @@ export const GlobalAppComponents = () => {
       {/* Flashing a speaker (File menu), followed by adopting it */}
       <FlashSpeakerModal
         open={openFlashSpeakerModal}
+        kind={flashKind}
         onClose={() => setOpenFlashSpeakerModal(false)}
         onSetUpSpeaker={() => {
           setOpenFlashSpeakerModal(false);
           setOpenNewSpeakerModal(true);
+        }}
+        onSendToSatellite={() => {
+          setOpenFlashSpeakerModal(false);
+          setOpenSendToSatelliteModal(true);
         }}
       />
 
@@ -141,6 +168,24 @@ export const GlobalAppComponents = () => {
       <CloudBackupModal
         open={openCloudBackupModal}
         onClose={() => setOpenCloudBackupModal(false)}
+      />
+
+      {/* Where to open the remote interface, with a QR code (File menu) */}
+      <RemoteInterfaceModal
+        open={openRemoteInterfaceModal}
+        onClose={() => setOpenRemoteInterfaceModal(false)}
+      />
+
+      {/* Bringing the satellite in line with KweenB (File menu) */}
+      <SendToSatelliteModal
+        open={openSendToSatelliteModal}
+        onClose={() => setOpenSendToSatelliteModal(false)}
+      />
+
+      {/* A new KweenB, and new firmware for bees and satellites (File menu) */}
+      <CheckForUpdatesModal
+        open={openCheckForUpdatesModal}
+        onClose={() => setOpenCheckForUpdatesModal(false)}
       />
 
       {/* Restoring several bees, from the cloud or this computer (File menu) */}

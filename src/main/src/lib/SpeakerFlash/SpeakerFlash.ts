@@ -7,6 +7,7 @@
  * so a test can run it without those rights on an ordinary file.
  */
 
+import { FlashKind, flashWordsFor } from "./FlashWords";
 import { execFile, spawn } from "child_process";
 import fs from "fs";
 import os from "os";
@@ -14,7 +15,12 @@ import path from "path";
 import {
   DiskInfo,
   diskInfoOf,
+  MIN_CARD_BYTES,
+  cardInBuiltInReader,
+  couldBeSatelliteCard,
+  couldBeSpeakerStorage,
   isStillTheSameDisk,
+  selectSatelliteCard,
   isWholeDiskId,
   parsePlist,
   selectSpeakerStorage,
@@ -22,6 +28,7 @@ import {
 import { ImageError, feedImage, whyImageCannotBeUsed } from "./ImageFeeder";
 import {
   BYTES_FILE,
+  CHECK_PROGRESS_FILE,
   PIPE_FILE,
   RESULT_FILE,
   STARTED_FILE,
@@ -87,6 +94,8 @@ export interface WriteImageOptions {
   onProgress?: (step: WriteStep, percentage?: number) => void;
   // xz when it is not in its usual place (tests)
   xzPath?: string | null;
+  // what is written to: the words of the messages follow it
+  kind?: FlashKind;
 }
 
 const sleep = (ms: number) =>
@@ -269,6 +278,91 @@ export const openSpeakerStorage = async (
   );
 };
 
+// how long KweenB waits for a card to be put in
+const CARD_TIMEOUT_MS = 10 * 60 * 1000;
+
+const gigabytes = (bytes: number) => `${Math.round(bytes / 1e9)} GB`;
+
+/**
+ * Find the SD card of a satellite. A card in the built-in card reader is
+ * taken at once. Otherwise this waits for a card to be put in (a reader on
+ * USB): a disk on USB that was already there is never written to.
+ * @param operation Lets the user stop waiting
+ * @returns The card
+ */
+export const waitForSatelliteCard = async (
+  operation: FlashOperation
+): Promise<DiskInfo> => {
+  // whatever is connected now is not the card
+  let diskIdsBefore: string[];
+  try {
+    diskIdsBefore = await listAllDiskIds();
+  } catch (e) {
+    throw new FlashError(
+      "KweenB could not look at the disks of this computer. Try again."
+    );
+  }
+
+  // a card that already sits in the built-in card reader is the card
+  try {
+    const alreadyIn = cardInBuiltInReader(await listExternalDisks());
+    if (alreadyIn) return alreadyIn;
+  } catch (e) {
+    // then wait for a card to be put in
+  }
+
+  const deadline = Date.now() + CARD_TIMEOUT_MS;
+  let seenBefore: string | null = null;
+  while (Date.now() < deadline) {
+    await sleep(STORAGE_POLL_MS);
+    if (operation.cancelled) throw new FlashError("Stopped.", true);
+
+    let selection;
+    try {
+      selection = selectSatelliteCard(diskIdsBefore, await listExternalDisks());
+    } catch (e) {
+      // look again in a moment
+      continue;
+    }
+
+    // never guess which disk is the card
+    if (!selection.disk && selection.reason === "several")
+      throw new FlashError(
+        "More than one new disk showed up, so KweenB cannot tell which one is the card. Take the card out, unplug other USB disks and sticks, and try again."
+      );
+
+    // only what is there twice in a row has settled
+    const seenNow = selection.disk
+      ? selection.disk.id
+      : selection.reason === "unfit"
+      ? `unfit:${selection.unfit.id}`
+      : null;
+    if (seenNow && seenNow === seenBefore) {
+      if (selection.disk) return selection.disk;
+      if (selection.reason === "unfit") {
+        const { unfit } = selection;
+        console.log(
+          `Not a card for a satellite: ${unfit.id} "${unfit.mediaName}" ${unfit.sizeBytes} bytes, bus ${unfit.busProtocol}, internal ${unfit.internal}, external ${unfit.external}`
+        );
+        throw new FlashError(
+          unfit.sizeBytes > 0 && unfit.sizeBytes < MIN_CARD_BYTES
+            ? `This card is too small (${gigabytes(
+                unfit.sizeBytes
+              )}). Use an SD card of 8 GB or more.`
+            : `What was put in (${gigabytes(
+                unfit.sizeBytes
+              )}) is not an SD card KweenB will write to. Use an SD card of 8 to 256 GB in the card reader.`
+        );
+      }
+    }
+    seenBefore = seenNow;
+  }
+
+  throw new FlashError(
+    "No card showed up. Put the SD card in the card reader. With a card reader on USB, put the card in after you start looking: one that is already in has to be taken out and put back."
+  );
+};
+
 /**
  * Run a script with administrator rights. The Mac asks for the password.
  * @param script The shell script
@@ -352,6 +446,23 @@ const takeOutOfUse = async (
   return parts.length === 0;
 };
 
+// how often the progress of checking is looked at
+const CHECK_POLL_MS = 500;
+
+/**
+ * How far the writer is with reading back, from what it keeps in its
+ * progress file ("<bytes read back> <bytes in all>")
+ * @returns 0 - 100, null when the file does not tell (yet)
+ */
+export const checkPercentageOf = (progress: string): number | null => {
+  const match = /^\s*(\d+)\s+(\d+)\s*$/.exec(progress);
+  if (!match) return null;
+  const done = Number(match[1]);
+  const total = Number(match[2]);
+  if (!(total > 0) || done > total) return null;
+  return Math.floor((done / total) * 100);
+};
+
 /**
  * Write an image and check that it arrived
  * @param options
@@ -359,6 +470,7 @@ const takeOutOfUse = async (
 export const writeImage = async (options: WriteImageOptions): Promise<void> => {
   const { imagePath, target, runScript, operation, onProgress, xzPath } =
     options;
+  const words = flashWordsFor(options.kind || "speaker");
 
   const problem =
     xzPath === undefined
@@ -415,23 +527,32 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
 
     const fed = await feeder.done.catch((e: Error) => e);
     if (!(fed instanceof Error) && onProgress) onProgress("checking");
-    const ran = await script.done;
+    // the writer tells how far it is with reading back
+    let lastChecked = -1;
+    const followChecking = setInterval(async () => {
+      const percentage = checkPercentageOf(
+        await fs.promises
+          .readFile(path.join(workDir, CHECK_PROGRESS_FILE), "utf8")
+          .catch(() => "")
+      );
+      if (percentage === null || percentage === lastChecked) return;
+      lastChecked = percentage;
+      if (!(fed instanceof Error) && onProgress && !operation.cancelled)
+        onProgress("checking", percentage);
+    }, CHECK_POLL_MS);
+    const ran = await script.done.finally(() => clearInterval(followChecking));
     // eslint-disable-next-line no-param-reassign
     operation.abort = undefined;
 
     if (operation.cancelled)
       throw new FlashError(
-        writingStarted
-          ? "Stopped. The speaker is only partly written: flash it again before you use it."
-          : "Stopped. Nothing was changed on the speaker.",
+        writingStarted ? words.stoppedPartly : words.stoppedNothing,
         true
       );
 
     // the image itself was the problem
     if (fed instanceof ImageError)
-      throw new FlashError(
-        `${fed.message} The speaker has to be flashed again before you use it.`
-      );
+      throw new FlashError(`${fed.message} ${words.afterImageProblem}`);
 
     const result = parseWriteScriptResult(
       await fs.promises
@@ -452,28 +573,17 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
     switch (result.outcome) {
       case "ok":
         if (fed instanceof Error) break;
-        if (result.sha256 !== fed.sha256)
-          throw new FlashError(
-            "The speaker's storage did not take the image correctly. Try again; if it keeps happening the storage of this speaker may be worn out."
-          );
+        if (result.sha256 !== fed.sha256) throw new FlashError(words.notTaken);
         return;
       case "changed":
-        throw new FlashError(
-          "The speaker is no longer connected the way it was, so nothing was written. Switch the speaker off and on, and start again."
-        );
+        throw new FlashError(words.changed);
       case "unmount":
-        throw new FlashError(
-          "The speaker's storage is in use by another app, so nothing was written. Close apps that may be using it (Raspberry Pi Imager for example) and try again."
-        );
+        throw new FlashError(words.inUse);
       case "write":
         // the Mac did not hand the disk over: no password, or not allowed
         if (/authopen/.test(writeLog))
-          throw new FlashError(
-            "The Mac did not let KweenB open the speaker's storage, so nothing was written. Try again and give your password when the Mac asks for it."
-          );
-        throw new FlashError(
-          "The image could not be written to the speaker. Check that the image is not larger than the speaker's storage and that the USB cable sits tight, then flash it again."
-        );
+          throw new FlashError(words.notAllowedToOpen);
+        throw new FlashError(words.writeFailed);
       default:
         break;
     }
@@ -481,14 +591,9 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
     // no password, no rights
     if (result.outcome === "unknown" && ran.code !== 0 && !feeder.isOpen()) {
       if (/-128|cancel/i.test(ran.output))
-        throw new FlashError(
-          "Without your password KweenB is not allowed to write to the speaker. Nothing was changed on it.",
-          true
-        );
+        throw new FlashError(words.noPassword, true);
       console.error(`The write script did not start: ${ran.output}`);
-      throw new FlashError(
-        "KweenB was not allowed to write to the speaker. Nothing was changed on it. Try again and give the password of an administrator of this computer."
-      );
+      throw new FlashError(words.noRights);
     }
 
     console.error(
@@ -496,9 +601,7 @@ export const writeImage = async (options: WriteImageOptions): Promise<void> => {
         fed instanceof Error ? fed.message : ""
       }`
     );
-    throw new FlashError(
-      "Writing the image stopped halfway. Check the USB cable and flash the speaker again."
-    );
+    throw new FlashError(words.halfway);
   } finally {
     // eslint-disable-next-line no-param-reassign
     operation.abort = undefined;
@@ -521,8 +624,13 @@ export const flashSpeakerStorage = async (
   imagePath: string,
   disk: DiskInfo,
   operation: FlashOperation,
-  onProgress?: (step: WriteStep, percentage?: number) => void
+  onProgress?: (step: WriteStep, percentage?: number) => void,
+  kind: FlashKind = "speaker"
 ): Promise<void> => {
+  const words = flashWordsFor(kind);
+  const fits =
+    kind === "satellite" ? couldBeSatelliteCard : couldBeSpeakerStorage;
+
   // an image that is not packed has to fit
   const problem = whyImageCannotBeUsed(imagePath);
   if (problem) throw new FlashError(problem);
@@ -530,15 +638,11 @@ export const flashSpeakerStorage = async (
     imagePath.toLowerCase().endsWith(".img") &&
     fs.statSync(imagePath).size > disk.sizeBytes
   )
-    throw new FlashError(
-      "This image is larger than the speaker's storage. Choose the image that was made for these speakers."
-    );
+    throw new FlashError(words.imageTooLarge);
 
   // the disk has to be the one that was shown to the user
-  if (!isStillTheSameDisk(disk, await describeDisk(disk.id)))
-    throw new FlashError(
-      "The speaker is no longer connected the way it was, so nothing was written. Switch the speaker off and on, and start again."
-    );
+  if (!isStillTheSameDisk(disk, await describeDisk(disk.id), fits))
+    throw new FlashError(words.changed);
 
   // macOS only lets an app write to an external disk when it asks as the
   // user who is logged in, through Apple's own helper (authopen, used by
@@ -547,17 +651,10 @@ export const flashSpeakerStorage = async (
   // asks for the password when the writer opens the disk.
   if (onProgress) onProgress("preparing");
   if (!(await takeOutOfUse(disk.id, operation))) {
-    if (operation.cancelled)
-      throw new FlashError(
-        "Stopped. Nothing was changed on the speaker.",
-        true
-      );
-    throw new FlashError(
-      "The speaker's storage is in use by another app, so nothing was written. Close apps that may be using it (Raspberry Pi Imager for example) and try again."
-    );
+    if (operation.cancelled) throw new FlashError(words.stoppedNothing, true);
+    throw new FlashError(words.inUse);
   }
-  if (operation.cancelled)
-    throw new FlashError("Stopped. Nothing was changed on the speaker.", true);
+  if (operation.cancelled) throw new FlashError(words.stoppedNothing, true);
 
   await writeImage({
     imagePath,
@@ -571,5 +668,6 @@ export const flashSpeakerStorage = async (
     runScript: runAsUser,
     operation,
     onProgress,
+    kind,
   });
 };

@@ -29,11 +29,9 @@ interface useAppPersistentStorageState {
   setSelectedInterfaceComposition: (
     selectedInterfaceComposition: InterfaceComposition | undefined
   ) => void;
-  socketUrl: string;
   selectedInterfaceComposition:
     | Omit<InterfaceComposition, "composition">
     | undefined;
-  setSocketUrl: (socketUrl: string) => void;
   swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => void;
   updateBeeAudioScene: (
     bee: IBee | undefined,
@@ -156,10 +154,6 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
       ) => {
         set({ selectedInterfaceComposition });
       },
-      setSocketUrl: (socketUrl: string) => {
-        set({ socketUrl });
-      },
-      socketUrl: "http://kweenb.local:4444",
       swapAllBeeAudioScenes: (beeAudioScenes: BeeAudioScene[]) => {
         set({ beeAudioScenes });
       },
@@ -214,7 +208,6 @@ export const useAppPersistentStorage = create<useAppPersistentStorageState>()(
         beeAudioScenes: state.beeAudioScenes,
         orderedAudioScenes: state.orderedAudioScenes,
         selectedInterfaceComposition: state.selectedInterfaceComposition,
-        socketUrl: state.socketUrl,
       }),
       onRehydrateStorage: (state) => {
         useAppStore.setState({ rehydrated: false });

@@ -1,9 +1,7 @@
 import { Card } from "@components/Cards/Card";
 import { Box, Button, Typography } from "@mui/material";
-import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import StopIcon from "@mui/icons-material/Stop";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
   OrderedAudioScene,

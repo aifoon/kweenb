@@ -23,6 +23,10 @@ export class Socket {
         cors: {
           origin: `*`,
         },
+        // a phone that lost its connection is noticed within about ten
+        // seconds (the default is 45), and so is KweenB by the phone
+        pingInterval: 5000,
+        pingTimeout: 5000,
       });
       this.socketServer.on("connect", (socket) => {
         socket.on("message", (data: any) => {

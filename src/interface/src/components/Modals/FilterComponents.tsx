@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import styled from "styled-components";
-import { modalWidth, modalHeight } from "./ModalConfig";
+import { modalHeight } from "./ModalConfig";
 
 const textFieldHeight = 40;
 const textFieldMargin = "10px";

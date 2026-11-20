@@ -1,16 +1,24 @@
 import { Client, Message } from "node-osc";
 
-export class OscBase {
-  private _oscClient;
-  private _ipAddress: string;
+// one sender per destination, shared by everything that talks to it. A new
+// sender for every message would leave a network socket open each time.
+const clients = new Map<string, Client>();
 
-  public get oscClient() {
-    return this._oscClient;
+const clientFor = (ipAddress: string, port: number): Client => {
+  const key = `${ipAddress}:${port}`;
+  let client = clients.get(key);
+  if (!client) {
+    client = new Client(ipAddress, port);
+    clients.set(key, client);
   }
+  return client;
+};
+
+export class OscBase {
+  private _oscClient: Client;
 
   constructor(ipAddress: string, port: number) {
-    this._ipAddress = ipAddress;
-    this._oscClient = new Client(ipAddress, port);
+    this._oscClient = clientFor(ipAddress, port);
   }
 
   async send(address: string, value: any): Promise<void> {

@@ -292,6 +292,9 @@ export interface IFlashImage {
 }
 
 // how looking for the speaker to flash ended
+// what is flashed: a speaker (over a USB cable) or the SD card of a satellite
+export type FlashKind = "speaker" | "satellite";
+
 export interface IFlashStorageResult {
   found: boolean;
   cancelled: boolean;
@@ -304,7 +307,7 @@ export interface IFlashStorageResult {
 // sent while a speaker is looked for and flashed
 export interface IFlashProgress {
   step: "looking" | "found" | "password" | "preparing" | "writing" | "checking";
-  // only while writing (0 - 100)
+  // while writing and while checking (0 - 100)
   percentage?: number;
 }
 
@@ -432,6 +435,8 @@ export interface IKweenBSettings {
   backupFolder: string;
   // the image that was last used to flash a speaker
   lastImagePath: string;
+  // the image that was last used to flash a satellite
+  lastSatelliteImagePath: string;
 }
 
 // Socket
@@ -667,5 +672,139 @@ export interface ICloudTransferResult {
   files: number;
   cancelled: boolean;
   // why it did not work, in plain words
+  message?: string;
+}
+
+/**
+ * Where the remote interface can be opened
+ */
+export interface IRemoteInterface {
+  // on this computer
+  localUrl: string;
+  // for a phone or tablet on the same network; null without a network
+  networkUrl: string | null;
+  // the network address as a QR code (an image as data URL)
+  qrCode: string | null;
+}
+
+/**
+ * A satellite on the network (a Raspberry Pi with the trigger interface)
+ */
+export interface ISatellite {
+  name: string;
+  // the address or the name on the network
+  host: string;
+  port: number;
+}
+
+/**
+ * The answer to "Send to Satellite"
+ */
+export interface ISendToSatelliteAnswer {
+  success: boolean;
+  message?: string;
+  result?: ISatelliteSyncResult;
+}
+
+/**
+ * What a sync with a satellite did
+ */
+export interface ISatelliteSyncResult {
+  satelliteName: string;
+  // the names of the compositions that came from the satellite
+  added: string[];
+  updated: string[];
+  // changed on both sides: kept twice, the one of the satellite with
+  // "(satellite)" behind its name
+  keptBoth: string[];
+  // deleted on the satellite, and so removed from KweenB
+  deleted: string[];
+  // deleted on the satellite but changed in KweenB since: kept
+  keptDespiteDelete: string[];
+  // places in those compositions whose scene is not on that bee any more
+  emptyPlaces: number;
+  // what went to the satellite
+  sent: { bees: number; scenes: number; compositions: number };
+}
+
+/**
+ * Updates (File → Check for Updates…)
+ */
+
+export type UpdateDeviceKind = "bee" | "satellite";
+
+// current: runs the newest firmware KweenB has
+// update: a newer firmware can be sent to it
+// restart: a firmware is installed and waits for a restart
+// needs-image: only a new image helps (File → Flash)
+// no-offer: KweenB has no firmware to compare with
+export type UpdateDeviceState =
+  | "current"
+  | "update"
+  | "restart"
+  | "needs-image"
+  | "no-offer";
+
+/**
+ * A firmware KweenB has on this computer, ready to be sent
+ */
+export interface IFirmwareOffer {
+  kind: UpdateDeviceKind;
+  version: string;
+  // the oldest image (its date) this firmware can be put on
+  requiresImage: string | null;
+}
+
+/**
+ * A bee or a satellite that is on the network, and what it runs
+ */
+export interface IUpdateDevice {
+  key: string;
+  kind: UpdateDeviceKind;
+  name: string;
+  // the date its image was built; null when it does not tell
+  image: string | null;
+  // null when its image cannot take a firmware over the network
+  firmware: string | null;
+  state: UpdateDeviceState;
+  // the version an update brings it to
+  target: string | null;
+  // what the user should know about this device
+  why: string | null;
+  // sound is streaming to it right now
+  playing: boolean;
+  batteryLow: boolean;
+}
+
+export interface IUpdatesState {
+  kweenb: {
+    current: string;
+    latest: string | null;
+    available: boolean;
+    message: string | null;
+  };
+  firmware: {
+    // firmware is kept with the backups: without a backup key none is seen
+    hasKey: boolean;
+    message: string | null;
+    bee: IFirmwareOffer | null;
+    satellite: IFirmwareOffer | null;
+  };
+  devices: IUpdateDevice[];
+}
+
+/**
+ * How far an update is. key is the device, or "kweenb" for the download of
+ * KweenB itself.
+ */
+export interface IUpdateProgress {
+  key: string;
+  step: "sending" | "restarting" | "done" | "failed";
+  message?: string;
+  percentage?: number;
+}
+
+export interface IUpdateAnswer {
+  success: boolean;
   message?: string;
 }

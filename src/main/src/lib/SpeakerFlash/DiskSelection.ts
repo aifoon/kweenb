@@ -222,18 +222,93 @@ export const selectSpeakerStorage = (
   return { disk };
 };
 
+// an SD card for a satellite: 8 GB (which is a bit less in bytes) or more.
+// The upper limit keeps backup disks and other large disks out.
+export const MIN_CARD_BYTES = 7 * 1000 * 1000 * 1000;
+export const MAX_CARD_BYTES = 300 * 1000 * 1000 * 1000;
+
+/**
+ * Could this disk be the SD card for a satellite: a card in the card reader
+ * of the computer, or in a reader on a USB port. Everything has to fit.
+ * @param disk
+ */
+export const couldBeSatelliteCard = (disk: DiskInfo): boolean =>
+  isWholeDiskId(disk.id) &&
+  disk.wholeDisk &&
+  // something that can be taken out or unplugged
+  disk.external &&
+  disk.physical &&
+  !disk.diskImage &&
+  // the built-in card reader, or a reader on USB that the computer does not
+  // count as one of its own disks
+  (/^secure digital$/i.test(disk.busProtocol) ||
+    (disk.busProtocol === "USB" && disk.internal === false)) &&
+  disk.sizeBytes >= MIN_CARD_BYTES &&
+  disk.sizeBytes <= MAX_CARD_BYTES;
+
+/**
+ * A card that sits in the card reader that is built into the computer.
+ * Nothing but an SD card fits in there, so such a card may be used when it
+ * was already in. (A disk on USB that was already there is never used: that
+ * could be a stick or a disk with something else on it.)
+ * @param disks The disks that are there now
+ * @returns The card, null when there is none or more than one
+ */
+export const cardInBuiltInReader = (disks: DiskInfo[]): DiskInfo | null => {
+  const cards = disks.filter(
+    (disk) =>
+      couldBeSatelliteCard(disk) && /^secure digital$/i.test(disk.busProtocol)
+  );
+  return cards.length === 1 ? cards[0] : null;
+};
+
+export type CardSelection =
+  | { disk: DiskInfo }
+  // none: nothing new; several: more than one new disk;
+  // unfit: one new disk, but not a card KweenB will write to
+  | { disk: null; reason: "none" | "several" }
+  | { disk: null; reason: "unfit"; unfit: DiskInfo };
+
+/**
+ * Choose the SD card out of the disks that are connected: the one disk that
+ * was put in after we started looking. A disk that was already there is
+ * never chosen, so a card has to be put in while KweenB watches.
+ * @param diskIdsBefore Every disk that was there before we looked for the card
+ * @param disksNow The disks that are there now
+ */
+export const selectSatelliteCard = (
+  diskIdsBefore: string[],
+  disksNow: DiskInfo[]
+): CardSelection => {
+  const newDisks = disksNow.filter(
+    (disk) =>
+      isWholeDiskId(disk.id) &&
+      disk.wholeDisk &&
+      !diskIdsBefore.includes(disk.id)
+  );
+  if (newDisks.length === 0) return { disk: null, reason: "none" };
+  // never guess between two things that showed up
+  if (newDisks.length > 1) return { disk: null, reason: "several" };
+  const [disk] = newDisks;
+  return couldBeSatelliteCard(disk)
+    ? { disk }
+    : { disk: null, reason: "unfit", unfit: disk };
+};
+
 /**
  * Is a disk still the one that was chosen (looked at again right before it
  * is erased: in the meantime another disk can have taken its name)
  * @param chosen The disk that was chosen
  * @param now What the disk with that name is now, null when it is gone
+ * @param fits What the disk has to be: the storage of a speaker, or a card
  */
 export const isStillTheSameDisk = (
   chosen: DiskInfo,
-  now: DiskInfo | null
+  now: DiskInfo | null,
+  fits: (disk: DiskInfo) => boolean = couldBeSpeakerStorage
 ): boolean =>
   !!now &&
-  couldBeSpeakerStorage(now) &&
+  fits(now) &&
   now.id === chosen.id &&
   now.sizeBytes === chosen.sizeBytes &&
   now.mediaName === chosen.mediaName;

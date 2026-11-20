@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAppStore } from "../hooks/useAppStore";
 import { useBeeStore } from "../hooks/useBeeStore";
 import { AppMode, AppViews } from "@shared/enums";
+import { noticeOf } from "../components/Modals/CheckForUpdatesModal";
 
 export const useApp = () => {
   const setAppMode = useAppStore((state) => state.setAppMode);
@@ -35,8 +36,8 @@ export const useApp = () => {
     });
 
     // File menu: flash a speaker, adopt a new speaker, save the sounds of the bees
-    window.kweenb.events.onFlashSpeaker(() => {
-      setOpenFlashSpeakerModal(true);
+    window.kweenb.events.onFlashSpeaker((event, kind) => {
+      setOpenFlashSpeakerModal(true, kind);
     });
     window.kweenb.events.onNewSpeaker(() => {
       setOpenNewSpeakerModal(true);
@@ -49,6 +50,20 @@ export const useApp = () => {
     });
     window.kweenb.events.onCloudBackup(() => {
       setOpenCloudBackupModal(true);
+    });
+    window.kweenb.events.onSendToSatellite(() => {
+      useAppStore.getState().setOpenSendToSatelliteModal(true);
+    });
+    // File menu: Check for Updates…
+    window.kweenb.events.onCheckForUpdates(() => {
+      useAppStore.getState().setOpenCheckForUpdatesModal(true);
+    });
+    // at the start KweenB looked by itself and found something to update
+    window.kweenb.events.onUpdatesAvailable((event, state) => {
+      useAppStore.getState().setUpdatesNotice(noticeOf(state));
+    });
+    window.kweenb.events.onRemoteInterface(() => {
+      useAppStore.getState().setOpenRemoteInterfaceModal(true);
     });
     window.kweenb.events.onRestoreSounds((event, source) => {
       setRestoreSoundsFrom(source === "cloud" ? "cloud" : "computer");

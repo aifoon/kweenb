@@ -75,6 +75,15 @@ export const USER_DATA =
     ? `${resourcesPath}`
     : path.join(app.getPath("userData"));
 
+// Jack and JackTrip travel inside KweenB (scripts/fetch-audio-tools.sh
+// puts them in resources/ before KweenB is built)
+export const BUNDLED_JACK_FOLDER = path.join(resourcesPath, "jack");
+export const BUNDLED_JACKTRIP_BIN = path.join(
+  resourcesPath,
+  "jacktrip",
+  "jacktrip"
+);
+
 // the folder on this computer where the sounds of the bees are saved,
 // as long as the user did not choose another one
 export const DEFAULT_BACKUP_FOLDER = path.join(
@@ -105,8 +114,6 @@ export const START_PORT_JACKTRIP = 4464;
 // the port of the jacktrip HUB server
 export const START_PORT_JACKTRIP_HUB_SERVER = 4495;
 
-// the jacktrip download version
-export const JACKTRIP_DOWNLOAD_VERSION = "3.0.1";
 
 // the audio buffer of Pure Data on the bees (in milliseconds)
 export const PD_AUDIO_BUFFER_MS = 20;
@@ -121,8 +128,6 @@ export const BEE_JACK_DEVICE = "hw:sndrpihifiberry";
 // the queue buffer is then a tolerance in milliseconds
 export const JACKTRIP_BUFFER_STRATEGY = 3;
 
-// the jack download version
-export const JACK_DOWNLOAD_VERSION = "1.9.22";
 
 /**
  * Positioning Configuration
@@ -138,6 +143,9 @@ export const REAPER_OSC_PORT = 8111;
  */
 
 export const SOCKET_PORT = 4444;
+
+// the port of the remote interface (see public/server.js)
+export const REMOTE_INTERFACE_PORT = 5050;
 
 // Where the files are that go with KweenB (the image for the speakers, the
 // backup key). The address forwards to a folder that asks for a password,

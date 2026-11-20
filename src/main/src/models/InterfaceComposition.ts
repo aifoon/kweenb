@@ -24,6 +24,13 @@ class InterfaceComposition extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        // the same composition has the same uid in KweenB and on the
+        // satellite (their own numbers differ)
+        uid: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          defaultValue: DataTypes.UUIDV4,
+        },
       },
       {
         sequelize,

@@ -1,16 +1,49 @@
 import { fork, ChildProcess } from "child_process";
 import path from "path";
-import { app } from "electron";
+import SatelliteSync from "./lib/Satellite/SatelliteSync";
+import { KweenBGlobal } from "./kweenb";
 
 let expressProcess: ChildProcess | null = null;
 
 /**
- * Get the database path based on environment
+ * A satellite asked the web server to sync (it holds compositions KweenB
+ * does not have yet). The work is done here, the answer goes back.
  */
-const getDatabasePath = (): string => {
-  return process.env.NODE_ENV === "development"
-    ? "kweenb.sqlite"
-    : path.join(app.getPath("userData"), "kweenb.sqlite");
+const answerSatellite = async (message: any) => {
+  if (!message || message.type !== "satellite-sync") return;
+  const { id, host, port } = message;
+  try {
+    const result = await SatelliteSync.syncWithSatellite(
+      String(host),
+      Number(port)
+    );
+    expressProcess?.send({
+      type: "satellite-sync-result",
+      id,
+      ok: true,
+      result,
+    });
+
+    // tell whoever sits at KweenB what came in
+    const fromSatellite =
+      result.added.length +
+      result.updated.length +
+      result.keptBoth.length +
+      result.deleted.length;
+    if (fromSatellite > 0)
+      KweenBGlobal.kweenb.showInfo(
+        fromSatellite === 1
+          ? `1 change to the compositions came in from ${result.satelliteName}.`
+          : `${fromSatellite} changes to the compositions came in from ${result.satelliteName}.`
+      );
+  } catch (e: any) {
+    expressProcess?.send({
+      type: "satellite-sync-result",
+      id,
+      ok: false,
+      error: e?.message || "The sync with the satellite failed.",
+    });
+  }
 };
 
 /**
@@ -34,16 +67,12 @@ export const initExpress = (): ChildProcess | null => {
       : path.resolve(__dirname, "../public/server.js");
 
   // start the express process
-  expressProcess = fork(serverUrl, {
-    env: {
-      ...process.env,
-      KWEENB_DB_PATH: getDatabasePath(),
-    },
-  });
+  expressProcess = fork(serverUrl);
   try {
     if (expressProcess) {
       expressProcess.stdout?.on("data", console.log);
       expressProcess.stderr?.on("data", console.error);
+      expressProcess.on("message", answerSatellite);
     }
     return expressProcess;
   } catch (e) {

@@ -1,6 +1,8 @@
 // Writes an image to the storage of a speaker and reads it back:
-//   flash-writer /dev/rdiskN < image
+//   flash-writer /dev/rdiskN [progress file] < image
 // prints "ok:<sha256 of what was read back>:<bytes>" when done.
+// While it reads back it keeps "<bytes read back> <bytes in all>" in the
+// progress file, when one is given, so the progress can be shown.
 //
 // macOS does not let a program open an external disk directly, not even
 // with administrator rights ("Operation not permitted"). The way Apple
@@ -89,8 +91,8 @@ static ssize_t readFull(int fd, unsigned char *buffer, size_t size) {
 }
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr, "usage: flash-writer /dev/rdiskN < image\n");
+  if (argc != 2 && argc != 3) {
+    fprintf(stderr, "usage: flash-writer /dev/rdiskN [progress file] < image\n");
     return 2;
   }
   // only ever a whole disk
@@ -144,6 +146,9 @@ int main(int argc, char **argv) {
   CC_SHA256_CTX sha;
   CC_SHA256_Init(&sha);
   unsigned long long left = total;
+  // how far reading back is, for whoever shows the progress (never a reason
+  // to stop: without the file there is just no progress to show)
+  int progress = argc == 3 ? open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0600) : -1;
   while (left > 0) {
     size_t want = left > BLOCK ? BLOCK : (size_t)((left + SECTOR - 1) / SECTOR * SECTOR);
     ssize_t have = readFull(disk, buffer, want);
@@ -151,7 +156,17 @@ int main(int argc, char **argv) {
     size_t counts = (unsigned long long)have > left ? (size_t)left : (size_t)have;
     CC_SHA256_Update(&sha, buffer, (CC_LONG)counts);
     left -= counts;
+    if (progress >= 0) {
+      // a line of a fixed width, written over the one before
+      char line[64];
+      int length = snprintf(line, sizeof(line), "%20llu %20llu\n", total - left, total);
+      if (pwrite(progress, line, (size_t)length, 0) < 0) {
+        close(progress);
+        progress = -1;
+      }
+    }
   }
+  if (progress >= 0) close(progress);
   unsigned char digest[CC_SHA256_DIGEST_LENGTH];
   CC_SHA256_Final(digest, &sha);
   close(disk);

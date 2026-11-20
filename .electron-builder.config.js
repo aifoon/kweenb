@@ -19,7 +19,10 @@ const config = {
     {
       from: "resources",
       to: ".",
-      filter: ["**/*", "!jack/**/*", "!jacktrip/**/*"],
+      // Jack and JackTrip travel inside the app (put in resources/ by
+      // scripts/fetch-audio-tools.sh). The firmware folder is only a
+      // download cache of the development version.
+      filter: ["**/*", "!firmware/**/*", "!**/.DS_Store"],
     },
   ],
   mac: {

@@ -25,6 +25,13 @@ import {
   IRestoreSoundsResult,
   IBackupKeyResult,
   ICloudBackupState,
+  IRemoteInterface,
+  FlashKind,
+  ISatellite,
+  ISendToSatelliteAnswer,
+  IUpdateAnswer,
+  IUpdateProgress,
+  IUpdatesState,
   ICloudProgress,
   ICloudSettings,
   ICloudSettingsInput,
@@ -75,14 +82,8 @@ declare global {
         createBee(bee: IBeeInput): Promise<IBee>;
         deleteBee(id: number);
         updateBee(bee: Partial<IBee>);
-        getCurrentBeeStates(bees: IBee[]): Promise<IBeeState[]>;
         fetchBee(id: number): Promise<IBee>;
-        fetchActiveBees(): Promise<IBee[]>;
-        fetchActiveBeesData(): Promise<IBee[]>;
         fetchAllBees(): Promise<IBee[]>;
-        fetchAllBeesData(): Promise<IBee[]>;
-        fetchInActiveBees(): Promise<IBee[]>;
-        fetchInActiveBeesData(): Promise<IBee[]>;
 
         // JACK/JACKTRIP
         killJackAndJacktrip(bee: IBee): Promise<void>;
@@ -101,15 +102,15 @@ declare global {
          */
 
         calculateCurrentLatency(): Promise<number>;
-        disconnectP2PAudioConnectionsKweenB(): Promise<void>;
         getKweenBVersion(): Promise<string>;
-        isJackAndJacktripInstalled(): Promise<boolean>;
-        killJackAndJacktripOnKweenB(): Promise<void>;
-        startJacktripHubServer(): Promise<void>;
-        startJackWithJacktripHubClientKweenB(): Promise<void>;
+        getRemoteInterface(): Promise<IRemoteInterface>;
+        findSatellites(): Promise<ISatellite[]>;
+        sendToSatellite(satellite: ISatellite): Promise<ISendToSatelliteAnswer>;
+        checkForUpdates(): Promise<IUpdatesState>;
+        updateDevice(key: string): Promise<IUpdateAnswer>;
+        downloadKweenB(): Promise<IUpdateAnswer>;
+        openRemoteInterface(): Promise<void>;
         startJackWithJacktripP2PClientKweenB(bee: IBee): Promise<void>;
-        makeHubAudioConnectionsKweenB(): Promise<void>;
-        makeP2PAudioConnectionsKweenB(): Promise<void>;
         makeP2PAudioConnectionKweenB(bee: IBee): Promise<void>;
         openDialog(
           method: keyof Electron.Dialog,
@@ -136,10 +137,13 @@ declare global {
         findNewSpeakers(): Promise<IFoundSpeaker[]>;
 
         // FLASHING A SPEAKER
-        chooseFlashImage(): Promise<IFlashImage | null>;
-        findSpeakerToFlash(): Promise<IFlashStorageResult>;
-        flashSpeaker(imagePath: string): Promise<IFlashSpeakerResult>;
-        getLastFlashImage(): Promise<IFlashImage | null>;
+        chooseFlashImage(kind?: FlashKind): Promise<IFlashImage | null>;
+        findSpeakerToFlash(kind?: FlashKind): Promise<IFlashStorageResult>;
+        flashSpeaker(
+          imagePath: string,
+          kind?: FlashKind
+        ): Promise<IFlashSpeakerResult>;
+        getLastFlashImage(kind?: FlashKind): Promise<IFlashImage | null>;
 
         // SOUNDS ON THIS COMPUTER
         getSoundBackups(): Promise<ISoundBackup[]>;
@@ -152,7 +156,6 @@ declare global {
           ISoundDeviceInfo & { outcome: SoundDeviceInstallOutcome }
         >;
         setBeeChannels(changes: IRoutingChange[]): Promise<IRouting>;
-        setBeeChannel(beeId: number, channel: number | null): Promise<IRouting>;
 
         // CLOUD BACKUP
         activateBackupKey(passphrase: string): Promise<IBackupKeyResult>;
@@ -210,8 +213,6 @@ declare global {
         };
       };
       readonly actions: {
-        beesPoller(action: "start" | "stop" | "pause"): void;
-        beePoller(action: "start" | "stop" | "pause", params: any[] = []): void;
         cancelFlash: () => void;
         cancelCloud: () => void;
         routingLevels: (action: "start" | "stop") => void;
@@ -223,7 +224,6 @@ declare global {
         cancelUploadAudioFiles: () => void;
         closeKweenB(): void;
         disconnectPozyxMqttBroker(): void;
-        flushAudioScenes(): void;
         pauseUpdateAudioScenes(pause: boolean): void;
         setBeeActive(id: number, active: boolean): void;
         setBeePozyxTagId(bee: IBee, pozxyTagId: string): void;
@@ -253,7 +253,9 @@ declare global {
         ): () => void;
         onNewSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
         onSaveSounds(callback: (event: IpcMessageEvent) => void): () => void;
-        onFlashSpeaker(callback: (event: IpcMessageEvent) => void): () => void;
+        onFlashSpeaker(
+          callback: (event: IpcMessageEvent, kind?: FlashKind) => void
+        ): () => void;
         onBeeLevels(
           callback: (
             event: IpcMessageEvent,
@@ -261,6 +263,21 @@ declare global {
           ) => void
         ): void;
         onCloudBackup(callback: (event: IpcMessageEvent) => void): () => void;
+        onCheckForUpdates(
+          callback: (event: IpcMessageEvent) => void
+        ): () => void;
+        onUpdatesAvailable(
+          callback: (event: IpcMessageEvent, state: IUpdatesState) => void
+        ): () => void;
+        onUpdateProgress(
+          callback: (event: IpcMessageEvent, progress: IUpdateProgress) => void
+        ): () => void;
+        onSendToSatellite(
+          callback: (event: IpcMessageEvent) => void
+        ): () => void;
+        onRemoteInterface(
+          callback: (event: IpcMessageEvent) => void
+        ): () => void;
         onRestoreSounds(
           callback: (
             event: IpcMessageEvent,

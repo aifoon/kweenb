@@ -68,6 +68,18 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
         spawnProcess = null;
       }
 
+      // KWEENB_DEBUG_PORT=9333: let a tool look at and steer the windows
+      // (used to take the screenshots of the manual)
+      // KWEENB_INSPECT_PORT=9334: the same for the main process (menus)
+      const debugArgs = [
+        ...(process.env.KWEENB_DEBUG_PORT
+          ? [`--remote-debugging-port=${process.env.KWEENB_DEBUG_PORT}`]
+          : []),
+        ...(process.env.KWEENB_INSPECT_PORT
+          ? [`--inspect=${process.env.KWEENB_INSPECT_PORT}`]
+          : []),
+      ];
+
       // KWEENB_AS_APP=1: let the Mac start Electron as an app of its own,
       // not as a child of this terminal. macOS gives permissions (like
       // writing to an external disk when a speaker is flashed) per app, and
@@ -96,12 +108,13 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
           ...env,
           "--args",
           process.cwd(),
+          ...debugArgs,
         ]);
         spawnProcess.on("exit", process.exit);
         return;
       }
 
-      spawnProcess = spawn(String(electronPath), ["."]);
+      spawnProcess = spawn(String(electronPath), [".", ...debugArgs]);
 
       spawnProcess.stdout.on(
         "data",

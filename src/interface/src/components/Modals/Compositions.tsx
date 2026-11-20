@@ -87,30 +87,32 @@ export const Compositions = ({ open, onClose }: CompositionsAsProps) => {
     sendToServerAndExpectResponseAsync(
       "deleteInterfaceComposition",
       interfaceComposition
-    ).then(() => {
-      // Remove the composition from the list
-      setInterfaceCompositions(
-        interfaceCompositions.filter(
-          (composition) => composition.id !== interfaceComposition.id
-        )
-      );
+    )
+      .then(() => {
+        // Remove the composition from the list
+        setInterfaceCompositions(
+          interfaceCompositions.filter(
+            (composition) => composition.id !== interfaceComposition.id
+          )
+        );
 
-      // If the deleted composition is the selected composition, remove the selected composition
-      if (
-        seletedInterfaceComposition &&
-        seletedInterfaceComposition.id === interfaceComposition.id
-      ) {
-        setSelectedInterfaceComposition(undefined);
-      }
-    });
+        // If the deleted composition is the selected composition, remove the selected composition
+        if (
+          seletedInterfaceComposition &&
+          seletedInterfaceComposition.id === interfaceComposition.id
+        ) {
+          setSelectedInterfaceComposition(undefined);
+        }
+      })
+      .catch(() => undefined);
   };
 
   const fetchInterfaceCompositions = async () => {
     sendToServerAndExpectResponseAsync("fetchInterfaceCompositions")
       .then((data) => {
-        console.log("Fetched Interface Compositions:", data);
         setInterfaceCompositions(data as InterfaceComposition[]);
       })
+      .catch(() => undefined)
       .finally(() => setLoading(false));
   };
 

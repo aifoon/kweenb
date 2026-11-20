@@ -25,6 +25,10 @@ export const Z3Navigation = () => {
   );
   const currentLatency = useAppStore((state) => state.currentLatency);
   const appMode = useAppStore((state) => state.appMode);
+  const updatesNotice = useAppStore((state) => state.updatesNotice);
+  const setOpenCheckForUpdatesModal = useAppStore(
+    (state) => state.setOpenCheckForUpdatesModal
+  );
   const updateCurrentLatency = useAppStore(
     (state) => state.updateCurrentLatency
   );
@@ -64,6 +68,19 @@ export const Z3Navigation = () => {
   return (
     <Navigation title="kweenb" fixedToTop height="var(--navigationHeight)">
       <Box display="flex" alignItems="center" gap={1}>
+        {updatesNotice && (
+          <>
+            <Button
+              variant="text"
+              size="small"
+              color="secondary"
+              onClick={() => setOpenCheckForUpdatesModal(true)}
+            >
+              {updatesNotice}
+            </Button>
+            <Divider orientation="vertical" flexItem />
+          </>
+        )}
         {currentLatency !== 0 && (
           <>
             <Box display={"flex"} gap={1}>

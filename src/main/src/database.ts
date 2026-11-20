@@ -2,6 +2,7 @@
  * A Database Instance
  */
 
+import { randomUUID } from "crypto";
 import { join } from "path";
 import { Sequelize } from "sequelize";
 import { SEQUELIZE_LOGGING, USER_DATA } from "./consts";
@@ -63,6 +64,26 @@ class Database {
   async sync() {
     await this.initModels();
     await this.sequelize.sync();
+    await this.giveCompositionsTheirUid();
+  }
+
+  /**
+   * A database of an earlier version has no uid for its compositions yet
+   * (sync does not add a column to a table that exists)
+   */
+  private async giveCompositionsTheirUid() {
+    const [columns] = await this.sequelize.query(
+      "PRAGMA table_info(interface_compositions)"
+    );
+    if (!(columns as { name: string }[]).some(({ name }) => name === "uid"))
+      await this.sequelize.query(
+        "ALTER TABLE interface_compositions ADD COLUMN uid VARCHAR(255)"
+      );
+    const withoutUid = await InterfaceComposition.findAll({
+      where: { uid: null },
+    });
+    for (const composition of withoutUid)
+      await composition.update({ uid: randomUUID() }, { silent: true });
   }
 
   getSequelize(): Sequelize {

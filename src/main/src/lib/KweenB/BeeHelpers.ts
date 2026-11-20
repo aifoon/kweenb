@@ -508,13 +508,15 @@ const startAudio = async (bees: IBee[] | IBee, value: string) => {
     // check if bees is an array or a single bee
     const beeArray = Array.isArray(bees) ? bees : [bees];
 
-    // iterate over the beeArray
-    for (const bee of beeArray) {
-      // check the current online state (the one in the object could be outdated)
-      if (!KweenBGlobal.kweenb.beeStates.isOnline(bee.id)) continue;
-      const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
-      await pdBeeOsc.startAudio(value);
-    }
+    // every bee that is online right now (the state in the object could be
+    // outdated) gets its start at the same moment
+    await Promise.all(
+      beeArray
+        .filter((bee) => KweenBGlobal.kweenb.beeStates.isOnline(bee.id))
+        .map((bee) =>
+          new PDBeeOsc(bee.ipAddress, PD_PORT_BEE).startAudio(value)
+        )
+    );
   } catch (e: any) {
     throw new Error("Starting audio failed: " + e.message);
   }
@@ -530,12 +532,12 @@ const stopAudio = async (bees: IBee[] | IBee) => {
     // check if bees is an array or a single bee
     const beeArray = Array.isArray(bees) ? bees : [bees];
 
-    // iterate over the beeArray
-    for (const bee of beeArray) {
-      if (!KweenBGlobal.kweenb.beeStates.isOnline(bee.id)) continue;
-      const pdBeeOsc = new PDBeeOsc(bee.ipAddress, PD_PORT_BEE);
-      await pdBeeOsc.stopAudio();
-    }
+    // every bee that is online gets its stop at the same moment
+    await Promise.all(
+      beeArray
+        .filter((bee) => KweenBGlobal.kweenb.beeStates.isOnline(bee.id))
+        .map((bee) => new PDBeeOsc(bee.ipAddress, PD_PORT_BEE).stopAudio())
+    );
   } catch (e: any) {
     throw new Error("Stopping audio failed: " + e.message);
   }

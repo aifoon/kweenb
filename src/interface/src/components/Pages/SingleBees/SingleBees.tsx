@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { SingleBeeCard } from "../../Cards";
-import { Box, Button, ButtonGroup, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { useAppStore } from "../../../hooks/useAppStore";
 import { useApp } from "../../../hooks/useApp";
 import { useAppPersistentStorage } from "../../../hooks/useAppPersistentStorage";
-import { IBee, InterfaceComposition } from "@shared/interfaces";
+import { IBee } from "@shared/interfaces";
 import styled from "styled-components";
 import { MasterSlider } from "../../MasterSlider";
 import { SaveCompositionAs } from "../../Modals/SaveCompositionAs";

@@ -71,7 +71,7 @@ const readSecret = async (): Promise<string> => {
   }
 };
 
-const readSettings = async (): Promise<R2Settings | null> => {
+export const readCloudSettings = async (): Promise<R2Settings | null> => {
   const settings = {
     accountId: (await read(KEYS.accountId)).trim(),
     bucket: (await read(KEYS.bucket)).trim(),
@@ -89,7 +89,7 @@ const readSettings = async (): Promise<R2Settings | null> => {
  * out and "Install a Backup Key…" shows
  */
 export const showBackupMenu = async () => {
-  const installed = (await readSettings().catch(() => null)) !== null;
+  const installed = (await readCloudSettings().catch(() => null)) !== null;
   const menu = Menu.getApplicationMenu();
   ["cloud-backup", "cloud-restore"].forEach((id) => {
     const item = menu?.getMenuItemById(id);
@@ -294,7 +294,7 @@ export const saveBackupKey = async (
   event: Electron.IpcMainInvokeEvent,
   passphrase: string = ""
 ): Promise<IBackupKeyResult> => {
-  const settings = await readSettings();
+  const settings = await readCloudSettings();
   if (!settings)
     return { done: false, message: "Fill in the bucket and the key first." };
   const { canceled, filePath } = await dialog.showSaveDialog(
@@ -323,7 +323,7 @@ export const saveBackupKey = async (
  * Compare the saved sounds on this computer with the cloud
  */
 export const getCloudBackupState = async (): Promise<ICloudBackupState> => {
-  const settings = await readSettings();
+  const settings = await readCloudSettings();
   if (!settings) return { configured: false };
   if (currentOperation) return { configured: true, message: BUSY_MESSAGE };
   try {
@@ -372,7 +372,7 @@ const transfer = async (
   direction: "send" | "get"
 ): Promise<ICloudTransferResult> => {
   const result = { files: 0, cancelled: false };
-  const settings = await readSettings();
+  const settings = await readCloudSettings();
   if (!settings)
     return { ...result, message: "Fill in the bucket and the key first." };
   if (currentOperation) return { ...result, message: BUSY_MESSAGE };
@@ -413,7 +413,7 @@ export const backUpSwarm = async (
     sentFiles: 0,
     cancelled: false,
   };
-  if (!(await readSettings()))
+  if (!(await readCloudSettings()))
     return { ...result, cloudMessage: "Fill in the bucket and the key first." };
 
   // 1. from the bees to this computer (only new and changed sounds)
@@ -451,7 +451,7 @@ export const getSoundsFromCloud = (): Promise<ICloudTransferResult> =>
  * Empty when there is no backup key or the cloud can not be reached.
  */
 export const getCloudSoundSets = async (): Promise<ISoundBackup[]> => {
-  const settings = await readSettings();
+  const settings = await readCloudSettings();
   if (!settings || currentOperation) return [];
   try {
     const state = await getCloudState(settings, await backupFolder());
@@ -477,7 +477,7 @@ export const getCloudSoundSets = async (): Promise<ISoundBackup[]> => {
 export const fetchBackupOfBee = async (
   backupName: string
 ): Promise<{ folder?: string; message?: string; cancelled?: boolean }> => {
-  const settings = await readSettings();
+  const settings = await readCloudSettings();
   if (!settings) return { message: "Install a backup key first." };
   if (currentOperation) return { message: BUSY_MESSAGE };
   const operation: R2Operation = { cancelled: false };

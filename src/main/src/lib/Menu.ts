@@ -1,4 +1,5 @@
 import { AppMode, AppViews } from "@shared/enums";
+import { FlashKind } from "@shared/interfaces";
 import {
   app,
   Menu,
@@ -103,12 +104,6 @@ export default class MenuBuilder {
             shell.openPath(logPath);
           },
         },
-        {
-          label: "Open QjackCtl",
-          click: () => {
-            shell.openPath(`${USER_DATA}/jack/QjackCtl.app`);
-          },
-        },
       ],
     };
   }
@@ -134,21 +129,18 @@ export default class MenuBuilder {
           },
         },
         {
-          label: "Flash a Speaker…",
-          click: () => {
-            // for now flashing only works on a Mac
-            if (process.platform !== "darwin") {
-              dialog.showMessageBox(this.mainWindow, {
-                type: "info",
-                message:
-                  "Flashing a speaker with KweenB only works on a Mac for now.",
-                detail:
-                  "On this computer a speaker is flashed with Raspberry Pi Imager. When that is done, choose New Speaker… to set it up.",
-              });
-              return;
-            }
-            this.mainWindow.webContents.send("flash-speaker");
-          },
+          label: "Flash",
+          submenu: [
+            {
+              label: "A Speaker…",
+              click: () => this.openFlash("speaker"),
+            },
+            // the Raspberry Pi with the trigger interface: its SD card
+            {
+              label: "A Satellite…",
+              click: () => this.openFlash("satellite"),
+            },
+          ],
         },
         { type: "separator" },
         // the sounds of the bees
@@ -195,6 +187,28 @@ export default class MenuBuilder {
           ],
         },
         { type: "separator" },
+        // triggering scenes from a phone, a tablet or the browser
+        {
+          label: "Remote Interface…",
+          click: () => {
+            this.mainWindow.webContents.send("remote-interface");
+          },
+        },
+        // the Raspberry Pi with the trigger interface, for walks
+        {
+          label: "Send to Satellite…",
+          click: () => {
+            this.mainWindow.webContents.send("send-to-satellite");
+          },
+        },
+        { type: "separator" },
+        // a new KweenB, and new firmware for the bees and the satellite
+        {
+          label: "Check for Updates…",
+          click: () => {
+            this.mainWindow.webContents.send("check-for-updates");
+          },
+        },
         // what goes with KweenB: the image for the speakers and the backup key
         {
           label: "Download Assets…",
@@ -288,6 +302,28 @@ export default class MenuBuilder {
    *
    * @returns The MenuItems needed for the template
    */
+  /**
+   * Open the flash dialog, for a speaker or for the card of a satellite
+   */
+  openFlash(kind: FlashKind) {
+    // for now flashing only works on a Mac
+    if (process.platform !== "darwin") {
+      dialog.showMessageBox(this.mainWindow, {
+        type: "info",
+        message:
+          kind === "satellite"
+            ? "Flashing a satellite with KweenB only works on a Mac for now."
+            : "Flashing a speaker with KweenB only works on a Mac for now.",
+        detail:
+          kind === "satellite"
+            ? "On this computer the card of a satellite is written with Raspberry Pi Imager."
+            : "On this computer a speaker is flashed with Raspberry Pi Imager. When that is done, choose New Speaker… to set it up.",
+      });
+      return;
+    }
+    this.mainWindow.webContents.send("flash-speaker", kind);
+  }
+
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     // The About Menu
     const subMenuAbout: CustomMenuItemConstructorOptions = {

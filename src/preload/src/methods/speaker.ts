@@ -8,6 +8,7 @@ import {
   ICloudSettings,
   ICloudSettingsInput,
   ICloudTransferResult,
+  FlashKind,
   IFlashImage,
   IFlashSpeakerResult,
   IFlashStorageResult,
@@ -40,14 +41,18 @@ const newSpeakers = {
  * All methods for flashing a speaker
  */
 const flashing = {
-  chooseFlashImage: (): Promise<IFlashImage | null> =>
-    ipcRenderer.invoke("speaker:chooseFlashImage"),
-  findSpeakerToFlash: (): Promise<IFlashStorageResult> =>
-    ipcRenderer.invoke("speaker:findSpeakerToFlash"),
-  flashSpeaker: (imagePath: string): Promise<IFlashSpeakerResult> =>
-    ipcRenderer.invoke("speaker:flashSpeaker", imagePath),
-  getLastFlashImage: (): Promise<IFlashImage | null> =>
-    ipcRenderer.invoke("speaker:getLastFlashImage"),
+  // kind: a speaker (the default) or the SD card of a satellite
+  chooseFlashImage: (kind?: FlashKind): Promise<IFlashImage | null> =>
+    ipcRenderer.invoke("speaker:chooseFlashImage", kind),
+  findSpeakerToFlash: (kind?: FlashKind): Promise<IFlashStorageResult> =>
+    ipcRenderer.invoke("speaker:findSpeakerToFlash", kind),
+  flashSpeaker: (
+    imagePath: string,
+    kind?: FlashKind
+  ): Promise<IFlashSpeakerResult> =>
+    ipcRenderer.invoke("speaker:flashSpeaker", imagePath, kind),
+  getLastFlashImage: (kind?: FlashKind): Promise<IFlashImage | null> =>
+    ipcRenderer.invoke("speaker:getLastFlashImage", kind),
 };
 
 /**

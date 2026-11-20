@@ -16,6 +16,8 @@ export const BYTES_FILE = "bytes";
 export const RESULT_FILE = "result";
 // made by the script as soon as it runs (the password was given)
 export const STARTED_FILE = "started";
+// how far the writer is with reading back: "<bytes read back> <bytes in all>"
+export const CHECK_PROGRESS_FILE = "check.progress";
 // what the program that writes said (how much it wrote, or why it failed)
 export const WRITE_LOG_FILE = "write.log";
 
@@ -98,11 +100,19 @@ export const buildWriteScript = (
       `finish() { /bin/echo "$1" > "$DIR/${RESULT_FILE}"; if [ -n "$EJECT" ]; then limited /usr/sbin/diskutil eject "$DISK"; fi; exit 0; }`,
       // KweenB sees that the password was given
       `/usr/bin/touch "$DIR/${STARTED_FILE}"`,
-      // the disk has to be the one that was chosen: same size, not a disk of this computer
+      // the disk has to be the one that was chosen: same size
       `[ ${info("TotalSize")} = ${quoteForShell(
         String(target.sizeBytes)
       )} ] || finish changed`,
-      `[ ${info("Internal")} = 'false' ] || finish changed`,
+      // something that can be unplugged or taken out, and not one of the
+      // computer's own disks: on USB, or a card in the built-in card reader
+      // (which the computer counts as internal)
+      `[ ${info(
+        "RemovableMediaOrExternalDevice"
+      )} = 'true' ] || finish changed`,
+      `[ ${info("Internal")} = 'false' ] || [ ${info(
+        "BusProtocol"
+      )} = 'Secure Digital' ] || finish changed`,
       // take the disk out of use: the usual way first, the direct way when
       // that does not come back
       target.unmounted
@@ -124,11 +134,12 @@ export const buildWriteScript = (
     lines.push(
       // macOS does not let a program open an external disk directly, not
       // even with these rights: the writer goes through Apple's authopen.
-      // It writes what comes through the pipe, reads it back and tells the
-      // checksum and the number of bytes ("ok:<sha256>:<bytes>").
+      // It writes what comes through the pipe, reads it back (telling how
+      // far it is in the progress file) and tells the checksum and the
+      // number of bytes ("ok:<sha256>:<bytes>").
       `WROTE="$(${quoteForShell(
         target.writerPath
-      )} "$TARGET" < "$DIR/${PIPE_FILE}" 2> "$DIR/${WRITE_LOG_FILE}")" || finish write`,
+      )} "$TARGET" "$DIR/${CHECK_PROGRESS_FILE}" < "$DIR/${PIPE_FILE}" 2> "$DIR/${WRITE_LOG_FILE}")" || finish write`,
       `/bin/sync`,
       // KweenB tells how long the image was once all of it went into the pipe
       `[ -f "$DIR/${BYTES_FILE}" ] || finish stopped`,

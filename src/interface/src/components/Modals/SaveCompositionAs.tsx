@@ -68,9 +68,11 @@ export const SaveCompositionAs = ({
 
   const handleSave = () => {
     if (compositionName !== "") {
-      saveCompositionAs(compositionName).then((savedInterfaceComposition) => {
-        setSelectedInterfaceComposition(savedInterfaceComposition);
-      });
+      saveCompositionAs(compositionName)
+        .then((savedInterfaceComposition) => {
+          setSelectedInterfaceComposition(savedInterfaceComposition);
+        })
+        .catch(() => undefined);
     }
     onClose();
   };

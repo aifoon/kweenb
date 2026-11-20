@@ -10,7 +10,7 @@ import {
 } from "@components/Buttons";
 import { BaseModal, BaseModalProps } from "@components/Modals/BaseModal";
 import { ConfirmModalFooter } from "@components/Modals/ConfirmModal";
-import { IFlashImage, IFlashProgress } from "@shared/interfaces";
+import { FlashKind, IFlashImage, IFlashProgress } from "@shared/interfaces";
 
 /**
  * Types & constants
@@ -18,8 +18,12 @@ import { IFlashImage, IFlashProgress } from "@shared/interfaces";
 
 interface FlashSpeakerModalProps
   extends Pick<BaseModalProps, "open" | "onClose"> {
+  // a speaker (over a USB cable) or the SD card of a satellite
+  kind?: FlashKind;
   // the speaker is flashed: go on with giving it its number
   onSetUpSpeaker: () => void;
+  // the card of the satellite is flashed: go on with filling the satellite
+  onSendToSatellite?: () => void;
 }
 
 type Step =
@@ -87,13 +91,22 @@ const sizeInWords = (bytes: number) =>
 /**
  * What is happening while the speaker is flashed, in words
  */
-const progressInWords = (progress: IFlashProgress, stopping: boolean) => {
+const progressInWords = (
+  progress: IFlashProgress,
+  stopping: boolean,
+  satellite: boolean
+) => {
   if (stopping) return "Stopping…";
   if (progress.step === "writing")
     return `Writing the image… ${progress.percentage || 0}%`;
-  if (progress.step === "checking") return "Checking…";
+  if (progress.step === "checking")
+    return progress.percentage === undefined
+      ? "Checking…"
+      : `Checking… ${progress.percentage}%`;
   if (progress.step === "preparing")
-    return "Getting the speaker's storage ready…";
+    return satellite
+      ? "Getting the card ready…"
+      : "Getting the speaker's storage ready…";
   return "Waiting for your password…";
 };
 
@@ -101,12 +114,18 @@ const progressInWords = (progress: IFlashProgress, stopping: boolean) => {
  * A guided way to flash a speaker: choose the image, connect the speaker
  * with a USB cable, write the image and check it. Afterwards the speaker is
  * a new speaker that can be set up.
+ *
+ * The same steps flash a satellite: there the image goes on the SD card of
+ * the Raspberry Pi, in the card reader of this computer.
  */
 export const FlashSpeakerModal = ({
   open,
+  kind = "speaker",
   onClose,
   onSetUpSpeaker,
+  onSendToSatellite,
 }: FlashSpeakerModalProps) => {
+  const satellite = kind === "satellite";
   const [step, setStep] = useState<Step>("image");
   const [image, setImage] = useState<IFlashImage | null>(null);
   // counts the times we looked for the speaker, so looking can start again
@@ -131,7 +150,7 @@ export const FlashSpeakerModal = ({
     setMessage("");
     setStopping(false);
     window.kweenb.methods
-      .getLastFlashImage()
+      .getLastFlashImage(kind)
       .then((lastImage) => {
         if (!closed && lastImage && !lastImage.message) setImage(lastImage);
       })
@@ -142,7 +161,7 @@ export const FlashSpeakerModal = ({
       closed = true;
       window.kweenb.actions.cancelFlash();
     };
-  }, [open]);
+  }, [open, kind]);
 
   /**
    * Follow what is happening while the speaker is looked for and flashed
@@ -168,7 +187,7 @@ export const FlashSpeakerModal = ({
     );
 
     window.kweenb.methods
-      .findSpeakerToFlash()
+      .findSpeakerToFlash(kind)
       .then((found) => {
         if (left || found.cancelled) return;
         if (found.found) {
@@ -190,14 +209,14 @@ export const FlashSpeakerModal = ({
       window.clearTimeout(hintTimeout);
       window.kweenb.actions.cancelFlash();
     };
-  }, [open, step, lookingRound]);
+  }, [open, step, lookingRound, kind]);
 
   /**
    * Step 1: choose the image
    */
   const handleChooseImage = async () => {
     try {
-      const chosenImage = await window.kweenb.methods.chooseFlashImage();
+      const chosenImage = await window.kweenb.methods.chooseFlashImage(kind);
       if (chosenImage) setImage(chosenImage);
     } catch (e) {
       // the image that was chosen before still stands
@@ -222,7 +241,7 @@ export const FlashSpeakerModal = ({
     setStopping(false);
     setStep("working");
     try {
-      const result = await window.kweenb.methods.flashSpeaker(image.path);
+      const result = await window.kweenb.methods.flashSpeaker(image.path, kind);
       if (result.success) {
         setStep("done");
         return;
@@ -231,7 +250,9 @@ export const FlashSpeakerModal = ({
       setStep(result.cancelled ? "stopped" : "failed");
     } catch (e) {
       setMessage(
-        "Something went wrong. Switch the speaker off and on, and flash it again."
+        satellite
+          ? "Something went wrong. Take the card out, put it back in, and flash it again."
+          : "Something went wrong. Switch the speaker off and on, and flash it again."
       );
       setStep("failed");
     }
@@ -258,7 +279,7 @@ export const FlashSpeakerModal = ({
   return (
     <BaseModal
       open={open}
-      title="Flash a speaker"
+      title={satellite ? "Flash a satellite" : "Flash a speaker"}
       onClose={onClose}
       disableBackdropClick
       showCloseButton={step !== "working"}
@@ -268,7 +289,11 @@ export const FlashSpeakerModal = ({
       {step === "image" && (
         <>
           <Box display={"flex"} flexDirection={"column"} gap={1}>
-            <Typography>Which image goes on the speaker?</Typography>
+            <Typography>
+              {satellite
+                ? "Which image goes on the satellite?"
+                : "Which image goes on the speaker?"}
+            </Typography>
             <ChosenImage>
               <Typography variant="small" style={{ wordBreak: "break-all" }}>
                 {image
@@ -296,8 +321,9 @@ export const FlashSpeakerModal = ({
               </Typography>
             )}
             <Typography variant="extraSmall">
-              Flashing puts fresh software on a speaker. Everything that is on
-              the speaker now is erased.
+              {satellite
+                ? "Flashing puts fresh software on the SD card of a satellite (a Raspberry Pi 4). Everything that is on the card now is erased."
+                : "Flashing puts fresh software on a speaker. Everything that is on the speaker now is erased."}
             </Typography>
           </Box>
           <ConfirmModalFooter>
@@ -324,26 +350,52 @@ export const FlashSpeakerModal = ({
       {step === "connect" && (
         <>
           <Box display={"flex"} flexDirection={"column"} gap={1}>
-            <Typography>Connect the speaker to this computer.</Typography>
-            <Typography variant="small" component="div">
-              <Instructions>
-                <li>Switch the speaker off and set the jumper.</li>
-                <li>Connect the speaker to this computer with a USB cable.</li>
-                <li>Switch the speaker on.</li>
-              </Instructions>
-            </Typography>
-            <Typography variant="small">
-              {progress.step === "found"
-                ? "Speaker found, opening its storage…"
-                : "Looking for the speaker…"}
-            </Typography>
-            <LinearProgress />
-            {showHint && progress.step !== "found" && (
-              <Typography variant="extraSmall">
-                Nothing yet. Is the jumper set, and does the cable go straight
-                into this computer? Switching the speaker off and on again can
-                help.
-              </Typography>
+            {satellite ? (
+              <>
+                <Typography>
+                  Put the SD card in the card reader of this computer.
+                </Typography>
+                <Typography variant="small">
+                  Using a card reader on a USB port, with the card already in?
+                  Take the card out and put it back: on USB, KweenB only writes
+                  to a card that is put in while it is looking.
+                </Typography>
+                <Typography variant="small">Looking for the card…</Typography>
+                <LinearProgress />
+                {showHint && (
+                  <Typography variant="extraSmall">
+                    Nothing yet. Push the card in until it clicks, or try the
+                    card in another reader. A card in a holder (microSD to SD)
+                    has to sit all the way in.
+                  </Typography>
+                )}
+              </>
+            ) : (
+              <>
+                <Typography>Connect the speaker to this computer.</Typography>
+                <Typography variant="small" component="div">
+                  <Instructions>
+                    <li>Switch the speaker off and set the jumper.</li>
+                    <li>
+                      Connect the speaker to this computer with a USB cable.
+                    </li>
+                    <li>Switch the speaker on.</li>
+                  </Instructions>
+                </Typography>
+                <Typography variant="small">
+                  {progress.step === "found"
+                    ? "Speaker found, opening its storage…"
+                    : "Looking for the speaker…"}
+                </Typography>
+                <LinearProgress />
+                {showHint && progress.step !== "found" && (
+                  <Typography variant="extraSmall">
+                    Nothing yet. Is the jumper set, and does the cable go
+                    straight into this computer? Switching the speaker off and
+                    on again can help.
+                  </Typography>
+                )}
+              </>
             )}
           </Box>
           <ConfirmModalFooter>
@@ -367,15 +419,28 @@ export const FlashSpeakerModal = ({
       {step === "confirm" && image && (
         <>
           <Box display={"flex"} flexDirection={"column"} gap={1}>
-            <Typography>Erase this speaker and flash it?</Typography>
+            <Typography>
+              {satellite
+                ? "Erase this card and flash it?"
+                : "Erase this speaker and flash it?"}
+            </Typography>
             <Typography variant="small">
-              This will be overwritten: the speaker&apos;s storage (
-              {sizeInWords(storageBytes)}). Everything on the speaker is erased
-              and replaced by {image.name}.
+              {satellite
+                ? `This will be overwritten: the SD card in the card reader (${sizeInWords(
+                    storageBytes
+                  )}). Everything on the card is erased and replaced by ${
+                    image.name
+                  }.`
+                : `This will be overwritten: the speaker's storage (${sizeInWords(
+                    storageBytes
+                  )}). Everything on the speaker is erased and replaced by ${
+                    image.name
+                  }.`}
             </Typography>
             <Typography variant="small" style={{ color: "var(--red-status)" }}>
-              Was this speaker in use? Save its sounds first. Sounds that were
-              not saved to this computer are lost.
+              {satellite
+                ? "Is this the card of a satellite that was in use? Compositions that were made on it and not sent to KweenB are lost."
+                : "Was this speaker in use? Save its sounds first. Sounds that were not saved to this computer are lost."}
             </Typography>
             <Typography variant="extraSmall">
               Your Mac will ask for your password before anything is written.
@@ -403,18 +468,24 @@ export const FlashSpeakerModal = ({
       {step === "working" && (
         <>
           <Box display={"flex"} flexDirection={"column"} gap={1}>
-            <Typography>{progressInWords(progress, stopping)}</Typography>
+            <Typography>
+              {progressInWords(progress, stopping, satellite)}
+            </Typography>
             <LinearProgress
               variant={
-                progress.step === "writing" && !stopping
+                (progress.step === "writing" ||
+                  (progress.step === "checking" &&
+                    progress.percentage !== undefined)) &&
+                !stopping
                   ? "determinate"
                   : "indeterminate"
               }
               value={progress.percentage || 0}
             />
             <Typography variant="extraSmall">
-              Leave the speaker switched on and the cable connected until this
-              is done. It can take a few minutes.
+              {satellite
+                ? "Leave the card in the reader until this is done. It can take a few minutes."
+                : "Leave the speaker switched on and the cable connected until this is done. It can take a few minutes."}
             </Typography>
           </Box>
           <ConfirmModalFooter>
@@ -437,11 +508,31 @@ export const FlashSpeakerModal = ({
       {step === "done" && (
         <>
           <Box display={"flex"} flexDirection={"column"} gap={1}>
-            <Typography>Done. The speaker is flashed.</Typography>
-            <Typography variant="small">
-              Remove the jumper, unplug the USB cable and switch the speaker on.
-              It will appear as a new speaker in about a minute.
+            <Typography>
+              {satellite
+                ? "Done. The card is flashed."
+                : "Done. The speaker is flashed."}
             </Typography>
+            {satellite ? (
+              <Typography variant="small" component="div">
+                <Instructions>
+                  <li>Take the card out and put it in the Raspberry Pi.</li>
+                  <li>
+                    Connect the Raspberry Pi to the router with a network cable
+                    and switch it on.
+                  </li>
+                  <li>
+                    After about a minute, fill it with Send to Satellite. Its
+                    interface is at http://satellite.local
+                  </li>
+                </Instructions>
+              </Typography>
+            ) : (
+              <Typography variant="small">
+                Remove the jumper, unplug the USB cable and switch the speaker
+                on. It will appear as a new speaker in about a minute.
+              </Typography>
+            )}
           </Box>
           <ConfirmModalFooter>
             <ButtonGroup>
@@ -455,12 +546,14 @@ export const FlashSpeakerModal = ({
               </Button>
               <Button
                 type="button"
-                onClick={onSetUpSpeaker}
+                onClick={
+                  satellite ? onSendToSatellite || onClose : onSetUpSpeaker
+                }
                 buttonUse={ButtonUse.Normal}
                 buttonSize={ButtonSize.Small}
                 buttonType={ButtonType.Primary}
               >
-                Set up this speaker
+                {satellite ? "Send to Satellite…" : "Set up this speaker"}
               </Button>
             </ButtonGroup>
           </ConfirmModalFooter>

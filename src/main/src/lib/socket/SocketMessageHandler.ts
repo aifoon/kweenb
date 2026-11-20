@@ -292,10 +292,12 @@ export class SocketMessageHandler {
       // get the scenes and the bees
       const { data }: { data: { scene: AudioScene; bee: IBee }[] } = json;
 
-      // loop over the data
-      for (const { scene, bee } of data) {
-        await BeeHelpers.startAudio(bee, scene.oscAddress);
-      }
+      // every bee gets its start at the same moment
+      await Promise.all(
+        data.map(({ scene, bee }) =>
+          BeeHelpers.startAudio(bee, scene.oscAddress)
+        )
+      );
     } catch (error) {
       console.error(error);
     }

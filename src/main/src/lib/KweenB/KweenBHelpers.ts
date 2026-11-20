@@ -17,6 +17,8 @@ import fs from "fs";
 import {
   START_PORT_JACKTRIP,
   START_PORT_JACKTRIP_HUB_SERVER,
+  BUNDLED_JACK_FOLDER,
+  BUNDLED_JACKTRIP_BIN,
   USER_DATA,
 } from "../../consts";
 import SettingHelpers from "./SettingHelpers";
@@ -27,6 +29,7 @@ import { INSTALLED_DRIVER, SOUND_DEVICE_UID } from "../SoundDevice/SoundDevice";
 import { PozyxMqttBroker } from "../Positioning/PozyxMqttBroker";
 import { KweenBGlobal } from "../../kweenb";
 import { join } from "path";
+import { HAS_BUNDLED_JACK, useJackFolder } from "./BundledJack";
 import { killExpress } from "../../express";
 import { HubPatchMode } from "@zwerm3/jack/dist/enums";
 import { SocketSingleton } from "../socket/SocketSingleton";
@@ -70,31 +73,13 @@ const killJackAndJacktrip = async () => {
 };
 
 /**
- * Check if Jack and Jacktrip is installed on the system
+ * Check that the Jack and JackTrip inside KweenB are there
  */
-const isJackAndJacktripInstalled = () => {
-  // define the path to the jack and jacktrip folder
-  const jacktripFolder = `${USER_DATA}/jacktrip`;
-  const jackFolder = `${USER_DATA}/jack`;
-
-  // jack
-  const jackFolderExists = fs.existsSync(jackFolder);
-  const jackBinExists = fs.existsSync(join(jackFolder, "jackd"));
-  const QjackCtlExists = fs.existsSync(join(jackFolder, "QjackCtl.app"));
-
-  // jacktrip
-  const jacktripFolderExists = fs.existsSync(jacktripFolder);
-  const jacktripBinExists = fs.existsSync(join(jacktripFolder, "jacktrip"));
-
-  // do the validation
-  return (
-    jackFolderExists &&
-    jackBinExists &&
-    QjackCtlExists &&
-    jacktripFolderExists &&
-    jacktripBinExists
-  );
-};
+const isJackAndJacktripInstalled = () =>
+  !HAS_BUNDLED_JACK ||
+  (fs.existsSync(join(BUNDLED_JACK_FOLDER, "jackd")) &&
+    fs.existsSync(join(BUNDLED_JACK_FOLDER, "lib", "libjackserver.0.dylib")) &&
+    fs.existsSync(BUNDLED_JACKTRIP_BIN));
 
 /**
  * The sound device Jack listens to: the one that was chosen, KweenB's own
@@ -393,7 +378,7 @@ const makeP2PAudioConnections = async (bees: IBee[] | null = null) => {
  */
 const setJackFolderPath = (jackFolderPath: string) => {
   if (fs.existsSync(jackFolderPath)) {
-    Zwerm3Jack.default.jackFolderPath = jackFolderPath;
+    useJackFolder(jackFolderPath);
   } else {
     throw new Error("The given Jack folder does not exist");
   }

@@ -3,6 +3,12 @@
  */
 
 import { ipcMain } from "electron";
+import { findSatellites, sendToSatellite } from "./controllers/satellite";
+import {
+  checkForUpdates,
+  downloadKweenB,
+  updateDevice,
+} from "./controllers/updates";
 import {
   fetchAllBees,
   fetchBee,
@@ -30,6 +36,8 @@ import {
   calculateCurrentLatency,
   closeKweenB,
   getKweenBVersion,
+  getRemoteInterface,
+  openRemoteInterface,
   makeP2PAudioConnection as makeP2PAudioConnectionKweenB,
   openDialog,
   setJackFolderPath,
@@ -201,6 +209,13 @@ const methodHandlers = [
   // APP
 
   { name: "kweenb:getKweenBVersion", handler: getKweenBVersion },
+  { name: "satellite:find", handler: findSatellites },
+  { name: "satellite:send", handler: sendToSatellite },
+  { name: "updates:check", handler: checkForUpdates },
+  { name: "updates:updateDevice", handler: updateDevice },
+  { name: "updates:downloadKweenB", handler: downloadKweenB },
+  { name: "kweenb:getRemoteInterface", handler: getRemoteInterface },
+  { name: "kweenb:openRemoteInterface", handler: openRemoteInterface },
   { name: "kweenb:openDialog", handler: openDialog },
 
   // JACK/JACKTRIP

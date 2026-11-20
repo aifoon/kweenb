@@ -7,6 +7,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 
+import { checkForUpdatesAtStart } from "./controllers/updates";
 import "./cwd";
 import path from "path";
 import { app } from "electron";
@@ -86,6 +87,9 @@ const initApp = async () => {
 
         // stop loading
         KweenBGlobal.kweenb.setLoader(false);
+
+        // look for a new KweenB and new firmware, without getting in the way
+        checkForUpdatesAtStart();
       });
     }
 

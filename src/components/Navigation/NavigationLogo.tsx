@@ -3,7 +3,6 @@ import logo from "../images/logo.png";
 
 interface NavigationLogoProps {
   title: string;
-  onClick?: () => void;
 }
 
 const LogoWrapper = styled.div`
@@ -18,11 +17,8 @@ const LogoWrapper = styled.div`
   }
 `;
 
-export const NavigationLogo = ({
-  title = "",
-  onClick = () => {},
-}: NavigationLogoProps) => (
-  <LogoWrapper onClick={onClick}>
+export const NavigationLogo = ({ title = "" }: NavigationLogoProps) => (
+  <LogoWrapper>
     <img src={logo} alt={`The ${title} logo`} />
     <span>{title}</span>
   </LogoWrapper>

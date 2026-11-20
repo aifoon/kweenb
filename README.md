@@ -33,6 +33,10 @@ There are many ways in which you can participate in this project, for example:
 - [Suggesting Enhancements](CONTRIBUTING.md#2-suggesting-enhancements)
 - [Submitting Pull Requests](CONTRIBUTING.md#3-submitting-pull-requests)
 
+## Jack and Jacktrip
+
+The macOS version of kweenb carries its own Jack and Jacktrip, so it needs no internet at its first start and no separate Jack installation. They are not stored in this repository: `npm run fetch-audio-tools` downloads the official releases once and puts them in `resources/jack` and `resources/jacktrip`. Run it once before `npm run watch`; `npm run compile` runs it by itself.
+
 ## Publishing
 
 Publishing a new release is done by [the core maintainer](https://github.com/timdpaep) of this project. They will merge contributions from the community and make a new release when new features are production ready.

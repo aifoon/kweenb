@@ -51,6 +51,11 @@ export default [
     key: "kweenbLastImagePath",
     value: "",
   },
+  // the image that was last used to flash a satellite (empty = none yet)
+  {
+    key: "kweenbLastSatelliteImagePath",
+    value: "",
+  },
   {
     key: "positioningUpdateRate",
     value: "500",
