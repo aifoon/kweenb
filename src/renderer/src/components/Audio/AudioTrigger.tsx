@@ -3,7 +3,7 @@ import { Z3PageContentSidebar } from "@components/Layout";
 import { AudioScene } from "@shared/interfaces";
 import React, { useEffect } from "react";
 import StopIcon from "@mui/icons-material/Stop";
-import { useAppStore } from "@renderer/src/hooks";
+import { useAppStore, useBeeStore } from "@renderer/src/hooks";
 import {
   SimpleTreeviewSidebar,
   SimpleTreeviewSidebarData,
@@ -19,6 +19,15 @@ interface AudioSceneFolder {
 }
 
 type AudioTriggerProps = {};
+
+// a button that cannot be used stays readable on the dark background
+const offlineButtonStyle = {
+  "&.Mui-disabled": {
+    color: "rgba(255, 255, 255, 0.45)",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(255, 255, 255, 0.12)",
+  },
+};
 
 /**
  * Builds Audio Scene Tree
@@ -43,8 +52,10 @@ function buildAudioSceneTree(scenes: AudioScene[]): AudioSceneFolder {
       const part = parts[i];
 
       // Check if folder already exists at this level
+      // (capitals make no difference: "Walk" and "walk" are one folder,
+      // shown the way it was written first)
       let existingFolder = currentFolder.folders.find(
-        (folder) => folder.label === part
+        (folder) => folder.label.toLowerCase() === part.toLowerCase()
       );
 
       // If folder doesn't exist, create it
@@ -76,6 +87,15 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
     React.useState<AudioScene | null>(null);
   const [audioSceneTree, setAudioSceneTree] =
     React.useState<AudioSceneFolder | null>(null);
+
+  // the bees that are online right now: KweenB remembers the scenes of a
+  // bee that is switched off, but such a bee cannot play
+  const bees = useBeeStore((state) => state.bees);
+  const isOnline = (beeId: number) =>
+    bees.some((bee) => bee.id === beeId && bee.isOnline);
+  const onlineBeesOfScene = (currentAudioScene?.foundOnBees || []).filter(
+    (bee) => isOnline(bee.id)
+  );
 
   /**
    * When the component mounts, fetch the audio scenes
@@ -176,15 +196,18 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
             }}
           >
             <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
-              <ButtonGroup fullWidth>
+              <ButtonGroup
+                fullWidth
+                sx={{ "& .MuiButton-root": offlineButtonStyle }}
+              >
                 <Button
+                  disabled={onlineBeesOfScene.length === 0}
                   onClick={() => {
-                    if (currentAudioScene?.foundOnBees) {
+                    if (currentAudioScene)
                       window.kweenb.methods.startAudio(
-                        currentAudioScene?.foundOnBees,
-                        currentAudioScene?.oscAddress
+                        onlineBeesOfScene,
+                        currentAudioScene.oscAddress
                       );
-                    }
                   }}
                   variant="contained"
                   color="primary"
@@ -192,12 +215,9 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                   All
                 </Button>
                 <Button
+                  disabled={onlineBeesOfScene.length === 0}
                   onClick={() => {
-                    if (currentAudioScene?.foundOnBees) {
-                      window.kweenb.methods.stopAudio(
-                        currentAudioScene?.foundOnBees
-                      );
-                    }
+                    window.kweenb.methods.stopAudio(onlineBeesOfScene);
                   }}
                   style={{ width: "20%" }}
                   variant="contained"
@@ -208,7 +228,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                 </Button>
               </ButtonGroup>
             </Grid>
-            {currentAudioScene?.foundOnBees
+            {[...(currentAudioScene?.foundOnBees || [])]
               .sort((a, b) => a.id - b.id)
               .map((bee) => (
                 <Grid
@@ -220,9 +240,14 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                   lg={3}
                   xl={2}
                 >
-                  <ButtonGroup fullWidth>
+                  <ButtonGroup
+                    fullWidth
+                    sx={{ "& .MuiButton-root": offlineButtonStyle }}
+                  >
                     <Button
+                      disabled={!isOnline(bee.id)}
                       onClick={() =>
+                        currentAudioScene &&
                         window.kweenb.methods.startAudio(
                           bee,
                           currentAudioScene.oscAddress
@@ -234,6 +259,7 @@ export const AudioTrigger = (props: AudioTriggerProps) => {
                       {bee.name}
                     </Button>
                     <Button
+                      disabled={!isOnline(bee.id)}
                       onClick={() => window.kweenb.methods.stopAudio(bee)}
                       style={{ width: "20%" }}
                       variant="contained"

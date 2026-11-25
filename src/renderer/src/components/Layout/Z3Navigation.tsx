@@ -13,6 +13,29 @@ const Pill = styled(Typography)`
   padding-right: 10px;
   border-radius: var(--radiusMedium);
   color: var(--grey-500);
+  /* never over more than one line: the bar has a fixed height */
+  display: inline-block;
+  white-space: nowrap;
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`;
+
+// a word that is left out when the window is narrow
+const WhenWide = styled.span`
+  @media screen and (max-width: 1240px) {
+    display: none;
+  }
+`;
+
+// the notice gives way first when there is not enough room
+const Notice = styled(Button)`
+  white-space: nowrap;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 `;
 
 export const Z3Navigation = () => {
@@ -67,28 +90,28 @@ export const Z3Navigation = () => {
 
   return (
     <Navigation title="kweenb" fixedToTop height="var(--navigationHeight)">
-      <Box display="flex" alignItems="center" gap={1}>
+      <Box display="flex" alignItems="center" gap={1} minWidth={0}>
         {updatesNotice && (
           <>
-            <Button
+            <Notice
               variant="text"
               size="small"
               color="secondary"
               onClick={() => setOpenCheckForUpdatesModal(true)}
             >
               {updatesNotice}
-            </Button>
+            </Notice>
             <Divider orientation="vertical" flexItem />
           </>
         )}
         {currentLatency !== 0 && (
           <>
-            <Box display={"flex"} gap={1}>
+            <Box display={"flex"} gap={1} flexShrink={0}>
               <Pill variant="small">
                 {appMode === AppMode.Hub ? "HUB" : "P2P"}
               </Pill>
               <Pill variant="small">
-                Streaming latency is {currentLatency}ms
+                <WhenWide>Streaming </WhenWide>latency is {currentLatency}ms
               </Pill>
             </Box>
             <Divider orientation="vertical" flexItem />

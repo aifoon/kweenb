@@ -197,7 +197,10 @@ export const BeeCard = ({
                   <SoundIndicator levelDb={monitoring?.outputLevelDb} />
                 )}
                 {isOnline && (
-                  <WifiIndicator signalDbm={monitoring?.wifiSignalDbm} />
+                  <WifiIndicator
+                    signalDbm={monitoring?.wifiSignalDbm}
+                    frequencyMhz={monitoring?.wifiFrequencyMhz}
+                  />
                 )}
                 <BatteryIndicator battery={monitoring?.battery} />
               </Box>
@@ -269,6 +272,7 @@ export const BeeCard = ({
                 {isOnline && (
                   <WifiIndicator
                     signalDbm={monitoring?.wifiSignalDbm}
+                    frequencyMhz={monitoring?.wifiFrequencyMhz}
                     detailed
                   />
                 )}

@@ -52,6 +52,8 @@ export interface SpeakerStatus {
   };
   storage: { freeMb: number; totalMb: number; scenes: number };
   wifiSignalDbm: number | null;
+  // the frequency of its Wi-Fi network in MHz (firmware 2.0.4 and later)
+  wifiFrequencyMhz?: number | null;
   // the loudest the speaker played in the last seconds, in dB below full scale
   outputLevelDb?: number | null;
   // what went over the Wi-Fi since the speaker started

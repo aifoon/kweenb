@@ -53,17 +53,27 @@ export const AudioFiles = (props: AudioFilesProps) => {
     [bees]
   );
 
-  // when we hook up, we need to get the audio files of the first bee in the list
+  // clean up when we leave (the first bee is loaded by the effect below)
   useEffect(() => {
-    if (bees.length > 0) {
-      loadAudioFiles(bees[0]);
-    }
     return () => {
       setFilteredAudioFiles([]);
       setCurrentAudioFiles([]);
       setCurrentFilter("");
     };
   }, []);
+
+  // the bee we are looking at went offline (or the first bee came online):
+  // show the files of a bee that is online, or nothing at all
+  const onlineBeeIds = bees.map((bee) => bee.id).join(",");
+  useEffect(() => {
+    if (selectedBee && bees.some((bee) => bee.id === selectedBee.id)) return;
+    setSelectedItems([]);
+    if (bees.length > 0) loadAudioFiles(bees[0]);
+    else {
+      setSelectedBee(null);
+      setCurrentAudioFiles([]);
+    }
+  }, [onlineBeeIds]);
 
   useEffect(() => {
     if (currentAudioFiles.length > 0) {

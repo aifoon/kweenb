@@ -307,6 +307,7 @@ class BeeStatesWorker {
                   },
                   battery: beeState.battery,
                   wifiSignalDbm: beeState.wifiSignalDbm,
+                  wifiFrequencyMhz: beeState.wifiFrequencyMhz,
                   outputLevelDb: beeState.outputLevelDb,
                   network: status.network,
                 });

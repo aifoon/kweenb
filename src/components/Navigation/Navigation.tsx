@@ -15,7 +15,9 @@ const NavigationContainer = styled.nav<
   Omit<NavigationProps, "children" | "title">
 >`
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  /* the logo takes what it needs, the rest is for the buttons */
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 1rem;
   justify-content: space-between;
   height: ${({ height }) => height};
   ${({ fixedToTop }) => {
@@ -52,7 +54,13 @@ export const Navigation = ({
 }: NavigationProps) => (
   <NavigationContainer height={height} fixedToTop={fixedToTop}>
     <NavigationLogo title={title} />
-    <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="flex-end"
+      gap={1}
+      minWidth={0}
+    >
       {children}
     </Box>
   </NavigationContainer>

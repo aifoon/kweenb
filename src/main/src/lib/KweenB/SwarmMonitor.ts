@@ -43,6 +43,7 @@ export interface MonitorStatus {
   };
   battery: { percentage: number | null; level: BeeBatteryLevel | null };
   wifiSignalDbm: number | null;
+  wifiFrequencyMhz?: number | null;
   outputLevelDb?: number | null;
   // what went over the Wi-Fi of the bee since it started
   network?: {
@@ -343,6 +344,7 @@ class SwarmMonitor {
       stream: { ...stream },
       battery: { percentage: battery.percentage, level: battery.level },
       wifiSignalDbm: status.wifiSignalDbm,
+      wifiFrequencyMhz: status.wifiFrequencyMhz ?? null,
       outputLevelDb: status.outputLevelDb ?? null,
     };
   }
@@ -454,6 +456,7 @@ class SwarmMonitor {
           linkMbps: bee.online && bee.network ? bee.network.linkMbps : null,
           networkHistory,
           wifiSignalDbm: last ? last.wifiSignalDbm : null,
+          wifiFrequencyMhz: last ? last.wifiFrequencyMhz ?? null : null,
           outputLevelDb: last ? last.outputLevelDb ?? null : null,
           batteryPercentage: last ? last.battery.percentage : null,
           batteryLevel: last ? last.battery.level : null,

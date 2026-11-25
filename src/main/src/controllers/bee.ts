@@ -591,7 +591,8 @@ export const uploadAudioFiles = async (
 
     // get all the wav files
     const files = await fs.readdirSync(path);
-    const wavFiles = files.filter((file) => /^\d+\.wav$/.test(file));
+    // a recorder or another computer may write the extension in capitals
+    const wavFiles = files.filter((file) => /^\d+\.wav$/i.test(file));
 
     // filter out the wavfiles
     const filteredWavFiles = wavFiles

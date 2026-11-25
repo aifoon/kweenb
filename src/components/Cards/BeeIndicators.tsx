@@ -185,21 +185,39 @@ const WifiBar = styled.div<{ active: boolean; index: number; weak: boolean }>`
   }};
 `;
 
+/**
+ * The band of a Wi-Fi frequency in a few letters ("6G"), empty when not known
+ */
+export const wifiBand = (frequencyMhz?: number | null): string => {
+  if (!frequencyMhz) return "";
+  if (frequencyMhz >= 5925) return "6G";
+  if (frequencyMhz >= 4900) return "5G";
+  return "2.4G";
+};
+
 interface WifiIndicatorProps {
   signalDbm?: number | null;
+  // the frequency of the network the bee is on, when the bee tells
+  frequencyMhz?: number | null;
   // show the words next to the bars
   detailed?: boolean;
 }
 
 export const WifiIndicator = ({
   signalDbm,
+  frequencyMhz,
   detailed = false,
 }: WifiIndicatorProps) => {
   if (signalDbm === null || signalDbm === undefined) return null;
   const bars = wifiBars(signalDbm);
+  const band = wifiBand(frequencyMhz);
 
   return (
-    <Tooltip title={`${wifiText(bars)} (${signalDbm} dBm)`}>
+    <Tooltip
+      title={`${wifiText(bars)} (${signalDbm} dBm${
+        band ? `, on the ${band.replace("G", " GHz")} network` : ""
+      })`}
+    >
       <Box display="flex" alignItems="center" gap={0.75}>
         <WifiBars>
           {[0, 1, 2, 3].map((index) => (
@@ -211,8 +229,16 @@ export const WifiIndicator = ({
             />
           ))}
         </WifiBars>
+        {!detailed && band && (
+          <Typography variant="extraSmall" style={{ lineHeight: 1 }}>
+            {band}
+          </Typography>
+        )}
         {detailed && (
-          <Typography variant="extraSmall">{wifiText(bars)}</Typography>
+          <Typography variant="extraSmall">
+            {wifiText(bars)}
+            {band ? ` · ${band}` : ""}
+          </Typography>
         )}
       </Box>
     </Tooltip>

@@ -132,6 +132,11 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
 
   const numberIsValid = Number.isInteger(number) && number >= 1 && number <= 99;
   const beeWithNumber = bees.find((bee) => bee.id === number);
+  // A bee with this number that is on would get a twin. But a freshly flashed
+  // speaker can already sit on the address of that bee (the router hands it
+  // out again): then what answers there is this new speaker itself.
+  const numberInUse =
+    !!beeWithNumber?.isOnline && beeWithNumber.ipAddress !== speaker?.ipAddress;
   const backupName = `bee${Utils.addLeadingZero(number)}`;
   // the backup of this bee itself: the one in the cloud when there is one,
   // as that is the newest
@@ -375,10 +380,10 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
               onChange={(e) =>
                 setNumber(e.target.value === "" ? NaN : Number(e.target.value))
               }
-              error={!numberIsValid || !!beeWithNumber?.isOnline}
+              error={!numberIsValid || numberInUse}
               helperText={!numberIsValid && "Choose a number from 1 to 99."}
             />
-            {numberIsValid && beeWithNumber?.isOnline && (
+            {numberIsValid && numberInUse && (
               <Typography
                 variant="small"
                 style={{ color: "var(--red-status)" }}
@@ -387,10 +392,10 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
                 number.
               </Typography>
             )}
-            {numberIsValid && beeWithNumber && !beeWithNumber.isOnline && (
+            {numberIsValid && beeWithNumber && !numberInUse && (
               <Typography variant="small">
-                Bee {number} is already in your swarm, but it is switched off.
-                It will be replaced by this speaker.
+                Bee {number} is already in your swarm. It will be replaced by
+                this speaker.
               </Typography>
             )}
           </Box>
@@ -406,9 +411,9 @@ export const NewSpeakerModal = ({ open, onClose }: NewSpeakerModalProps) => {
               </Button>
               <Button
                 type="button"
-                disabled={!numberIsValid || !!beeWithNumber?.isOnline}
+                disabled={!numberIsValid || numberInUse}
                 style={{
-                  opacity: !numberIsValid || beeWithNumber?.isOnline ? 0.5 : 1,
+                  opacity: !numberIsValid || numberInUse ? 0.5 : 1,
                 }}
                 onClick={handleNumberChosen}
                 buttonUse={ButtonUse.Normal}

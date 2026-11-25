@@ -218,7 +218,9 @@ Add a <Suspense fallback=...> component higher in the tree to provide a loading 
   }
 `,_O=({title:e=""})=>S.jsxs(PO,{children:[S.jsx("img",{src:RO,alt:`The ${e} logo`}),S.jsx("span",{children:e})]}),TO=$e.nav`
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  /* the logo takes what it needs, the rest is for the buttons */
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 1rem;
   justify-content: space-between;
   height: ${({height:e})=>e};
   ${({fixedToTop:e})=>e?`
@@ -241,7 +243,7 @@ Add a <Suspense fallback=...> component higher in the tree to provide a loading 
     padding: var(--contentPaddingMobileTop) var(--contentPaddingMobileLeft)
       var(--contentPaddingMobileBottom) var(--contentPaddingMobileRight);
   }
-`,$O=({title:e="",children:t,height:n="75px",fixedToTop:r=!1})=>S.jsxs(TO,{height:n,fixedToTop:r,children:[S.jsx(_O,{title:e}),S.jsx(ge,{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:1,children:t})]}),OO=({buttons:e})=>S.jsx(S.Fragment,{children:S.jsx(ge,{display:"flex",gap:1,children:e.map(t=>t)})}),AO=()=>{const e=TS(),{pathname:t}=yf(),n=[S.jsx(Te,{size:"small",variant:t==="/"?"contained":"outlined",color:t==="/"?"primary":"secondary",onClick:()=>e("/"),children:"single bees"},"singleBees"),S.jsx(Te,{size:"small",variant:t==="/scene-trigger"?"contained":"outlined",color:t==="/scene-trigger"?"primary":"secondary",onClick:()=>e("/scene-trigger"),children:"scene trigger"},"sceneTrigger")];return S.jsx($O,{title:"kweenb",fixedToTop:!0,height:"var(--navigationHeight)",children:S.jsx(OO,{buttons:n})})},sg=e=>{switch(e){case 0:return"var(--secondary-500)";case 1:return"var(--accent-500)";case 2:return"var(--red-status)";case 3:return"var(--primary-100)";case 4:return"var(--primary-200)";default:return"var(--secondary-500)"}};$e.button.attrs(({key:e})=>({key:e}))`
+`,$O=({title:e="",children:t,height:n="75px",fixedToTop:r=!1})=>S.jsxs(TO,{height:n,fixedToTop:r,children:[S.jsx(_O,{title:e}),S.jsx(ge,{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:1,minWidth:0,children:t})]}),OO=({buttons:e})=>S.jsx(S.Fragment,{children:S.jsx(ge,{display:"flex",gap:1,children:e.map(t=>t)})}),AO=()=>{const e=TS(),{pathname:t}=yf(),n=[S.jsx(Te,{size:"small",variant:t==="/"?"contained":"outlined",color:t==="/"?"primary":"secondary",onClick:()=>e("/"),children:"single bees"},"singleBees"),S.jsx(Te,{size:"small",variant:t==="/scene-trigger"?"contained":"outlined",color:t==="/scene-trigger"?"primary":"secondary",onClick:()=>e("/scene-trigger"),children:"scene trigger"},"sceneTrigger")];return S.jsx($O,{title:"kweenb",fixedToTop:!0,height:"var(--navigationHeight)",children:S.jsx(OO,{buttons:n})})},sg=e=>{switch(e){case 0:return"var(--secondary-500)";case 1:return"var(--accent-500)";case 2:return"var(--red-status)";case 3:return"var(--primary-100)";case 4:return"var(--primary-200)";default:return"var(--secondary-500)"}};$e.button.attrs(({key:e})=>({key:e}))`
   display: inline-block;
   background-color: ${({buttonUse:e=0,buttonType:t})=>t===1||t===2||t===3||t===4?"transparent":sg(e)};
   ${({buttonType:e,buttonUse:t=0})=>{const n=sg(t);return e===0?`border: 1px solid ${n};`:e===1?`border: 1px solid ${n};
@@ -454,4 +456,4 @@ Add a <Suspense fallback=...> component higher in the tree to provide a loading 
   color: #1b1b1b;
   background-color: var(--orange-status, #f08c1e);
 `;function tI(){const{connect:e}=dr(),t=Xa(o=>o.connected),[n,r]=v.useState(!1);return v.useEffect(()=>{e()},[]),v.useEffect(()=>{if(t){r(!1);return}const o=setTimeout(()=>r(!0),JA);return()=>clearTimeout(o)},[t]),n?S.jsx(eI,{role:"status",children:"Not connected to KweenB. Trying again… Buttons do nothing until the connection is back."}):null}function nI(){return S.jsx(VS,{children:S.jsxs(nR,{theme:rR,children:[S.jsx(AO,{}),S.jsx(ge,{margin:"var(--navigationHeight) 0 0 0",children:S.jsx(ZA,{children:S.jsxs(S.Fragment,{children:[S.jsx(tI,{}),S.jsx(EO,{sidebar:!1,children:S.jsxs(KS,{children:[S.jsx(Vc,{path:"/",element:S.jsx(LA,{})}),S.jsx(Vc,{path:"/scene-trigger",element:S.jsx(QA,{})})]})})]})})})]})})}di.render(S.jsx(nI,{}),document.getElementById("root"));
-//# sourceMappingURL=index-BCRtzTLV.js.map
+//# sourceMappingURL=index-B8s_djZb.js.map

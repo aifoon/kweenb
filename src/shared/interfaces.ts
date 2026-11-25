@@ -120,6 +120,9 @@ export interface IBeeMonitoring {
   stream: IBeeStreamInfo;
   battery: IBeeBattery;
   wifiSignalDbm: number | null;
+  // the frequency of the Wi-Fi network the bee is on in MHz (tells the band:
+  // 5 or 6 GHz); null when the bee does not tell
+  wifiFrequencyMhz: number | null;
   // the loudest the bee played in the last seconds, in dB below full scale
   // (0 is the loudest, -100 silence); null when the bee does not tell
   outputLevelDb: number | null;
@@ -515,6 +518,7 @@ export interface IMonitorBee {
   // sent and received together in kbit/s, in steps of 30 seconds
   networkHistory: number[];
   wifiSignalDbm: number | null;
+  wifiFrequencyMhz: number | null;
   // the loudest the bee played in the last seconds (see IBeeMonitoring)
   outputLevelDb: number | null;
   batteryPercentage: number | null;

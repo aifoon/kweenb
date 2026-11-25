@@ -367,7 +367,12 @@ const BeeTile = ({
         <Typography style={{ fontWeight: 600 }}>{bee.name}</Typography>
         <Box display="flex" alignItems="center" gap={1.5}>
           {bee.online && <SoundIndicator levelDb={bee.outputLevelDb} />}
-          {bee.online && <WifiIndicator signalDbm={bee.wifiSignalDbm} />}
+          {bee.online && (
+            <WifiIndicator
+              signalDbm={bee.wifiSignalDbm}
+              frequencyMhz={bee.wifiFrequencyMhz}
+            />
+          )}
           {bee.online && bee.batteryPercentage !== null && (
             <BatteryIndicator
               battery={{
@@ -488,7 +493,11 @@ const BeeDashboard = ({
               <Typography variant="extraSmall">Wi-Fi</Typography>
               <Box height={29} display="flex" alignItems="center">
                 {bee.online && bee.wifiSignalDbm !== null ? (
-                  <WifiIndicator signalDbm={bee.wifiSignalDbm} detailed />
+                  <WifiIndicator
+                    signalDbm={bee.wifiSignalDbm}
+                    frequencyMhz={bee.wifiFrequencyMhz}
+                    detailed
+                  />
                 ) : (
                   <StatValue>–</StatValue>
                 )}

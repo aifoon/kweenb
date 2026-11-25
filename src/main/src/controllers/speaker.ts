@@ -216,17 +216,22 @@ export const adoptSpeaker = async (
     if (!isValidBeeNumber(id))
       throw new SpeakerAdoptionError("Choose a number from 1 to 99.");
 
-    // a bee with this number that is switched on would get a twin
-    if (KweenBGlobal.kweenb.beeStates.isOnline(id))
-      throw new SpeakerAdoptionError(
-        `Bee ${id} is already switched on. Two speakers cannot share a number. Choose another number, or switch off the other bee ${id} first.`
-      );
-
     const fixedAddress = fixedAddressOfBee(
       id,
       BEE_ADDRESS_PREFIX,
       BEE_ADDRESS_OFFSET
     );
+
+    // A bee with this number that is switched on would get a twin. A freshly
+    // flashed speaker can already sit on the address of that bee (the router
+    // hands it out again): then what answers there is the new speaker itself.
+    if (
+      ipAddress !== fixedAddress &&
+      KweenBGlobal.kweenb.beeStates.isOnline(id)
+    )
+      throw new SpeakerAdoptionError(
+        `Bee ${id} is already switched on. Two speakers cannot share a number. Choose another number, or switch off the other bee ${id} first.`
+      );
 
     // give the number and wait for the speaker on its fixed address
     sendAdoptSpeakerProgress({ step: "number" });
