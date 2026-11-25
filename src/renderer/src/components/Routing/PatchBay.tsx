@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LGraph, LGraphCanvas, LGraphNode, LiteGraph } from "litegraph.js";
 import "litegraph.js/css/litegraph.css";
 import { IRoutingBee, IRoutingChange } from "@shared/interfaces";
@@ -7,6 +7,9 @@ import { IRoutingBee, IRoutingChange } from "@shared/interfaces";
  * The patch bay: the channels of the sound device on the left, the bees on
  * the right, and a cord from a channel to every bee it goes to. Drag from a
  * channel to a bee to plug a cord in; drag a cord off a bee to unplug it.
+ *
+ * With many bees they stand in up to three columns, so the last bee can be
+ * reached with a cord without scrolling.
  */
 
 interface PatchBayProps {
@@ -74,6 +77,71 @@ const BEE_GAP = 14;
 const TITLE_HEIGHT = 30;
 // the width of the mono/stereo switch in the title of a bee
 const MODE_WIDTH = 52;
+// the room left of the first column of bees, for the cords to fan out
+const CORD_ROOM = 120;
+// the room between two columns of bees, for the cords to their sockets
+const COLUMN_GAP = 70;
+const MAX_COLUMNS = 3;
+
+// a mono bee is a title and one socket; a stereo bee has a socket more
+const beeHeight = (bee: IRoutingBee): number =>
+  TITLE_HEIGHT + (bee.stereo ? 2 : 1) * SLOT_HEIGHT + 6;
+
+interface BeeLayout {
+  columns: number;
+  // where every bee stands, by its id (the top left of its sockets)
+  positions: Map<number, [number, number]>;
+  // the height all the bees need
+  height: number;
+}
+
+/**
+ * Where the bees stand: in one column when they fit under each other in the
+ * room there is, otherwise in as many columns as needed (three at most, and
+ * not more than there is width for). Bee 1 is at the top of the first column.
+ * @param bees The bees, in the order they are shown
+ * @param width The width of the patch bay
+ * @param room The height that is in sight without scrolling
+ */
+export const layoutBees = (
+  bees: IRoutingBee[],
+  width: number,
+  room: number
+): BeeLayout => {
+  const left = MARGIN + DEVICE_WIDTH + CORD_ROOM;
+  const fitsWide = Math.floor(
+    (width - MARGIN - left + COLUMN_GAP) / (BEE_WIDTH + COLUMN_GAP)
+  );
+  const total =
+    bees.reduce((sum, bee) => sum + beeHeight(bee) + BEE_GAP, 0) - BEE_GAP;
+  const needed = Math.ceil(total / Math.max(room - MARGIN * 2, 200));
+  const columns = Math.max(
+    1,
+    Math.min(MAX_COLUMNS, fitsWide, needed, bees.length)
+  );
+  const perColumn = Math.ceil(bees.length / columns);
+
+  const positions = new Map<number, [number, number]>();
+  let height = 0;
+  let top = 0;
+  bees.forEach((bee, index) => {
+    const column = Math.floor(index / perColumn);
+    if (index % perColumn === 0) top = MARGIN + TITLE_HEIGHT;
+    // the columns stand against the right side
+    const fromRight =
+      width -
+      MARGIN -
+      (columns - column) * BEE_WIDTH -
+      (columns - column - 1) * COLUMN_GAP;
+    positions.set(bee.id, [
+      Math.max(left + column * (BEE_WIDTH + COLUMN_GAP), fromRight),
+      top,
+    ]);
+    top += beeHeight(bee) + BEE_GAP;
+    height = Math.max(height, top - BEE_GAP - TITLE_HEIGHT - MARGIN);
+  });
+  return { columns, positions, height };
+};
 
 /**
  * What the patch bay shows, as text: two patch bays with the same text
@@ -134,18 +202,19 @@ export const PatchBay = ({
   const change = useRef(onChange);
   change.current = onChange;
 
-  // a mono bee is a title and one socket; a stereo bee has a socket more
-  const beesHeight = bees.reduce(
-    (sum, bee) =>
-      sum + TITLE_HEIGHT + (bee.stereo ? 2 : 1) * SLOT_HEIGHT + 6 + BEE_GAP,
-    0
+  // the width of the patch bay and the height that is in sight under its
+  // top, measured on the page
+  const [width, setWidth] = useState(700);
+  const [room, setRoom] = useState(600);
+  const layout = useMemo(
+    () => layoutBees(bees, width, room),
+    [bees, width, room]
   );
+  const place = useRef(layout);
+  place.current = layout;
   // the same room under the last block as above the first one
   const height =
-    Math.max(
-      TITLE_HEIGHT + channelCount * SLOT_HEIGHT + 6,
-      beesHeight - BEE_GAP
-    ) +
+    Math.max(TITLE_HEIGHT + channelCount * SLOT_HEIGHT + 6, layout.height) +
     MARGIN * 2;
 
   /**
@@ -210,32 +279,55 @@ export const PatchBay = ({
     const element = canvasElement.current;
     const box = holder.current;
     if (!element || !box) return undefined;
+    // The room the bees have: what is in sight of the page at once. The
+    // patch bay can be scrolled to the top of that, so the texts above it
+    // do not count.
+    const scroller = (() => {
+      let parent = box.parentElement;
+      while (parent) {
+        const overflow = getComputedStyle(parent).overflowY;
+        if (
+          (overflow === "auto" || overflow === "scroll") &&
+          parent.scrollHeight > parent.clientHeight
+        )
+          return parent;
+        parent = parent.parentElement;
+      }
+      return null;
+    })();
+    const measure = () => {
+      setWidth(box.clientWidth);
+      // (without a scrolling part of its own, the window scrolls under the
+      // bar at the top)
+      setRoom(scroller ? scroller.clientHeight : window.innerHeight - 90);
+    };
     const fit = () => {
       const scale = Math.max(window.devicePixelRatio || 1, 1);
-      const width = box.clientWidth;
       element.style.width = `${width}px`;
       element.style.height = `${height}px`;
       element.width = Math.round(width * scale);
       element.height = Math.round(height * scale);
       element.getContext("2d")?.scale(scale, scale);
-      // the bees stand against the right side
+      // the bees go where the layout of this width puts them
       const lgraph = graph.current;
       if (lgraph) {
         (lgraph as any)._nodes.forEach((node: any) => {
-          if (node.beeId !== undefined)
-            node.pos[0] = Math.max(
-              DEVICE_WIDTH + 120,
-              width - BEE_WIDTH - MARGIN
-            );
+          const position = layout.positions.get(node.beeId);
+          if (position) node.pos = [position[0], position[1]];
         });
       }
       graphCanvas.current?.setDirty(true, true);
     };
+    measure();
     fit();
-    const observer = new ResizeObserver(fit);
+    const observer = new ResizeObserver(measure);
     observer.observe(box);
-    return () => observer.disconnect();
-  }, [height, bees.length]);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [height, width, layout]);
 
   /**
    * Show the channels, the bees and the cords
@@ -288,8 +380,6 @@ export const PatchBay = ({
     };
     lgraph.add(device);
 
-    const width = holder.current?.clientWidth || 700;
-    let top = MARGIN + TITLE_HEIGHT;
     bees.forEach((bee) => {
       const node = new LGraphNode(
         bee.online ? bee.name : `${bee.name} (offline)`
@@ -301,11 +391,7 @@ export const PatchBay = ({
         node.addInput("right", SLOT_TYPE);
       } else node.addInput("sound", SLOT_TYPE);
       node.size = [BEE_WIDTH, node.computeSize()[1]];
-      node.pos = [
-        Math.max(DEVICE_WIDTH + 120, width - BEE_WIDTH - MARGIN),
-        top,
-      ];
-      top += node.size[1] + TITLE_HEIGHT + BEE_GAP;
+      node.pos = [...(place.current.positions.get(bee.id) || [0, 0])];
       lock(node);
       node.boxcolor = bee.online ? ONLINE : OFFLINE;
       // mono or stereo: a switch in the title of the bee

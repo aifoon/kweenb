@@ -7,7 +7,6 @@
  */
 
 import { execFile, spawn } from "child_process";
-import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import {
@@ -37,19 +36,33 @@ export interface SoundDeviceState {
   upToDate: boolean;
 }
 
-const checksumOf = (file: string): string | null => {
+/**
+ * The version of a device, from its Info.plist ("0.7.1 (1)"). Not a checksum
+ * of the device itself: every KweenB that is built signs the device anew, so
+ * the same device is a different file in every KweenB.
+ */
+const versionOf = (driver: string): string | null => {
   try {
-    return crypto
-      .createHash("sha256")
-      .update(fs.readFileSync(file))
-      .digest("hex");
+    const plist = fs.readFileSync(
+      path.join(driver, "Contents", "Info.plist"),
+      "utf8"
+    );
+    const value = (key: string) =>
+      plist.match(
+        new RegExp(`<key>${key}</key>\\s*<string>([^<]*)</string>`)
+      )?.[1];
+    const version = value("CFBundleShortVersionString");
+    if (!version) return null;
+    return `${version} (${value("CFBundleVersion") || ""})`;
   } catch (e) {
     return null;
   }
 };
 
 /**
- * Is the sound device on this computer, and is it the one of this KweenB
+ * Is the sound device on this computer, and is it the one of this KweenB.
+ * A new device is told apart by its version: raise CFBundleVersion in
+ * sound-device/build.sh when the device changes.
  * @param bundledFolder The folder with the device that comes with KweenB
  * @param installedDriver Where the device is installed (tests)
  */
@@ -57,11 +70,14 @@ export const getSoundDeviceState = (
   bundledFolder: string,
   installedDriver: string = INSTALLED_DRIVER
 ): SoundDeviceState => {
-  const bundled = checksumOf(path.join(bundledFolder, DRIVER, DRIVER_BINARY));
-  const installed = checksumOf(path.join(installedDriver, DRIVER_BINARY));
+  const bundledDriver = path.join(bundledFolder, DRIVER);
+  const bundled = versionOf(bundledDriver);
+  const installed = versionOf(installedDriver);
   return {
-    supported: process.platform === "darwin" && bundled !== null,
-    installed: installed !== null,
+    supported:
+      process.platform === "darwin" &&
+      fs.existsSync(path.join(bundledDriver, DRIVER_BINARY)),
+    installed: fs.existsSync(path.join(installedDriver, DRIVER_BINARY)),
     upToDate: installed !== null && installed === bundled,
   };
 };

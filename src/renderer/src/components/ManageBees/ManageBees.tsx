@@ -231,7 +231,7 @@ export const ManageBees = () => {
               <Box
                 display="grid"
                 gap={2}
-                gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+                gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
               >
                 {activeBees.map(
                   ({ id, ipAddress, isOnline, isApiOn, name }) => (
