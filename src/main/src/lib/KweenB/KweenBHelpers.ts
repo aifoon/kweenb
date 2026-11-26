@@ -36,24 +36,16 @@ import { SocketSingleton } from "../socket/SocketSingleton";
 import { RunningCommand } from "@zwerm3/jack/dist/interfaces";
 
 /**
- * This will kill all processes (on bees/kweenb/hive)
+ * Stop what runs on this computer. The bees are left alone: another KweenB
+ * on the network may be streaming to them, and a bee that plays its own
+ * sounds goes on doing so. Disconnect is the way to stop the bees.
  */
 const closeApplication = async (appMode: AppMode) => {
   // Kill the express server
   killExpress();
 
-  // the active bees that are online right now
-  const bees = (await BeeHelpers.getAllBees(BeeActiveState.ACTIVE)).filter(
-    (bee) => bee.isOnline
-  );
-
   // kill the workers
   KweenBGlobal.kweenb.beeStatesWorker.stopWorkers();
-
-  // close all the bees (a bee that fails to stop does not keep kweenb open)
-  await Zwerm3ApiHelpers.onBees(bees, (bee) =>
-    SpeakerApi.stopStream(bee.ipAddress)
-  );
 
   // close mqtt broker
   PozyxMqttBroker.disconnectPozyxMqttBroker();

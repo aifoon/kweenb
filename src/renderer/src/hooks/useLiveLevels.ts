@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { create } from "zustand";
 
 /**
@@ -37,35 +36,46 @@ export const followLiveLevels = (
   beeIds: number[]
 ) => {
   listen();
-  window.kweenb.actions.followBeeLevels(owner, beeIds);
+  wanted.set(owner, beeIds);
+  if (!document.hidden) window.kweenb.actions.followBeeLevels(owner, beeIds);
+};
+
+// every level is a packet on the Wi-Fi: none are asked for while KweenB is
+// out of sight
+const wanted = new Map<"dashboard" | "swarm", number[]>();
+document.addEventListener("visibilitychange", () => {
+  wanted.forEach((beeIds, owner) => {
+    if (beeIds.length > 0)
+      window.kweenb.actions.followBeeLevels(
+        owner,
+        document.hidden ? [] : beeIds
+      );
+  });
+});
+
+/**
+ * The live level of a bee right now, in dB below full scale; null as long
+ * as the bee does not tell it
+ */
+export const readLiveLevel = (beeId: number): number | null => {
+  const told = levels.get(beeId);
+  return told && Date.now() - told.time < STALE_MS ? told.levelDb : null;
 };
 
 /**
- * The live level of a bee in dB below full scale; null as long as the bee
- * does not tell it
+ * Be called whenever a bee tells its level. The levels come ten times a
+ * second per bee: a meter writes them straight to the screen instead of
+ * drawing its part of the page again.
+ * @returns A function that stops it
  */
-export const useLiveLevel = (beeId: number): number | null => {
-  const [level, setLevel] = useState<number | null>(null);
-
-  useEffect(() => {
-    listen();
-    const read = () => {
-      const told = levels.get(beeId);
-      setLevel(told && Date.now() - told.time < STALE_MS ? told.levelDb : null);
-    };
-    read();
-    const ofBee = listeners.get(beeId) || new Set<() => void>();
-    listeners.set(beeId, ofBee);
-    ofBee.add(read);
-    // a bee that stopped telling loses its meter
-    const watch = setInterval(read, 500);
-    return () => {
-      clearInterval(watch);
-      ofBee.delete(read);
-    };
-  }, [beeId]);
-
-  return level;
+export const onLiveLevel = (beeId: number, listener: () => void) => {
+  listen();
+  const ofBee = listeners.get(beeId) || new Set<() => void>();
+  listeners.set(beeId, ofBee);
+  ofBee.add(listener);
+  return () => {
+    ofBee.delete(listener);
+  };
 };
 
 /**

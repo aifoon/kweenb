@@ -49,6 +49,9 @@ export interface SpeakerStatus {
     power: number | null;
     percentage: number | null;
     level: BeeBatteryLevel | null;
+    // charging and how long it still takes (firmware 2.0.8 and later)
+    charging?: boolean;
+    minutesToFull?: number | null;
   };
   storage: { freeMb: number; totalMb: number; scenes: number };
   wifiSignalDbm: number | null;

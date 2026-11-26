@@ -589,7 +589,13 @@ export const CloudBackupModal = ({ open, onClose }: CloudBackupModalProps) => {
                   </Typography>
                 )}
                 {(state?.bees || []).length > 0 && (
-                  <Box>
+                  // with a whole swarm the list is long: it scrolls by
+                  // itself, so the buttons under it stay in sight
+                  <Box
+                    maxHeight={"32vh"}
+                    paddingRight={1}
+                    style={{ overflowY: "auto" }}
+                  >
                     {(state?.bees || []).map((bee) => {
                       const { text, behind } = beeInWords(bee);
                       return (

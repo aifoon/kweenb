@@ -103,6 +103,11 @@ export interface IBeeBattery {
   percentage: number | null;
   level: BeeBatteryLevel | null;
   voltage: number | null;
+  // true while the battery is being charged (a bee with older firmware, or
+  // one whose sensor does not see the battery current, never tells)
+  charging?: boolean;
+  // about how long charging still takes; null when the bee can not tell
+  minutesToFull?: number | null;
 }
 
 export interface IBeeStorage {
@@ -523,6 +528,11 @@ export interface IMonitorBee {
   outputLevelDb: number | null;
   batteryPercentage: number | null;
   batteryLevel: BeeBatteryLevel | null;
+  batteryCharging: boolean;
+  batteryMinutesToFull: number | null;
+  // the room on the disk of the bee where its sounds are kept
+  storageFreeMb: number | null;
+  storageTotalMb: number | null;
 }
 
 export interface IMonitorSnapshot {

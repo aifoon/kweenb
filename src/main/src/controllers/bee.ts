@@ -540,7 +540,7 @@ export const uploadAudioFiles = async (
     // is in fact conflicting the database right away. Therefore, pause his behavour
     // once the upload is done, the background worker can start the sync work again
     // (see the finally statement in this function)
-    KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes = true;
+    KweenBGlobal.kweenb.beeStatesWorker.uploadingAudio = true;
 
     // create legal name for directory
     const legalName = Utils.convertToLegalDirectoryName(name);
@@ -621,6 +621,7 @@ export const uploadAudioFiles = async (
         // set the current upload operation
         KweenBGlobal.kweenb.currentUploadOperation.beeId = bee.id;
 
+        let toldPercentage = -1;
         try {
           // upload the file to the bee: the bee stores it as the audio of
           // the scene together with its name, and only when it arrived complete
@@ -635,7 +636,11 @@ export const uploadAudioFiles = async (
                   KweenBGlobal.kweenb.currentUploadOperation.abort = abort;
               },
               onProgress: (percentage) => {
-                // let the renderer know that we have upload data
+                // let the renderer know that we have upload data, once per
+                // percent (the file is sent in thousands of small pieces)
+                const whole = Math.floor(percentage);
+                if (whole === toldPercentage) return;
+                toldPercentage = whole;
                 KweenBGlobal.kweenb.mainWindow.webContents.send(
                   "upload-audio-progress",
                   bee,
@@ -688,6 +693,7 @@ export const uploadAudioFiles = async (
       true
     );
   } finally {
-    KweenBGlobal.kweenb.beeStatesWorker.pauseUpdateAudioScenes = false;
+    // the worker goes on, when the Audio page is still open
+    KweenBGlobal.kweenb.beeStatesWorker.uploadingAudio = false;
   }
 };

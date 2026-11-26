@@ -105,10 +105,8 @@ export default class ElectronApp {
       // Notify renderer to cleanup
       browserWindow.webContents.send("app-closing");
 
-      // Give renderer time to cleanup, then close
-      setTimeout(() => {
-        browserWindow?.destroy();
-      }, 1000);
+      // the renderer has nothing to wait for: it only stops asking
+      browserWindow.destroy();
     });
 
     // load the index html page

@@ -7,9 +7,11 @@ import { IRoutingBee, IRoutingChange } from "@shared/interfaces";
  * The patch bay: the channels of the sound device on the left, the bees on
  * the right, and a cord from a channel to every bee it goes to. Drag from a
  * channel to a bee to plug a cord in; drag a cord off a bee to unplug it.
+ * A click on a cord selects it (it lights up); Delete then unplugs it.
  *
- * With many bees they stand in up to three columns, so the last bee can be
- * reached with a cord without scrolling.
+ * The bees stand under each other in one column. With many bees the page
+ * is longer than the window: it scrolls by itself while a cord is dragged
+ * towards its top or bottom, so every bee can be reached.
  */
 
 interface PatchBayProps {
@@ -68,6 +70,10 @@ const CORD = "#A4A0DC";
 const ONLINE = "#26A843";
 const OFFLINE = "#868e96";
 
+const SELECTED_CORD = "#FFFFFF";
+// a click this close to a cord selects it
+const CORD_REACH = 7;
+
 const SLOT_TYPE = "sound";
 const MARGIN = 16;
 const BEE_WIDTH = 190;
@@ -77,18 +83,19 @@ const BEE_GAP = 14;
 const TITLE_HEIGHT = 30;
 // the width of the mono/stereo switch in the title of a bee
 const MODE_WIDTH = 52;
-// the room left of the first column of bees, for the cords to fan out
+// the room left of the bees, for the cords to fan out
 const CORD_ROOM = 120;
-// the room between two columns of bees, for the cords to their sockets
-const COLUMN_GAP = 70;
-const MAX_COLUMNS = 3;
+// while a cord is dragged this close to the top or bottom of what is in
+// sight, the page scrolls
+const SCROLL_EDGE = 70;
+// the most the page scrolls per frame, with the mouse at the very edge
+const SCROLL_SPEED = 14;
 
 // a mono bee is a title and one socket; a stereo bee has a socket more
 const beeHeight = (bee: IRoutingBee): number =>
   TITLE_HEIGHT + (bee.stereo ? 2 : 1) * SLOT_HEIGHT + 6;
 
 interface BeeLayout {
-  columns: number;
   // where every bee stands, by its id (the top left of its sockets)
   positions: Map<number, [number, number]>;
   // the height all the bees need
@@ -96,51 +103,26 @@ interface BeeLayout {
 }
 
 /**
- * Where the bees stand: in one column when they fit under each other in the
- * room there is, otherwise in as many columns as needed (three at most, and
- * not more than there is width for). Bee 1 is at the top of the first column.
+ * Where the bees stand: under each other in one column against the right
+ * side. Bee 1 is at the top.
  * @param bees The bees, in the order they are shown
  * @param width The width of the patch bay
- * @param room The height that is in sight without scrolling
  */
-export const layoutBees = (
-  bees: IRoutingBee[],
-  width: number,
-  room: number
-): BeeLayout => {
-  const left = MARGIN + DEVICE_WIDTH + CORD_ROOM;
-  const fitsWide = Math.floor(
-    (width - MARGIN - left + COLUMN_GAP) / (BEE_WIDTH + COLUMN_GAP)
+export const layoutBees = (bees: IRoutingBee[], width: number): BeeLayout => {
+  const left = Math.max(
+    MARGIN + DEVICE_WIDTH + CORD_ROOM,
+    width - MARGIN - BEE_WIDTH
   );
-  const total =
-    bees.reduce((sum, bee) => sum + beeHeight(bee) + BEE_GAP, 0) - BEE_GAP;
-  const needed = Math.ceil(total / Math.max(room - MARGIN * 2, 200));
-  const columns = Math.max(
-    1,
-    Math.min(MAX_COLUMNS, fitsWide, needed, bees.length)
-  );
-  const perColumn = Math.ceil(bees.length / columns);
-
   const positions = new Map<number, [number, number]>();
-  let height = 0;
-  let top = 0;
-  bees.forEach((bee, index) => {
-    const column = Math.floor(index / perColumn);
-    if (index % perColumn === 0) top = MARGIN + TITLE_HEIGHT;
-    // the columns stand against the right side
-    const fromRight =
-      width -
-      MARGIN -
-      (columns - column) * BEE_WIDTH -
-      (columns - column - 1) * COLUMN_GAP;
-    positions.set(bee.id, [
-      Math.max(left + column * (BEE_WIDTH + COLUMN_GAP), fromRight),
-      top,
-    ]);
+  let top = MARGIN + TITLE_HEIGHT;
+  bees.forEach((bee) => {
+    positions.set(bee.id, [left, top]);
     top += beeHeight(bee) + BEE_GAP;
-    height = Math.max(height, top - BEE_GAP - TITLE_HEIGHT - MARGIN);
   });
-  return { columns, positions, height };
+  return {
+    positions,
+    height: Math.max(0, top - BEE_GAP - TITLE_HEIGHT - MARGIN),
+  };
 };
 
 /**
@@ -202,14 +184,9 @@ export const PatchBay = ({
   const change = useRef(onChange);
   change.current = onChange;
 
-  // the width of the patch bay and the height that is in sight under its
-  // top, measured on the page
+  // the width of the patch bay, measured on the page
   const [width, setWidth] = useState(700);
-  const [room, setRoom] = useState(600);
-  const layout = useMemo(
-    () => layoutBees(bees, width, room),
-    [bees, width, room]
-  );
+  const layout = useMemo(() => layoutBees(bees, width), [bees, width]);
   const place = useRef(layout);
   place.current = layout;
   // the same room under the last block as above the first one
@@ -254,6 +231,140 @@ export const PatchBay = ({
       return false;
     };
     anyCanvas.render_link_tooltip = false;
+
+    /**
+     * A cord can be selected with a click and unplugged with Delete
+     */
+
+    // the socket the selected cord goes to (the numbers LiteGraph gives the
+    // cords change every time the patch bay is drawn again)
+    let selected: { beeId: number; slot: number } | null = null;
+    const isSelected = (link: any): boolean => {
+      if (!selected || !link) return false;
+      const node = lgraph.getNodeById(link.target_id) as any;
+      return (
+        !!node &&
+        node.beeId === selected.beeId &&
+        link.target_slot === selected.slot
+      );
+    };
+    const select = (cord: typeof selected) => {
+      selected = cord;
+      lcanvas.setDirty(true, true);
+    };
+
+    // how far a point is from a cord, measured along the curve LiteGraph draws
+    const distanceToCord = (link: any, x: number, y: number): number => {
+      const from = lgraph.getNodeById(link.origin_id) as any;
+      const to = lgraph.getNodeById(link.target_id) as any;
+      if (!from || !to) return Infinity;
+      const a = from.getConnectionPos(false, link.origin_slot);
+      const b = to.getConnectionPos(true, link.target_slot);
+      const bend = Math.hypot(b[0] - a[0], b[1] - a[1]) * 0.25;
+      let nearest = Infinity;
+      for (let step = 0; step <= 60; step += 1) {
+        const t = step / 60;
+        const u = 1 - t;
+        const px =
+          u * u * u * a[0] +
+          3 * u * u * t * (a[0] + bend) +
+          3 * u * t * t * (b[0] - bend) +
+          t * t * t * b[0];
+        const py =
+          u * u * u * a[1] +
+          3 * u * u * t * a[1] +
+          3 * u * t * t * b[1] +
+          t * t * t * b[1];
+        nearest = Math.min(nearest, Math.hypot(px - x, py - y));
+      }
+      return nearest;
+    };
+
+    // a click on a cord selects it, a click next to the cords selects none
+    // (LiteGraph goes on with the click: sockets and the dot keep working)
+    anyCanvas.onMouse = (event: any) => {
+      if (event.type !== "mousedown" && event.type !== "pointerdown")
+        return false;
+      const x = event.canvasX;
+      const y = event.canvasY;
+      let cord: typeof selected = null;
+      if (!lgraph.getNodeOnPos(x, y, undefined, 5)) {
+        let nearest = CORD_REACH;
+        Object.values((lgraph as any).links || {}).forEach((link: any) => {
+          const node = link && (lgraph.getNodeById(link.target_id) as any);
+          if (!node || node.beeId === undefined) return;
+          const distance = distanceToCord(link, x, y);
+          if (distance <= nearest) {
+            nearest = distance;
+            cord = { beeId: node.beeId, slot: link.target_slot };
+          }
+        });
+      }
+      select(cord);
+      return false;
+    };
+
+    // the selected cord lights up
+    const renderLink = anyCanvas.renderLink.bind(lcanvas);
+    anyCanvas.renderLink = (
+      ctx: CanvasRenderingContext2D,
+      a: unknown,
+      b: unknown,
+      link: unknown,
+      skipBorder: unknown,
+      flow: unknown,
+      color: unknown,
+      ...rest: unknown[]
+    ) => {
+      if (!isSelected(link))
+        return renderLink(ctx, a, b, link, skipBorder, flow, color, ...rest);
+      const width = anyCanvas.connections_width;
+      anyCanvas.connections_width = width + 2;
+      const result = renderLink(
+        ctx,
+        a,
+        b,
+        link,
+        skipBorder,
+        flow,
+        SELECTED_CORD,
+        ...rest
+      );
+      anyCanvas.connections_width = width;
+      return result;
+    };
+
+    // Delete unplugs the selected cord, Escape lets it go
+    const onKey = (event: KeyboardEvent) => {
+      if (!selected) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      )
+        return;
+      if (event.key === "Escape") {
+        select(null);
+        return;
+      }
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+      const link: any = Object.values((lgraph as any).links || {}).find(
+        isSelected
+      );
+      select(null);
+      if (!link) return;
+      event.preventDefault();
+      lgraph.removeLink(link.id);
+    };
+    // a click somewhere else on the page lets the cord go
+    const onClickElsewhere = (event: MouseEvent) => {
+      if (selected && event.target !== element) select(null);
+    };
+    // (before LiteGraph, which keeps the keys it knows to itself)
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("mousedown", onClickElsewhere, true);
     anyCanvas.onShowNodePanel = () => {};
     anyCanvas.processNodeDblClicked = () => {};
     // the wheel scrolls the page, it does not zoom the patch bay
@@ -263,6 +374,8 @@ export const PatchBay = ({
 
     lgraph.start();
     return () => {
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("mousedown", onClickElsewhere, true);
       lgraph.stop();
       // without this LiteGraph keeps drawing a canvas that is gone
       anyCanvas.stopRendering?.();
@@ -279,28 +392,7 @@ export const PatchBay = ({
     const element = canvasElement.current;
     const box = holder.current;
     if (!element || !box) return undefined;
-    // The room the bees have: what is in sight of the page at once. The
-    // patch bay can be scrolled to the top of that, so the texts above it
-    // do not count.
-    const scroller = (() => {
-      let parent = box.parentElement;
-      while (parent) {
-        const overflow = getComputedStyle(parent).overflowY;
-        if (
-          (overflow === "auto" || overflow === "scroll") &&
-          parent.scrollHeight > parent.clientHeight
-        )
-          return parent;
-        parent = parent.parentElement;
-      }
-      return null;
-    })();
-    const measure = () => {
-      setWidth(box.clientWidth);
-      // (without a scrolling part of its own, the window scrolls under the
-      // bar at the top)
-      setRoom(scroller ? scroller.clientHeight : window.innerHeight - 90);
-    };
+    const measure = () => setWidth(box.clientWidth);
     const fit = () => {
       const scale = Math.max(window.devicePixelRatio || 1, 1);
       element.style.width = `${width}px`;
@@ -328,6 +420,85 @@ export const PatchBay = ({
       window.removeEventListener("resize", measure);
     };
   }, [height, width, layout]);
+
+  /**
+   * While a cord is dragged towards the top or the bottom of what is in
+   * sight, the page scrolls along, so a bee further down can be reached
+   */
+  useEffect(() => {
+    const box = holder.current;
+    if (!box) return undefined;
+    const mouse = { x: 0, y: 0 };
+    let frame: number | null = null;
+
+    // the part of the page that scrolls (looked up when it is needed: the
+    // page only scrolls once the bees are on it)
+    const findScroller = (): HTMLElement | null => {
+      let parent = box.parentElement;
+      while (parent) {
+        const overflow = getComputedStyle(parent).overflowY;
+        if (
+          (overflow === "auto" || overflow === "scroll") &&
+          parent.scrollHeight > parent.clientHeight
+        )
+          return parent;
+        parent = parent.parentElement;
+      }
+      return null;
+    };
+
+    const step = () => {
+      frame = null;
+      const lcanvas = graphCanvas.current as any;
+      if (!lcanvas || !lcanvas.connecting_node) return;
+      const scroller = findScroller();
+      const top = scroller ? scroller.getBoundingClientRect().top : 0;
+      const bottom = scroller
+        ? scroller.getBoundingClientRect().bottom
+        : window.innerHeight;
+      // the closer to the edge, the faster
+      let speed = 0;
+      if (mouse.y > bottom - SCROLL_EDGE)
+        speed = Math.min(1, (mouse.y - (bottom - SCROLL_EDGE)) / SCROLL_EDGE);
+      else if (mouse.y < top + SCROLL_EDGE)
+        speed = -Math.min(1, (top + SCROLL_EDGE - mouse.y) / SCROLL_EDGE);
+      if (speed !== 0) {
+        const target = scroller || document.scrollingElement;
+        const before = target ? target.scrollTop : 0;
+        if (target) target.scrollTop += speed * SCROLL_SPEED;
+        // the cord follows: for LiteGraph the mouse moved over the canvas
+        if (target && target.scrollTop !== before) {
+          telling = true;
+          document.dispatchEvent(
+            new MouseEvent("mousemove", {
+              clientX: mouse.x,
+              clientY: mouse.y,
+              buttons: 1,
+              bubbles: true,
+            })
+          );
+          telling = false;
+        }
+      }
+      frame = requestAnimationFrame(step);
+    };
+
+    // true while we tell LiteGraph ourselves that the mouse moved
+    let telling = false;
+    const onMove = (event: MouseEvent) => {
+      if (telling) return;
+      mouse.x = event.clientX;
+      mouse.y = event.clientY;
+      const lcanvas = graphCanvas.current as any;
+      if (frame === null && lcanvas?.connecting_node)
+        frame = requestAnimationFrame(step);
+    };
+    document.addEventListener("mousemove", onMove, true);
+    return () => {
+      document.removeEventListener("mousemove", onMove, true);
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   /**
    * Show the channels, the bees and the cords

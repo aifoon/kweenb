@@ -1,3 +1,4 @@
+import { visibleInterval } from "@renderer/src/hooks/visible";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, CircularProgress, Tooltip, Typography } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
@@ -146,8 +147,7 @@ export const Routing = () => {
 
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, REFRESH_MS);
-    return () => clearInterval(interval);
+    return visibleInterval(refresh, REFRESH_MS);
   }, [refresh]);
 
   /**

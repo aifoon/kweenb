@@ -111,7 +111,7 @@ const ToolButton = styled.a`
   }
 `;
 
-export const BeeCard = ({
+const BeeCardComponent = ({
   number = 0,
   online = true,
   collapsed = true,
@@ -145,7 +145,11 @@ export const BeeCard = ({
    */
 
   const activity = getBeeActivity(isOnline, monitoring);
-  const healthColor = beeHealthColor(activity, monitoring?.battery.level);
+  // (a low battery that is charging is no reason for a warning colour)
+  const healthColor = beeHealthColor(
+    activity,
+    monitoring?.battery.charging ? null : monitoring?.battery.level
+  );
   const problem =
     activity === BeeActivity.Problem ? monitoring?.stream.error : null;
 
@@ -298,3 +302,6 @@ export const BeeCard = ({
     </BeeCardContainer>
   );
 };
+
+// a card is only drawn again when what it shows changed
+export const BeeCard = React.memo(BeeCardComponent);

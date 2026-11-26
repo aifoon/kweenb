@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Tooltip } from "@mui/material";
 import { isSound, levelFill } from "@components/Cards/BeeIndicators";
-import { useLiveLevel } from "@renderer/src/hooks/useLiveLevels";
+import { onLiveLevel, readLiveLevel } from "@renderer/src/hooks/useLiveLevels";
 
 /**
  * The live meter of a bee: how loud the sound is that leaves it, right now
@@ -42,10 +42,42 @@ const colorOf = (levelDb: number): string => {
   return levelDb >= -12 ? "var(--orange-status)" : "var(--green-status)";
 };
 
+/**
+ * All meters on the screen move on one clock: the marker of the loudest
+ * moment falls back, and a bee that stopped telling loses its meter.
+ */
+const TICK_MS = 93;
+const ticks = new Set<() => void>();
+let clock: number | null = null;
+
+const onTick = (tick: () => void) => {
+  ticks.add(tick);
+  if (clock === null)
+    clock = window.setInterval(() => ticks.forEach((t) => t()), TICK_MS);
+  return () => {
+    ticks.delete(tick);
+    if (ticks.size === 0 && clock !== null) {
+      window.clearInterval(clock);
+      clock = null;
+    }
+  };
+};
+
+// the words under the mouse and the level for the page follow this often
+const TELL_MS = 250;
+
+const explain = (level: number | null): string => {
+  if (level === null) return "This bee does not tell its level";
+  return isSound(level)
+    ? `Sound is coming out (${Math.round(level)} dB)`
+    : "Silent";
+};
+
 interface LiveLevelBarProps {
   beeId: number;
   height?: number;
-  // called with the level whenever it changes (null: the bee does not tell)
+  // called with the level when it changed, a few times a second at most
+  // (null: the bee does not tell)
   onLevel?: (levelDb: number | null) => void;
 }
 
@@ -54,47 +86,70 @@ export const LiveLevelBar = ({
   height = 6,
   onLevel,
 }: LiveLevelBarProps) => {
-  const level = useLiveLevel(beeId);
-  // the loudest moment stays for a while and then falls back
-  const [peak, setPeak] = useState(-100);
+  const track = useRef<HTMLDivElement>(null);
+  const fill = useRef<HTMLDivElement>(null);
+  const marker = useRef<HTMLDivElement>(null);
+  const [explanation, setExplanation] = useState(explain(null));
   const tell = useRef(onLevel);
   tell.current = onLevel;
 
-  // the marker of the loudest moment falls back by itself, also when the
-  // level stays the same (silence)
-  const current = useRef<number | null>(level);
-  current.current = level;
+  // The meter is written straight to the screen: with thirty bees that are
+  // hundreds of small changes a second, too many to draw the page again for.
   useEffect(() => {
-    const fall = setInterval(() => {
-      setPeak((before) => {
-        const now = current.current === null ? -100 : current.current;
-        return Math.max(now, before > -100 ? before - 0.7 : -100);
-      });
-    }, 93);
-    return () => clearInterval(fall);
-  }, []);
+    // the loudest moment stays for a while and then falls back
+    let peak = -100;
+    let toldLevel: number | null | undefined;
+    let toldAt = 0;
 
-  useEffect(() => {
-    if (tell.current) tell.current(level);
-  }, [level]);
+    const show = (level: number | null) => {
+      const shown = level === null ? -100 : level;
+      if (track.current)
+        track.current.style.opacity = level === null ? "0.4" : "1";
+      if (fill.current) {
+        fill.current.style.width = `${positionOf(shown)}%`;
+        fill.current.style.background = colorOf(shown);
+      }
+      if (marker.current) {
+        marker.current.style.display = isSound(peak) ? "block" : "none";
+        marker.current.style.left = `calc(${positionOf(peak)}% - 2px)`;
+      }
+    };
 
-  // a bee that does not tell its level shows an empty meter
-  const shown = level === null ? -100 : level;
-  let explanation = "This bee does not tell its level";
-  if (level !== null)
-    explanation = isSound(level)
-      ? `Sound is coming out (${Math.round(level)} dB)`
-      : "Silent";
+    const follow = () => {
+      const level = readLiveLevel(beeId);
+      if (level !== null && level > peak) peak = level;
+      show(level);
+    };
+
+    const tick = () => {
+      const level = readLiveLevel(beeId);
+      const now = level === null ? -100 : level;
+      peak = Math.max(now, peak > -100 ? peak - 0.7 : -100);
+      show(level);
+      // the words follow more slowly than the meter
+      const time = Date.now();
+      if (level !== toldLevel && time - toldAt >= TELL_MS) {
+        toldLevel = level;
+        toldAt = time;
+        setExplanation(explain(level));
+        if (tell.current) tell.current(level);
+      }
+    };
+
+    tick();
+    const stopFollowing = onLiveLevel(beeId, follow);
+    const stopTicking = onTick(tick);
+    return () => {
+      stopFollowing();
+      stopTicking();
+    };
+  }, [beeId]);
 
   return (
     <Tooltip title={explanation}>
-      <Track height={height} style={{ opacity: level === null ? 0.4 : 1 }}>
-        <Fill
-          style={{ width: `${positionOf(shown)}%`, background: colorOf(shown) }}
-        />
-        {isSound(peak) && (
-          <Peak style={{ left: `calc(${positionOf(peak)}% - 2px)` }} />
-        )}
+      <Track ref={track} height={height} style={{ opacity: 0.4 }}>
+        <Fill ref={fill} style={{ width: "0%" }} />
+        <Peak ref={marker} style={{ display: "none" }} />
       </Track>
     </Tooltip>
   );

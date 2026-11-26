@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Box, Tab, Tooltip, Typography } from "@mui/material";
 import { Button, ButtonSize, ButtonType, ButtonUse } from "@components/Buttons";
@@ -10,11 +10,13 @@ import {
   isSound,
   WifiIndicator,
   beeActivityText,
+  chargingText,
 } from "@components/Cards/BeeIndicators";
 import { PageHeader } from "@components/PageHeader";
 import { Tabs, TabPanel } from "@components/Tabs";
 import { Z3Page } from "@components/Layout";
 import { followLiveLevels } from "@renderer/src/hooks/useLiveLevels";
+import { keepUnchanged, visibleInterval } from "@renderer/src/hooks/visible";
 import { LiveLevelBar } from "../ManageBees/LiveLevelBar";
 import {
   IMonitorBee,
@@ -27,6 +29,10 @@ const REFRESH_MS = 2000;
 
 // from this many late packets in a minute on, the sound is audibly affected
 const MANY_LATE_PACKETS = 30;
+
+// with less room than this a bee takes no new sounds (the same limit as
+// DISK_REMAINING_ON_BEE_TRESHOLD_MB in the main process)
+const LITTLE_SPACE_MB = 4000;
 
 const GREEN = "var(--green-status)";
 const ORANGE = "var(--orange-status)";
@@ -61,7 +67,7 @@ const verdictOf = (bee: IMonitorBee): Verdict => {
       title: "Problem",
       advice: bee.problem || "The sound chain of this bee has a problem.",
     };
-  if (bee.batteryLevel === "low")
+  if (bee.batteryLevel === "low" && !bee.batteryCharging)
     return {
       health: "bad",
       title: "Battery low",
@@ -83,7 +89,7 @@ const verdictOf = (bee: IMonitorBee): Verdict => {
           "Some sound arrives late over the Wi-Fi. That is normally not heard; keep an eye on it.",
       };
   }
-  if (bee.batteryLevel === "warning")
+  if (bee.batteryLevel === "warning" && !bee.batteryCharging)
     return {
       health: "attention",
       title: "Battery running low",
@@ -144,6 +150,12 @@ const two = (n: number) => String(n).padStart(2, "0");
 const clockTime = (time: number): string => {
   const d = new Date(time);
   return `${two(d.getHours())}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
+};
+
+// 1 GB = 1024 MB, as the bee counts
+const gigabytes = (mb: number): string => {
+  const gb = mb / 1024;
+  return `${gb < 10 ? gb.toFixed(1) : Math.round(gb)} GB`;
 };
 
 const eventColor = (event: IMonitorEvent): string => {
@@ -240,10 +252,9 @@ const Bars = styled.div<{ height: number }>`
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 `;
 
-const Bar = styled.div<{ height: number; color: string }>`
+// the height and colour are given as plain styles: they change all the time
+const Bar = styled.div`
   flex: 1;
-  height: ${({ height }) => height}%;
-  background: ${({ color }) => color};
 `;
 
 const EventRow = styled.div<{ color: string }>`
@@ -296,28 +307,54 @@ const BackLink = styled.button`
 /**
  * The late packets of the last half hour as small bars
  */
-const History = ({
-  history,
-  height = 22,
-}: {
-  history: number[];
-  height?: number;
-}) => {
-  const highest = Math.max(MANY_LATE_PACKETS, ...history);
-  return (
-    <Bars height={height}>
-      {history.map((amount, index) => (
-        <Bar
-          // eslint-disable-next-line react/no-array-index-key
-          key={index}
-          height={amount === 0 ? 0 : Math.max(12, (amount / highest) * 100)}
-          // a step is 30 seconds
-          color={amount * 2 >= MANY_LATE_PACKETS ? RED : ORANGE}
-        />
-      ))}
-    </Bars>
-  );
-};
+const History = React.memo(
+  ({ history, height = 22 }: { history: number[]; height?: number }) => {
+    const highest = Math.max(MANY_LATE_PACKETS, ...history);
+    return (
+      <Bars height={height}>
+        {history.map((amount, index) =>
+          // a step without late packets needs no bar, only its place
+          amount === 0 ? (
+            // eslint-disable-next-line react/no-array-index-key
+            <Bar key={index} />
+          ) : (
+            <Bar
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              style={{
+                height: `${Math.max(12, (amount / highest) * 100)}%`,
+                // a step is 30 seconds
+                background: amount * 2 >= MANY_LATE_PACKETS ? RED : ORANGE,
+              }}
+            />
+          )
+        )}
+      </Bars>
+    );
+  }
+);
+
+// an event that did not change is not drawn again
+const Event = React.memo(
+  ({ event, showBee }: { event: IMonitorEvent; showBee: boolean }) => (
+    <EventRow color={eventColor(event)}>
+      {showBee && (
+        <Typography style={{ fontWeight: 600, width: 64, flex: "none" }}>
+          {event.beeName}
+        </Typography>
+      )}
+      <Typography variant="small" style={{ flex: 1 }}>
+        {eventText(event)}
+      </Typography>
+      <Typography variant="extraSmall" style={{ opacity: 0.7 }}>
+        {clockTime(event.time)}
+      </Typography>
+    </EventRow>
+  )
+);
+
+// a long list is shown in parts: the newest events first
+const EVENTS_AT_ONCE = 100;
 
 const Events = ({
   events,
@@ -327,72 +364,75 @@ const Events = ({
   events: IMonitorEvent[];
   showBee?: boolean;
   empty: string;
-}) =>
-  events.length === 0 ? (
-    <Typography variant="small">{empty}</Typography>
-  ) : (
+}) => {
+  const [shown, setShown] = useState(EVENTS_AT_ONCE);
+  if (events.length === 0)
+    return <Typography variant="small">{empty}</Typography>;
+  return (
     <EventList>
-      {events.map((event) => (
-        <EventRow key={event.id} color={eventColor(event)}>
-          {showBee && (
-            <Typography style={{ fontWeight: 600, width: 64, flex: "none" }}>
-              {event.beeName}
-            </Typography>
-          )}
-          <Typography variant="small" style={{ flex: 1 }}>
-            {eventText(event)}
-          </Typography>
-          <Typography variant="extraSmall" style={{ opacity: 0.7 }}>
-            {clockTime(event.time)}
-          </Typography>
-        </EventRow>
+      {events.slice(0, shown).map((event) => (
+        <Event key={event.id} event={event} showBee={showBee} />
       ))}
+      {events.length > shown && (
+        <Box display="flex" justifyContent="center" mt={1}>
+          <Button
+            buttonSize={ButtonSize.Small}
+            buttonType={ButtonType.Secondary}
+            buttonUse={ButtonUse.Dark}
+            onClick={() => setShown(shown + EVENTS_AT_ONCE)}
+          >
+            Show older ({events.length - shown} more)
+          </Button>
+        </Box>
+      )}
     </EventList>
   );
+};
 
 /**
  * One bee in the overview
  */
-const BeeTile = ({
-  bee,
-  onClick,
-}: {
-  bee: IMonitorBee;
-  onClick: () => void;
-}) => {
-  const verdict = verdictOf(bee);
-  return (
-    <Tile color={healthColor(verdict.health)} onClick={onClick}>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography style={{ fontWeight: 600 }}>{bee.name}</Typography>
-        <Box display="flex" alignItems="center" gap={1.5}>
-          {bee.online && <SoundIndicator levelDb={bee.outputLevelDb} />}
-          {bee.online && (
-            <WifiIndicator
-              signalDbm={bee.wifiSignalDbm}
-              frequencyMhz={bee.wifiFrequencyMhz}
-            />
-          )}
-          {bee.online && bee.batteryPercentage !== null && (
-            <BatteryIndicator
-              battery={{
-                present: true,
-                percentage: bee.batteryPercentage,
-                level: bee.batteryLevel,
-                voltage: null,
-              }}
-            />
-          )}
+const BeeTile = React.memo(
+  ({ bee, onSelect }: { bee: IMonitorBee; onSelect: (id: number) => void }) => {
+    const verdict = verdictOf(bee);
+    return (
+      <Tile
+        color={healthColor(verdict.health)}
+        onClick={() => onSelect(bee.id)}
+      >
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Typography style={{ fontWeight: 600 }}>{bee.name}</Typography>
+          <Box display="flex" alignItems="center" gap={1.5}>
+            {bee.online && <SoundIndicator levelDb={bee.outputLevelDb} />}
+            {bee.online && (
+              <WifiIndicator
+                signalDbm={bee.wifiSignalDbm}
+                frequencyMhz={bee.wifiFrequencyMhz}
+              />
+            )}
+            {bee.online && bee.batteryPercentage !== null && (
+              <BatteryIndicator
+                battery={{
+                  present: true,
+                  percentage: bee.batteryPercentage,
+                  level: bee.batteryLevel,
+                  voltage: null,
+                  charging: bee.batteryCharging,
+                  minutesToFull: bee.batteryMinutesToFull,
+                }}
+              />
+            )}
+          </Box>
         </Box>
-      </Box>
-      <Box display="flex" alignItems="center" gap={1}>
-        <Dot color={healthColor(verdict.health)} />
-        <Typography variant="small">{verdict.title}</Typography>
-      </Box>
-      <History history={bee.history} />
-    </Tile>
-  );
-};
+        <Box display="flex" alignItems="center" gap={1}>
+          <Dot color={healthColor(verdict.health)} />
+          <Typography variant="small">{verdict.title}</Typography>
+        </Box>
+        <History history={bee.history} />
+      </Tile>
+    );
+  }
+);
 
 /**
  * The live meter of the bee whose dashboard is open
@@ -512,7 +552,9 @@ const BeeDashboard = ({
               <Typography variant="extraSmall">Battery</Typography>
               <StatValue
                 color={
-                  bee.batteryLevel === "low"
+                  bee.batteryCharging
+                    ? GREEN
+                    : bee.batteryLevel === "low"
                     ? RED
                     : bee.batteryLevel === "warning"
                     ? ORANGE
@@ -524,7 +566,9 @@ const BeeDashboard = ({
                   : "–"}
               </StatValue>
               <Typography variant="extraSmall">
-                {bee.batteryLevel === "low"
+                {bee.batteryCharging
+                  ? chargingText(bee.batteryMinutesToFull).toLowerCase()
+                  : bee.batteryLevel === "low"
                   ? "low"
                   : bee.batteryLevel === "warning"
                   ? "running low"
@@ -533,6 +577,32 @@ const BeeDashboard = ({
                   : " "}
               </Typography>
             </Stat>
+            <Tooltip title="The room that is left on the disk of the bee for sounds. With less than 4 GB free a bee takes no new sounds.">
+              <Stat>
+                <Typography variant="extraSmall">Free space</Typography>
+                <StatValue
+                  color={
+                    bee.storageFreeMb !== null &&
+                    bee.storageFreeMb <= LITTLE_SPACE_MB
+                      ? ORANGE
+                      : undefined
+                  }
+                >
+                  {bee.storageFreeMb !== null
+                    ? gigabytes(bee.storageFreeMb)
+                    : "–"}
+                </StatValue>
+                <Typography variant="extraSmall">
+                  {bee.storageFreeMb === null
+                    ? " "
+                    : bee.storageFreeMb <= LITTLE_SPACE_MB
+                    ? "almost full"
+                    : bee.storageTotalMb
+                    ? `of ${gigabytes(bee.storageTotalMb)}`
+                    : " "}
+                </Typography>
+              </Stat>
+            </Tooltip>
           </Stats>
         </Box>
       </Card>
@@ -708,8 +778,10 @@ const Network = ({
             <Bar
               // eslint-disable-next-line react/no-array-index-key
               key={index}
-              height={(kbps / highestTotal) * 100}
-              color="var(--secondary-300)"
+              style={{
+                height: `${(kbps / highestTotal) * 100}%`,
+                background: "var(--secondary-300)",
+              }}
             />
           ))}
         </Bars>
@@ -786,30 +858,67 @@ export const Monitor = () => {
 
   const refresh = useCallback(async () => {
     try {
-      setSnapshot(await window.kweenb.methods.getMonitoring());
+      const fresh = await window.kweenb.methods.getMonitoring();
+      // what did not change keeps its place in memory, so only the bees
+      // and events that changed are drawn again
+      setSnapshot((before) => {
+        if (!before) return fresh;
+        const bees = keepUnchanged(before.bees, fresh.bees);
+        const events = keepUnchanged(before.events, fresh.events);
+        return bees === before.bees &&
+          events === before.events &&
+          fresh.since === before.since
+          ? before
+          : { ...fresh, bees, events };
+      });
     } catch (e) {
       // try again at the next refresh
     }
   }, []);
 
+  // not while KweenB is out of sight
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, REFRESH_MS);
-    return () => clearInterval(interval);
+    return visibleInterval(refresh, REFRESH_MS);
   }, [refresh]);
 
   // the bees that are online come first, each group in order of number
-  const bees = snapshot
-    ? [...snapshot.bees].sort(
-        (a, b) => Number(b.online) - Number(a.online) || a.id - b.id
-      )
-    : [];
+  const bees = useMemo(
+    () =>
+      snapshot
+        ? [...snapshot.bees].sort(
+            (a, b) => Number(b.online) - Number(a.online) || a.id - b.id
+          )
+        : [],
+    [snapshot?.bees]
+  );
   const events = snapshot ? snapshot.events : [];
   const selectedBee = bees.find((bee) => bee.id === selectedBeeId) || null;
 
-  const count = (health: Health) =>
-    bees.filter((bee) => verdictOf(bee).health === health).length;
-  const shownEvents = onlyTrouble ? events.filter(isTrouble) : events;
+  const counts = useMemo(() => {
+    const amounts: Record<Health, number> = {
+      good: 0,
+      attention: 0,
+      bad: 0,
+      resting: 0,
+    };
+    bees.forEach((bee) => {
+      amounts[verdictOf(bee).health] += 1;
+    });
+    return amounts;
+  }, [bees]);
+  const count = (health: Health) => counts[health];
+  const shownEvents = useMemo(
+    () => (onlyTrouble ? events.filter(isTrouble) : events),
+    [onlyTrouble, events]
+  );
+  const selectedBeeEvents = useMemo(
+    () =>
+      selectedBeeId === null
+        ? []
+        : events.filter((event) => event.beeId === selectedBeeId),
+    [events, selectedBeeId]
+  );
 
   return (
     <Z3Page
@@ -859,7 +968,7 @@ export const Monitor = () => {
         {selectedBee ? (
           <BeeDashboard
             bee={selectedBee}
-            events={events.filter((event) => event.beeId === selectedBee.id)}
+            events={selectedBeeEvents}
             onBack={() => setSelectedBeeId(null)}
           />
         ) : (
@@ -888,7 +997,7 @@ export const Monitor = () => {
                     <BeeTile
                       key={bee.id}
                       bee={bee}
-                      onClick={() => setSelectedBeeId(bee.id)}
+                      onSelect={setSelectedBeeId}
                     />
                   ))}
                 </Tiles>

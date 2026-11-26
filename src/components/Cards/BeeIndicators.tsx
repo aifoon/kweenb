@@ -111,6 +111,41 @@ const BatteryFill = styled.div<{ color: string; percentage: number }>`
   background-color: ${({ color }) => color};
 `;
 
+/**
+ * About how long something still takes, in words
+ */
+export const aboutMinutes = (minutes: number): string => {
+  if (minutes < 60) return `about ${Math.max(5, minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `about ${hours} h` : `about ${hours} h ${rest} min`;
+};
+
+/**
+ * What a charging battery tells: "Charging, about 40 min to go"
+ */
+export const chargingText = (
+  minutesToFull: number | null | undefined
+): string => {
+  if (minutesToFull === null || minutesToFull === undefined) return "Charging";
+  return minutesToFull <= 0
+    ? "Charging, almost full"
+    : `Charging, ${aboutMinutes(minutesToFull)} to go`;
+};
+
+// the lightning bolt of a battery that is charging
+const ChargingBolt = ({ color }: { color: string }) => (
+  <svg
+    width="8"
+    height="12"
+    viewBox="0 0 8 12"
+    aria-hidden="true"
+    style={{ flex: "none" }}
+  >
+    <path d="M5 0 L0 7 H3.2 L2.4 12 L8 4.6 H4.6 Z" fill={color} />
+  </svg>
+);
+
 interface BatteryIndicatorProps {
   battery?: IBeeMonitoring["battery"];
   // show "Battery 85%" instead of "85%"
@@ -124,25 +159,29 @@ export const BatteryIndicator = ({
   // a bee without a battery sensor shows nothing
   if (!battery || !battery.present) return null;
 
-  const color = batteryColor(battery.level);
+  const charging = Boolean(battery.charging);
+  // a battery on its charger is on its way up: no warning colour
+  const color = charging ? "var(--green-status)" : batteryColor(battery.level);
   const known = battery.percentage !== null;
   const text = known
     ? `${battery.percentage}%`
     : battery.voltage !== null
     ? `${battery.voltage.toFixed(1)} V`
     : "?";
-  const explanation =
-    battery.level === "low"
-      ? "Battery is low"
-      : battery.level === "warning"
-      ? "Battery is running low"
-      : known
-      ? "Battery is fine"
-      : "Battery level is not known yet";
+  const explanation = charging
+    ? chargingText(battery.minutesToFull)
+    : battery.level === "low"
+    ? "Battery is low"
+    : battery.level === "warning"
+    ? "Battery is running low"
+    : known
+    ? "Battery is fine"
+    : "Battery level is not known yet";
 
   return (
     <Tooltip title={explanation}>
       <Box display="flex" alignItems="center" gap={0.75}>
+        {charging && <ChargingBolt color={color} />}
         <BatteryShell color={color}>
           <BatteryFill color={color} percentage={battery.percentage ?? 100} />
         </BatteryShell>

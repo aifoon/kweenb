@@ -61,7 +61,7 @@ export const Z3Navigation = () => {
    */
   useEffect(() => {
     updateCurrentLatency();
-  });
+  }, [appMode, updateCurrentLatency]);
 
   /**
    * Init the buttons array (for Hub or P2P)

@@ -3,6 +3,7 @@ import { BeeActiveState } from "@shared/enums";
 import {
   AUDIO_FILES_ROOT_DIRECTORY,
   AUDIOSCENES_POLLING_SECONDS,
+  AUDIOSCENES_SAFETY_SECONDS,
   AUDIOSCENES_REMOVING_SECONDS,
   BEE_CONSIDERED_OFFLINE_SECONDS,
 } from "../../consts";
@@ -38,6 +39,11 @@ class BeeStatesWorker {
   private _pauseUpdateAudioScenes: boolean;
   private _removingAudioScenesInterval: NodeJS.Timeout;
   private _isUpdatingAudioScenes = false;
+  private _uploadingAudio = false;
+  // what a bee last told about its sounds (how many, and the room left)
+  private _soundsTold = new Map<number, string>();
+  // what a bee told when its sounds were last asked, and when that was
+  private _soundsAsked = new Map<number, { told: string; time: number }>();
 
   constructor() {
     this._beeStates = new BeeStates();
@@ -63,7 +69,19 @@ class BeeStatesWorker {
    * Pause the update of audio scenes
    */
   public set pauseUpdateAudioScenes(value: boolean) {
+    // after a pause every bee is asked again: its sounds may have changed
+    if (!value && this._pauseUpdateAudioScenes) this._soundsAsked.clear();
     this._pauseUpdateAudioScenes = value;
+  }
+
+  /**
+   * An upload is going on: the sounds of the bees are not asked meanwhile,
+   * whether the Audio page is open or not
+   */
+  public set uploadingAudio(value: boolean) {
+    // after the upload every bee is asked again
+    if (!value) this._soundsAsked.clear();
+    this._uploadingAudio = value;
   }
 
   /**
@@ -297,6 +315,12 @@ class BeeStatesWorker {
             // look the bee up again: it could be changed or removed meanwhile
             const currentBee = this._beeStates.bees.find((b) => b.id === beeId);
             if (currentBee) {
+              this._soundsTold.set(
+                beeId,
+                status.storage
+                  ? `${status.storage.scenes}/${status.storage.freeMb}`
+                  : ""
+              );
               this._beeStates.updateFromStatus(currentBee, status);
               const beeState = this._beeStates.getBeeState(currentBee);
               if (beeState)
@@ -309,6 +333,7 @@ class BeeStatesWorker {
                   wifiSignalDbm: beeState.wifiSignalDbm,
                   wifiFrequencyMhz: beeState.wifiFrequencyMhz,
                   outputLevelDb: beeState.outputLevelDb,
+                  storage: beeState.storage,
                   network: status.network,
                 });
             }
@@ -336,7 +361,7 @@ class BeeStatesWorker {
    */
   private async updateAudioScenes() {
     // if paused, skip
-    if (this._pauseUpdateAudioScenes) return;
+    if (this._pauseUpdateAudioScenes || this._uploadingAudio) return;
 
     // the previous round is still busy
     if (this._isUpdatingAudioScenes) return;
@@ -348,14 +373,31 @@ class BeeStatesWorker {
         .getBeesWithOnlineState()
         .map((beeState) => beeState.bee);
 
+      // A bee is only asked when it tells something else about its sounds
+      // than the last time (another number, or another amount of room left),
+      // and once in a while to be sure. Every question is a packet on the
+      // Wi-Fi that also carries the sound.
+      const now = Date.now();
+      const beesToAsk = onlineBees.filter((bee: IBee) => {
+        const told = this._soundsTold.get(bee.id) ?? "";
+        const asked = this._soundsAsked.get(bee.id);
+        return (
+          !asked ||
+          told === "" ||
+          asked.told !== told ||
+          now - asked.time >= AUDIOSCENES_SAFETY_SECONDS * 1000
+        );
+      });
+
       // Process scenes for each bee in parallel
-      const syncPromises = onlineBees.map(async (bee: IBee) => {
+      const syncPromises = beesToAsk.map(async (bee: IBee) => {
         try {
           // ask the bee for its scenes
+          const told = this._soundsTold.get(bee.id) ?? "";
           const scenes = await SpeakerApi.getScenes(bee.ipAddress);
 
           // paused while we were waiting (an upload or delete started)
-          if (this._pauseUpdateAudioScenes) return;
+          if (this._pauseUpdateAudioScenes || this._uploadingAudio) return;
 
           // create the records for the database
           const audioScenesForDatabase: Omit<AudioSceneDbRecord, "id">[] =
@@ -371,6 +413,7 @@ class BeeStatesWorker {
 
           // sync the audio scenes with the database
           await this.syncAudioScenes(audioScenesForDatabase, bee.id);
+          this._soundsAsked.set(bee.id, { told, time: now });
         } catch (error) {
           // one bee that does not answer does not stop the others
           console.error(`Error updating audio scenes of bee ${bee.id}:`, error);

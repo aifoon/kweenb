@@ -34,6 +34,9 @@ export const BEE_CONSIDERED_OFFLINE_SECONDS = 6;
 // the interval we use to poll the audio scenes (check each x seconds)
 export const AUDIOSCENES_POLLING_SECONDS = 5;
 
+// a bee that tells nothing new about its sounds is still asked this often
+export const AUDIOSCENES_SAFETY_SECONDS = 60;
+
 // the interval we use to remove flagged audio scenes (check each x seconds)
 // this is the interval, almost the same as the timing needed for indexing
 // The timing on the pi is 5 minutes, so we need to wait for 5 minutes

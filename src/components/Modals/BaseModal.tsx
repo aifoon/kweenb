@@ -43,6 +43,10 @@ const ModalContentContainer = styled.div<{ width: string; height: string }>`
   position: relative;
   width: ${(props) => props.width};
   height: ${(props) => props.height};
+  /* never taller than the window: what does not fit can be scrolled, so the
+     buttons at the bottom stay within reach */
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   background-color: var(--primary-200);
   border-radius: var(--radiusMedium);
   padding: var(--modalPadding);

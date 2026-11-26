@@ -41,10 +41,17 @@ export interface MonitorStatus {
     // how long the stream runs, when the bee tells
     runningSeconds?: number;
   };
-  battery: { percentage: number | null; level: BeeBatteryLevel | null };
+  battery: {
+    percentage: number | null;
+    level: BeeBatteryLevel | null;
+    charging?: boolean;
+    minutesToFull?: number | null;
+  };
   wifiSignalDbm: number | null;
   wifiFrequencyMhz?: number | null;
   outputLevelDb?: number | null;
+  // the room on the disk of the bee where its sounds are kept
+  storage?: { freeMb: number; totalMb: number } | null;
   // what went over the Wi-Fi of the bee since it started
   network?: {
     receivedBytes: number;
@@ -330,7 +337,8 @@ class SwarmMonitor {
 
     // the battery got into another zone
     const levelBefore = before ? before.battery.level : null;
-    if (battery.level && battery.level !== levelBefore) {
+    // (a battery on its charger is on its way up: no warning)
+    if (battery.level && battery.level !== levelBefore && !battery.charging) {
       const percentage =
         battery.percentage === null ? "" : ` (${battery.percentage}%)`;
       if (battery.level === "low")
@@ -342,10 +350,16 @@ class SwarmMonitor {
     // a copy: the caller keeps changing what it handed in
     bee.last = {
       stream: { ...stream },
-      battery: { percentage: battery.percentage, level: battery.level },
+      battery: {
+        percentage: battery.percentage,
+        level: battery.level,
+        charging: Boolean(battery.charging),
+        minutesToFull: battery.minutesToFull ?? null,
+      },
       wifiSignalDbm: status.wifiSignalDbm,
       wifiFrequencyMhz: status.wifiFrequencyMhz ?? null,
       outputLevelDb: status.outputLevelDb ?? null,
+      storage: status.storage ? { ...status.storage } : null,
     };
   }
 
@@ -460,6 +474,12 @@ class SwarmMonitor {
           outputLevelDb: last ? last.outputLevelDb ?? null : null,
           batteryPercentage: last ? last.battery.percentage : null,
           batteryLevel: last ? last.battery.level : null,
+          batteryCharging: last ? Boolean(last.battery.charging) : false,
+          batteryMinutesToFull: last
+            ? last.battery.minutesToFull ?? null
+            : null,
+          storageFreeMb: last?.storage ? last.storage.freeMb : null,
+          storageTotalMb: last?.storage ? last.storage.totalMb : null,
         };
       });
     return { since: this.startedAt, now, bees, events: this.events };

@@ -229,6 +229,8 @@ class BeeStates {
       percentage: status.battery?.percentage ?? null,
       level: status.battery?.level ?? null,
       voltage: status.battery?.voltage ?? null,
+      charging: Boolean(status.battery?.charging),
+      minutesToFull: status.battery?.minutesToFull ?? null,
     };
     beeState.wifiSignalDbm = status.wifiSignalDbm ?? null;
     beeState.wifiFrequencyMhz = status.wifiFrequencyMhz ?? null;

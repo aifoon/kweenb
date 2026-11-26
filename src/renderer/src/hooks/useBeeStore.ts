@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { IBee } from "@shared/interfaces";
 import { pollingInterval } from "../consts";
+import { keepUnchanged, visibleInterval } from "./visible";
 
 type BeeStoreState = {
   initializing: boolean;
@@ -19,127 +20,126 @@ type BeeStoreAction = {
   stopPolling: () => void;
 };
 
-export const useBeeStore = create<BeeStoreState & BeeStoreAction>((set) => {
-  let beesPoller: number;
-  return {
-    activeBees: [],
-    bees: [],
-    createBee: async (bee) => {
-      // create bee
-      const createdBee = await window.kweenb.methods.createBee(bee);
+export const useBeeStore = create<BeeStoreState & BeeStoreAction>(
+  (set, get) => {
+    let stopPoller: (() => void) | null = null;
 
-      // update the store
-      set((state) => {
-        return {
-          ...state,
-          bees: [...state.bees, createdBee].sort((a, b) => a.id - b.id),
-          activeBees: [...state.activeBees, createdBee].sort(
-            (a, b) => a.id - b.id
-          ),
-        };
+    // fetch all bees and update the store, when there is something new
+    const updateBeesState = async () => {
+      const fetched = await window.kweenb.methods.fetchAllBees();
+      const before = get().bees;
+      const bees = keepUnchanged(before, fetched);
+      if (bees === before) return;
+      set({
+        bees,
+        activeBees: bees.filter((bee) => bee.isActive),
+        inActiveBees: bees.filter((bee) => !bee.isActive),
       });
-    },
-    deleteBee: async (id) => {
-      // delete bee
-      await window.kweenb.methods.deleteBee(id);
+    };
 
-      // update the store
-      set((state) => {
-        return {
-          ...state,
-          bees: state.bees.filter((bee) => bee.id !== id),
-          activeBees: state.activeBees.filter((bee) => bee.id !== id),
-          inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
-        };
-      });
-    },
-    inActiveBees: [],
-    initializeBees: async () => {
-      // initialize the bees
-      set({ initializing: true });
+    return {
+      activeBees: [],
+      bees: [],
+      createBee: async (bee) => {
+        // create bee
+        const createdBee = await window.kweenb.methods.createBee(bee);
 
-      // a function that fetches all bees and updates the store
-      const updateBeesState = async () => {
-        const allBees = await window.kweenb.methods.fetchAllBees();
-        set({
-          bees: allBees,
-          activeBees: allBees.filter((bee) => bee.isActive),
-          inActiveBees: allBees.filter((bee) => !bee.isActive),
+        // update the store
+        set((state) => {
+          return {
+            ...state,
+            bees: [...state.bees, createdBee].sort((a, b) => a.id - b.id),
+            activeBees: [...state.activeBees, createdBee].sort(
+              (a, b) => a.id - b.id
+            ),
+          };
         });
-      };
+      },
+      deleteBee: async (id) => {
+        // delete bee
+        await window.kweenb.methods.deleteBee(id);
 
-      // init the first fetch immediately
-      updateBeesState().then(() => set({ initializing: false }));
-    },
-    initializing: true,
-    setActive: async (id) => {
-      // set bee active
-      await window.kweenb.actions.setBeeActive(id, true);
-
-      // update the store
-      set((state) => {
-        // find the bee
-        const bee = state.bees.find((bee) => bee.id === id);
-        if (!bee) return state;
-
-        // set active
-        bee.isActive = true;
-
-        // return the updated state
-        return {
-          ...state,
-          bees: [...state.bees, bee].sort((a, b) => a.id - b.id),
-          activeBees: [...state.activeBees, bee].sort((a, b) => a.id - b.id),
-          inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
-        };
-      });
-    },
-    setInActive: async (id) => {
-      // set bee inactive
-      await window.kweenb.actions.setBeeActive(id, false);
-
-      // update the store
-      set((state) => {
-        // find the bee
-        const bee = state.bees.find((bee) => bee.id === id);
-        if (!bee) return state;
-
-        // set inactive
-        bee.isActive = false;
-
-        // return the updated state
-        return {
-          ...state,
-          bees: [...state.bees, bee].sort((a, b) => a.id - b.id),
-          activeBees: state.activeBees.filter((bee) => bee.id !== id),
-          inActiveBees: [...state.inActiveBees, bee].sort(
-            (a, b) => a.id - b.id
-          ),
-        };
-      });
-    },
-    startPolling: () => {
-      // a function that fetches all bees and updates the store
-      const updateBeesState = async () => {
-        const allBees = await window.kweenb.methods.fetchAllBees();
-        set({
-          bees: allBees,
-          activeBees: allBees.filter((bee) => bee.isActive),
-          inActiveBees: allBees.filter((bee) => !bee.isActive),
+        // update the store
+        set((state) => {
+          return {
+            ...state,
+            bees: state.bees.filter((bee) => bee.id !== id),
+            activeBees: state.activeBees.filter((bee) => bee.id !== id),
+            inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
+          };
         });
-      };
+      },
+      inActiveBees: [],
+      initializeBees: async () => {
+        // initialize the bees
+        set({ initializing: true });
 
-      // initialize the bees
-      useBeeStore
-        .getState()
-        .initializeBees()
-        .then(() => {
-          // start the polling
-          beesPoller = window.setInterval(updateBeesState, pollingInterval);
+        // init the first fetch immediately
+        updateBeesState().then(() => set({ initializing: false }));
+      },
+      initializing: true,
+      setActive: async (id) => {
+        // set bee active
+        await window.kweenb.actions.setBeeActive(id, true);
+
+        // update the store
+        set((state) => {
+          // find the bee
+          const found = state.bees.find((bee) => bee.id === id);
+          if (!found) return state;
+
+          // set active (a new object: the screens that show this bee follow)
+          const bee = { ...found, isActive: true };
+
+          // return the updated state
+          return {
+            ...state,
+            bees: state.bees.map((b) => (b.id === id ? bee : b)),
+            activeBees: [...state.activeBees, bee].sort((a, b) => a.id - b.id),
+            inActiveBees: state.inActiveBees.filter((bee) => bee.id !== id),
+          };
         });
-    },
-    stopPolling: () => {
-      clearInterval(beesPoller);
-    },
-  };
-});
+      },
+      setInActive: async (id) => {
+        // set bee inactive
+        await window.kweenb.actions.setBeeActive(id, false);
+
+        // update the store
+        set((state) => {
+          // find the bee
+          const found = state.bees.find((bee) => bee.id === id);
+          if (!found) return state;
+
+          // set inactive (a new object: the screens that show this bee follow)
+          const bee = { ...found, isActive: false };
+
+          // return the updated state
+          return {
+            ...state,
+            bees: state.bees.map((b) => (b.id === id ? bee : b)),
+            activeBees: state.activeBees.filter((bee) => bee.id !== id),
+            inActiveBees: [...state.inActiveBees, bee].sort(
+              (a, b) => a.id - b.id
+            ),
+          };
+        });
+      },
+      startPolling: () => {
+        // initialize the bees
+        useBeeStore
+          .getState()
+          .initializeBees()
+          .then(() => {
+            // start the polling
+            // (not while KweenB is out of sight)
+            if (stopPoller) stopPoller();
+            stopPoller = visibleInterval(updateBeesState, pollingInterval);
+          });
+      },
+      stopPolling: () => {
+        if (stopPoller) stopPoller();
+        stopPoller = null;
+      },
+    };
+  }
+);
