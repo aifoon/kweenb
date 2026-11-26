@@ -315,6 +315,10 @@ Add a <Suspense fallback=...> component higher in the tree to provide a loading 
   position: relative;
   width: ${e=>e.width};
   height: ${e=>e.height};
+  /* never taller than the window: what does not fit can be scrolled, so the
+     buttons at the bottom stay within reach */
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   background-color: var(--primary-200);
   border-radius: var(--radiusMedium);
   padding: var(--modalPadding);
@@ -456,4 +460,4 @@ Add a <Suspense fallback=...> component higher in the tree to provide a loading 
   color: #1b1b1b;
   background-color: var(--orange-status, #f08c1e);
 `;function tI(){const{connect:e}=dr(),t=Xa(o=>o.connected),[n,r]=v.useState(!1);return v.useEffect(()=>{e()},[]),v.useEffect(()=>{if(t){r(!1);return}const o=setTimeout(()=>r(!0),JA);return()=>clearTimeout(o)},[t]),n?S.jsx(eI,{role:"status",children:"Not connected to KweenB. Trying again… Buttons do nothing until the connection is back."}):null}function nI(){return S.jsx(VS,{children:S.jsxs(nR,{theme:rR,children:[S.jsx(AO,{}),S.jsx(ge,{margin:"var(--navigationHeight) 0 0 0",children:S.jsx(ZA,{children:S.jsxs(S.Fragment,{children:[S.jsx(tI,{}),S.jsx(EO,{sidebar:!1,children:S.jsxs(KS,{children:[S.jsx(Vc,{path:"/",element:S.jsx(LA,{})}),S.jsx(Vc,{path:"/scene-trigger",element:S.jsx(QA,{})})]})})]})})})]})})}di.render(S.jsx(nI,{}),document.getElementById("root"));
-//# sourceMappingURL=index-B8s_djZb.js.map
+//# sourceMappingURL=index-1Wn1ejoV.js.map
